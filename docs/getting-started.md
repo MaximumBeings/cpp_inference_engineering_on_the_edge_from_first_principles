@@ -23,12 +23,14 @@ cd mdspan && git checkout 8989f70749e28f337e6f7aa210db88659dba6f2f
 Compile any file that includes `<mdspan/mdspan.hpp>` with:
 
 ```bash
-g++ -std=c++20 -Wall -Wextra -O2 \
+g++ -std=c++23 -Wall -Wextra -O2 \
     -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_IMPL_PROPOSED_NAMESPACE=experimental \
     -I/path/to/mdspan/include file.cpp -o binary
 ```
 
 The two `-D` flags tell the reference implementation to define its types directly in namespace `std` (its default is the non-conflicting `Kokkos` namespace, for codebases that need both an experimental and a future standard version side by side). With them, `std::mdspan`, `std::extents`, and `std::submdspan` in this book's own code are exactly the standard-track API, backed by an implementation that runs correctly today rather than a stub.
+
+This book standardizes on `-std=c++23`, not `-std=c++20`, for every file that touches `std::mdspan` — verified directly rather than assumed. The reference implementation's templates compile fine under `-std=c++20`, but this book's own code leans on `matrix[i, j]`-style multi-argument `operator[]` throughout, and that specific syntax is a C++23 core-language feature (multi-dimensional subscript operators, P2128), not a library feature the reference implementation can backport on its own. Under `-std=c++20` a call like `matrix[1, 2]` still compiles — as a deprecated comma expression that silently discards the `1` and indexes with `2` alone — and then fails with a template error, not a clean rejection, the first time it hits a call whose rank actually requires two indices. `-std=c++23` is what makes `matrix[i, j]` mean what every example in this book needs it to mean.
 
 ## SIMD: two real, genuinely-executed paths
 
@@ -72,7 +74,7 @@ Every chapter states which of the above applies to each piece of its own code, s
 ## Compile-line conventions
 
 - Plain C++ host files (`.cpp`): `g++ -std=c++23 -Wall -Wextra -O2 file.cpp -o binary`
-- Files using `std::mdspan`: add the two `-D` flags and the `-I` path shown above, and compile with `-std=c++20` (the reference implementation does not require C++23).
+- Files using `std::mdspan`: add the two `-D` flags and the `-I` path shown above, and compile with `-std=c++23` — this book's `matrix[i, j]` multi-argument indexing is a C++23 core-language feature, not merely a library one, so `-std=c++20` will not reject it cleanly; it will instead misparse it as a deprecated comma expression.
 - x86 SIMD files: add `-mavx2 -mfma` (or the specific instruction-set flag a section calls for).
 - Arm NEON files: cross-compiled with `aarch64-linux-gnu-g++`, run with `qemu-aarch64 -L /usr/aarch64-linux-gnu`.
 - CUDA files (Part 6): `nvcc -arch=sm_80 file.cu -o binary`, with `-lcudart` and toolchain include/library paths shown inline wherever a file calls the CUDA Runtime API from the host.

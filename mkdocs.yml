@@ -58,6 +58,8 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - "Part 0 -- Foundations":
+      - "2. The Tensor Engine: std::mdspan, Arena Allocators, and Mixed Precision": part0/02-the-tensor-engine.md
 
 extra:
   social: []
