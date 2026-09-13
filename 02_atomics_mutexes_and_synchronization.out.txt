@@ -1,0 +1,34 @@
+========================================================
+Chapter 10.2: Atomics, Mutexes, and Why Synchronization Is Not Optional
+========================================================
+
+-- Test 1: std::atomic fetch_add across 4 real threads --
+  4 threads x 250000 atomic increments each: final count = 1000000
+  Expected total: 1000000
+
+-- Test 2: std::mutex-protected plain counter across 4 real threads --
+  4 threads x 250000 mutex-protected increments each: final count = 1000000
+  Expected total: 1000000
+
+-- Test 3 [COMMON TRAP]: std::mutex is not recursive --
+  Thread already holds the lock; try_lock() again on the SAME thread: returned false
+  Same situation with std::recursive_mutex instead: try_lock() again: succeeded
+  A blocking lock() in place of this try_lock() would not fail -- it would hang
+  forever, since a plain std::mutex has no notion of "the thread that already
+  owns me is allowed back in". A function that locks a mutex and then calls
+  another function that locks the SAME mutex, on the SAME thread, deadlocks
+  exactly this way -- silently, unless something upstream happens to use
+  try_lock() and check its return value, the way this test just did.
+
+-- On racy_increment_worker(), defined above but never called here --
+  That function increments a plain long long with `++counter` from multiple
+  real threads and no synchronization at all -- a genuine data race, and
+  therefore undefined behavior in the C++ memory model, not merely "probably
+  fine". Its outcome is explicitly not guaranteed to match between two runs of
+  the same binary, which is exactly why this file does not call it: this book's
+  own build-verify-lock discipline requires every locked file's output to be
+  identical on rerun, and a real race's result is, by definition, not.
+
+========================================================
+4/4 checks passed  ALL PASS
+========================================================

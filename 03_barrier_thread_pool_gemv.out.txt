@@ -1,0 +1,23 @@
+========================================================
+Chapter 10.3: A Barrier-Synchronized Thread Pool for a Partitioned GEMV
+========================================================
+
+-- Test 1: correct partition covers [0, 70) exactly once --
+  thread range: [0, 18) -- 18 rows
+  thread range: [18, 36) -- 18 rows
+  thread range: [36, 54) -- 18 rows
+  thread range: [54, 70) -- 16 rows
+  total rows covered: 70 (expected 70)
+
+-- Test 2: pool-computed GEMV vs. serial reference, using the correct partition --
+  70 output rows across 4 persistent worker threads: bit-for-bit match
+  second round through the SAME still-alive pool: bit-for-bit match
+
+-- Test 3 [COMMON TRAP]: the naive truncating-division partition drops rows --
+  naive chunk size = 70 / 4 = 17 (integer division), covering rows [0, 68) only
+  2 row(s) -- indices [68, 70) -- assigned to NO thread at all
+  after running the pool with this partition, 2 output row(s) are still at the sentinel value -999 -- never written by any thread.
+
+========================================================
+9/9 checks passed  ALL PASS
+========================================================

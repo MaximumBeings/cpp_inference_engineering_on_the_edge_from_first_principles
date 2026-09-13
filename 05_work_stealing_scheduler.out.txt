@@ -1,0 +1,36 @@
+========================================================
+Chapter 10.5: Work Stealing -- Verifying Correctness Under a Nondeterministic Schedule
+========================================================
+
+-- Test 1: every one of 2000 tasks claimed exactly once --
+  claimed exactly once: 2000 / 2000
+  claimed zero times (dropped): 0
+  claimed more than once (duplicated): 0
+
+-- Test 2: aggregate total matches the closed-form sum exactly --
+  sum(0..1999) closed form: 1999000
+  scheduler's actual aggregate total:      1999000
+
+-- On which thread did what: deliberately not measured --
+  This scheduler starts every task on thread 0 and requires threads 1..3 to
+  steal in order to do any work at all, so stealing is genuinely exercised on
+  every run -- but exactly how many tasks each thread ends up with is a
+  real-scheduling outcome that varies run to run, which is exactly why this
+  file locks only the two facts that do NOT vary: every task claimed exactly
+  once, and the aggregate total exactly correct.
+
+-- [COMMON TRAP] testing the schedule instead of the invariant --
+  A tempting but WRONG assertion would read something like:
+    CHECK(which_thread_processed[5] == 2);   // WRONG: asserts a specific schedule
+  This scheduler makes no such promise, and never could -- thread 0 might finish
+  task 5 itself before any other thread gets a chance to steal it, or thread 3
+  might steal it on the very first attempt; both are correct outcomes. A test
+  written against a SPECIFIC schedule is not testing this scheduler at all --
+  it is testing one incidental behavior of one particular run, on one particular
+  machine, under one particular scheduling decision the standard never promised.
+  Tests 1 and 2 above check the only two things a work-stealing scheduler's
+  CONTRACT actually promises: full coverage, exactly once, and a correct result.
+
+========================================================
+5/5 checks passed  ALL PASS
+========================================================

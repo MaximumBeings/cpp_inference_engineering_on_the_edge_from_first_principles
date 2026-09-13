@@ -1,0 +1,41 @@
+========================================================
+Chapter 10.4: False Sharing -- a Memory-Layout Hazard, Not a Race
+========================================================
+
+-- Test 1: naive layout -- do adjacent counters share a cache line? --
+  &naive.count[0] is at byte offset 0 -> cache-line offset 0 from the start of naive
+  &naive.count[1] is at byte offset 8 -> cache-line offset 0 from the start of naive
+  &naive.count[2] is at byte offset 16 -> cache-line offset 0 from the start of naive
+  &naive.count[3] is at byte offset 24 -> cache-line offset 0 from the start of naive
+  distinct cache lines spanned by 4 counters: 1
+
+-- Test 2: padded layout -- does every counter get its own cache line? --
+  &padded.slot[0].count is at byte offset 0 -> cache-line offset 0 from the start of padded
+  &padded.slot[1].count is at byte offset 64 -> cache-line offset 1 from the start of padded
+  &padded.slot[2].count is at byte offset 128 -> cache-line offset 2 from the start of padded
+  &padded.slot[3].count is at byte offset 192 -> cache-line offset 3 from the start of padded
+  every counter in its own cache line: yes
+
+-- Test 3: both layouts remain fully correct under real concurrent writes --
+  naive layout, all 4 counters reached 200000: yes
+  padded layout, all 4 counters reached 200000: yes
+  Both layouts are equally CORRECT -- false sharing is a cache-coherence-traffic
+  cost, not a wrong answer, which is exactly why this book will not attach a
+  fabricated wall-clock number to it: the only honestly verifiable claim here is
+  the structural one Tests 1 and 2 already made about WHERE these bytes live.
+
+-- Test 4 [COMMON TRAP]: "no shared variable" does not mean "no shared cache line" --
+  naive.count[0] and naive.count[1] are two completely separate long longs --
+  no thread ever reads or writes the other thread's element, so there is no data
+  race by any definition. Test 1 measured their addresses anyway and found them
+  in the same 64-byte cache line: cache coherence operates on
+  whole lines, so a write to naive.count[0] forces every OTHER core's cached copy
+  of the SAME line -- which also holds naive.count[1], [2], and [3] -- to be
+  invalidated, even though those three values never changed.
+  Padding each counter out to a full cache line, as PaddedCounter does, is not an
+  arbitrary style choice -- it is the specific fix for a hazard that no amount of
+  reading the surrounding source code would reveal without checking addresses.
+
+========================================================
+7/7 checks passed  ALL PASS
+========================================================
