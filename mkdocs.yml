@@ -63,6 +63,7 @@ nav:
       - "3. The Computational Graph: RMSNorm, SwiGLU, RoPE, and Attention": part0/03-the-computational-graph.md
   - "Part 1 -- Shrinking the Model: Quantization for Constrained Memory":
       - "4. Quantization Strategies: Affine Math, Symmetric vs. Asymmetric, Blockwise Scales": part1/04-quantization-strategies.md
+      - "5. Model File Formats: GGUF, SafeTensors, and Memory-Mapped Loading": part1/05-model-file-formats.md
 
 extra:
   social: []
