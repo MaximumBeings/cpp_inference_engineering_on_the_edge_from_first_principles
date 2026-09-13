@@ -1,0 +1,33 @@
+========================================================
+TurboQuant 7.1: Random Rotation and the Beta Distribution
+========================================================
+
+-- Test 1: Orthogonality of the constructed rotation --
+  Diagonal of Q^T Q in [1, 1] (want ~1.0)
+  Max off-diagonal of Q^T Q: 4e-06 (want ~0.0)
+
+-- Test 2: Norm preservation and exact round-trip --
+  ||x|| = 8.33056, ||Pi x|| = 8.33056
+  Max |x - Pi^T Pi x| = 5e-06
+
+-- Test 3: Worst-case vector before and after rotation --
+  Before: max|x[j]| = 1 (all energy in one coordinate)
+  After:  max|y[j]| = 0.3096
+  Expected scale ~ 1/sqrt(d) = 0.1250
+
+-- Test 4: Empirical variance of a rotated coordinate matches 1/d --
+  Empirical mean of y[0]:      1.551e-04
+  Empirical variance of y[0]:  0.007991
+  Theoretical variance (1/d):  0.007812
+  Observed max |y[0]| over 20000 trials: 0.347782
+  Rotated coordinate distribution matches the Beta-distribution prediction
+
+-- Test 5 [COMMON TRAP]: raw Gaussian matrix breaks round-trip --
+  Raw Gaussian 'rotate then rotate back' max error: 1.2938e+02
+  Properly orthogonalised round-trip max error:     6e-06
+  The raw Gaussian matrix is NOT its own transpose-inverse -- G^T G != I.
+  Every downstream dequantization would silently reconstruct the wrong vector.
+
+========================================================
+11/11 checks passed  ALL PASS
+========================================================

@@ -1,0 +1,41 @@
+========================================================
+TurboQuant 7.4: Compressing the KV Cache
+========================================================
+
+-- Test 1: Attention with a TurboQuant-compressed KV cache --
+   (head_dim=32, seq_len=24, bits=3)
+  Max attention-weight difference: 1.8410e-03
+  Output vector MSE:                2.1416e-04
+  Cache bytes/vector: 16  vs FP32: 128 bytes (8.0x compression)
+
+-- Test 2: Per-vector error stays flat as the cache grows (bits=3) --
+  Tokens 0-31: per-element MSE = 2.806e-03
+  Tokens 32-63: per-element MSE = 2.826e-03
+  Tokens 64-95: per-element MSE = 2.643e-03
+  Tokens 96-127: per-element MSE = 2.698e-03
+  Relative drift from first chunk to last: 3.8%
+
+-- Test 3: KV cache memory footprint, FP16 vs TurboQuant 3-bit --
+  8B-class model,  4K context:
+    FP16:            512 MB
+    TurboQuant 3-bit: 104 MB  (4.9x compression)
+  8B-class model,  128K context:
+    FP16:            16384 MB
+    TurboQuant 3-bit: 3328 MB  (4.9x compression)
+  70B-class model, 32K context:
+    FP16:            10240 MB
+    TurboQuant 3-bit: 2080 MB  (4.9x compression)
+  (Compression factors above are computed directly from these byte counts.
+   Retrieval-quality claims at this bit-width come from the TurboQuant paper's
+   own evaluation, not from this toy simulation, and are cited as such.)
+
+-- Test 4 [COMMON TRAP]: one shared norm instead of a per-vector norm --
+  Correct (per-vector norm) MSE: 5.561e-02
+  Buggy (one shared norm) MSE:   1.635e+00
+  The norm is not a codebook parameter -- it is per-vector data, exactly
+  as necessary as the indices. Skipping it for all but one token wrecks
+  every vector whose true magnitude differs from that one token's.
+
+========================================================
+7/7 checks passed  ALL PASS
+========================================================

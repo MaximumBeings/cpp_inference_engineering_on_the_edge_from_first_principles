@@ -1,0 +1,36 @@
+========================================================
+TurboQuant 7.2: Lloyd-Max Codebooks and the MSE Quantizer
+========================================================
+
+-- Test 1: Codebook shape for b=1..4, d=64 --
+  b=1 (2 codes): [ -0.1001 0.1001 ]
+  b=2 (4 codes): [ -0.1875 -0.0565 0.0565 0.1875 ]
+  b=3 (8 codes): [ -0.2639 -0.1662 -0.0938 -0.0305 0.0305 0.0938 0.1662 0.2639 ]
+  b=4 (16 codes): [ -0.3309 -0.2531 -0.1990 -0.1551 -0.1166 -0.0814 -0.0482 -0.0159 0.0159 0.0482 0.0814 0.1166 0.1551 0.1990 0.2531 0.3309 ]
+
+-- Test 2: b=1 codebook matches the large-d closed form --
+  Numerically solved centroid:  0.04992
+  Closed-form large-d estimate: 0.04987
+  Agreement within 5% confirms the Lloyd-Max solver converged correctly
+
+-- Test 3: TurboQuantMSE round-trip (d=64, b=2) --
+  Stored norm: 8.9869
+  Total SE on unit sphere: 0.1425 (theory for b=2 is ~0.117 per coord * d)
+  Storage: 20 bytes vs FP32 256 bytes (12.8x compression)
+
+-- Test 4: MSE vs bit-width, averaged over 50 vectors (d=64) --
+  b=1  avg total SE: 0.3738  storage: 12 bytes/vec  compression: 21.3x
+  b=2  avg total SE: 0.1162  storage: 20 bytes/vec  compression: 12.8x
+  b=3  avg total SE: 0.0341  storage: 28 bytes/vec  compression: 9.1x
+  b=4  avg total SE: 0.0094  storage: 36 bytes/vec  compression: 7.1x
+
+-- Test 5 [COMMON TRAP]: skipping normalisation before quantizing --
+  ||x|| = 48.02 (deliberately far from 1)
+  Correct pipeline (normalize, rotate, quantize, rescale) MSE: 1.072e+00
+  Buggy pipeline (quantize raw, un-normalised coordinates) MSE: 3.358e+01
+  Skipping normalisation is not a rounding error -- it is a missing
+  scale factor, and the reconstruction is wrong by orders of magnitude.
+
+========================================================
+17/17 checks passed  ALL PASS
+========================================================

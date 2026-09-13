@@ -1,0 +1,32 @@
+========================================================
+TurboQuant 7.3: The Inner-Product Bias Problem and QJL
+========================================================
+
+-- Test 1: MSE-only quantizer's inner-product bias (b=1) --
+  True <query, x>:        -4.1923
+  Avg MSE-only estimate:  -2.5111
+  Ratio (theory: 2/pi ~= 0.637): 0.5990
+  Confirmed: the MSE-optimal quantizer systematically shrinks inner products
+
+-- Test 2: QJL unbiasedness, averaged over 500 random projections --
+  True <x,y>: -4.1923   Avg QJL estimate: -3.6006   |bias|: 0.5918
+
+-- Test 3: TurboQuantProd unbiasedness (d=32, b=3), 300 trials --
+  True <x,y>: -4.1923   Avg TurboQuantProd estimate: -4.4093   |bias|: 0.2170
+  The QJL residual stage cancels the MSE stage's bias, as designed
+
+-- Test 4: Inner-product estimator variance vs bit-width --
+  b=2  variance: 1.585e+01
+  b=3  variance: 5.089e+00
+  b=4  variance: 1.493e+00
+
+-- Test 5 [COMMON TRAP]: residual computed in the wrong coordinate space --
+  True <x,y>:              -4.1923
+  Correct (same-space) estimate: -4.0273   |bias|: 0.1650
+  Buggy (mixed-space) estimate:  -3.6812   |bias|: 0.5111
+  Subtracting in rotated space but combining in original space breaks
+  unbiasedness -- the residual and the MSE term must share a coordinate system.
+
+========================================================
+9/9 checks passed  ALL PASS
+========================================================
