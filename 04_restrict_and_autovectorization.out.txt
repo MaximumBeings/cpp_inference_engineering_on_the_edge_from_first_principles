@@ -1,0 +1,43 @@
+========================================================
+Chapter 9.4: Auto-Vectorization and the Restrict Promise
+========================================================
+
+-- Test 1: non-overlapping buffers -- restrict changes nothing when honest --
+  20 trials, N=64, non-overlapping buffers: all three versions agree exactly
+
+-- Test 2: overlapping buffers, unqualified version -- still correct --
+  Offsets 1..16, N=64: unqualified version matches the sequential reference at every offset
+  (its runtime alias check falls back to a scalar loop whenever the vectorized
+  path would be unsafe, so it never has a chance to get this wrong)
+
+-- Test 3 [COMMON TRAP]: the same overlap, but __restrict was told to assume it away --
+  offset=1: diverged from the correct answer starting at index 3 (correct=11, restrict-computed=7)
+  offset=2: diverged from the correct answer starting at index 5 (correct=15, restrict-computed=11)
+  offset=3: diverged from the correct answer starting at index 7 (correct=19, restrict-computed=15)
+  offset=4: diverged from the correct answer starting at index 9 (correct=23, restrict-computed=19)
+  offset=5: diverged from the correct answer starting at index 11 (correct=27, restrict-computed=23)
+  offset=6: diverged from the correct answer starting at index 13 (correct=31, restrict-computed=27)
+  offset=7: diverged from the correct answer starting at index 22 (correct=92, restrict-computed=52)
+  offset=8: diverged from the correct answer starting at index 64 (correct=4016, restrict-computed=176)
+  offset=9: diverged from the correct answer starting at index 66 (correct=2988, restrict-computed=180)
+  offset=10: diverged from the correct answer starting at index 68 (correct=2216, restrict-computed=184)
+  offset=11: diverged from the correct answer starting at index 70 (correct=1828, restrict-computed=188)
+  offset=12: diverged from the correct answer starting at index 72 (correct=1440, restrict-computed=192)
+  offset=13: diverged from the correct answer starting at index 74 (correct=1308, restrict-computed=196)
+  offset=14: diverged from the correct answer starting at index 76 (correct=1176, restrict-computed=200)
+  offset=15: diverged from the correct answer starting at index 78 (correct=1044, restrict-computed=204)
+  offset=16: happened to match (overlap distance >= this build's safe vectorized distance)
+  15 of 16 tested overlap distances produced a WRONG answer --
+  the __restrict promise was broken by the caller, and the compiler, having been
+  told it could skip the safety check, did exactly that. This is undefined
+  behavior in the strict sense: the compiler is not obligated to produce this
+  SPECIFIC wrong answer, only entitled to assume the promise held, and a
+  concrete wrong answer is what that assumption produces on this machine today.
+  Notice the smallest safe distance observed here (16) is wider than the 8-lane AVX2 register alone -- this build's vectorizer
+  unrolled to process more than one register's worth of floats per iteration,
+  so "stay past one register width" is not a safe rule of thumb to hand-derive;
+  only __restrict's actual promise -- no overlap at all -- is safe to rely on.
+
+========================================================
+4/4 checks passed  ALL PASS
+========================================================

@@ -1,0 +1,21 @@
+========================================================
+Chapter 9.3: Arm NEON -- The Mobile/Edge Path
+========================================================
+
+-- Test 1: NEON Q8_0 dot product vs. scalar reference, 200 random blocks --
+  Max absolute error over 200 trials: 7.63e-06
+
+-- Test 2: NEON Q4_0 dot product (with SIMD nibble unpacking) vs. scalar, 200 trials --
+  Max absolute error over 200 trials: 7.63e-06
+
+-- Test 3 [COMMON TRAP]: NEON has no int8-to-int32 widen in one step --
+  int8 value 5, widened to int16: 5  (one vmovl_s8 call, doubles the lane width from 8 to 16 bits)
+  the same value, widened again to int32: 5  (a SECOND vmovl_s16 call was required -- there is no vmovl_s8-to-s32)
+  AVX2's _mm256_cvtepi8_epi32 does both of these steps in a single instruction;
+  porting AVX2 intrinsic-for-intrinsic to NEON silently drops a required step
+  rather than merely renaming one, which is why Sections 9.2 and 9.3 use a
+  visibly different number of widening calls for the identical logical operation.
+
+========================================================
+4/4 checks passed  ALL PASS
+========================================================

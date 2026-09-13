@@ -1,0 +1,25 @@
+========================================================
+Chapter 9.1: The SIMD Register Model, Derived From Register Width
+========================================================
+
+-- Test 1: lane counts, derived from register bits / element bits --
+  AVX2 (256-bit ymm):  8 x fp32 lanes, 32 x int8 lanes
+  NEON (128-bit v-reg): 4 x fp32 lanes, 16 x int8 lanes
+
+-- Test 2: Chapter 8.1's peak-compute formula, AVX2 vs. NEON lane counts --
+  Same core count (8) and clock (3.5 GHz), AVX2 lanes=8 vs. NEON lanes=4:
+  AVX2 peak compute: 896.0 GFLOP/s
+  NEON peak compute: 448.0 GFLOP/s
+  Ratio: 2.00x
+
+-- Test 3 [COMMON TRAP]: wider SIMD registers do nothing for a memory-bound kernel --
+  Decode-time kernel, AI=0.50 FLOPs/byte (memory-bound on both):
+  AVX2 (8 fp32 lanes) achievable: 25.60 GFLOP/s
+  NEON (4 fp32 lanes) achievable: 25.60 GFLOP/s
+  Doubling the SIMD lane count changed achievable throughput by 0.0000 GFLOP/s --
+  nothing, for exactly the reason Chapter 8.1 gave: bandwidth, not the width
+  of the register doing the arithmetic, is what a memory-bound kernel waits on.
+
+========================================================
+8/8 checks passed  ALL PASS
+========================================================

@@ -1,0 +1,23 @@
+========================================================
+Chapter 9.2: AVX2 Integer Dot Products -- Q8_0 and Q4_0, Vectorized
+========================================================
+
+-- Test 1: AVX2 Q8_0 dot product vs. scalar reference, 200 random blocks --
+  Max absolute error over 200 trials: 7.63e-06
+  (Nonzero only because AVX2's tree-reduction horizontal sum adds the same 32
+  products in a different order than the scalar loop's strictly sequential sum --
+  floating-point addition is not associative, so a different order can differ in
+  its last few bits even though every individual multiply is identical.)
+
+-- Test 2: AVX2 Q4_0 dot product (with SIMD nibble unpacking) vs. scalar, 200 trials --
+  Max absolute error over 200 trials: 1.14e-05
+
+-- Test 3 [COMMON TRAP]: sign-extending a nibble before removing its bias --
+  Raw nibble bits: 1 (unsigned, range [0, 15])
+  Correct (subtract bias 8 first): -7 (range [-8, 7])
+  Buggy (sign-extend the raw bits directly): 1 -- identical to the raw bits whenever they are already < 8,
+  and never negative regardless of what the block actually encoded.
+
+========================================================
+6/6 checks passed  ALL PASS
+========================================================

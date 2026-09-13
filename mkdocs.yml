@@ -68,6 +68,7 @@ nav:
       - "7. TurboQuant: Online Vector Quantization with Near-Optimal Distortion": part1/07-turboquant.md
   - "Part 2 -- Performance on the Metal: SIMD, Cache, and Threads":
       - "8. The Memory Wall and the Roofline Model": part2/08-memory-wall-and-roofline-model.md
+      - "9. SIMD Vectorization: AVX2 on x86, NEON on Arm": part2/09-simd-vectorization-avx2-neon.md
 
 extra:
   social: []
