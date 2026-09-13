@@ -1,0 +1,26 @@
+========================================================
+Chapter 8.2: Arithmetic Intensity of Real Transformer Kernels
+========================================================
+
+-- Test 1: RMSNorm (dim=4096) --
+  FLOPs: 16388   Bytes: 49152   AI: 0.3334 FLOPs/byte
+  Ridge point: 17.50 -> MEMORY-BOUND
+
+-- Test 2: Softmax (seq_len=2048) --
+  FLOPs: 24575   Bytes: 40960   AI: 0.6000 FLOPs/byte
+  Ridge point: 17.50 -> MEMORY-BOUND
+
+-- Test 3: RoPE (head_dim=128) --
+  FLOPs: 384   Bytes: 1536   AI: 0.2500 FLOPs/byte
+  Ridge point: 17.50 -> MEMORY-BOUND
+
+-- Test 4 [COMMON TRAP]: incomplete byte counting inflates AI --
+  Correct byte count (q + cos table + sin table, read and write): 1536 bytes -> AI = 0.2500
+  Buggy byte count (forgets the cos/sin table reads):            1024 bytes -> AI = 0.3750
+  Both land on the memory-bound side of this machine's ridge point (17.50), so the classification does not
+  flip here -- but the buggy count overstates AI by 50.0%, and for a kernel whose true AI sits close to the ridge, an
+  overstatement of this size is exactly enough to misclassify it.
+
+========================================================
+9/9 checks passed  ALL PASS
+========================================================

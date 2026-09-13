@@ -1,0 +1,37 @@
+========================================================
+Chapter 8.3: Prefill (GEMM) vs. Decode (GEMV)
+========================================================
+
+-- Test 0: real mdspan-based kernel vs. closed-form formula, same shape --
+  Real kernel:    FLOPs=163840 Bytes=71936
+  Closed formula: FLOPs=163840 Bytes=71936
+  Real Q4 kernel: FLOPs=180224 Bytes=15616
+  Q4  formula:    FLOPs=180224 Bytes=15616
+
+-- Test 1: Decode (SEQ=1), one FFN projection (14336 x 4096) --
+  FP32: 224 MB read, AI = 0.4998 FLOPs/byte
+  Q4:   31 MB read, AI = 5.3215 FLOPs/byte
+  Measured byte-size ratio FP32:Q4 = 7.10x
+  (Not the ~4x a naive 'Q4 means 4 bits vs. 32 bits' guess would predict -- a
+  32-value BlockQ4 packs 4-bit nibbles PLUS a 2-byte fp16 scale into 18 bytes,
+  which compresses harder than a flat 4-bit-per-value estimate, since the scale
+  overhead is small relative to the 32 values it covers.)
+
+-- Test 2: Crossover sequence length (memory-bound -> compute-bound) --
+  FP32 becomes compute-bound at seq_len = 36
+  Q4   becomes compute-bound at seq_len = 5
+  Q4's smaller weight footprint means fewer batched tokens are needed
+  before the same GEMM kernel crosses into the compute-bound regime.
+
+-- Test 3 [COMMON TRAP]: quantization's speedup vanishes deep in the compute-bound regime --
+  At seq_len = 144 (well past both crossovers):
+    FP32 AI = 68.89  -> achievable = 896.00 GFLOP/s
+    Q4   AI = 388.80  -> achievable = 896.00 GFLOP/s
+  Both are capped at peak compute -- quantization's byte-count advantage
+  bought nothing here, because bytes stopped being the bottleneck long ago.
+  The commonly cited '4x speedup from quantization' is a DECODE-regime claim;
+  it does not carry over unchanged into a large, already compute-bound prefill.
+
+========================================================
+14/14 checks passed  ALL PASS
+========================================================

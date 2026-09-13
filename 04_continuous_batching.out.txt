@@ -1,0 +1,25 @@
+========================================================
+Chapter 8.4: Continuous Batching -- the Same Crossover, a Different Question
+========================================================
+
+-- Test 1: batch latency is nearly flat while memory-bound --
+  Batch time at B=1: 4.5890 ms
+  Batch time at B=8: 4.5990 ms  (1.00x of B=1)
+  8x more requests served for well under 8x the time -- almost free,
+  because the dominant cost (reading the weight matrix once) didn't change.
+
+-- Test 2: batch-size crossover B* --
+  B* = 36 (this FFN projection becomes compute-bound at batch size 36)
+
+-- Test 3 [COMMON TRAP]: past B*, more batching raises latency without raising throughput --
+  B=18 (memory-bound):  batch time=4.6134 ms, throughput=3.90 tokens/ms
+  B=288 (compute-bound):  batch time=37.75 ms, throughput=7.63 tokens/ms
+  Batch time grew 8.18x while batch size grew 16.00x -- roughly proportionally, once compute-bound.
+  Throughput grew only 1.96x for a 16.00x bigger batch --
+  every request now waits longer per token, for a throughput gain far short of
+  proportional. Past B*, adding requests to a batch trades latency for very
+  little additional throughput, the mirror image of Test 1's near-free batching.
+
+========================================================
+6/6 checks passed  ALL PASS
+========================================================

@@ -66,6 +66,8 @@ nav:
       - "5. Model File Formats: GGUF, SafeTensors, and Memory-Mapped Loading": part1/05-model-file-formats.md
       - "6. The Hybrid Quantized Engine: Mixing Precisions for Different Jobs": part1/06-hybrid-quantized-engine.md
       - "7. TurboQuant: Online Vector Quantization with Near-Optimal Distortion": part1/07-turboquant.md
+  - "Part 2 -- Performance on the Metal: SIMD, Cache, and Threads":
+      - "8. The Memory Wall and the Roofline Model": part2/08-memory-wall-and-roofline-model.md
 
 extra:
   social: []

@@ -1,0 +1,25 @@
+========================================================
+Chapter 8.1: The Roofline Model, Derived From First Principles
+========================================================
+
+-- Test 1: Deriving peak compute and peak bandwidth --
+  FLOPs/cycle/core = 8 lanes * 2 FMA ports * 2 FLOPs/FMA = 32
+  Peak compute = 8 cores * 3.5 GHz * 32 FLOPs/cycle = 896.0 GFLOP/s
+  Peak bandwidth = 2 channels * 3200.0 MT/s * 8 bytes = 51.2 GB/s
+  Ridge point = 17.50 FLOPs/byte
+
+-- Test 2: Achievable throughput on both sides of the ridge --
+  Ridge point: 17.50 FLOPs/byte
+  AI = 8.75 (below ridge) -> achievable = 448.00 GFLOP/s (memory-bound: yes)
+  AI = 70.00 (above ridge) -> achievable = 896.00 GFLOP/s (memory-bound: no)
+
+-- Test 3 [COMMON TRAP]: a faster CPU does nothing for a memory-bound kernel --
+  Kernel AI = 0.50 FLOPs/byte (a decode-time GEMV)
+  Slow CPU (896 GFLOP/s peak): achievable = 25.60 GFLOP/s
+  Fast CPU (3584 GFLOP/s peak, 4x more compute): achievable = 25.60 GFLOP/s
+  Quadrupling peak compute changed the achievable throughput by 0.0000 GFLOP/s --
+  effectively nothing, because bandwidth was the bottleneck all along.
+
+========================================================
+11/11 checks passed  ALL PASS
+========================================================

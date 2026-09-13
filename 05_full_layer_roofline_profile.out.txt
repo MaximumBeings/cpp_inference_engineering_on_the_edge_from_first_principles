@@ -1,0 +1,27 @@
+========================================================
+Chapter 8.5: A Full Layer's Roofline Profile
+========================================================
+
+-- Test 0: closed-form attention cost vs. a real GQA kernel, same shape --
+  Real GQA kernel: FLOPs=1008 Bytes=960
+  Closed formula:  FLOPs=1008 Bytes=960
+
+-- Test 1: one decode step at cache_len=2048, classified against the roofline --
+  FLOPs=470466888  Bytes=890151168  AI=0.5285 FLOPs/byte
+  Ridge point=17.50 -> MEMORY-BOUND
+
+-- Test 2 [COMMON TRAP]: attention does not dominate decode bytes at realistic context lengths --
+  Fixed QKVO+FFN weight bytes (every step, any context length): 832 MB
+  KV-cache read bytes at context length 2048: 16384 KB
+  Weight bytes exceed KV-cache bytes by 52.0x at this context length.
+  The KV cache would need to reach 106536 tokens of context before its read bytes alone caught up to the fixed
+  per-step weight-read cost -- far beyond a 2048-token context, and beyond
+  most deployed context windows. Attention's cost is the part that VISIBLY
+  grows with context, which is exactly why it gets blamed first -- but the
+  fixed weight-read cost, paid again every single step regardless of context,
+  is what a decode step's memory traffic is actually dominated by until the
+  context grows far longer than most conversations ever do.
+
+========================================================
+5/5 checks passed  ALL PASS
+========================================================
