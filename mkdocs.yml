@@ -60,6 +60,7 @@ nav:
   - Getting Started: getting-started.md
   - "Part 0 -- Foundations":
       - "2. The Tensor Engine: std::mdspan, Arena Allocators, and Mixed Precision": part0/02-the-tensor-engine.md
+      - "3. The Computational Graph: RMSNorm, SwiGLU, RoPE, and Attention": part0/03-the-computational-graph.md
 
 extra:
   social: []
