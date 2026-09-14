@@ -1,0 +1,26 @@
+========================================================
+Chapter 12.2: Pre-Tokenization -- Splitting Text Before BPE
+========================================================
+
+-- Test 1: "Hello, world!" --
+  ["Hello", ",", " world", "!"]
+
+-- Test 2: "the cat sat" (leading space attaches to the following word) --
+  ["the", " cat", " sat"]
+
+-- Test 3: "I have 42 cats" (digit runs grouped) --
+  ["I", " have", " 42", " cats"]
+
+-- Test 4: "wow!!!" (each punctuation mark is its own chunk) --
+  ["wow", "!", "!", "!"]
+
+-- Test 5: edge cases --
+  "" -> []
+  "   " -> ["   "] (trailing whitespace with nothing to absorb into)
+
+-- Test 6: a chunk boundary is not a merge boundary --
+  ["lowest", " wins"]
+
+========================================================
+25/25 checks passed  ALL PASS
+========================================================

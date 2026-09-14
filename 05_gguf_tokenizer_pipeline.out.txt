@@ -1,0 +1,31 @@
+========================================================
+Chapter 12.5: A Complete Tokenizer Pipeline From a Real GGUF File
+========================================================
+
+-- Test 1: writing the file --
+  wrote 272 tokens, 14 merge rules, 5189 bytes total
+
+-- Test 2: reopening the file fresh and parsing the header --
+  magic ok, version=3, n_tensors=0, n_kv=7
+
+-- Test 3: array metadata matches exactly, element for element --
+  tokens=272 token_type=272 scores=272 merges=14
+  bos_token_id=270 eos_token_id=271
+
+-- Test 4: a working encoder rebuilt entirely from the file --
+  "lowest" -> 2 tokens (matches in-memory ground truth)
+  "Hello" -> 3 tokens (matches in-memory ground truth)
+
+-- Test 5: a working decoder rebuilt entirely from the file --
+  "world" -> 1 token(s) -> "world" (exact round trip)
+
+-- Test 6: the full pipeline -- pretokenize + encode + decode -- on ordinary text --
+  "the lowest world" -> 3 pre-token chunks -> 8 token IDs -> "the lowest world"
+  lossless: yes
+
+-- Test 7: decode_with_stop using the BOS/EOS IDs read from the file --
+  decoded up to eos_token_id: "lower", hit_eos=yes
+
+========================================================
+24/24 checks passed  ALL PASS
+========================================================

@@ -1,0 +1,26 @@
+========================================================
+Chapter 12.4: The Token Decoder -- IDs Back to UTF-8
+========================================================
+
+-- Test 1: basic decode of normal tokens --
+  [256, 257, 258] -> "Hello world!"
+
+-- Test 2: byte-fallback decode --
+  [72, 105] (byte tokens for 'H', 'i') -> "Hi"
+
+-- Test 3: control tokens suppressed by default, visible in debug mode --
+  default:  "Hello world!"
+  debug:    "<|begin_of_text|>Hello world!<|end_of_text|>"
+
+-- Test 4: decode_with_stop discards anything after EOS --
+  text: "Hello world", hit_eos: yes
+
+-- Test 5: normal and byte tokens mixed in one sequence --
+  [256, 33] -> "Hello!"
+
+-- Test 6: a real multi-byte UTF-8 codepoint via two byte-fallback tokens --
+  [99,97,102,195,169] -> byte sequence (hex): 63 61 66 c3 a9  (3 ASCII bytes + one 2-byte UTF-8 codepoint, U+00E9)
+
+========================================================
+10/10 checks passed  ALL PASS
+========================================================

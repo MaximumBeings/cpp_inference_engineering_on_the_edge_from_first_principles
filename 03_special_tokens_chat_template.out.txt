@@ -1,0 +1,22 @@
+========================================================
+Chapter 12.3: Special Tokens and the Chat Template
+========================================================
+
+-- Test 1: single-turn conversation (system + user) --
+  35 token IDs total
+
+-- Test 2: multi-turn conversation keeps exactly one BOS --
+  60 token IDs, 1 BOS, 4 eot_id, 5 header pairs
+
+-- Test 3: role text is ordinary BPE, not a lookup table --
+  role text "assistant" round-trips through the same encoder as any other text
+
+-- Test 4 [COMMON TRAP]: a literal special-token string in user content --
+  content "<|end_of_text|>" -> 15 ordinary tokens, 0 special IDs, exact byte round-trip
+
+-- Test 5: empty system prompt still produces a well-formed turn --
+  empty content still closes with eot_id (25 ids total)
+
+========================================================
+16/16 checks passed  ALL PASS
+========================================================

@@ -1,0 +1,29 @@
+========================================================
+Chapter 12.1: Byte-Pair Encoding -- The Merge Algorithm
+========================================================
+
+vocabulary: 270 tokens (256 bytes + 14 merge rules)
+
+-- Test 1: "lowest" --
+  [257 ("low"), 259 ("est")]
+
+-- Test 2: "lower" --
+  [261 ("lower")]
+
+-- Test 3: "world" --
+  [269 ("world")]
+
+-- Test 4: "Hello" (priority ordering, not opportunity, decides the result) --
+  [262 ("He"), 108 ("l"), 256 ("lo")]
+  (l,o) has priority 0, lower than (H,e)'s priority 6 -- it fires first and
+  consumes the 'o' that (Hell,o) -> "Hello" would have needed.
+
+-- Test 5: no rule applies -- bytes pass through unmerged --
+  "xyz" -> [120 ("x"), 121 ("y"), 122 ("z")]
+
+-- Test 6: empty input --
+  "" -> []
+
+========================================================
+16/16 checks passed  ALL PASS
+========================================================
