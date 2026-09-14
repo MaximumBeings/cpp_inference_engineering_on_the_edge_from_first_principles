@@ -1,0 +1,20 @@
+========================================================
+Chapter 11.5: A Fully Multi-Threaded Decode Step
+========================================================
+
+-- Test 1: full 4-layer decode step, 4 threads, vs. serial reference --
+  DIM=64 D_FF=176 4 layers, 4 threads: bit-for-bit match
+
+-- Test 2: SAME decode step, DIFFERENT thread count (3), vs. serial reference --
+  same 4 layers, 3 threads instead of 4: bit-for-bit match
+
+-- Test 3 [COMMON TRAP]: one thread-indexed reduction breaks the WHOLE pipeline --
+  4-thread run vs. 3-thread run, same decode step, broken reduction only: DIFFERS, as expected
+  Every matmul phase and every attention head in this run is still exactly the
+  same row/head-parallel code Tests 1 and 2 just verified as thread-count-
+  independent on its own. The ONLY change is which reduction RMSNorm uses --
+  and that alone is enough to make the final output depend on thread count.
+
+========================================================
+3/3 checks passed  ALL PASS
+========================================================

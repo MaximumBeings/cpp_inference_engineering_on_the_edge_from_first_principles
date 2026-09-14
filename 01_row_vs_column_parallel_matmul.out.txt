@@ -1,0 +1,21 @@
+========================================================
+Chapter 11.1: Row-Parallel vs. Column-Parallel Matmul
+========================================================
+
+-- Test 1: row-parallel matches the serial reference bit-for-bit --
+  64 rows, 4 threads: bit-for-bit match (no combination step needed)
+
+-- Test 2: column-parallel (fixed-order combine) vs. serial reference --
+  64 rows, 4 column chunks: max absolute error = 4.17233e-07 (a real combination step ran; row-parallel needed none)
+  second call, same thread count: bit-for-bit identical to the first
+
+-- Test 3 [COMMON TRAP]: column-parallel's combination step is real, recurring cost --
+  Row-parallel extra memory beyond the output vector itself: 0 bytes
+  Column-parallel extra memory (N_THREADS=4 partial vectors of 64 floats each): 1024 bytes
+  This combination buffer is allocated and summed again on EVERY call -- every
+  layer, every decode step -- which is exactly the recurring synchronization and
+  memory-traffic cost row-parallel's disjoint per-thread outputs never incur.
+
+========================================================
+5/5 checks passed  ALL PASS
+========================================================

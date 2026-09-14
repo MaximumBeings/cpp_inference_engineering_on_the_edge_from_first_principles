@@ -1,0 +1,35 @@
+========================================================
+Chapter 11.4: Deterministic Floating-Point Reduction, Independent of Thread Count
+========================================================
+
+-- Test 1: fixed-block reduction is numerically sound and self-reproducible --
+  plain serial dot product:        4.175
+  fixed-block reduction (4 threads): 4.175
+
+-- Test 2: fixed-block reduction is bit-identical ACROSS different thread counts --
+  n_threads=1: 4.17500019  (matches n_threads=1)
+  n_threads=2: 4.17500019  (matches n_threads=1)
+  n_threads=3: 4.17500019  (matches n_threads=1)
+  n_threads=4: 4.17500019  (matches n_threads=1)
+  n_threads=5: 4.17500019  (matches n_threads=1)
+  n_threads=8: 4.17500019  (matches n_threads=1)
+  unique bit patterns across 6 thread counts: 1
+
+-- Test 3 [COMMON TRAP]: thread-indexed reduction is NOT stable across thread counts --
+  same thread count (4) twice: bit-identical (expected: bit-identical)
+  n_threads=1: 4.17500210
+  n_threads=2: 4.17500210
+  n_threads=3: 4.17499971
+  n_threads=4: 4.17500114
+  n_threads=5: 4.17500067
+  n_threads=8: 4.17500162
+  unique bit patterns across 6 thread counts: 5 (fixed-block reduction above got exactly 1)
+  A test asserting "thread-indexed reduction is deterministic" and stopping
+  after checking only ONE thread count -- exactly what Chapter 11.1 checked --
+  would have missed this. "Reproducible" and "reproducible regardless of
+  configuration" are different claims, and only the fixed-block scheme makes the
+  second one.
+
+========================================================
+5/5 checks passed  ALL PASS
+========================================================

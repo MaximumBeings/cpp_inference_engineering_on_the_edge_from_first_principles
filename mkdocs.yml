@@ -70,6 +70,7 @@ nav:
       - "8. The Memory Wall and the Roofline Model": part2/08-memory-wall-and-roofline-model.md
       - "9. SIMD Vectorization: AVX2 on x86, NEON on Arm": part2/09-simd-vectorization-avx2-neon.md
       - "10. Threading and Concurrency: Real Threads, Verified Without a Clock": part2/10-threading-and-concurrency.md
+      - "11. Parallelizing the Forward Pass: Row-Parallel, Head-Parallel, and Reproducible Across Thread Counts": part2/11-parallelizing-the-forward-pass.md
 
 extra:
   social: []

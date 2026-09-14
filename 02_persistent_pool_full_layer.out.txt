@@ -1,0 +1,18 @@
+========================================================
+Chapter 11.2: A Persistent Pool Across a Full Layer's Phases
+========================================================
+
+-- Test 1: one full layer, serial vs. pool-parallel, bit-for-bit --
+  DIM=64 D_FF=176 N_HEADS_Q=8 N_HEADS_KV=2: bit-for-bit match
+
+-- Test 2: SAME pool reused across 6 consecutive layers --
+  6 layers through one still-alive pool: bit-for-bit match
+
+-- Test 3 [COMMON TRAP]: batching with the wrong shared row count drops rows --
+  phase told total=64 but gate/up actually have 176 rows
+  gate rows never computed: 112 (expected 112)
+  up rows never computed:   112 (expected 112)
+
+========================================================
+5/5 checks passed  ALL PASS
+========================================================

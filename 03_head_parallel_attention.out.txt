@@ -1,0 +1,25 @@
+========================================================
+Chapter 11.3: Head-Parallel Attention
+========================================================
+
+-- Test 1: head-parallel (naive partition) matches serial, bit-for-bit --
+  8 heads across 4 threads: bit-for-bit match
+
+-- Test 2 [COMMON TRAP]: naive partition reads some KV heads redundantly --
+  thread 0: query heads [0, 2)
+  thread 1: query heads [2, 4)
+  thread 2: query heads [4, 6)
+  thread 3: query heads [6, 8)
+  distinct KV heads touched: 2 / 2
+  KV heads touched by MORE than one thread: 2
+  total (thread, kv-head) touches: 4 (ideal, no redundancy: 2)
+
+-- Test 3: group-aligned partition eliminates the redundancy --
+  thread 0: query heads [0, 4)
+  thread 1: query heads [4, 8)
+  KV heads touched by MORE than one thread: 0 (was nonzero with the naive partition above)
+  group-aligned partition vs. serial reference: bit-for-bit match
+
+========================================================
+7/7 checks passed  ALL PASS
+========================================================
