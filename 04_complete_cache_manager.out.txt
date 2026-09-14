@@ -1,0 +1,31 @@
+========================================================
+Chapter 14.4: A Complete Cache Manager Combining Every Technique
+========================================================
+
+-- Simulating 300 generation steps (window=200, budget=50, sinks=4) --
+  window_trimmed=36 requant_3=76 requant_2=40 evicted=214 final_size=50/50
+
+-- Test 1: sliding window's hard cutoff still holds inside the combined manager --
+  every surviving non-sink entry is within the 200-step window
+
+-- Test 2: H2O recent-window immunity holds inside the combined manager --
+  isolated probe: 0 evicted while all entries are within the recent window, then 2 evicted once they age past it
+
+-- Test 3: re-quantization tiers progress with age inside the combined manager --
+  final tier distribution: 4-bit=10 3-bit=36 2-bit=4
+
+-- Test 4: attention sinks survive the entire run; attention stays valid throughout --
+  sinks_alive=4/4; attention produced a valid, non-zero-norm output at every one of 300 steps
+
+-- Test 5: prefix handoff before any eviction has happened: theoretical == actual --
+  lcp=60 theoretically_reusable=60 actually_reused=60 recomputed=15 (nothing was ever evicted, so the two figures match exactly)
+
+-- Test 6: [COMMON TRAP] prefix handoff after real eviction: matched != retained --
+  old cache after 100 steps of eviction: 20 entries alive
+  lcp=100 theoretically_reusable=100 actually_reused=20 recomputed=90
+  gap=80 tokens matched the prefix but had already been evicted;
+  they must be recomputed exactly as if they had never matched at all
+
+========================================================
+65/65 checks passed  ALL PASS
+========================================================

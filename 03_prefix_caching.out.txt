@@ -1,0 +1,31 @@
+========================================================
+Chapter 14.3: Prefix Caching for Multi-Turn Conversations
+========================================================
+
+-- Test 1: block-aligned full-prefix reuse, zero waste --
+  turn1=48 tokens (3 blocks), turn2 appends 20 tokens
+  reused=48 recomputed=20 blocks_freed=0
+  physical block IDs for the reused prefix are unchanged (zero-copy)
+  naive full recompute: 68 tokens; with prefix caching: 20 tokens (3.40x)
+
+-- Test 2: [COMMON TRAP] block-granularity waste on a misaligned edit --
+  turn1=40 tokens, turn2 diverges at token 25, new length=45
+  matched prefix (LCP) = 25 tokens
+  actually reusable = 16 tokens (1 whole block)
+  wasted shared tokens = 9 (matched, but recomputed anyway because their block wasn't fully shared)
+
+-- Test 3: reused blocks' KV data matches the original, byte for byte --
+  block 0 untouched by apply_new_turn(): memcmp of all 4096 bytes is identical
+
+-- Test 4: the recomputed suffix is correct, not leftover stale data --
+  recomputed suffix (last 20 tokens) matches the NEW token IDs' KV data
+  reused prefix (first 16 tokens) still matches the ORIGINAL token IDs' KV data
+
+-- Test 5: realistic long-history conversation, honestly-computed savings --
+  history=2048 tokens, next turn appends 48 tokens (total 2096)
+  tokens recomputed: 48 / 2096
+  tokens saved by prefix caching: 2048.0 (97.7% of this turn's total work avoided)
+
+========================================================
+21/21 checks passed  ALL PASS
+========================================================

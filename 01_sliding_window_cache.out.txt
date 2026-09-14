@@ -1,0 +1,20 @@
+========================================================
+Chapter 14.1: Sliding-Window Attention as a Ring Buffer at Scale
+========================================================
+
+-- Test 1: within the window, every token remains fully accessible --
+  5 tokens inserted into an 8-slot window: all 5 accessible and byte-exact
+
+-- Test 2: beyond the window, the oldest tokens are simply gone --
+  12 tokens into an 8-slot window: visible range is [4, 12), tokens 0-3 are unrecoverable
+
+-- Test 3: memory is exactly O(window_size), independent of sequence length --
+  after 1000 tokens: memory = 1024 bytes, unchanged since token 0
+
+-- Test 4: attention over the window computes a valid, well-formed output --
+  attention over window [12, 20) = 8 tokens
+  output norm = 0.390779
+
+========================================================
+10/10 checks passed  ALL PASS
+========================================================

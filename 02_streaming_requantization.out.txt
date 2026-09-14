@@ -1,0 +1,28 @@
+========================================================
+Chapter 14.2: Streaming Re-Quantization -- Tiered Precision as Entries Age
+========================================================
+
+-- Test 1: fresh tokens start at 4-bit --
+  new token quantized at 4-bit
+
+-- Test 2: tokens age through the 4-bit -> 3-bit -> 2-bit -> evicted tiers --
+  after 15 steps: 0 at 4-bit, 5 at 3-bit, 0 at 2-bit
+  after 50 steps: 0 at 4-bit, 0 at 3-bit, 5 at 2-bit
+  after 170 steps: 0 entries remain (evicted 5)
+
+-- Test 3: tiering uses less memory than uniform 4-bit --
+  live entries: 500 (4-bit=49, 3-bit=150, 2-bit=301)
+  tiered memory: 13984 bytes
+  uniform 4-bit equivalent: 20000 bytes
+  computed savings: 30.1%
+
+-- Test 4: re-quantization error grows monotonically as bit-width drops --
+  4-bit MSE = 5.237e-03
+  3-bit MSE = 2.583e-02
+  2-bit MSE = 1.887e-01
+  error grows as bit-width drops, as expected; old tokens receive
+  small attention weights, so this error's effect on the output stays small
+
+========================================================
+11/11 checks passed  ALL PASS
+========================================================

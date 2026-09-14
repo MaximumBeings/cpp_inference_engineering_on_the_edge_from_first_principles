@@ -1,0 +1,25 @@
+========================================================
+Appendix: Chapter 13.2's KVBlock, Reimplemented on std::mdspan
+========================================================
+
+-- Test 1: mdspan indexing matches manual flat-offset arithmetic --
+  mdspan[h,s,d] matches hand-computed flat offset h*512 + s*32 + d for every (h,s,d); write-through confirmed
+
+-- Test 2: submdspan extracts one head's storage with zero copy --
+  submdspan(kv, head=2, full, full) has shape [16,32]; a write through the slice is visible in kv[2,*,*]
+
+-- Test 3: raw-array and mdspan block managers store identical data --
+  35 tokens written through both implementations from identical input: every stored float is bit-for-bit identical
+
+-- Test 4: mdspan-based paged attention matches the raw-array reference --
+  max error vs dense reference: 0.00e+00
+
+-- Test 5: mdspan adds no storage overhead vs the raw-array version --
+  KVBlockRaw:    sizeof = 16384 bytes (two nested C arrays)
+  KVBlockMdspan: 16384 bytes of actual float storage (two std::vector<float>, same element count)
+  the mdspan view object itself carries only a pointer -- no per-block runtime
+  shape metadata, because every extent here is a compile-time constant
+
+========================================================
+13/13 checks passed  ALL PASS
+========================================================
