@@ -1,0 +1,53 @@
+========================================================
+Chapter 13.1: The Memory Wall -- Bandwidth-Limited Decode
+========================================================
+
+-- Test 1: KV cache size formula matches a hand calculation --
+  hand calc:  5.36871e+08 bytes = 0.536871 GB
+  computed:   0.536871 GB
+
+-- Test 2: speed limit for a realistic Q4 configuration --
+  Llama 3 8B, Q4 weights, ctx=4096, DDR5 @ 90 GB/s:
+    weights:  4.500 GB
+    kv cache: 0.537 GB
+    total:    5.037 GB per decode step
+    speed:    17.9 tok/s (theoretical ceiling)
+
+-- Test 3: speed degrades monotonically as context grows --
+  ctx=   512 -> 19.7 tok/s
+  ctx=  1024 -> 19.4 tok/s
+  ctx=  2048 -> 18.9 tok/s
+  ctx=  4096 -> 17.9 tok/s
+  ctx=  8192 -> 16.1 tok/s
+
+-- Test 4: KV cache dominates bandwidth at very long context --
+  at 128K context: weights=4.50 GB, kv_cache=17.18 GB (79% of total bandwidth)
+
+-- Test 5: quantization speedup is largest when the KV cache is small --
+  ctx=512 (weight-dominated): FP32=2.8 tok/s, Q4=19.7 tok/s, speedup=7.02x
+
+-- reference table: Llama 3 8B, Q4 weights, DDR5 @ 90 GB/s --
+
+  Llama 3 8B (Q4) @ 90.00 GB/s:
+    context  weights   kv_cache    total   tok/s   kv%
+       512     4.50       0.07     4.57    19.7     1%
+      1024     4.50       0.13     4.63    19.4     3%
+      2048     4.50       0.27     4.77    18.9     6%
+      4096     4.50       0.54     5.04    17.9    11%
+      8192     4.50       1.07     5.57    16.1    19%
+     16384     4.50       2.15     6.65    13.5    32%
+     32768     4.50       4.29     8.79    10.2    49%
+    131072     4.50      17.18    21.68     4.2    79%
+
+-- reference table: hardware bandwidth comparison (ctx=4096, Q4) --
+    hardware               bandwidth(GB/s)   tok/s
+    Laptop DDR4                   40       7.9
+    Desktop DDR5                  90      17.9
+    MacBook M2                   100      19.9
+    MacBook M2 Ultra             400      79.4
+    A100 HBM2e                  2000     397.1
+    H100 HBM3e                  3350     665.1
+
+========================================================
+10/10 checks passed  ALL PASS
+========================================================

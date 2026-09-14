@@ -1,0 +1,37 @@
+========================================================
+Chapter 13.3: Ring Buffer Contexts -- RoPE Decoupling and Sink Tokens
+========================================================
+
+-- Test 1: write-slot wrapping never touches protected slots (capacity=8, protected=2) --
+  token  write_slot  rope_pos  wrapping
+      0           0         0  no
+      1           1         1  no
+      2           2         2  no
+      3           3         3  no
+      4           4         4  no
+      5           5         5  no
+      6           6         6  no
+      7           7         7  no
+      8           2         8  yes
+      9           3         9  yes
+     10           4        10  yes
+     11           5        11  yes
+     12           6        12  yes
+     13           7        13  yes
+     14           2        14  yes
+     15           3        15  yes
+
+-- Test 2: rope_position and write_slot are equal only during the initial fill --
+
+-- Test 3: sink tokens survive far beyond the buffer's own capacity --
+  protected slot values after 60 tokens: [999, 1000, 1001]
+
+-- Test 4: memory stays constant no matter how many tokens are processed --
+  after 100 tokens: valid_length=8 (capacity=8), total_processed=100
+
+-- Test 5: ring attention matches a dense reference before any wrap occurs --
+  max error vs dense reference: 0.00e+00
+
+========================================================
+28/28 checks passed  ALL PASS
+========================================================

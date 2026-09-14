@@ -1,0 +1,25 @@
+========================================================
+Chapter 13.5: A Complete KV Cache Manager
+========================================================
+
+-- Test 1: paged multi-user serving with shared system-prompt blocks --
+  Alice: 21 tokens, 2 block(s)
+  Bob: 24 tokens, 2 block(s)
+  Carol: 19 tokens, 2 block(s)
+  Bob disconnects: pool free count 56 -> 57
+
+-- Test 2: ring buffer wrapping matches Section 13.3's verified sequence --
+  after 16 tokens into a capacity=10/protected=2 ring: rope_position=16, valid_length=10
+
+-- Test 3: H2O eviction still preserves heavy hitters when combined with the rest --
+  after 20 tokens: H2O retains all 3 heavy hitters; plain FIFO drops at least one
+
+-- Test 4: paging uses far less memory than static worst-case reservation --
+  per-block size at full Llama 3 8B scale (all layers): 2048 KB
+  static (max=4096 each): 12800 blocks = 25600 MB
+  paged (avg=200 tokens): 650 blocks = 1300 MB
+  paged uses 95% less memory than static-max
+
+========================================================
+15/15 checks passed  ALL PASS
+========================================================

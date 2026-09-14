@@ -1,0 +1,35 @@
+========================================================
+Chapter 13.2: PagedAttention -- Block-Table Indirection
+========================================================
+BLOCK_SIZE=16 HEAD_DIM=32 NUM_HEADS=4
+
+-- Test 1: address translation matches plain integer division/modulo --
+  token  blk_idx  slot
+      0        0     0
+     15        0    15
+     16        1     0
+     17        1     1
+     31        1    15
+     32        2     0
+
+-- Test 2: block allocation and free are O(1) free-list operations --
+  after alloc(3), free(2): 9/10 free
+
+-- Test 3: writing and reading across block boundaries --
+  35 tokens -> 3 blocks; boundary reads at 15/16 and 31/32 verified
+
+-- Test 4: paged attention matches a dense (unpaged) reference --
+  max error vs dense reference: 0.00e+00
+
+-- Test 5: zero-copy system-prompt sharing across users --
+  all 3 users' block_table[0] == 0 (one physical block, three references)
+  blocks without sharing: 6, with sharing: 4 (33% fewer blocks)
+
+-- Test 6: memory utilization, static pre-allocation vs paging --
+  20 users, max=64, avg=10 tokens each
+  static: 1280 slots allocated, 200 used (16% utilization)
+  paged:  320 slots allocated, 200 used (62% utilization)
+
+========================================================
+31/31 checks passed  ALL PASS
+========================================================

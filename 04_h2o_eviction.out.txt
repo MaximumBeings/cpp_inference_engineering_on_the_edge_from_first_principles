@@ -1,0 +1,28 @@
+========================================================
+Chapter 13.4: Smart Eviction -- The H2O Heavy-Hitter Policy
+========================================================
+
+-- Test 1: eviction targets lowest importance, not oldest --
+  importances: T0=10.0 T1=0.5 T2=8.0 T3=0.1 T4=0.3(recent)
+  evicted physical slot: 3 (expected 3, i.e. T3)
+
+-- Test 2: the recent window is immune regardless of importance --
+  recent_window=3 means T1,T2,T3 are immune; only T0 is eligible
+  evicted physical slot: 0 (expected 0, i.e. T0)
+
+-- Test 3: H2O preserves critical tokens that FIFO blindly drops --
+  after 40 tokens (capacity=20):
+  logical_id  in_h2o  in_fifo
+  T  3        yes     no    (heavy hitter)
+  T  7        yes     no    (heavy hitter)
+  T 12        yes     no    (heavy hitter)
+  T 25        no      yes   (old filler)
+  T 38        yes     yes   (recent token)
+
+-- Test 4: importance accumulates exactly as the sum of per-step probabilities --
+  T0 importance after 10 steps of prob=0.5: 5 (expected 5.0)
+  T1 importance after 10 steps of prob=0.1: 1 (expected 1.0)
+
+========================================================
+14/14 checks passed  ALL PASS
+========================================================

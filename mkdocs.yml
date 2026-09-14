@@ -73,6 +73,7 @@ nav:
       - "11. Parallelizing the Forward Pass: Row-Parallel, Head-Parallel, and Reproducible Across Thread Counts": part2/11-parallelizing-the-forward-pass.md
   - "Part 3 -- Serving State: Tokenization and the KV Cache":
       - "12. The Tokenizer: BPE, SentencePiece, and the Vocabulary Pipeline": part3/12-the-tokenizer.md
+      - "13. The KV Cache Manager: Paged Attention, Ring Buffers, and Smart Eviction": part3/13-the-kv-cache-manager.md
 
 extra:
   social: []
