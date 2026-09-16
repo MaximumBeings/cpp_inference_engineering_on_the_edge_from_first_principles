@@ -1,0 +1,18 @@
+========================================================
+Chapter 17.1: What to Measure and Why
+========================================================
+
+-- Test 1: Stats::compute correctness --
+  n=6 median=20 mean=29.1667 (mean pulled above median by the outlier: yes)
+  empty input handled without dividing by zero: yes
+
+-- Test 2: TTFT/TPS/TPOT definitions are internally consistent --
+  steady 14ms/token decode: TPOT=14ms/token, TPS=71.4286 tok/s, TPS*TPOT==1000: yes
+  TTFT = prefill_ms + first_sample_ms = 230.0 + 0.4 = 230.4ms
+  warm-up window [0,5) correctly excludes step 5 onward
+
+-- Test 3: peak_rss_kb() reflects real process memory, not a guess --
+  peak RSS measurably increased after touching a ~200MB buffer: yes
+
+15/15 checks passed
+ALL CHECKS PASSED

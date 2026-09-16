@@ -1,0 +1,16 @@
+========================================================
+Chapter 17.2: A From-Scratch Benchmarking Harness
+========================================================
+
+-- Test 1: run_benchmark produces a structurally correct report --
+  benchmark completed: yes, measured 35/40 decode steps (warm-up correctly excluded), stat ordering min<=median<=p95<=p99<=max: yes
+
+-- Test 2: KV-capacity exhaustion is caught, not silently averaged over --
+  a 3-token prompt against a 6-position cache stops decode early rather than reporting statistics computed past the cache's own capacity: measured 0 (< 95) steps
+
+-- Test 3: slowdown detection algorithm (hand-constructed sequence) --
+  a perfectly steady sequence: slowdown detected = no (correct)
+  a sequence with a genuine 40% back-half slowdown: slowdown detected = yes (correct)
+
+17/17 checks passed
+ALL CHECKS PASSED

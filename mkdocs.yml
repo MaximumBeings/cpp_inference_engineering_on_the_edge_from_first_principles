@@ -78,6 +78,7 @@ nav:
   - "Part 4 -- From Model to Binary: Real Weights, Real Models, Production Engines":
       - "15. Running Real Models: From HuggingFace to First Token with Qwen2.5": part4/15-running-real-models.md
       - "16. The Production Engine: Integrating Everything into a Single Binary": part4/16-production-engine.md
+      - "17. Benchmarking Against llama.cpp and the Broader Ecosystem": part4/17-benchmarking.md
 
 extra:
   social: []

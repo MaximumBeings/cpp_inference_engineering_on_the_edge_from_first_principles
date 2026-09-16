@@ -1,0 +1,30 @@
+========================================================
+Chapter 17.3: An Honest Comparison Against llama.cpp
+========================================================
+
+model: qwen2.5-0.5b-instruct-q8_0.gguf
+  vocab=151936, layers=24, dim=896
+
+-- This book's own engine (Chapters 15-17's from-scratch C++), this machine --
+  single-threaded (this book has never built a thread pool), batch=1, same file:
+    pp32: 1.16 tok/s (prefill 27615.4 ms total)
+    tg32: 2.38 tok/s (28 steps measured after 4 warm-up, median 419.758 ms/token)
+    peak RSS: 1790916 KB
+
+  llama.cpp (build 7ceed87, CPU/NEON backend), 1 thread, batch=1, same file:
+    pp32: 26.08 tok/s (+/- 2.53)
+    tg32: 30.02 tok/s (+/- 0.81)
+
+  llama.cpp (build 7ceed87, CPU/NEON backend), 3 threads, batch=1, same file:
+    pp32: 49.06 tok/s (+/- 2.47)
+    tg32: 44.04 tok/s (+/- 1.78)
+
+Honest comparison, same file and thread count (1): this book's own from-scratch
+engine generates tokens at 7.9% of llama.cpp's single-threaded speed on this machine.
+The gap is not a bug to hunt down -- it is the honest, expected cost of a
+from-scratch, unvectorized reference implementation next to a project with
+years of hand-tuned SIMD (NEON/AVX) matmul kernels for every quantization
+format it supports. This book's own goal was never to out-optimize llama.cpp
+-- it was to build, and be able to explain, every layer between a GGUF file
+and a generated token, which Chapters 15 and 16 already did and Section
+15.4's numerical cross-check already confirmed produces the SAME numbers.
