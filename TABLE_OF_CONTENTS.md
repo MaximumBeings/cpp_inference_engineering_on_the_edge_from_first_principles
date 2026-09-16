@@ -69,7 +69,7 @@ Sliding-window attention as a ring buffer at scale, a tiered cache architecture 
 ## Part 4 — From Model to Binary: Real Weights, Real Models, Production Engines
 
 **15. Running Real Models: From HuggingFace to First Token with Qwen2.5**
-Downloading and inspecting a real GGUF model, the specific architecture diff between Llama and Qwen2 (QKV bias, 6:1 grouped-query attention, tied embeddings, RoPE base frequency, ChatML), adapting the forward pass and tokenizer for those five differences, and generating a first real, correct token from a real downloaded model.
+Downloading and inspecting a real GGUF model, the specific architecture diff between Llama and Qwen2 (QKV bias, a 7:1 grouped-query attention ratio, tied embeddings, RoPE base frequency, ChatML), adapting the forward pass and tokenizer for those five differences, and generating a first real, correct token from a real downloaded model.
 
 **16. The Production Engine: Integrating Everything into a Single Binary**
 The contract a production inference binary must honor, the startup sequence and memory map, the generation loop and the interactive conversation loop, a streaming token decoder, error handling for the edge cases that only show up outside a notebook, and a built-in profiler — all of it compiled into one deployable binary.

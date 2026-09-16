@@ -75,6 +75,8 @@ nav:
       - "12. The Tokenizer: BPE, SentencePiece, and the Vocabulary Pipeline": part3/12-the-tokenizer.md
       - "13. The KV Cache Manager: Paged Attention, Ring Buffers, and Smart Eviction": part3/13-the-kv-cache-manager.md
       - "14. Advanced KV Cache Management: Sliding Windows, Streaming Re-Quantization, and Prefix Caching": part3/14-advanced-kv-cache-management.md
+  - "Part 4 -- From Model to Binary: Real Weights, Real Models, Production Engines":
+      - "15. Running Real Models: From HuggingFace to First Token with Qwen2.5": part4/15-running-real-models.md
 
 extra:
   social: []

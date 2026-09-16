@@ -1,0 +1,51 @@
+========================================================
+Chapter 15.2: Five Ways a Real Qwen2 Checkpoint Differs From Llama
+========================================================
+
+-- Test 1: QKV bias detection (synthetic) --
+  model with bias tensors: q=1 k=1 v=1
+  model with no bias tensors (Llama's convention): q=0 k=0 v=0
+
+-- Test 2: tied-embedding byte comparison (synthetic) --
+  identical-bytes pair detected as tied: yes
+  one-element-different pair detected as tied: no (correct)
+
+-- Test 3: RoPE base frequency changes rotation speed (synthetic) --
+  at k=0: both bases rotate identically (angle depends only on position there)
+  at k=3, pos=10: base=10000 angle=0.01, base=1000000 angle=0.000316228 (higher base rotates slower)
+
+-- Test 4: chat template structure (synthetic) --
+  Llama-3-style template (Chapter 12.3): starts with BEGIN_OF_TEXT, always
+  ChatML template (this section): no BOS-equivalent anywhere in 4 ids
+
+-- Self-tests: 18/18 checks passed ALL PASS --
+
+=== REAL FILE VERIFICATION (run via a shell on the reader's own machine against the actual downloaded file; not reproduced in the four-way cross-check environment) ===
+
+[Difference 1: QKV bias]
+  blk.0.attn_q.bias present, shape=[896]
+  blk.0.attn_k.bias present, shape=[128]
+  blk.0.attn_v.bias present, shape=[128]
+  Llama's attention convention (this book's Chapter 3.4 gqa_attention) has no such tensors at all
+
+[Difference 2: grouped-query attention ratio]
+  head_count=14 head_count_kv=2 -> real ratio 14:2 = 7:1
+  this book's own TOC (Chapter 15's own description) states "6:1" -- the real file says 7:1, and this section reports what the bytes actually contain rather than carrying the stated figure forward unverified
+
+[Difference 3: tied embeddings]
+  output.weight and token_embd.weight: 144643072 bytes each, compared byte for byte
+  result: BYTE-IDENTICAL -- genuinely tied
+
+[Difference 4: RoPE base frequency]
+  real qwen2.rope.freq_base=1e+06 vs this book's Chapter 3.3 default base=10000
+  at position=50, dimension-pair k=20: this book's default base gives angle=0.158114 rad, the real base gives angle=0.0088914 rad (17.7828x slower at this dimension pair)
+
+[Difference 5: ChatML, no BOS prepend]
+  tokenizer.ggml.add_bos_token=false -- unlike Chapter 12.3's Llama-3-style template, no token is ever prepended
+  tokenizer.chat_template: 2509 bytes, contains "<|im_start|>": yes, contains "<|im_end|>": yes
+
+-- Real-file checks: 13/13 checks passed ALL PASS --
+
+========================================================
+ALL CHECKS PASSED
+========================================================

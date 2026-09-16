@@ -1,0 +1,29 @@
+========================================================
+Chapter 15.3: Adapting the Forward Pass and Tokenizer for Qwen2
+========================================================
+
+-- Test 1: linear_with_bias (hand-traced) --
+  linear_with_bias([1,2]) = [1.5, 1.5, 5]
+
+-- Test 2: bias is not a no-op --
+  Wx (zero bias) = [0.3, -0.7]
+  Wx+b (real bias) = [0.55, -0.8]
+
+-- Test 3: real 7:1 GQA ratio (7 query heads, 1 KV head) --
+  head 0 (K0-aligned) output[0]=1.37754, head 1 (K1-aligned) output[0]=1.62246
+  all 4 K0-aligned heads (0,2,4,6) agree, all 3 K1-aligned heads (1,3,5) agree: yes
+
+-- Test 4: RoPE relative-position invariance at base=1000000 --
+  dot(Q@5,K@3) == dot(Q@2,K@0) at base=1000000: yes
+
+-- Test 5: complete Qwen2 block, 7:1 GQA, 3 positions --
+  after 3 positions: finite=1, ||x||^2=1.46713
+  re-run with fresh cache, same weights and input: bit-identical: yes
+
+-- Test 6: one tokenizer function, two model families --
+  add_bos_token=true  (Llama-3 convention): 7 ids, starts with BOS
+  add_bos_token=false (Qwen2 ChatML convention): 6 ids, no BOS anywhere
+  same encode_conversation() function, driven by one boolean read from the GGUF file
+
+35/35 checks passed
+ALL CHECKS PASSED

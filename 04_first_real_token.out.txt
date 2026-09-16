@@ -1,0 +1,47 @@
+========================================================
+Chapter 15.4: A First Real Token From Qwen2.5-0.5B-Instruct
+========================================================
+
+-- Test 1: GPT-2 byte<->unicode codec --
+  all 256 bytes round-trip through encode+decode: yes
+  byte 'A' (printable) maps to itself; byte ' ' maps to a 2-byte UTF-8 symbol
+
+-- Test 2: gpt2_pretokenize chunk boundaries --
+  "The capital of France is" -> 5 chunks: [The][ capital][ of][ France][ is]
+  "What is the capital of France?" -> 7 chunks (trailing "?" has no leading space)
+
+-- Test 3: synthetic model, embedding dequantization --
+  loaded shape: dim=32 heads=4 heads_kv=2 layers=2
+  embedding row 5 max dequantization error: 0.00254571 (Q8_0 tolerance)
+
+-- Test 4: full synthetic pipeline, embedding to argmax --
+  argmax token id: 59, logit=4.21505
+  re-run bit-identical: yes
+
+-- Self-tests: 15/15 checks passed ALL PASS --
+
+=== REAL GENERATION (run via a shell on the reader's own machine against the actual downloaded file; not reproduced in the four-way cross-check environment) ===
+model loaded: dim=896 heads=14 heads_kv=2 layers=24 vocab=151936
+
+building vocabulary and merge table from the real file...
+vocabulary: 151936 tokens, 151387 merge rules
+special tokens: <|im_start|>=151644 <|im_end|>=151645
+
+ChatML prompt (add_bos_token=false): 36 tokens
+  raw content: "What is the capital of France?"
+
+dequantizing all 24 real layers once (reused across every prompt position, rather than re-dequantizing the same weights on every position)...
+dequantization done.
+
+running the real 24-layer forward pass over 36 prompt positions...
+
+first generated token: id=785 logit=22.5446 vocab_text="The" decoded="The"
+
+re-running the full generation once more to confirm determinism (this repeats the entire 24-layer pass)...
+re-run: id=785 logit=22.5446 -- bit-identical to first run: yes
+
+-- Real-generation checks: 13/13 checks passed ALL PASS --
+
+========================================================
+ALL CHECKS PASSED
+========================================================

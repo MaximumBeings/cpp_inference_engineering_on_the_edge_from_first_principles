@@ -1,1 +1,10 @@
 site/
+
+# Chapter 15's real, downloaded model file. ~644 MB, produced by someone
+# else's tooling, and never meant to live in this repository: committing
+# it would defeat the point of a text-based book, and Sections 15.1,
+# 15.2, and 15.4 already document (in their own source comments and in
+# chapter15_template.md) that its real-file output was captured once, by
+# hand, on a reader's own machine, rather than reproduced by this repo's
+# own build. Readers following along download it themselves.
+*.gguf
