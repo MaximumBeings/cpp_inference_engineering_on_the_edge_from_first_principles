@@ -1,0 +1,24 @@
+========================================================
+Chapter 19.3: REST Integration into ERP/WMS Systems
+========================================================
+
+-- Test 1: the JSON serializer escapes real special characters and preserves field order --
+  a string with a newline, a quote, and a backslash escapes to "line1\nquote:\"back\\slash"; a 3-field object serializes to the exact expected string with field order preserved: {"a":1,"b":"x","c":true}
+
+-- Test 2: GET on an unknown record is a real 404, and a first PUT creates it --
+  GET before any record exists returns 404; a PUT with expected_version=0 correctly creates the record at version 1 with quantity 50
+
+-- Test 3: setting the same quantity again with the current version is idempotent in effect --
+  PUTting the same quantity (50) a second time, using the version the first PUT returned, succeeds and leaves the observable quantity unchanged at 50 -- the version counter itself advances to 2, but that is bookkeeping, not the business value a retailer's own inventory dashboard would show
+
+-- Test 4: a stale expected_version is refused with 409, and never applied --
+  a PUT with a stale expected_version (0, when the record's real version is already 1) is correctly rejected with 409 Conflict, and the record's stored quantity remains 50 -- the rejected write's own quantity (999) never landed, which is exactly the lost-update this section's optimistic concurrency exists to prevent
+
+-- Test 5: malformed requests are refused with 400, and never change stored state --
+  an empty sku_id and a negative quantity are both refused with 400 Bad Request, and the existing record's quantity (50) and version (1) are completely unaffected by either rejected request
+
+-- Test 6: ticket creation is a real, non-idempotent POST -- each call makes a new ticket --
+  two POSTs with IDENTICAL inputs produce two DIFFERENT ticket ids ("TCKT-000001" and "TCKT-000002") -- unlike put_stock_level's idempotent PUT, a POST is not expected to collapse repeated calls into one outcome; an empty description is refused with 400 and correctly creates no ticket at all
+
+26/26 checks passed
+ALL CHECKS PASSED

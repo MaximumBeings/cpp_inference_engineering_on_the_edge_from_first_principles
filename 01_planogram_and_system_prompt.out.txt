@@ -1,0 +1,24 @@
+========================================================
+Chapter 19.1: Encoding a Planogram Directly into the System Prompt
+========================================================
+
+-- Test 1: a well-formed planogram validates and renders deterministically --
+  a 3-slot, 2-shelf planogram validates ok and renders identically across two calls
+
+-- Test 2: rendering is independent of insertion order --
+  the same slots added in reverse order render byte-identically once sorted
+
+-- Test 3: validation refuses a duplicate slot and a non-positive facing count --
+  duplicate slot rejected ("duplicate slot at (shelf 1, position 1)"); zero-facing slot rejected ("slot (shelf 1, position 1) has non-positive expected_facings (0)")
+
+-- Test 4: two different planograms render to different prompts --
+  a planogram with a different SKU and facing count at the same slot renders to a genuinely different prompt string
+
+-- Test 5: run-length compression merges a real consecutive run, and only a real run --
+  a real 4-position run of an identical SKU compresses into one range line, the differing 5th position is correctly left out of that range, and a planogram with no compressible run is rendered with no ranges at all
+
+-- Test 6: the token-budget guard fits the full render, falls back to compression, then refuses --
+  a small planogram fits its full rendering directly; a large, compressible planogram (846 est. tokens full, 22 est. tokens compressed) falls back to compression under a tight budget of 27; an impossibly tight budget of 3 refuses outright rather than fabricating a truncated prompt
+
+32/32 checks passed
+ALL CHECKS PASSED

@@ -81,6 +81,7 @@ nav:
       - "17. Benchmarking Against llama.cpp and the Broader Ecosystem": part4/17-benchmarking.md
   - "Part 5 -- Deploying Vision-Language Intelligence at the Edge":
       - "18. Industrial Visual Inspection: Edge-Deployed Defect Detection on Manufacturing Lines": part5/18-industrial-visual-inspection.md
+      - "19. Retail Inventory and Supply Chain Intelligence: Shelf Photography to Action": part5/19-retail-inventory.md
 
 extra:
   social: []

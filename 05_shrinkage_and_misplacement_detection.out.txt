@@ -1,0 +1,21 @@
+========================================================
+Chapter 19.5: Shrinkage and Misplacement Detection from Ordinary Shelf Photographs
+========================================================
+
+-- Test 1: a misplacement is flagged immediately, on the very first observation --
+  slot (1,1) matches its expected SKU-A: OK; slot (1,2) shows SKU-WRONG instead of the expected SKU-B: flagged MISPLACED on the very first photo, no corroboration needed
+
+-- Test 2: a single missing observation is NOT enough to suspect shrinkage --
+  slot (1,2) missing on its first observation: correctly EMPTY_OBSERVED, not yet SHRINKAGE_SUSPECTED (streak=1, threshold=3)
+
+-- Test 3: three CONSECUTIVE missing observations cross the threshold --
+  slot (1,2) missing across 3 consecutive reconciliations: EMPTY_OBSERVED, EMPTY_OBSERVED, then correctly SHRINKAGE_SUSPECTED on crossing the threshold on the 3rd
+
+-- Test 4: the item reappearing resets the streak -- it does not merely pause it --
+  after 2 misses, the item reappears (streak resets to 0); two MORE misses after that reappearance land at streak=2, correctly still EMPTY_OBSERVED rather than treating the two separate miss-runs as one continuous 4-miss shrinkage streak
+
+-- Test 5: a full multi-period reconciliation report is correct and complete --
+  across 5 periods: exactly 1 misplacement event (period 2's slot (1,1)) and exactly 1 slot ever flagged shrinkage-suspected (slot (1,2), after 3 consecutive missing periods 3 through 5) -- a complete, accurate report a real store operator could act on directly
+
+18/18 checks passed
+ALL CHECKS PASSED

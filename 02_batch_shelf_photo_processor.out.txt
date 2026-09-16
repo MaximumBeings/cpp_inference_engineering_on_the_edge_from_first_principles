@@ -1,0 +1,18 @@
+========================================================
+Chapter 19.2: A Batch Shelf-Photo Processor
+========================================================
+
+-- Test 1: a batch of well-formed photos runs end-to-end, finite and deterministic --
+  3/3 photos succeeded, all finite: yes, identical across two independent batch runs: yes
+
+-- Test 2: one malformed photo among several good ones fails in isolation --
+  batch of 3: "photo-001" ok, "photo-bad" correctly isolated as failed ("fusion failed: fewer image placeholders than visual tokens (4 used, 9 provided)"), "photo-003" still ok -- one bad photo did not take down the batch
+
+-- Test 3: the structured-output parser accepts well-formed detection lines --
+  three well-formed lines (varying field order, integer and boundary confidence values 0.0/1.0) all parsed correctly: SKU=10001 shelf=1 position=2 confidence=0.93
+
+-- Test 4: the structured-output parser rejects every real kind of malformed line --
+  all 8 malformed cases correctly rejected: missing field, duplicate field, unexpected extra field, non-integer SHELF, non-numeric CONFIDENCE, out-of-range CONFIDENCE, empty SKU, and a field with no '=' at all
+
+36/36 checks passed
+ALL CHECKS PASSED

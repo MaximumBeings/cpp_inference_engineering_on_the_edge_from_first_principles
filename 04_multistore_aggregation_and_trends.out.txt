@@ -1,0 +1,24 @@
+========================================================
+Chapter 19.4: Multi-Store Aggregation and Trend Detection
+========================================================
+
+-- Test 1: aggregation across fully-reporting stores matches a hand-computed total --
+  3 stores at period 3: 100 + 150 + 75 = 325, all 3 expected stores reporting, none missing
+
+-- Test 2: a store that did not report is excluded, never assumed to be zero --
+  store-C never reported period 5: total is 250 from 2 reporting stores, with store-C correctly listed as missing rather than silently folded into the total as a zero
+
+-- Test 3: a perfectly linear decline is flagged StockoutRisk with a hand-verifiable projection --
+  a perfectly linear decline of 10 units/period (100 down to 50 over periods 0-5) fits a regression slope of -10 and intercept 100, correctly flagged StockoutRisk with a projected zero-inventory period of 10 -- matching the hand-computed zero-crossing exactly
+
+-- Test 4: a flat, noisy series is correctly left Stable --
+  a series hovering around 100 units with small noise fits a near-zero slope (0.0857143) and is correctly left STABLE
+
+-- Test 5: a growing series is flagged Overstock --
+  a perfectly linear growth of 10 units/period fits slope 10 and is correctly flagged OVERSTOCK
+
+-- Test 6: a decline fast enough by RATE but projected far beyond the horizon is not flagged --
+  a steep -50/period decline (slope -50, comfortably past the rate threshold) starting from 1000000 units projects to zero at period 20000, far beyond the 20-period horizon -- correctly left STABLE rather than raising an alert about a shortage that is not actually imminent
+
+17/17 checks passed
+ALL CHECKS PASSED
