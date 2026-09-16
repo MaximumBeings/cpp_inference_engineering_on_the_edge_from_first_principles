@@ -1,0 +1,21 @@
+========================================================
+Chapter 20.1: A Structural Human-in-the-Loop Triage State Machine
+========================================================
+
+-- Test 1: the full, correctly-ordered happy path reaches FINALIZED --
+  a case moves RECEIVED -> AI_TRIAGE_COMPLETE -> PENDING_HUMAN_REVIEW -> FINALIZED, with the final disposition attributed to clinician "dr-alvarez" and a 4-entry audit trail
+
+-- Test 2: skipping a step is refused, whichever step is skipped --
+  finalizing a case that was never routed to review is refused ("record_human_signoff requires state PENDING_HUMAN_REVIEW, current state is AI_TRIAGE_COMPLETE"); routing a case that was never AI-triaged is refused ("route_to_review requires state AI_TRIAGE_COMPLETE, current state is RECEIVED") -- the ordering itself is enforced, not just the final sign-off step
+
+-- Test 3: an empty clinician_id is refused even when the state is otherwise correct --
+  a sign-off attempt with an empty clinician_id is refused ("record_human_signoff requires a non-empty clinician_id"), and the case remains PENDING_HUMAN_REVIEW, completely unaffected -- an unattributed sign-off is not a real audit trail entry, so it is not accepted at all
+
+-- Test 4: a clinician can reject the AI's own suggestion outright --
+  a human reviewer can reject the AI's own suggested routing entirely; the case moves to REJECTED with no final_disposition ever set, and the audit log records the reviewing clinician by name
+
+-- Test 5: the audit trail records every real transition, in order, attributing the human step --
+  all 4 real transitions appear in the audit log in the exact order they occurred, with the AI's own suggestion explicitly marked advisory and the final entry naming the human clinician who actually finalized the case
+
+24/24 checks passed
+ALL CHECKS PASSED

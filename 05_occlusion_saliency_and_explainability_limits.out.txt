@@ -1,0 +1,21 @@
+========================================================
+Chapter 20.5: Occlusion-Based Saliency and the Honest Limits of Explainability
+========================================================
+
+-- Test 1: the frozen encoder's whole-image representation is deterministic --
+  two runs of the unmodified 4x4-patch image through the frozen encoder produce byte-identical 32-dim pooled representations
+
+-- Test 2: the saliency map has one non-negative score per patch, and is not trivially all-zero --
+  16 patches produce 16 non-negative displacement scores, and at least one is clearly nonzero -- occlusion genuinely moves the representation
+
+-- Test 3: occluding a deliberately anomalous patch moves the representation further than occluding an ordinary background patch --
+  the anomalous patch's own score (85.9369) exceeds the highest score among all 15 ordinary background patches (20.9086) -- occlusion saliency correctly localizes WHERE the output is sensitive to input content
+
+-- Test 4: THE HONEST LIMIT -- two different anomalies can move the representation by comparable magnitudes while moving it in substantially different directions, so the scalar score alone cannot tell you WHY --
+  occluding patch 3 moves the representation by 85.9904; occluding patch 12 moves it by 42.3685 (ratio 2.02958, comparable magnitude); but the two displacement vectors have cosine similarity 0.214527 -- pointing in substantially different directions in the model's own hidden space. Magnitude alone cannot tell these two, very different, causes apart
+
+-- Test 5: occlusion really does replace a patch with the dataset's own per-channel mean color, not black --
+  mean_occluded_patch() is exactly the zero vector, and a real patch filled with the rounded per-channel mean pixel value normalizes to within 0.01 of that same zero vector -- confirming occlusion removes a patch's content by substituting the dataset's own neutral color, never an artificial black edge
+
+10/10 checks passed
+ALL CHECKS PASSED

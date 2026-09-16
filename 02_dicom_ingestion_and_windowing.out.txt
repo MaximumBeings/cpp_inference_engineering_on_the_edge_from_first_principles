@@ -1,0 +1,21 @@
+========================================================
+Chapter 20.2: DICOM Ingestion and Windowed Image Extraction
+========================================================
+
+-- Test 1: a real synthetic DICOM file round-trips its own metadata exactly --
+  a synthetic 4x4, 16-bit DICOM file round-trips Rows, Columns, BitsAllocated, WindowCenter, and WindowWidth exactly as written
+
+-- Test 2: the real linear VOI LUT windowing formula matches hand-computed values exactly --
+  window(center=2048, width=4096): x=0 -> 0 (lower boundary), x=-100 -> 0 (clipped), x=2047.5 -> 127.5 (the formula's true midpoint), x=4095 -> 255 (upper boundary), x=5000 -> 255 (clipped) -- all matching hand-computed values exactly
+
+-- Test 3: extracting a windowed image from a real file produces exactly the expected bytes --
+  a 1x5 synthetic image with raw samples {-100, 0, 2048, 4095, 5000} extracts to windowed bytes {0, 0, 128, 255, 255} -- clipped, boundary, and near-midpoint values all correct
+
+-- Test 4: a file with the wrong magic bytes is refused, not crashed on --
+  a file with corrupted magic bytes at offset 128 is correctly refused ("missing 'DICM' magic at offset 128 -- not a valid DICOM file (or an unsupported transfer syntax)") rather than parsed as if it were valid
+
+-- Test 5: a padded, odd-length DS value and a multi-valued DS both parse correctly --
+  a space-padded odd-length DS value ("500" padded to 4 bytes) correctly parses to 500.0, and a multi-valued DS ("1024\2048\4096") correctly reads only its first value, 1024.0
+
+29/29 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,21 @@
+========================================================
+Chapter 20.3: A Structured Triage-Reporting Prompt and Parser
+========================================================
+
+-- Test 1: study metadata validates, and the rendered prompt is deterministic and complete --
+  a valid CT chest study validates and renders deterministically, with the prompt explicitly stating it is not a diagnosis request and that URGENCY is a queue priority; an unknown modality ("LASER") is correctly refused ("unknown modality: "LASER"")
+
+-- Test 2: the parser accepts real queue-priority tiers and refuses every attempt to smuggle a diagnosis --
+  all three real queue-priority tiers (ROUTINE, EXPEDITED, STAT) parse correctly; a free-text "URGENT" is refused ("URGENCY must be one of ROUTINE, EXPEDITED, STAT (a queue priority, not a diagnosis) -- got "URGENT""); a diagnosis-shaped string written into URGENCY is refused by the same check; and an explicit DIAGNOSIS=... field is refused outright ("unexpected extra field(s) present (expected exactly FINDING, LOCATION, URGENCY, CONFIDENCE)") -- there is no path for a diagnosis to survive parsing as structured data
+
+-- Test 3: an out-of-range confidence and a missing field are both refused --
+  an out-of-range confidence (1.5) and a missing CONFIDENCE field are both correctly refused
+
+-- Test 4: a study's overall priority is its SINGLE MOST URGENT finding, never an average --
+  a study with two ROUTINE findings and one STAT finding correctly reports an overall priority of STAT (the single most urgent tier present, not an average of the three); a study with no findings at all correctly defaults to ROUTINE
+
+-- Test 5: the mandatory disclaimer is unconditional, identical, and unomittable across reports --
+  two reports with completely different findings still carry the exact same, byte-identical disclaimer -- build_triage_report offers no parameter capable of changing or omitting it
+
+28/28 checks passed
+ALL CHECKS PASSED

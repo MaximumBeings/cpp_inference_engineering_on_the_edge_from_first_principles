@@ -1,0 +1,21 @@
+========================================================
+Chapter 20.4: PACS Worklist Integration with a Human-in-the-Loop Queue
+========================================================
+
+-- Test 1: pending cases surface STAT first, then EXPEDITED, then ROUTINE, FIFO within a tier --
+  4 cases added (duplicate accession correctly refused); pending order is ACC-0002, ACC-0004 (both STAT, insertion order preserved), ACC-0003 (EXPEDITED), ACC-0001 (ROUTINE)
+
+-- Test 2: claiming is real optimistic concurrency -- the first radiologist to claim a case wins, and a second claim is refused by name, not silently overwritten --
+  dr-alvarez's claim succeeds; dr-nakamura's later claim on the same accession is refused and the refusal names dr-alvarez as the current holder; an empty radiologist_id is refused outright
+
+-- Test 3: only the radiologist who claimed a case may advance or finalize it, and finalize refuses an empty report --
+  dr-nakamura cannot begin review or finalize a case claimed by dr-alvarez; an empty report summary is refused even from the correct reviewer; the real finalize by dr-alvarez succeeds
+
+-- Test 4: a finalized case accepts no further transitions of any kind, and rejection is a real, distinct, always-attributed outcome --
+  every attempt to reclaim, re-review, re-finalize, or reject a already-FINALIZED case is refused and its original report is untouched; a separate case is correctly moved to REJECTED with its reason recorded
+
+-- Test 5: the per-case audit trail is complete, ordered, and attributed --
+  the audit trail for ACC-0400 records all 4 events in order, each with the correct tick and actor: system add, dr-alvarez's claim, dr-alvarez's review start, and dr-alvarez's finalization
+
+27/27 checks passed
+ALL CHECKS PASSED
