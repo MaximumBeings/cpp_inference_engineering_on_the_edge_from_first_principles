@@ -1,0 +1,21 @@
+========================================================
+Chapter 22.2: An Accessibility-Compliance Auditing Engine
+========================================================
+
+-- Test 1: the real WCAG contrast formula matches its own famous exact reference value -- pure black on pure white contrasts at exactly 21:1 --
+  black text on a white background computes to a contrast ratio of 21:1, matching WCAG's own famous exact reference value; white on white computes to exactly 1:1 (no contrast at all)
+
+-- Test 2: contrast_ratio is order-independent -- the same real bug of forgetting to take the lighter/darker max/min would silently break this --
+  contrast_ratio(light, dark) and contrast_ratio(dark, light) both compute to the identical value (7.66314:1), confirming the lighter/darker ordering is handled internally rather than assumed from argument order
+
+-- Test 3: AA and AAA classification thresholds are exact at their own stated boundary values, for both text sizes --
+  normal text passes AA at exactly 4.5:1 and fails just below it; large text passes AA at exactly 3.0:1; normal text passes AAA at exactly 7.0:1; large text passes AAA at exactly 4.5:1 -- every stated threshold is exact, not approximate
+
+-- Test 4: a fully compliant element produces zero violations, and a non-compliant element is flagged with all 3 real, specific, named criteria --
+  a fully compliant 48x48 black-on-white button produces zero violations; a 30x30 low-contrast icon with no alt text is flagged with all 3 real, specific criteria at once: 1.4.3 Contrast, 2.5.5 Target Size, and 1.1.1 Non-text Content
+
+-- Test 5: a full multi-element audit report attributes every violation to its own specific element, with no false positives on the compliant elements sharing the report --
+  a 3-element report (a compliant label, a compliant large button, and the non-compliant icon from Test 4) produces exactly 3 violations, all attributed to icon-delete -- the two genuinely compliant elements contribute zero false positives
+
+19/19 checks passed
+ALL CHECKS PASSED

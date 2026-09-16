@@ -1,0 +1,21 @@
+========================================================
+Chapter 22.3: An Art-Condition Assessment and Provenance-Verification Engine
+========================================================
+
+-- Test 1: a fully contiguous, chronologically consistent 3-owner chain validates with zero issues --
+  3 owners with exactly contiguous custody periods (0-100, 100-250, 250-present) validate with zero issues
+
+-- Test 2: a real gap and a real overlap in custody are each flagged with the exact hand-computed size --
+  a 20-period gap between Ferreira's disposal and Kingsford's acquisition is flagged with the exact size ("gap of 20"); a 50-period overlap between the same two records in a second chain is flagged with the exact size ("overlap of 50")
+
+-- Test 3: an owner disposing before they ever acquired is flagged, and a chain with no current owner at all is flagged --
+  Kingsford Gallery's own recorded disposal at period 50, before their own recorded acquisition at period 100, is flagged as impossible; a separate chain where every single owner has a disposal date recorded (no one currently owns the work) is flagged as missing a current owner
+
+-- Test 4: two simultaneously open-ended owners are flagged, and an open-ended owner who is NOT the chronologically last record is flagged --
+  a chain with 2 owners BOTH recorded with no disposal period is flagged (they cannot both currently own the work); a chain where Ferreira's own record claims no disposal period while a later Kingsford transaction is recorded anyway is flagged as a stale, inconsistent current-owner claim
+
+-- Test 5: real least-squares condition-trend fitting matches hand-computed slope and intercept exactly, and correctly classifies deterioration, stability, and improvement --
+  a perfectly linear decline of 10 points per 10 periods fits to an exact slope of -1 (classified ACCELERATING_DETERIORATION); a flat, mildly noisy series fits to a near-zero slope of -0.02 (classified STABLE); a perfectly linear improvement (consistent with a real conservation treatment) fits to an exact slope of 0.8 (classified IMPROVING)
+
+23/23 checks passed
+ALL CHECKS PASSED

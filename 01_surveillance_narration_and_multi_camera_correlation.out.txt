@@ -1,0 +1,21 @@
+========================================================
+Chapter 22.1: A Surveillance Narration Engine with Temporal Awareness and Multi-Camera Event Correlation
+========================================================
+
+-- Test 1: presence-interval coalescing merges detections within the stated gap tolerance and splits a genuine departure-and-return into two intervals --
+  4 detections at periods 100, 102, 104, 108 (all within a gap tolerance of 5) merge into a single interval spanning 100-108; the same subject departing and returning 290 periods later correctly splits into 2 separate intervals
+
+-- Test 2: narration rendering is deterministic and names the camera, subject, and exact period range --
+  interval CAM-2/TRK-3/500-545 renders to the exact expected sentence, including the correctly hand-computed 46-period duration
+
+-- Test 3: correlation correctly finds the one real candidate within the stated transition window, and excludes both a too-fast and a too-slow candidate --
+  of 3 candidate entries at the adjacent camera (gaps of 5, 20, and 110 periods against a stated [10, 30] transition window), exactly the one genuinely in-window candidate (TRK-B, gap 20) is matched -- the too-fast and too-slow candidates are both correctly excluded
+
+-- Test 4: THE HONEST REFUSAL -- two genuinely competing candidates within the same transition window are reported AMBIGUOUS, never resolved by an arbitrary pick --
+  two candidate entries (TRK-D at gap 15, TRK-E at gap 25) both genuinely fall within the stated transition window -- this section reports AMBIGUOUS with both candidates named, rather than silently picking whichever one happened to be closer or listed first
+
+-- Test 5: a full end-to-end scenario ties interval-building, narration, and cross-camera correlation together into one auditable account of a single subject's movement --
+  Camera CAM-1: subject TRK-42 present from period 100 to period 110 (11 periods); correlated to: Camera CAM-2: subject TRK-99 present from period 128 to period 140 (13 periods) (transition gap of 18 periods, consistent with the stated [10, 30] topology window) -- a single, auditable account of one real subject's movement across 2 cameras, built entirely from real interval and correlation machinery
+
+14/14 checks passed
+ALL CHECKS PASSED
