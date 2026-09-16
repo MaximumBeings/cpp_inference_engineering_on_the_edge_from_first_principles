@@ -1,0 +1,19 @@
+========================================================
+Chapter 18.4: Confidence-Threshold Disposition and SQLite Defect Logging
+========================================================
+
+-- Test 1: disposition thresholds validate their own configuration --
+  default thresholds (reject=0.85, review=0.55) valid: yes; an inverted pair (reject=0.5 < review=0.85) correctly refused, classify() returns no disposition
+
+-- Test 2: the accept/reject bar is asymmetric between flagged and not-flagged readings --
+  the SAME 0.70 confidence yields REVIEW when flagged as a defect but ACCEPT when not flagged -- the asymmetric bar is doing real work, not just thresholding a single number
+  boundary values: flagged @0.90 -> REJECT; flagged @0.70 -> REVIEW; not-flagged @0.70 -> ACCEPT; not-flagged @0.40 -> REVIEW
+
+-- Test 3: real SQLite round-trip (open, create table, insert, read back) --
+  opened a real SQLite file, logged 5 real rows, queried back 2 REJECT and 2 REVIEW rows, all field values matching exactly what was inserted
+
+-- Test 4: opening a database at an unwritable path fails loudly, not silently --
+  opening a database inside a nonexistent directory correctly fails (error: "unable to open database file")
+
+20/20 checks passed
+ALL CHECKS PASSED

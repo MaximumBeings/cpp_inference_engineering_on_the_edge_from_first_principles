@@ -1,0 +1,18 @@
+========================================================
+Chapter 18.5: OPC UA Integration into the MES/SCADA Line
+========================================================
+
+-- Test 1: NodeId equality and hashing are well-defined --
+  NodeId(ns=2;s=Line1.Station3.Disposition) == NodeId(ns=2;s=Line1.Station3.Disposition); a distinct namespace or identifier is a distinct node; an unordered_map keyed on NodeId resolves both correctly
+
+-- Test 2: Read/Write semantics refuse unknown nodes and type mismatches --
+  unknown-node read/write both correctly refused with BadNodeIdUnknown; a string-typed node correctly refuses an int64_t write with BadTypeMismatch and keeps its prior value rather than corrupting it
+
+-- Test 3: subscriptions notify only on an actual value change --
+  a value change before subscribing produces no notification; after subscribing, a real change queues exactly one notification, an unchanged rewrite of the SAME value queues none, and take_notifications() drains to empty and stays empty until the next real change
+
+-- Test 4: end-to-end line glue -- N parts through the inspection station --
+  simulated 6 parts through the station: final reject count = 2 (2 REJECTs, correctly incremented only on REJECT), 17 total SCADA notifications queued across the batch, with the final repeated ACCEPT reading (identical to an earlier one) correctly producing zero new notifications since nothing about the line's published state actually changed
+
+34/34 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,18 @@
+========================================================
+Chapter 18.3: Wiring the Vision Encoder into the Qwen2 Decoder
+========================================================
+
+-- Test 1: fusion refuses a placeholder/visual-token count mismatch --
+  matching count (4 placeholders, 4 visual tokens): ok; fewer placeholders than visual tokens: rejected ("fewer image placeholders than visual tokens (3 used, 4 provided)"); more placeholders than visual tokens: rejected ("more image placeholders than visual tokens")
+
+-- Test 2: end-to-end multimodal prefill (image + text) is finite and deterministic --
+  9-position fused sequence (2 text + 4 image + 3 text) prefilled successfully, final hidden state finite: yes, deterministic across two independent runs: yes
+
+-- Test 3: changing the image changes downstream text computation --
+  the SAME text tokens with two DIFFERENT images produce different final hidden states: yes -- the image is genuinely being attended to, not silently ignored
+
+-- Test 4: KV-capacity exhaustion is still caught in a fused sequence --
+  a 9-position fused sequence against a 5-position cache correctly reports exceeded_capacity=true
+
+14/14 checks passed
+ALL CHECKS PASSED

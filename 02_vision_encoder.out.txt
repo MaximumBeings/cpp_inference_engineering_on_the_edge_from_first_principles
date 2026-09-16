@@ -1,0 +1,18 @@
+========================================================
+Chapter 18.2: Image Preprocessing and the Qwen2.5-VL Vision Encoder
+========================================================
+
+-- Test 1: resize and patchify produce the expected grid and patch shape --
+  resized to 56x56, patchified into 4x4 grid, each patch 588 floats, all finite: yes
+
+-- Test 2: 2D RoPE rotates by row in the first half-dim and by column in the second --
+  position (0,0) is the identity rotation: yes; identical content at different (row,col) positions produces different vectors: yes; row-only and col-only changes each independently change the output: yes
+
+-- Test 3: the 2x2 merger groups spatially adjacent patches, not row-major-consecutive ones --
+  block(0,0) on a 4x4 grid gathers patches {0,1,4,5} (a real 2x2 neighborhood), not {0,1,2,3} (one row): correct
+
+-- Test 4: full encoder forward pass (embed -> 2 ViT blocks -> merger) --
+  16 patches (4x4) -> 2 ViT blocks -> 4 merged visual tokens, each 32-dim; all finite: yes; deterministic across two runs: yes
+
+16/16 checks passed
+ALL CHECKS PASSED

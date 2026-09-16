@@ -1,0 +1,21 @@
+========================================================
+Chapter 18.1: GigE Vision Frame Acquisition and Hardware Triggering
+========================================================
+
+-- Test 1: in-order packet stream reassembles exactly --
+  4/4 payload packets received, frame ok: yes, pixels match reference: yes
+
+-- Test 2: shuffled (out-of-order) delivery reassembles identically --
+  reassembled from shuffled packet order, pixels still match reference: yes
+
+-- Test 3: a dropped payload packet is reported, not silently accepted --
+  received 3/4 payload packets, frame correctly flagged incomplete (ok=false)
+
+-- Test 4: trigger controller mode and busy-state enforcement --
+  OFF mode rejects a fire(): yes; a second fire() while busy is rejected: yes; camera frees up after on_frame(): yes; latency computed as trigger-to-frame-ready: 35 ticks
+
+-- Test 5: a missing frame times out, and a late frame is flagged, not accepted --
+  a trigger with no frame at all times out (timed_out=true); a COMPLETE frame arriving after the deadline is still flagged not ok (ok=false, latency=40 ticks > 30 tick deadline)
+
+24/24 checks passed
+ALL CHECKS PASSED
