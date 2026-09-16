@@ -1,0 +1,21 @@
+========================================================
+Chapter 21.1: Why a Vision-Language Model Replaces a Traditional OCR Pipeline Outright
+========================================================
+
+-- Test 1: real connected-component detection finds exactly the drawn blobs, with exact bounding boxes --
+  3 disjoint rectangles drawn into a 40x20 binary image are detected as exactly 3 connected components, with bounding boxes matching the drawn rectangles exactly
+
+-- Test 2: real text-line grouping clusters blobs by vertical proximity, then orders each line left to right --
+  6 blobs across 2 real vertical bands group into exactly 2 lines of 3 blobs each, each line correctly re-ordered left to right regardless of input order
+
+-- Test 3: a template calibrated against Vendor A's own invoice layout correctly extracts all 3 fields from a Vendor A document --
+  Vendor A's own template correctly extracts INVOICE_NUMBER="INV-1001", INVOICE_DATE="2026-09-16", TOTAL_AMOUNT="$482.50" from a genuine Vendor A document, exactly the layout it was calibrated against
+
+-- Test 4: THE CONCRETE FAILURE -- the SAME Vendor-A-calibrated template, run unmodified against a Vendor B document, silently returns 2 of 3 fields WRONG; a position-independent structured parser gets all 3 right on the identical document --
+  the Vendor-A-calibrated rigid template gets exactly 1 of 3 fields right on a Vendor B document -- it silently SWAPS INVOICE_NUMBER and INVOICE_DATE rather than failing loudly -- while the position-independent schema parser, given the identical document's own semantic content with no coordinates at all, gets 3 of 3 fields right
+
+-- Test 5: the structured parser refuses a missing field, a duplicate field, and an injected extra field, each by name --
+  a missing INVOICE_DATE field, a duplicated INVOICE_NUMBER field, and an injected unrecognized APPROVED field are each refused by name, with no path for any of the three to silently produce a usable (but wrong or tampered) result
+
+23/23 checks passed
+ALL CHECKS PASSED

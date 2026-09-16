@@ -1,0 +1,21 @@
+========================================================
+Chapter 21.2: A Document-Type Router with Handwriting-Aware Extraction
+========================================================
+
+-- Test 1: the router correctly assigns each of 4 real document types, and refuses to guess on an ambiguous document --
+  a CR80-ratio document with a solid block routes to GOVERNMENT_ID; a tall, narrow document routes to RECEIPT; a document with high glyph-height variance routes to HANDWRITTEN_FORM; a regular multi-line document routes to INVOICE; and a sparse, ambiguous document correctly routes to UNKNOWN rather than a forced guess
+
+-- Test 2: rule PRIORITY matters -- a document that clears BOTH the ID-card rule's own aspect-ratio window and the receipt rule's own aspect-ratio floor is routed by whichever rule this router checks FIRST --
+  a document carrying a solid block at a real ID-card aspect ratio is routed to GOVERNMENT_ID by the router's own first-checked rule, confirming rule priority is real and stated rather than incidental
+
+-- Test 3: handwriting confidence is clamped to a stated ceiling regardless of the raw score, while printed confidence passes through (only range-clamped) --
+  a printed field's raw 0.97 confidence passes through unchanged; a handwritten field's raw 0.97 confidence is clamped down to the stated ceiling (0.75); an invalid raw score of 1.40 on a handwritten field is likewise capped at 0.75; and an invalid negative raw score on a printed field is clamped up to 0.0
+
+-- Test 4: human verification is required for the WHOLE document when routed as HANDWRITTEN_FORM, and for a SINGLE handwritten field even inside an otherwise all-printed document --
+  an all-printed, high-confidence INVOICE does NOT require human verification; the identical document type with just ONE handwritten field (an approver's signature) DOES require it; and a document routed as HANDWRITTEN_FORM requires verification structurally, regardless of any individual field's own confidence
+
+-- Test 5: an UNKNOWN document always requires human verification and produces no extracted fields at all --
+  a document this router cannot confidently classify is routed to UNKNOWN, produces zero extracted fields (this section never guesses at a field set for a document type it does not actually know), and is unconditionally sent for human verification
+
+17/17 checks passed
+ALL CHECKS PASSED

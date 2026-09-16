@@ -1,0 +1,21 @@
+========================================================
+Chapter 21.3: Vehicle- and Property-Damage Assessment Engines for Insurance Claims
+========================================================
+
+-- Test 1: the severity-to-cost-range policy is stated exactly, and a multi-zone claim's total is the exact sum of its own per-zone ranges, never collapsed to a point --
+  a 3-zone claim (MODERATE front bumper, MINOR hood, SEVERE windshield) totals to the exact hand-computed range [3250, 12100], never a single collapsed number
+
+-- Test 2: the real mean-absolute-difference metric matches hand-computed values exactly --
+  8 pixels each differing by exactly 40 give a mean difference of exactly 40.0; 4 pixels split evenly between a 100-value and a 0-value difference give exactly 50.0; and an identical before/after patch gives exactly 0.0
+
+-- Test 3: consistency checking correctly reports CONSISTENT at both the interior and the boundary of a claimed severity's own expected band --
+  a measured difference of 55.0 (interior), 30.0 (the band's own low edge), and 80.0 (the band's own high edge) are all correctly reported CONSISTENT for a claimed MODERATE severity
+
+-- Test 4: THE HONEST CHECK IN BOTH DIRECTIONS -- a SEVERE claim against near-identical photos is flagged OVER_CLAIMED, and a MINOR claim against extensively different photos is flagged UNDER_CLAIMED --
+  a claim of SEVERE damage against a measured photo difference of only 3.0 is flagged OVER_CLAIMED ("measured photo difference (3.000000) is BELOW the expected band for claimed severity SEVERE [80.000000, 255.000000] -- the photos show less change than the claim describes"); a claim of MINOR damage against a measured photo difference of 150.0 is flagged UNDER_CLAIMED ("measured photo difference (150.000000) is ABOVE the expected band for claimed severity MINOR [5.000000, 30.000000] -- the photos show more change than the claim describes") -- neither flag auto-approves, auto-denies, or auto-adjusts the claim, both simply name the specific direction of the inconsistency for a human adjuster
+
+-- Test 5: a full multi-zone assessment flags exactly the one inconsistent zone by name, while still reporting the honest, currently-claimed total for every zone --
+  a 3-zone claim with one deliberately inconsistent zone (DRIVER_DOOR, claimed SEVERE against nearly-unchanged photos) is flagged by name and reason, exactly once, while the claim's own total cost range still honestly reflects all 3 zones as currently claimed: [3250, 12100]
+
+25/25 checks passed
+ALL CHECKS PASSED

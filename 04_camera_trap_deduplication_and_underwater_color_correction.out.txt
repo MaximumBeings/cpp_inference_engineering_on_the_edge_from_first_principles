@@ -1,0 +1,21 @@
+========================================================
+Chapter 21.4: Wildlife and Underwater Species Identification from Camera-Trap and Marine Imagery
+========================================================
+
+-- Test 1: a detection below the stated confidence floor is forced to UNKNOWN_UNCERTAIN, regardless of the raw species label, and the floor's own boundary is exact --
+  a high-confidence DEER detection passes through unchanged; a low-confidence FOX detection is forced to UNKNOWN_UNCERTAIN; and the stated floor's own boundary is exact -- confidence exactly at the floor passes, just below it does not
+
+-- Test 2: a real burst of same-camera, same-species detections within the stated time window merges into ONE event; a gap larger than the window starts a genuinely new one --
+  3 detections at periods 100, 102, 105 (all within a window of 10) merge into exactly 1 event spanning periods 100-105 with detection_count 3; 2 detections at periods 100 and 500 (far beyond the window) correctly produce 2 separate events
+
+-- Test 3: a different SPECIES at the same camera, and the same species at a different CAMERA, are each their own separate event -- location and species both distinguish events --
+  a DEER and a FOX detected one period apart at the SAME camera are correctly kept as 2 separate events; the SAME species detected at the SAME period by 2 DIFFERENT cameras is likewise correctly kept as 2 separate events
+
+-- Test 4: THE HONEST LIMIT -- one real, lingering individual animal, captured in several widely-separated bursts across a single deployment, produces MORE THAN ONE independent capture event, proving directly that this report's own event count is not, and must never be read as, an individual or population count --
+  a single real fox returning to the same camera 4 separate times across one day produces exactly 4 independent_capture_events for FOX -- a real, computed demonstration that this number counts EVENTS, never individuals, since this entire report describes what could easily be just 1 real animal
+
+-- Test 5: gray-world color correction pulls a real blue-green underwater color cast toward neutral, and its own amplification is bounded even for a near-zero-mean channel --
+  a synthetic underwater-cast image (R mean 40, G mean 90, B mean 180) has its per-channel spread shrink from 140 to 23 after gray-world correction; the red channel's own scale factor is correctly clamped at the stated ceiling of 2 rather than applying its full, hand-computed 2.583x; and a near-zero-mean channel is likewise bounded rather than amplified without limit
+
+18/18 checks passed
+ALL CHECKS PASSED
