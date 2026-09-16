@@ -1,0 +1,21 @@
+========================================================
+Chapter 16.1: Engine Configuration and the Command Line
+========================================================
+
+-- Test 1: every flag parses correctly --
+  all 11 fields parsed to the value their flag specified
+
+-- Test 2: defaults --
+  defaults match Section 15.4's own real-file chat-template default
+
+-- Test 3: validation rejects out-of-range values individually --
+  8/8 invalid configurations correctly rejected
+
+-- Test 4: no unearned thread-count flag --
+  "-t 4" (this book's other worked examples use -t for threads) is rejected outright:
+  this chapter's real generation loop is Section 15.4's single-threaded code,
+  so no flag exists that could look like it enables threading and silently not
+  perform it
+
+31/31 checks passed
+ALL CHECKS PASSED

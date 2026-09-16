@@ -77,6 +77,7 @@ nav:
       - "14. Advanced KV Cache Management: Sliding Windows, Streaming Re-Quantization, and Prefix Caching": part3/14-advanced-kv-cache-management.md
   - "Part 4 -- From Model to Binary: Real Weights, Real Models, Production Engines":
       - "15. Running Real Models: From HuggingFace to First Token with Qwen2.5": part4/15-running-real-models.md
+      - "16. The Production Engine: Integrating Everything into a Single Binary": part4/16-production-engine.md
 
 extra:
   social: []

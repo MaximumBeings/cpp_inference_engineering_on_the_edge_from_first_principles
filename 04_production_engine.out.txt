@@ -1,0 +1,25 @@
+========================================================
+Chapter 16.4 (capstone): The Complete Production Engine
+========================================================
+
+-- Test 1: CLI wiring sanity --
+  CLI parses correctly and still rejects invalid invocations
+
+-- Test 2: engine wiring (profiler + streaming callback) is correct --
+  streamed callback text matches final result text: yes
+  profiler recorded 15 decode steps (expected 15)
+  deterministic across two independent runs with the same seed: yes
+
+-- Test 3: two-turn conversation reuses the cache correctly --
+  turn 1's cache contents unchanged after turn 2's prefill: yes
+
+-- Test 4: profiler timing and near-zero disabled overhead --
+  enabled profiler recorded 3 steps, all 3 layers with non-zero time
+  100K disabled profiler calls finished in under 50ms (near-zero overhead): yes
+
+-- Test 5: error handling -- capacity and NaN, through the new decode_step signature --
+  a 2-token prompt against a 1-position cache is caught as exceeded_capacity, not a buffer overrun
+  a NaN poisoned into layer 1's bias is detected at layer 1 (expected: 1)
+
+29/29 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,22 @@
+========================================================
+Chapter 16.3: The Generation Loop and the Conversation Loop
+========================================================
+
+-- Test 1: prefill + incremental decode_step, finite and deterministic --
+  prefilled 3 tokens, hidden state finite: yes, logits deterministic on rerun: yes
+
+-- Test 2: generation loop determinism and stop-token handling --
+  two independent runs, same seed: generated 10 tokens, identical ID sequence and identical decoded text: yes
+
+-- Test 3: multi-turn conversation reuses turn 1's cache exactly --
+  turn 1's cache region byte-for-byte unchanged after turn 2: yes
+  reused-cache hidden state == full-recompute-from-scratch hidden state: yes
+
+-- Test 4: KV-capacity limit is enforced, not merely hoped for --
+  requested 100 new tokens against a 5-position cache: stopped at position 4 with truncated_by_capacity=true
+
+-- Test 5: NaN detection names the failing layer --
+  NaN poisoned into layer 1's query projection weight; detected at layer 1 (expected: 1)
+
+23/23 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,35 @@
+========================================================
+Chapter 16.2: Sampling and the Streaming Token Decoder
+========================================================
+
+-- Test 1: temperature scaling --
+  gap at temp=0.5: 2, gap at temp=2.0: 0.5 (lower temp widens the gap)
+
+-- Test 2: repetition penalty --
+  token 0 (seen, positive): 3.0 -> 2.5; token 1 (unseen): unchanged at 3; token 2 (seen, negative): -1.0 -> -1.2
+
+-- Test 3: top-k filtering --
+  kept exactly 2 of 5 candidates: the two largest logits (5.0 and 4.0) survive
+
+-- Test 4: top-p (nucleus) filtering --
+  p=0.9 over a heavily peaked distribution keeps exactly the 1 dominant candidate
+  p=0.9 over a uniform distribution needs all 4 candidates to cross the threshold
+
+-- Test 5: temperature=0 is greedy, unaffected by the other three knobs --
+  two different RNG seeds under temp=0 both pick token 1 (the argmax): 1, 1
+
+-- Test 6: same seed -> bit-identical sampled token --
+  seed 42 twice, identical config, identical logits -> both runs picked token 46
+
+-- Test 7: multi-character tokens flush immediately --
+  "Hello" and " world" each flush whole, immediately: "Hello" " world"
+
+-- Test 8: split multi-byte UTF-8 character across two byte-fallback tokens --
+  after byte 1 (0xC3): flushed "" (0 bytes, still accumulating)
+  after byte 2 (0xA9): flushed the complete 2-byte character (2 bytes)
+
+-- Test 9: finish() recovers a buffer left incomplete when generation stops --
+  generation stopped with one buffered byte; finish() returned it rather than losing it
+
+19/19 checks passed
+ALL CHECKS PASSED

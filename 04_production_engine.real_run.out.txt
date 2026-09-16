@@ -1,0 +1,46 @@
+
+=== REAL PRODUCTION RUN (run via a shell on the reader's own machine against the actual downloaded file; not reproduced in the four-way cross-check environment) ===
+model loaded: dim=896 heads=14 heads_kv=2 layers=24 vocab=151936
+
+turn 1 (user): "What is the capital of France?"  (36 prompt tokens)
+
+dequantizing all 24 real layers once...
+dequantization done.
+
+assistant: The capital of France is Paris. It is located in the eastern part of the country, and it serves as both its
+  (24 tokens generated, stopped on max-new-tokens limit)
+
+turn 2 (user, demonstrating KV-cache reuse across a conversation turn): "In one short sentence, why is that the answer?"
+assistant: Paris, also known as "la Grande-Bretagne" (Great Britain), was chosen to be its official residence during World War II and remains so today due
+
+--- profiler summary ---
+  prompt processing: 55 tokens in 23.827s (2.3 tok/s)
+  generation:        56 tokens in 41.736s (1.3 tok/s)
+  per-layer time, averaged over 111 decode steps (prefill + generation combined):
+    layer  0: 20.2464 ms
+    layer  1: 18.7103 ms
+    layer  2: 17.7780 ms
+    layer  3: 18.0693 ms
+    layer  4: 17.6709 ms
+    layer  5: 18.9698 ms
+    layer  6: 19.5980 ms
+    layer  7: 17.6703 ms
+    layer  8: 18.6069 ms
+    layer  9: 19.6362 ms
+    layer 10: 19.7664 ms
+    layer 11: 18.7114 ms
+    layer 12: 21.4659 ms
+    layer 13: 19.7183 ms
+    layer 14: 17.2772 ms
+    layer 15: 18.9223 ms
+    layer 16: 19.4589 ms
+    layer 17: 18.8667 ms
+    layer 18: 18.9569 ms
+    layer 19: 18.8115 ms
+    layer 20: 18.8520 ms
+    layer 21: 19.9183 ms
+    layer 22: 18.4588 ms
+    layer 23: 19.7811 ms
+    total (sum of layers): 455.922 ms/step
+
+-- Real-run checks: 16/16 checks passed ALL PASS --
