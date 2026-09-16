@@ -85,6 +85,7 @@ nav:
       - "20. Medical Imaging Triage: Preliminary Radiology Reads and Human-in-the-Loop Workflow": part5/20-medical-imaging-triage.md
       - "21. Document Intelligence, Insurance Claims, and Environmental Monitoring": part5/21-document-intelligence-claims-environmental.md
       - "22. Security Surveillance, Accessibility Compliance, and Art Authentication": part5/22-security-accessibility-art.md
+      - "23. Trust and Authenticity at the Point of Sale: Counterfeits, Reconciliation, Expense Audits, and Luxury Goods": part5/23-trust-authenticity-point-of-sale.md
 
 extra:
   social: []

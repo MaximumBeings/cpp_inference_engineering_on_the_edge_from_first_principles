@@ -1,0 +1,27 @@
+========================================================
+Chapter 23.4: A Real-Time Luxury-Goods Authentication Engine
+========================================================
+
+-- Test 1: the real Luhn algorithm matches its own famous exact reference value (79927398713 is Luhn-valid), and a single altered digit breaks it --
+  "79927398713," the Luhn algorithm's own famous reference test number, validates exactly as expected; changing its own last digit by 1 breaks the checksum; the same holds for a second, independent real 16-digit Luhn-valid reference number
+
+-- Test 2: this section's own stated serial format is checked structurally -- wrong length, a lowercase factory code, and a non-digit in the numeric portion are each flagged by their own specific, named reason --
+  a 12-character serial (one short of the required 13) is flagged for its own exact length; a lowercase factory-code prefix is flagged by name; a numeric portion containing a letter is flagged by name -- each a specific, different structural reason
+
+-- Test 3: a serial with valid structural format but a failing checksum is flagged distinctly from a structurally invalid one --
+  "FR79927398713" passes both structural format and checksum; "FR79927398714" passes the structural format (right length, right character classes) but fails the Luhn checksum specifically, named by its own reason
+
+-- Test 4: an item with a fully valid serial, weight, and hardware finish passes structural screening -- an honest, narrow claim, never named "authentic" --
+  a valid serial, a 200g weight inside the real [180g, 220g] spec, and a recognized "Gold-Tone" finish together produce PASSES_STRUCTURAL_SCREENING -- whose own reason text explicitly states final authentication remains a human expert's own call
+
+-- Test 5: an invalid serial checksum alone forces REJECTED_INVALID_SERIAL even when weight and hardware finish both pass -- one hard-failing check is never outvoted by two passing ones --
+  the identical 200g "Gold-Tone" item, with only its own serial's checksum digit altered, is REJECTED_INVALID_SERIAL outright -- a perfectly in-spec weight and a perfectly recognized finish never override one specific failing checksum
+
+-- Test 6: a weight outside the real spec range is rejected with the exact range named, even with a fully valid serial --
+  a 260g item with an otherwise perfectly valid serial is rejected, naming the real [180g, 220g] spec range it falls outside of
+
+-- Test 7: an unrecognized hardware finish is flagged for expert review, not silently passed, even when the serial and weight both look fine --
+  a valid serial and an in-spec 200g weight both look fine, but "Rose-Gold-Tone" is not among this item's own 3 stated valid finishes, so the item is flagged for expert review rather than silently passed on the strength of its other 2 checks
+
+20/20 checks passed
+ALL CHECKS PASSED

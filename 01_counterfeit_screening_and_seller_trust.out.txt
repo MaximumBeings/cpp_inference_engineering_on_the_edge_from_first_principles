@@ -1,0 +1,27 @@
+========================================================
+Chapter 23.1: A Counterfeit-Screening and Seller-Trust Engine
+========================================================
+
+-- Test 1: the real dHash algorithm hashes identical images identically and clearly different images far apart --
+  two independently generated but pixel-identical checkerboard images hash to the identical 64-bit value (Hamming distance 0); a clearly different gradient image hashes 28 bits away
+
+-- Test 2: a photo reused across two different sellers is flagged as a duplicate stock image, naming the other seller; a genuinely different photo is not --
+  seller-B's own listing photo, byte-identical to seller-A's already-registered photo, is flagged as a duplicate stock image naming seller-A; seller-C's own genuinely different photo is not flagged
+
+-- Test 3: prohibited keywords are caught case-insensitively and embedded in longer text; a legitimate description is not falsely flagged --
+  "AAA Quality" and "REPLICA" are both caught case-insensitively inside longer listing text; a genuinely clean description mentioning "authentic" is not falsely flagged
+
+-- Test 4: the authentic-price-floor check is exact at its own stated boundary --
+  a $100 MSRP-minimum brand's own real floor is exactly $40.00: a $40.00 listing passes, a $39.99 listing is flagged
+
+-- Test 5: a weight outside the brand's own real spec range is flagged with the exact expected range named --
+  a 200g item claiming a brand whose real spec range is [250g, 350g] is flagged naming that exact range; a 300g item in range is not
+
+-- Test 6: the seller trust score's own components are exact, hand-computed values for three real seller profiles --
+  a 1-year-old, 100-listing, zero-dispute seller scores exactly 100.0 (40 age + 20 volume + 40 dispute-free); a brand-new seller with no history scores exactly 40.0 (0 age + 0 volume + 40 no-evidence-of-disputes-yet); a 1-year-old, 100-listing seller with a 50% dispute rate scores exactly 60.0, the dispute component clamped to its own real floor of 0
+
+-- Test 7: a single specific red flag on an otherwise perfect-trust-score seller's listing still forces manual review -- the aggregate trust score never suppresses it --
+  the identical perfect-trust-score (100.0) seller's clean listing requires no review, but the SAME seller's listing containing "1:1 mirror quality" still requires manual review -- a perfect aggregate trust score never overrides one specific, named red flag
+
+25/25 checks passed
+ALL CHECKS PASSED

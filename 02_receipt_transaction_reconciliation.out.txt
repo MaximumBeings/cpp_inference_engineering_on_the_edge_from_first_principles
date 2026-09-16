@@ -1,0 +1,30 @@
+========================================================
+Chapter 23.2: A Receipt-to-Transaction Reconciliation Engine
+========================================================
+
+-- Test 1: the real Levenshtein algorithm matches its own famous exact reference value (KITTEN -> SITTING is distance 3), alongside identical and fully-disjoint strings --
+  KITTEN -> SITTING computes to exactly 3, matching this algorithm's own famous reference value; an identical pair computes to 0; an empty string against a 3-character string computes to exactly 3 (three real insertions)
+
+-- Test 2: a single-character OCR misread is fuzzy-matched to its own true merchant name, while a genuinely different merchant is not --
+  "WALGREEN5" (a real OCR digit/letter confusion of the trailing S) fuzzy-matches its own true name "WALGREENS" at an edit ratio of 1/9; "WALGREENS" does not match the genuinely different merchant "CVS PHARMACY"
+
+-- Test 3: amount matching accepts an added tip up to its own real, stated cap, and rejects one beyond it, exactly at the boundary --
+  a $40.00 receipt matches an exact $40.00 settlement, a 15% tip ($46.00), and exactly its own real 25% tip cap ($50.00); it does NOT match $50.01 (one cent over the cap) or a $39.00 settlement below its own printed amount
+
+-- Test 4: the settlement-date window is exact at its own real boundary, and a settlement dated before its own purchase never matches regardless of gap size --
+  a same-period settlement and a settlement exactly 3 periods later both match; one 4 periods later does not, and one dated even 1 period before its own purchase (let alone 50) never matches
+
+-- Test 5: a receipt with exactly one fitting transaction is reported MATCHED, naming that transaction --
+  an OCR'd receipt reading "TARGEI" for $52.30 matches exactly one real transaction (T-1, "TARGET", $52.30) out of a 2-transaction pool
+
+-- Test 6: two transactions that BOTH fit every real matching rule are honestly reported AMBIGUOUS, naming both candidates, rather than silently picking one --
+  a $12.00 Starbucks receipt with a real, plausible tip finds TWO transactions (T-10 same-day, T-11 one day later) both matching on amount, merchant, and window -- reported AMBIGUOUS, naming both, rather than guessing which one is correct
+
+-- Test 7: a receipt with no fitting transaction anywhere in the pool is reported MISSING_TRANSACTION --
+  a $200.00 receipt against a pool containing only a $45.00 transaction from the same real merchant finds no amount-matching candidate and is reported MISSING_TRANSACTION
+
+-- Test 8: a transaction never claimed by any receipt's own unique match is flagged MISSING a receipt, a real, useful signal for an expense audit --
+  of a 2-transaction pool, T-30 is claimed by its own matching receipt while T-31, an $890.00 charge with no receipt on file at all, is flagged as missing a receipt
+
+24/24 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,24 @@
+========================================================
+Chapter 23.3: An Automated Expense-Report Policy Engine
+========================================================
+
+-- Test 1: a meal claim under and exactly at the real daily cap is fully approved with zero violations; one over the cap is flagged with the exact computed overage --
+  a $50.00 and an exactly-$75.00 meal claim are both fully approved with zero violations; a $90.00 claim is capped to $75.00 approved and flagged with the exact $15.00 overage
+
+-- Test 2: lodging's own real per-city-tier cap is applied correctly for all 3 tiers, and an over-cap claim in the cheapest tier is still flagged against ITS OWN tier's cap, not a different tier's --
+  a $340 tier-1 stay and a $190 tier-2 stay both pass under their own real caps ($350 and $200); a $150 tier-3 stay is capped to $120.00 approved and flagged with the exact $30.00 overage against ITS OWN tier-3 cap
+
+-- Test 3: a mileage claim matching the real rate exactly is approved with zero violations; a claim that does not match its own computed value is flagged naming both figures --
+  100 miles at the real $0.67/mile rate computes to exactly $67.00: a claim of $67.00 passes with zero violations, while a claim of $70.00 for the same 100 miles is approved at the correctly computed $67.00 and flagged, naming both the claimed and the expected figure
+
+-- Test 4: an alcohol line item is approved at $0.00 regardless of its claimed amount, and never triggers the receipt-required check --
+  a $45.00 alcohol claim with no receipt on file is approved at exactly $0.00, flagged only for ALCOHOL_NOT_REIMBURSABLE -- never additionally flagged for a missing receipt, since a fully excluded category has nothing left to require one for
+
+-- Test 5: the receipt-required threshold is exact at its own real boundary -- claims at or below it never require a receipt, and claims above it do --
+  a $25.00 office-supply claim with no receipt requires none and is approved with zero violations; a $25.01 claim with no receipt is flagged MISSING_REQUIRED_RECEIPT
+
+-- Test 6: a full multi-item report computes its own claimed and approved totals as exact sums, and attributes every violation to its own specific line item, never silently dropping a flagged item's own claimed contribution to the total --
+  a 4-item report totals $527 claimed against $482 approved -- the $90 meal claim's full $90 still counts toward the claimed total even though only $75 is approved, and the excluded $30 alcohol item still counts toward the claimed total even though $0 is approved -- the report's own claimed figure is never silently reduced, only the approved figure and the named violation tell the real story
+
+32/32 checks passed
+ALL CHECKS PASSED
