@@ -1,0 +1,18 @@
+========================================================
+Chapter 26.5: The Hessian's Role in GPTQ
+========================================================
+
+-- Test 1: the real Hessian H = 2 * X^T * X, computed from scratch, matches an exact hand computation over this section's own real calibration data --
+  X^T * X over the real 3-sample calibration set is exactly [[2, 1], [1, 2]], so H = 2 * X^T * X is exactly [[4, 2], [2, 4]] -- matching a direct hand computation exactly
+
+-- Test 2: the real, general Gauss-Jordan inverse of H matches an exact hand computation, and H * H^-1 is genuinely the identity matrix, checked directly rather than assumed from the inversion algorithm's own correctness --
+  the real Gauss-Jordan inverse of [[4, 2], [2, 4]] is exactly [[1/3, -1/6], [-1/6, 1/3]], matching a hand computation via the real 2x2 determinant formula exactly, and H * H^-1 checked directly is exactly the real 2x2 identity matrix
+
+-- Test 3: the real GPTQ compensation formula applied to a single quantized weight matches an exact hand computation for the resulting update to the remaining weight --
+  quantizing w[0] = 1.3 at scale 0.5 yields q0 = 1.5, a real error of e0 = -0.2; applying the real GPTQ compensation formula to the not-yet-quantized w[1] = 0.8 shifts it to exactly 0.7 -- matching a direct hand computation of -(-0.2 / (1/3)) * (-1/6) = -0.1 exactly
+
+-- Test 4: the full real GPTQ pipeline -- sequential per-weight quantization with compensation -- produces a genuinely different final weight than naive, independent rounding, and a strictly LOWER real output error over the calibration data, GPTQ's own central real claim, verified end to end on a fully hand-traceable example --
+  naive independent rounding quantizes w to exactly [1.5, 1.0], with a real total squared output error over the calibration data of exactly 0.24; GPTQ's real Hessian-compensated pipeline quantizes the SAME original weights to exactly [1.5, 0.5] -- a genuinely different second weight -- with a real total squared output error of exactly 0.14, strictly lower than naive rounding's 0.24, confirming GPTQ's own central claim on a fully hand-traceable example
+
+20/20 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,18 @@
+========================================================
+Chapter 26.1: The Dot Product, Arithmetic Intensity, and the GEMV/GEMM Crossover
+========================================================
+
+-- Test 1: a dot product's own real arithmetic intensity is a fixed constant, identical for a short vector and a vector 1000x longer --
+  an 8-element dot product and an 8000-element dot product both compute to exactly 0.25 FLOPs/byte -- a dot product's own real arithmetic intensity never improves with length, which is exactly why it is intrinsically memory-bound
+
+-- Test 2: GEMV's own real arithmetic intensity approaches exactly 0.5 as the matrix grows, regardless of its real shape -- the real reason decode-time GEMV is memory-bound at any model size --
+  a real 64x64 GEMV, a real 4096x4096 GEMV, and a real 16384x16384 GEMV compute to arithmetic intensities of 0.484848, 0.499756, and 0.499939 -- all strictly below 0.5, and converging toward exactly 0.5 as the real matrix dimensions grow and the vector/output bytes become negligible
+
+-- Test 3: GEMM's own weight-dominated approximation, AI(M) = M/2, matches its own exact byte accounting closely when the batch M is genuinely small compared to the real weight matrix dimensions, and the approximation's own real error is honestly quantified rather than assumed away --
+  for a real 4096x4096 weight matrix, weight-bytes-only arithmetic intensity is exactly 0.5 at batch 1 and exactly 50.0 at batch 100 -- matching the closed-form M/2 approximation exactly by construction -- while the EXACT byte accounting (including the batch's own input and output bytes) differs from that approximation by a small, honestly measured amount that grows with batch size
+
+-- Test 4: the real crossover batch size where a weight-dominated GEMM's own arithmetic intensity reaches a stated machine's real ridge point, computed end to end from real, stated hardware figures --
+  a real machine with 1000 GFLOP/s peak compute and 25 GB/s peak bandwidth has a real ridge point of exactly 40.0 FLOPs/byte, which this weight-dominated GEMM model crosses at exactly batch size 80.0 -- batch 79 is still memory-bound, batch 81 is already compute-bound, exactly straddling the computed crossover
+
+15/15 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,18 @@
+========================================================
+Chapter 26.4: Quantization as Affine Algebra
+========================================================
+
+-- Test 1: the real optimal scale formula, and an exact real round-trip at both endpoints of the quantization range --
+  an 8-bit real quantization of [-1.0, 1.0] has a real scale of exactly 2.0/255; the real range's own two endpoints quantize to exactly integer codes 0 and 255, and dequantizing each reproduces the exact original endpoint
+
+-- Test 2: the real, general error bound -- no real value anywhere in the quantization range is ever reconstructed more than scale/2 away from itself, checked across many sample points, not merely a hand-picked few --
+  across 1001 real sample points evenly spanning [-3.0, 5.0], not a single one is ever reconstructed more than scale/2 away from its own true value -- the real error bound holds with zero exceptions
+
+-- Test 3: the real error bound from Test 2 is TIGHT, not merely generous -- a real value constructed exactly at a quantization bin's own real midpoint is reconstructed with an error genuinely close to the full scale/2 bound, not comfortably inside it --
+  a real value placed exactly at the midpoint between two adjacent quantization levels reconstructs with an error of 0.0156863, within a millionth of the theoretical scale/2 bound of 0.0156863 -- confirming the bound from Test 2 is the real, tight worst case, not an artificially loose estimate
+
+-- Test 4: re-quantization does not commute -- quantizing a real value once at a coarse scale, versus quantizing it finely, dequantizing, then re-quantizing coarsely, can produce two genuinely DIFFERENT real integer codes, a direct real consequence for any system (like Chapter 14's own streaming re-quantization) that quantizes more than once --
+  quantizing 0.333333 directly at a coarse 4-bit scale yields code 1; quantizing the SAME real value finely at 7 bits first, dequantizing it back to a real float, and THEN quantizing that at the identical coarse 4-bit scale yields a genuinely different code, 0 -- re-quantization is a real, checkable non-associative operation, not merely a theoretical curiosity
+
+10/10 checks passed
+ALL CHECKS PASSED

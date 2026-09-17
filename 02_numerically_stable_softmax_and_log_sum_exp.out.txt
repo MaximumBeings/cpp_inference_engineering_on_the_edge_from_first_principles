@@ -1,0 +1,21 @@
+========================================================
+Chapter 26.2: Numerically Stable Softmax and Log-Sum-Exp
+========================================================
+
+-- Test 1: a single real large logit makes naive_softmax_f32 produce a genuine NaN for exactly the entry that should carry nearly all the real probability mass --
+  naive_softmax_f32({1.0, 2.0, 100.0}) produces a genuine NaN for index 2 -- the one entry that should hold almost the entire real probability mass -- because exp(100.0f) overflows float32 to +inf, and inf/inf is undefined
+
+-- Test 2: stable_softmax_f32 on the identical real input produces a valid real probability distribution -- no NaN anywhere, and the values sum to exactly 1.0 --
+  stable_softmax_f32 on the identical real input produces a fully valid distribution: index 2 correctly carries over 99.9% of the real probability mass, and all three values sum to exactly 1.0 -- the exact same real input naive_softmax could not process at all
+
+-- Test 3: on a real, safe-magnitude input with no overflow risk, naive and stable softmax agree -- confirming they really are the identical real mathematical function, differing only in numerical robustness, never in what they compute --
+  on the real, safe input {1.0, 2.0, 3.0} (well within float32's real dynamic range), naive and stable softmax agree to within 1e-5 at every index -- the shift by max(x) really does leave the mathematical result unchanged
+
+-- Test 4: naive_log_sum_exp on a real, safe input matches stable_log_sum_exp exactly, confirming the identical shift-invariant identity in the closely related log-sum-exp formulation --
+  on {1.0, 2.0, 3.0}, naive_log_sum_exp and stable_log_sum_exp agree to within 1e-9 -- log(sum(exp(x))) and max(x) + log(sum(exp(x - max(x)))) really are the identical real function
+
+-- Test 5: naive_log_sum_exp on a real large-magnitude input silently returns +inf -- not a NaN, not a crash, just a plainly WRONG finite-valued answer masquerading as a real number -- while stable_log_sum_exp on the identical input returns the correct, genuinely finite real value --
+  naive_log_sum_exp({1000.0, 1.0, 2.0}) silently returns +inf, because exp(1000.0) overflows even double precision -- a caller who never separately checked would treat +inf as a legitimate log-probability; stable_log_sum_exp on the identical input correctly returns approximately 1000.0, the real, genuinely finite answer, confirming the naive result was not merely imprecise but categorically wrong
+
+16/16 checks passed
+ALL CHECKS PASSED

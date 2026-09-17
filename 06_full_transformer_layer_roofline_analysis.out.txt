@@ -1,0 +1,21 @@
+========================================================
+Chapter 26.6: A Full Roofline Analysis of a Transformer Layer
+========================================================
+
+-- Test 1: at batch 1, every real FLOP sub-total, the real total, the real weight-byte total, and the resulting real arithmetic intensity all match an exact hand computation for this tiny, fully traceable layer shape --
+  at batch 1, this tiny layer's own real FLOPs are exactly 192 (QKV) + 64 (attention) + 64 (output projection) + 256 (FFN) = 576 total; its own real weight bytes are exactly 192 + 64 + 256 = 512; its own real arithmetic intensity is exactly 576 / 512 = 1.125 FLOPs/byte -- every sub-total matching a direct hand computation from this layer's own stated shape
+
+-- Test 2: doubling the real batch size exactly doubles the real total FLOPs and the real arithmetic intensity, while the real weight bytes stay exactly unchanged -- confirming the algebraic linear-in-batch property this section's own crossover formula depends on, checked directly rather than merely asserted --
+  at batch 2, real total FLOPs are exactly 1152 -- precisely double batch 1's 576 -- while real weight bytes remain exactly 512, unchanged; the resulting real arithmetic intensity, 2.25, is precisely double batch 1's 1.125, confirming this layer's own real arithmetic intensity scales exactly linearly with batch size
+
+-- Test 3: against a stated real machine ridge point sitting between this layer's own batch-1 and batch-2 arithmetic intensities, the SAME layer classifies as memory-bound at batch 1 and compute-bound at batch 2 -- the real roofline model's own central prediction, applied to a whole real transformer layer rather than a single operation --
+  against a real stated machine ridge point of 2.0 FLOPs/byte, this layer's own batch-1 arithmetic intensity of 1.125 classifies MEMORY_BOUND, and the identical layer's own batch-2 arithmetic intensity of 2.25 classifies COMPUTE_BOUND -- the same real layer shape, genuinely different real classifications, purely as a function of real batch size
+
+-- Test 4: the real crossover batch size computed directly from this layer's own shape and a stated ridge point falls exactly between the two batch sizes Test 3 observed flipping classification, confirming the closed-form crossover formula predicts the identical real transition rather than merely rationalizing it after the fact --
+  the real crossover batch size for this layer's own shape against a ridge point of 2.0 is exactly 1.77778 -- strictly between batch 1 (observed MEMORY_BOUND in Test 3) and batch 2 (observed COMPUTE_BOUND) -- confirming the closed-form crossover formula predicts precisely the transition this section already observed directly
+
+-- Test 5: the same crossover formula behaves consistently across several genuinely different real ridge points, always landing exactly where AI(1) * crossover = ridge, checked algebraically rather than against a single hand-picked example --
+  across 4 genuinely different real ridge points -- 0.5, 1.125 (the layer's own exact batch-1 arithmetic intensity), 5.0, and 40.0 -- the computed real crossover batch size always satisfies AI(1) * crossover = ridge_point exactly, confirming the formula's own real algebraic correctness rather than a single coincidental match
+
+24/24 checks passed
+ALL CHECKS PASSED

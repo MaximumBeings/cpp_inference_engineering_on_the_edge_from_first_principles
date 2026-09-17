@@ -1,0 +1,18 @@
+========================================================
+Chapter 26.3: RoPE's Rotation Math
+========================================================
+
+-- Test 1: the rotation matrix itself matches exact, hand-verifiable real angles --
+  rotating (1, 0) by a real angle of 0 leaves it exactly (1, 0); rotating it by exactly pi/2 radians (90 degrees) maps it to exactly (0, 1); rotating it by exactly pi radians (180 degrees) maps it to exactly (-1, 0)
+
+-- Test 2: a real trigonometric identity -- R(a) transposed, composed with R(b), equals exactly R(b - a), checked as a genuine 2x2 matrix equality across several real angle pairs --
+  across 4 real angle pairs -- including a = b, where the identity predicts exactly the identity matrix R(0) -- R(a)^T * R(b) matches R(b - a) exactly, confirming rotation composition really does reduce to a single real angle subtraction
+
+-- Test 3: RoPE's own central property -- the real dot product of a rotated query and a rotated key depends ONLY on their real relative position, never on their absolute positions -- verified directly across multiple genuinely different absolute position pairs sharing the identical real offset --
+  position pairs (5, 3), (10, 8), and (2, 0) -- three genuinely different real absolute positions, all sharing the identical real relative offset of 2 -- produce an identical real rotated dot product to within 1e-9; the pair (5, 2), sharing a genuinely different offset of 3, produces a measurably different real value
+
+-- Test 4: the multi-position rotated dot product from Test 3 matches the abstract identity from Test 2 applied directly -- q^T * R(theta * (n - m)) * k -- bridging the concrete RoPE computation to the real rotation-composition identity that explains it --
+  computing dot(R(theta*5) q, R(theta*3) k) directly, and computing dot(q, R(theta*(3-5)) k) via the rotation-composition identity from Test 2, agree to within 1e-9 -- confirming RoPE's own real relative-position property is not a coincidence but a direct, provable consequence of the rotation matrix's own real orthogonality
+
+11/11 checks passed
+ALL CHECKS PASSED
