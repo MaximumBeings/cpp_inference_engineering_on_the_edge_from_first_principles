@@ -1,0 +1,7 @@
+values: [100000.0, then eight copies of 0.3]
+
+forward sum  (100000.0 first): 100002.375000
+backward sum (100000.0 last):  100002.398438
+
+forward == backward: NO
+difference: 0.023438

@@ -1,0 +1,8 @@
+original value: 0.2460
+fine scale: 0.0700, coarse scale: 0.5000
+
+direct-coarse:    quantize(0.2460, scale=0.5000) = 0 -> dequantize = 0.0000
+fine-then-coarse: quantize(0.2460, scale=0.0700) = 4 -> dequantize = 0.2800 -> quantize(0.2800, scale=0.5000) = 1 -> dequantize = 0.5000
+
+direct-coarse == fine-then-coarse: NO
+difference: 0.5000

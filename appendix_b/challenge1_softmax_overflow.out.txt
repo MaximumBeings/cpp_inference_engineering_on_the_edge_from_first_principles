@@ -1,0 +1,7 @@
+input: [1000, 1001, 1002]
+
+naive softmax   : [nan, nan, nan]
+shifted softmax : [0.0900306, 0.244728, 0.665241]
+
+naive softmax produced NaN: YES
+shifted softmax sums to 1.0: YES (sum = 1)
