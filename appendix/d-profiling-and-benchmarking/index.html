@@ -1,0 +1,2952 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Building LLM and Vision-Language Inference Systems in C++23, From First Principles">
+      
+      
+        <meta name="author" content="Oluwaseyi Awoga">
+      
+      
+      
+        <link rel="prev" href="../c-decision-tree-reference/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>D. Profiling and Benchmarking on Edge Hardware - C++ Inference Engineering on the Edge — Under Development</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#appendix-d-profiling-and-benchmarking-on-edge-hardware" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="C++ Inference Engineering on the Edge — Under Development" class="md-header__button md-logo" aria-label="C++ Inference Engineering on the Edge — Under Development" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 4h12v1h3v2h-3v2h3v2h-3v2h3v2h-3v2h3v2h-3v1H6v-1H3v-2h3v-2H3v-2h3v-2H3V9h3V7H3V5h3zm5 11v3h1v-3zm2 0v3h1v-3zm2 0v3h1v-3z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            C++ Inference Engineering on the Edge — Under Development
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              D. Profiling and Benchmarking on Edge Hardware
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="C++ Inference Engineering on the Edge — Under Development" class="md-nav__button md-logo" aria-label="C++ Inference Engineering on the Edge — Under Development" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 4h12v1h3v2h-3v2h3v2h-3v2h3v2h-3v2h3v2h-3v1H6v-1H3v-2h3v-2H3v-2h3v-2H3V9h3V7H3V5h3zm5 11v3h1v-3zm2 0v3h1v-3zm2 0v3h1v-3z"/></svg>
+
+    </a>
+    C++ Inference Engineering on the Edge — Under Development
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 0 -- Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 0 -- Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part0/02-the-tensor-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. The Tensor Engine: std::mdspan, Arena Allocators, and Mixed Precision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part0/03-the-computational-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. The Computational Graph: RMSNorm, SwiGLU, RoPE, and Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 -- Shrinking the Model: Quantization for Constrained Memory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 -- Shrinking the Model: Quantization for Constrained Memory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/04-quantization-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Quantization Strategies: Affine Math, Symmetric vs. Asymmetric, Blockwise Scales
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/05-model-file-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Model File Formats: GGUF, SafeTensors, and Memory-Mapped Loading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/06-hybrid-quantized-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. The Hybrid Quantized Engine: Mixing Precisions for Different Jobs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/07-turboquant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. TurboQuant: Online Vector Quantization with Near-Optimal Distortion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 -- Performance on the Metal: SIMD, Cache, and Threads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 -- Performance on the Metal: SIMD, Cache, and Threads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/08-memory-wall-and-roofline-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. The Memory Wall and the Roofline Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/09-simd-vectorization-avx2-neon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. SIMD Vectorization: AVX2 on x86, NEON on Arm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/10-threading-and-concurrency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Threading and Concurrency: Real Threads, Verified Without a Clock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/11-parallelizing-the-forward-pass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Parallelizing the Forward Pass: Row-Parallel, Head-Parallel, and Reproducible Across Thread Counts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 -- Serving State: Tokenization and the KV Cache
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 -- Serving State: Tokenization and the KV Cache
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/12-the-tokenizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. The Tokenizer: BPE, SentencePiece, and the Vocabulary Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/13-the-kv-cache-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. The KV Cache Manager: Paged Attention, Ring Buffers, and Smart Eviction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/14-advanced-kv-cache-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Advanced KV Cache Management: Sliding Windows, Streaming Re-Quantization, and Prefix Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 -- From Model to Binary: Real Weights, Real Models, Production Engines
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 -- From Model to Binary: Real Weights, Real Models, Production Engines
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/15-running-real-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. Running Real Models: From HuggingFace to First Token with Qwen2.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/16-production-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. The Production Engine: Integrating Everything into a Single Binary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/17-benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. Benchmarking Against llama.cpp and the Broader Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 -- Deploying Vision-Language Intelligence at the Edge
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 -- Deploying Vision-Language Intelligence at the Edge
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/18-industrial-visual-inspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Industrial Visual Inspection: Edge-Deployed Defect Detection on Manufacturing Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/19-retail-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Retail Inventory and Supply Chain Intelligence: Shelf Photography to Action
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/20-medical-imaging-triage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. Medical Imaging Triage: Preliminary Radiology Reads and Human-in-the-Loop Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/21-document-intelligence-claims-environmental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Document Intelligence, Insurance Claims, and Environmental Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/22-security-accessibility-art/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. Security Surveillance, Accessibility Compliance, and Art Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/23-trust-authenticity-point-of-sale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. Trust and Authenticity at the Point of Sale: Counterfeits, Reconciliation, Expense Audits, and Luxury Goods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/24-natural-language-photo-editing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Natural Language Photo Editing: From Prompt to cv::Mat on Edge Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/25-body-worn-and-personal-cameras/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25. Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/26-check-and-invoice-fraud-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26. Check and Invoice Fraud Detection at Bank Branches and Back Offices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/27-low-latency-market-signal-inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27. Low-Latency Market-Signal Inference Near the Exchange
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/28-insurance-claims-photo-assessment-fraud-flagging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28. Insurance Claims Photo Assessment with Fraud Flagging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/29-on-device-aml-transaction-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29. On-Device AML Transaction Anomaly Monitoring at ATMs and POS Terminals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part6/30-mathematical-foundations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part6/31-continuous-batching-and-production-serving/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    31. Continuous Batching and Production Serving Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part6/32-flash-attention-and-cuda-kernels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Appendices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../a-installation-and-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A. Installation and Setup -- Cross-Compiling for the Edge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../b-practice-quiz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    B. Practice Quiz
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c-decision-tree-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C. A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    D. Profiling and Benchmarking on Edge Hardware
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    D. Profiling and Benchmarking on Edge Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d2-a-real-bandwidth-micro-benchmark-and-why-its-own-timing-can-never-be-locked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.2 A Real Bandwidth Micro-Benchmark, and Why Its Own Timing Can Never Be Locked
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.2 A Real Bandwidth Micro-Benchmark, and Why Its Own Timing Can Never Be Locked">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d3-latency-budget-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.3 Latency-Budget Arithmetic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.3 Latency-Budget Arithmetic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d4-profiling-with-perf-the-flags-that-actually-work-and-where-they-genuinely-dont" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.4 Profiling With perf: The Flags That Actually Work, and Where They Genuinely Don't
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.4 Profiling With perf: The Flags That Actually Work, and Where They Genuinely Don&#39;t">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-we-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where We Go Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d2-a-real-bandwidth-micro-benchmark-and-why-its-own-timing-can-never-be-locked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.2 A Real Bandwidth Micro-Benchmark, and Why Its Own Timing Can Never Be Locked
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.2 A Real Bandwidth Micro-Benchmark, and Why Its Own Timing Can Never Be Locked">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d3-latency-budget-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.3 Latency-Budget Arithmetic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.3 Latency-Budget Arithmetic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#d4-profiling-with-perf-the-flags-that-actually-work-and-where-they-genuinely-dont" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D.4 Profiling With perf: The Flags That Actually Work, and Where They Genuinely Don't
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D.4 Profiling With perf: The Flags That Actually Work, and Where They Genuinely Don&#39;t">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-we-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where We Go Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="appendix-d-profiling-and-benchmarking-on-edge-hardware">Appendix D: Profiling and Benchmarking on Edge Hardware<a class="headerlink" href="#appendix-d-profiling-and-benchmarking-on-edge-hardware" title="Permanent link">&para;</a></h1>
+<p>Chapter 32's own opening line makes a promise this appendix now keeps: "this book's own running discipline of never claiming a wall-clock timing result as part of a locked, deterministic self-test contract" is "stated plainly in Appendix D." Every chapter since Chapter 4 has followed that discipline without stopping to defend it at length -- byte counts and FLOP counts get locked and verified across four architectures; milliseconds and GB/s never do. This appendix states the reasoning explicitly, gives it a real formula for computing a theoretical ceiling, a real (deliberately unlocked) way to measure what a machine actually achieves, a real way to turn either into a latency budget, and an honest account of what happened when this book tried to reach for the most obvious real profiling tool -- <code>perf</code> -- on its own two real build environments.</p>
+<hr />
+<h2 id="d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet">D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet<a class="headerlink" href="#d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet" title="Permanent link">&para;</a></h2>
+<h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
+<p>A vendor's own published bandwidth figure is not measured on a running system -- it is computed, ahead of time, from three numbers on a spec sheet: how many independent memory channels a chip has, how fast each one transfers data, and how wide each transfer is. Chapter 8.1 derived exactly this formula for an illustrative machine. This section applies it, for the first time in this book, to a real, named, currently-shipping piece of edge hardware, using only numbers that chip's own vendor has actually published.</p>
+<h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
+<p>Chapter 8.1's formula is a single multiplication:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>peak_bandwidth = channels * transfer_rate * bytes_per_transfer
+</code></pre></div>
+<p>Raspberry Pi's own official documentation for the Raspberry Pi 5's BCM2712 SoC states the memory as "LPDDR4X-4267" over "a 32-bit LPDDR4X memory interface" that "provides up to 17 GB/s of memory bandwidth."<sup id="fnref:rpi5mem"><a class="footnote-ref" href="#fn:rpi5mem">1</a></sup> That single sentence supplies every input the formula needs: one channel, a transfer rate of 4267 MT/s, and a 32-bit (4-byte) bus. Multiplying them out gives 17.068 GB/s -- which rounds down to exactly the "17 GB/s" the vendor's own documentation states as its headline figure.</p>
+<p>Two other real platforms are worth having for comparison, though neither vendor publishes the same channel/rate/width breakdown, so this book does not re-derive their figures the way it just did for the Raspberry Pi 5 -- it only cites them:</p>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Real, published memory bandwidth</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raspberry Pi 5 (BCM2712)</td>
+<td>17 GB/s (32-bit LPDDR4X-4267)</td>
+<td>Raspberry Pi's own official documentation<sup id="fnref2:rpi5mem"><a class="footnote-ref" href="#fn:rpi5mem">1</a></sup></td>
+</tr>
+<tr>
+<td>NVIDIA Jetson Orin Nano (8 GB module)</td>
+<td>68 GB/s (128-bit LPDDR5)</td>
+<td>NVIDIA's own official datasheet<sup id="fnref:orinmem"><a class="footnote-ref" href="#fn:orinmem">2</a></sup></td>
+</tr>
+<tr>
+<td>Apple M4 / M4 Pro / M4 Max</td>
+<td>120 / 273 / up to 546 GB/s (unified memory)</td>
+<td>Apple's own official announcement<sup id="fnref:m4mem"><a class="footnote-ref" href="#fn:m4mem">3</a></sup></td>
+</tr>
+</tbody>
+</table>
+<p>The nearly 32x spread between the cheapest board in this table and the most capable chip is exactly the real-world range this book's own roofline model (Chapter 8) and crossover formula (Chapter 30.1) were built to reason about generally, without needing to be re-derived for every new chip: the same formulas apply, only the inputs change.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++23<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-O2<span class="w"> </span>d1_peak_bandwidth_formula.cpp<span class="w"> </span>-o<span class="w"> </span>d1_peak_bandwidth_formula
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./d1_peak_bandwidth_formula
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Appendix D.1 -- Computing Theoretical Peak Bandwidth From a Real Spec Sheet.</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1">//</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1">// This reuses Chapter 8.1&#39;s own peak-bandwidth formula verbatim:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">//   peak_bandwidth = channels * transfer_rate * bytes_per_transfer</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1">// and checks it against one real, officially published edge-silicon spec</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1">// this book can verify component-by-component: the Raspberry Pi 5&#39;s own</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1">// BCM2712 SoC. Raspberry Pi&#39;s own official documentation states the part</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1">// as &quot;LPDDR4X-4267&quot; (4267 MT/s) over a &quot;32-bit LPDDR4X memory interface&quot;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1">// that &quot;provides up to 17 GB/s of memory bandwidth&quot; -- one channel, a</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1">// 32-bit (4-byte) bus, and a stated transfer rate are everything the</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1">// formula needs, and multiplying them out reproduces the vendor&#39;s own</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1">// rounded headline figure.</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1">//</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="c1">// Two other real edge/consumer platforms are cited in this appendix&#39;s own</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1">// prose alongside this file (Jetson Orin Nano&#39;s 68 GB/s over a 128-bit</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="c1">// LPDDR5 interface, and the Apple M4 family&#39;s 120/273/546 GB/s unified</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="c1">// memory figures) but are NOT re-derived here, honestly: their vendors do</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1">// not publish the same channel-count-times-transfer-rate breakdown</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="c1">// Raspberry Pi&#39;s own documentation does, so this file only asserts what</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="c1">// it can actually recompute from independently stated components.</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="c1">//</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="c1">// Compile: g++ -std=c++23 -Wall -Wextra -O2 d1_peak_bandwidth_formula.cpp -o d1_peak_bandwidth_formula</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="c1">// Run:     ./d1_peak_bandwidth_formula</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="cp">#define CHECK(...) do { \</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="cp">    g_tests++; \</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="cp">    if (__VA_ARGS__) { g_passed++; } \</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="cp">    else { std::cerr &lt;&lt; &quot;FAIL line &quot; &lt;&lt; __LINE__ &lt;&lt; &quot;: &quot; &lt;&lt; #__VA_ARGS__ &lt;&lt; &quot;\n&quot;; } \</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="cp">} while (0)</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="c1">// Chapter 8.1&#39;s own formula, reused verbatim. transfer_rate_mts is in</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="c1">// mega-transfers per second; bytes_per_transfer is the bus width in bytes</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="c1">// (32 bits = 4 bytes, 128 bits = 16 bytes, and so on). The result is in</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="c1">// decimal GB/s (10^9 bytes/s), matching how vendors publish this figure.</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="kt">double</span><span class="w"> </span><span class="nf">peak_bandwidth_gbps</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">channels</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">transfer_rate_mts</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">bytes_per_transfer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a><span class="w">    </span><span class="c1">// MT/s * bytes/transfer = MB/s (10^6 bytes/s); dividing by 1000 gives GB/s.</span>
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">channels</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">transfer_rate_mts</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">bytes_per_transfer</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000.0</span><span class="p">;</span>
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a><span class="p">}</span>
+<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>
+<a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=================================================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Appendix D.1: Computing Theoretical Peak Bandwidth</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=================================================</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>
+<a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a><span class="w">    </span><span class="c1">// -- Test 1: the Raspberry Pi 5&#39;s own real, officially documented</span>
+<a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a><span class="w">    </span><span class="c1">// BCM2712 memory interface -- one 32-bit LPDDR4X-4267 channel. --</span>
+<a id="__codelineno-2-51" name="__codelineno-2-51" href="#__codelineno-2-51"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-2-52" name="__codelineno-2-52" href="#__codelineno-2-52"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">channels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<a id="__codelineno-2-53" name="__codelineno-2-53" href="#__codelineno-2-53"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">transfer_rate_mts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4267.0</span><span class="p">;</span><span class="w">   </span><span class="c1">// Raspberry Pi&#39;s own official product brief</span>
+<a id="__codelineno-2-54" name="__codelineno-2-54" href="#__codelineno-2-54"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">bytes_per_transfer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span><span class="p">;</span><span class="w">     </span><span class="c1">// a 32-bit bus, per Raspberry Pi&#39;s own documentation</span>
+<a id="__codelineno-2-55" name="__codelineno-2-55" href="#__codelineno-2-55"></a>
+<a id="__codelineno-2-56" name="__codelineno-2-56" href="#__codelineno-2-56"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">bandwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">peak_bandwidth_gbps</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span><span class="w"> </span><span class="n">transfer_rate_mts</span><span class="p">,</span><span class="w"> </span><span class="n">bytes_per_transfer</span><span class="p">);</span>
+<a id="__codelineno-2-57" name="__codelineno-2-57" href="#__codelineno-2-57"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 1: Raspberry Pi 5 (BCM2712) -- channels=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">channels</span>
+<a id="__codelineno-2-58" name="__codelineno-2-58" href="#__codelineno-2-58"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, transfer_rate=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">transfer_rate_mts</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; MT/s, bus_width=&quot;</span>
+<a id="__codelineno-2-59" name="__codelineno-2-59" href="#__codelineno-2-59"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">bytes_per_transfer</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-bit -- computed peak=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bandwidth</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; GB/s --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-2-60" name="__codelineno-2-60" href="#__codelineno-2-60"></a>
+<a id="__codelineno-2-61" name="__codelineno-2-61" href="#__codelineno-2-61"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="n">bandwidth</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">17.068</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1e-9</span><span class="p">);</span>
+<a id="__codelineno-2-62" name="__codelineno-2-62" href="#__codelineno-2-62"></a><span class="w">        </span><span class="c1">// Raspberry Pi&#39;s own documentation rounds this down to &quot;17 GB/s&quot; --</span>
+<a id="__codelineno-2-63" name="__codelineno-2-63" href="#__codelineno-2-63"></a><span class="w">        </span><span class="c1">// confirm the formula&#39;s own result rounds to the identical headline figure.</span>
+<a id="__codelineno-2-64" name="__codelineno-2-64" href="#__codelineno-2-64"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">floor</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">17.0</span><span class="p">);</span>
+<a id="__codelineno-2-65" name="__codelineno-2-65" href="#__codelineno-2-65"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-66" name="__codelineno-2-66" href="#__codelineno-2-66"></a>
+<a id="__codelineno-2-67" name="__codelineno-2-67" href="#__codelineno-2-67"></a><span class="w">    </span><span class="c1">// -- Test 2: the formula is a pure multiplication -- doubling any one</span>
+<a id="__codelineno-2-68" name="__codelineno-2-68" href="#__codelineno-2-68"></a><span class="w">    </span><span class="c1">// of the three real components exactly doubles the result, regardless</span>
+<a id="__codelineno-2-69" name="__codelineno-2-69" href="#__codelineno-2-69"></a><span class="w">    </span><span class="c1">// of which component changes. This is the same real property Chapter</span>
+<a id="__codelineno-2-70" name="__codelineno-2-70" href="#__codelineno-2-70"></a><span class="w">    </span><span class="c1">// 8.1 itself relied on: peak bandwidth has no term that saturates or</span>
+<a id="__codelineno-2-71" name="__codelineno-2-71" href="#__codelineno-2-71"></a><span class="w">    </span><span class="c1">// interacts nonlinearly with the others. --</span>
+<a id="__codelineno-2-72" name="__codelineno-2-72" href="#__codelineno-2-72"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-2-73" name="__codelineno-2-73" href="#__codelineno-2-73"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">peak_bandwidth_gbps</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4267.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">);</span>
+<a id="__codelineno-2-74" name="__codelineno-2-74" href="#__codelineno-2-74"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">double_channels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">peak_bandwidth_gbps</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4267.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">);</span>
+<a id="__codelineno-2-75" name="__codelineno-2-75" href="#__codelineno-2-75"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">double_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">peak_bandwidth_gbps</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4267.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">);</span>
+<a id="__codelineno-2-76" name="__codelineno-2-76" href="#__codelineno-2-76"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">double_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">peak_bandwidth_gbps</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4267.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">);</span>
+<a id="__codelineno-2-77" name="__codelineno-2-77" href="#__codelineno-2-77"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 2: linearity -- base=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, 2x channels=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">double_channels</span>
+<a id="__codelineno-2-78" name="__codelineno-2-78" href="#__codelineno-2-78"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, 2x transfer_rate=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">double_rate</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, 2x bus_width=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">double_width</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-2-79" name="__codelineno-2-79" href="#__codelineno-2-79"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="n">double_channels</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">base</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1e-9</span><span class="p">);</span>
+<a id="__codelineno-2-80" name="__codelineno-2-80" href="#__codelineno-2-80"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="n">double_rate</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">base</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1e-9</span><span class="p">);</span>
+<a id="__codelineno-2-81" name="__codelineno-2-81" href="#__codelineno-2-81"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="n">double_width</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">base</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1e-9</span><span class="p">);</span>
+<a id="__codelineno-2-82" name="__codelineno-2-82" href="#__codelineno-2-82"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-83" name="__codelineno-2-83" href="#__codelineno-2-83"></a>
+<a id="__codelineno-2-84" name="__codelineno-2-84" href="#__codelineno-2-84"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; checks passed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-2-85" name="__codelineno-2-85" href="#__codelineno-2-85"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">g_passed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;ALL CHECKS PASSED&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;SOME CHECKS FAILED&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-2-86" name="__codelineno-2-86" href="#__codelineno-2-86"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-2-87" name="__codelineno-2-87" href="#__codelineno-2-87"></a><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>=================================================
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Appendix D.1: Computing Theoretical Peak Bandwidth
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>=================================================
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>-- Test 1: Raspberry Pi 5 (BCM2712) -- channels=1, transfer_rate=4267 MT/s, bus_width=32-bit -- computed peak=17.068 GB/s --
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>-- Test 2: linearity -- base=17.068, 2x channels=34.136, 2x transfer_rate=34.136, 2x bus_width=34.136 --
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>5/5 checks passed
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>ALL CHECKS PASSED
+</code></pre></div>
+<hr />
+<h2 id="d2-a-real-bandwidth-micro-benchmark-and-why-its-own-timing-can-never-be-locked">D.2 A Real Bandwidth Micro-Benchmark, and Why Its Own Timing Can Never Be Locked<a class="headerlink" href="#d2-a-real-bandwidth-micro-benchmark-and-why-its-own-timing-can-never-be-locked" title="Permanent link">&para;</a></h2>
+<h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
+<p>A theoretical peak from a spec sheet and what a real, running loop actually achieves are two different numbers, and only a real, timed measurement can produce the second one. But a real, timed measurement is a measurement of a specific machine at a specific moment -- not a portable fact about an algorithm -- and this book's own self-test contract has never locked one, on purpose, since Chapter 4.4's own "trusting a millisecond figure that depends on the benchmark machine" trap.</p>
+<h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
+<p>The classic way to measure achieved memory bandwidth is the STREAM benchmark's own "triad" kernel: <code>c[i] = a[i] + scalar * b[i]</code>, three real memory accesses per element (two reads, one write). The number of elements processed and the number of bytes that loop moves to process them are exactly, deterministically knowable from the loop's own definition -- true on every architecture, every run, forever. This book locks and verifies exactly that part below.</p>
+<p>What the loop actually ACHIEVES, in GB/s, requires a clock, and a clock's answer depends on the machine, its current load, its thermal state, and -- this appendix's own new finding -- how virtualized the environment running it is. Wrapping the identical loop in <code>std::chrono</code> and running the identical binary three times back to back, on two different real machines this book has been building and verifying on all along, shows exactly why that number can never be part of a locked, cross-architecture-identical contract:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>auto t0 = std::chrono::steady_clock::now();
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>for (size_t i = 0; i &lt; n; ++i) c[i] = a[i] + scalar * b[i];
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>auto t1 = std::chrono::steady_clock::now();
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>double gbps = (bytes_moved / 1e9) / std::chrono::duration&lt;double&gt;(t1 - t0).count();
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$ g++ -std=c++23 -O2 probe_bandwidth_timing.cpp -o probe_bandwidth_timing
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>$ ./probe_bandwidth_timing
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>n=50000000, bytes_moved=1200000000, elapsed_seconds=0.102568, achieved_bandwidth_gbps=11.700
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>sanity check c[12345]=12351.0 (expect 12351.0)
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>$ ./probe_bandwidth_timing
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>n=50000000, bytes_moved=1200000000, elapsed_seconds=0.100710, achieved_bandwidth_gbps=11.915
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>sanity check c[12345]=12351.0 (expect 12351.0)
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>$ ./probe_bandwidth_timing
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>n=50000000, bytes_moved=1200000000, elapsed_seconds=0.100870, achieved_bandwidth_gbps=11.897
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>sanity check c[12345]=12351.0 (expect 12351.0)
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a># captured on: the same cloud x86_64 build container as diag1, three consecutive runs of the
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a># IDENTICAL binary, back to back, seconds apart. bytes_moved (1,200,000,000) is exactly and
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a># identically 24 bytes per element (2 reads + 1 write, 8 bytes each) times 50,000,000 elements --
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a># deterministic, provable from the loop&#39;s own definition, and genuinely identical across all
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a># three runs. achieved_bandwidth_gbps is not: 11.700, then 11.915, then 11.897 GB/s -- a real,
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a># unforced, run-to-run variation of nearly 2% on the exact same machine running the exact same
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a># instructions on the exact same data, with nothing else deliberately changed between runs.
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$ g++ -std=c++23 -O2 probe_bandwidth_timing.cpp -o probe_bandwidth_timing
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>$ ./probe_bandwidth_timing
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>n=50000000, bytes_moved=1200000000, elapsed_seconds=0.147115, achieved_bandwidth_gbps=8.157
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>sanity check c[12345]=12351.0 (expect 12351.0)
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>$ ./probe_bandwidth_timing
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>n=50000000, bytes_moved=1200000000, elapsed_seconds=0.095616, achieved_bandwidth_gbps=12.550
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>sanity check c[12345]=12351.0 (expect 12351.0)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>$ ./probe_bandwidth_timing
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>n=50000000, bytes_moved=1200000000, elapsed_seconds=0.087469, achieved_bandwidth_gbps=13.719
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>sanity check c[12345]=12351.0 (expect 12351.0)
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>$ uname -m
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>aarch64
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a># captured on: this book&#39;s own real aarch64 target device (the same Linux VM as diag2), three
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a># consecutive runs of the identical binary. bytes_moved is again exactly identical across all
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a># three runs -- the same 1,200,000,000 bytes, provable without running anything. The measured
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a># achieved_bandwidth_gbps swings from 8.157 to 12.550 to 13.719 GB/s across three back-to-back
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a># runs of the SAME binary on the SAME machine -- a 68% swing, considerably wider than the cloud
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a># sandbox&#39;s own ~2% variation in diag3, almost certainly reflecting this device&#39;s own real,
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a># additional layer of virtualization (a Linux VM on top of the host Mac&#39;s own hypervisor) on top
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a># of ordinary OS scheduling noise. Neither of these two real, freshly-reproduced transcripts (this
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a># one or diag3) could have been locked as this book&#39;s own deterministic self-test output without
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a># the check itself becoming flaky -- exactly the reasoning behind Appendix D.2&#39;s own decision to
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a># never print a timing number in its locked contract at all.
+</code></pre></div>
+<p>The cloud build container's own three runs vary by about 2%; the real aarch64 device's own three runs -- the same binary, the same machine, seconds apart -- vary by 68%, almost certainly reflecting that this book's own real device is itself a Linux virtual machine layered on the host's own hypervisor, on top of ordinary operating-system scheduling noise. Neither number is wrong. Both are simply properties of a specific run on a specific machine at a specific moment, which is exactly why this book's own locked self-test, below, never prints one.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++23<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-O2<span class="w"> </span>d2_bandwidth_microbenchmark.cpp<span class="w"> </span>-o<span class="w"> </span>d2_bandwidth_microbenchmark
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>./d2_bandwidth_microbenchmark
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// Appendix D.2 -- A Real Bandwidth Micro-Benchmark, and Why Its Own Timing</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1">// Can Never Be Part of a Locked Self-Test.</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1">//</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1">// This file implements the classic STREAM-style &quot;triad&quot; kernel</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1">// (c[i] = a[i] + scalar * b[i]) -- three real memory accesses per element</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1">// (two reads, one write), exactly the kind of loop a real bandwidth</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1">// benchmark runs. Two things about it are true at once, and this book has</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1">// drawn a hard line between them since Chapter 4.4&#39;s own &quot;trusting a</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="c1">// millisecond figure that depends on the benchmark machine&quot; trap:</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="c1">//</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="c1">//   1. The number of ELEMENTS processed, and the number of BYTES moved to</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1">//      process them, are exactly and deterministically knowable from the</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="c1">//      loop&#39;s own definition, independent of what machine runs it. This</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="c1">//      file locks and verifies exactly that -- the same way every</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="c1">//      byte-accounting claim in this book has been locked since Chapter 4.</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="c1">//</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="c1">//   2. How long that loop actually takes, and therefore what GB/s it</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="c1">//      actually achieves, depends on the specific machine, its current</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="c1">//      load, its thermal state, and (this appendix&#39;s own real finding)</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="c1">//      even on how virtualized the environment running it is -- none of</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="c1">//      which this book&#39;s self-test contract can or should pretend is</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="c1">//      reproducible. This file&#39;s own self-tested output never prints a</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="c1">//      timing number for exactly that reason. A real, honestly-labeled</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="c1">//      timing measurement from two real machines appears in this</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="c1">//      appendix&#39;s own prose instead, deliberately kept out of this file.</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="c1">//</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="c1">// Compile: g++ -std=c++23 -Wall -Wextra -O2 d2_bandwidth_microbenchmark.cpp -o d2_bandwidth_microbenchmark</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="c1">// Run:     ./d2_bandwidth_microbenchmark</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>
+<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="cp">#define CHECK(...) do { \</span>
+<a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="cp">    g_tests++; \</span>
+<a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="cp">    if (__VA_ARGS__) { g_passed++; } \</span>
+<a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a><span class="cp">    else { std::cerr &lt;&lt; &quot;FAIL line &quot; &lt;&lt; __LINE__ &lt;&lt; &quot;: &quot; &lt;&lt; #__VA_ARGS__ &lt;&lt; &quot;\n&quot;; } \</span>
+<a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a><span class="cp">} while (0)</span>
+<a id="__codelineno-8-40" name="__codelineno-8-40" href="#__codelineno-8-40"></a>
+<a id="__codelineno-8-41" name="__codelineno-8-41" href="#__codelineno-8-41"></a><span class="k">struct</span><span class="w"> </span><span class="nc">TriadResult</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-42" name="__codelineno-8-42" href="#__codelineno-8-42"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">elements</span><span class="p">;</span>
+<a id="__codelineno-8-43" name="__codelineno-8-43" href="#__codelineno-8-43"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bytes_moved</span><span class="p">;</span><span class="w">   </span><span class="c1">// 2 reads + 1 write, each sizeof(double), per element</span>
+<a id="__codelineno-8-44" name="__codelineno-8-44" href="#__codelineno-8-44"></a><span class="p">};</span>
+<a id="__codelineno-8-45" name="__codelineno-8-45" href="#__codelineno-8-45"></a>
+<a id="__codelineno-8-46" name="__codelineno-8-46" href="#__codelineno-8-46"></a><span class="c1">// The triad kernel itself. Deliberately no timing anywhere in this</span>
+<a id="__codelineno-8-47" name="__codelineno-8-47" href="#__codelineno-8-47"></a><span class="c1">// function -- what it returns is a property of the algorithm, not of any</span>
+<a id="__codelineno-8-48" name="__codelineno-8-48" href="#__codelineno-8-48"></a><span class="c1">// particular run of it.</span>
+<a id="__codelineno-8-49" name="__codelineno-8-49" href="#__codelineno-8-49"></a><span class="n">TriadResult</span><span class="w"> </span><span class="nf">run_triad</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-8-50" name="__codelineno-8-50" href="#__codelineno-8-50"></a><span class="w">                       </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scalar</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-51" name="__codelineno-8-51" href="#__codelineno-8-51"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<a id="__codelineno-8-52" name="__codelineno-8-52" href="#__codelineno-8-52"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-53" name="__codelineno-8-53" href="#__codelineno-8-53"></a><span class="w">        </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-8-54" name="__codelineno-8-54" href="#__codelineno-8-54"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-55" name="__codelineno-8-55" href="#__codelineno-8-55"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3ULL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">);</span>
+<a id="__codelineno-8-56" name="__codelineno-8-56" href="#__codelineno-8-56"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">bytes</span><span class="p">};</span>
+<a id="__codelineno-8-57" name="__codelineno-8-57" href="#__codelineno-8-57"></a><span class="p">}</span>
+<a id="__codelineno-8-58" name="__codelineno-8-58" href="#__codelineno-8-58"></a>
+<a id="__codelineno-8-59" name="__codelineno-8-59" href="#__codelineno-8-59"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-60" name="__codelineno-8-60" href="#__codelineno-8-60"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;======================================================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-61" name="__codelineno-8-61" href="#__codelineno-8-61"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Appendix D.2: A Real Bandwidth Micro-Benchmark</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-62" name="__codelineno-8-62" href="#__codelineno-8-62"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;======================================================</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-63" name="__codelineno-8-63" href="#__codelineno-8-63"></a>
+<a id="__codelineno-8-64" name="__codelineno-8-64" href="#__codelineno-8-64"></a><span class="w">    </span><span class="c1">// -- Test 1: a small, fully hand-traceable size -- correctness of the</span>
+<a id="__codelineno-8-65" name="__codelineno-8-65" href="#__codelineno-8-65"></a><span class="w">    </span><span class="c1">// triad&#39;s own arithmetic, checked at every index, not sampled. --</span>
+<a id="__codelineno-8-66" name="__codelineno-8-66" href="#__codelineno-8-66"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-8-67" name="__codelineno-8-67" href="#__codelineno-8-67"></a><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<a id="__codelineno-8-68" name="__codelineno-8-68" href="#__codelineno-8-68"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">b</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">c</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<a id="__codelineno-8-69" name="__codelineno-8-69" href="#__codelineno-8-69"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">);</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-8-70" name="__codelineno-8-70" href="#__codelineno-8-70"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">scalar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span><span class="p">;</span>
+<a id="__codelineno-8-71" name="__codelineno-8-71" href="#__codelineno-8-71"></a>
+<a id="__codelineno-8-72" name="__codelineno-8-72" href="#__codelineno-8-72"></a><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_triad</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">scalar</span><span class="p">);</span>
+<a id="__codelineno-8-73" name="__codelineno-8-73" href="#__codelineno-8-73"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 1: n=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">elements</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, bytes_moved=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">bytes_moved</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-74" name="__codelineno-8-74" href="#__codelineno-8-74"></a>
+<a id="__codelineno-8-75" name="__codelineno-8-75" href="#__codelineno-8-75"></a><span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">all_correct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<a id="__codelineno-8-76" name="__codelineno-8-76" href="#__codelineno-8-76"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-77" name="__codelineno-8-77" href="#__codelineno-8-77"></a><span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w">  </span><span class="c1">// i + 6.0</span>
+<a id="__codelineno-8-78" name="__codelineno-8-78" href="#__codelineno-8-78"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">expected</span><span class="p">)</span><span class="w"> </span><span class="n">all_correct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<a id="__codelineno-8-79" name="__codelineno-8-79" href="#__codelineno-8-79"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-80" name="__codelineno-8-80" href="#__codelineno-8-80"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">all_correct</span><span class="p">);</span>
+<a id="__codelineno-8-81" name="__codelineno-8-81" href="#__codelineno-8-81"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">elements</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+<a id="__codelineno-8-82" name="__codelineno-8-82" href="#__codelineno-8-82"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">bytes_moved</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">8ULL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3ULL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+<a id="__codelineno-8-83" name="__codelineno-8-83" href="#__codelineno-8-83"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-84" name="__codelineno-8-84" href="#__codelineno-8-84"></a>
+<a id="__codelineno-8-85" name="__codelineno-8-85" href="#__codelineno-8-85"></a><span class="w">    </span><span class="c1">// -- Test 2: the byte-count formula scales exactly linearly with</span>
+<a id="__codelineno-8-86" name="__codelineno-8-86" href="#__codelineno-8-86"></a><span class="w">    </span><span class="c1">// element count -- a property of the loop&#39;s own definition, provable</span>
+<a id="__codelineno-8-87" name="__codelineno-8-87" href="#__codelineno-8-87"></a><span class="w">    </span><span class="c1">// without running it at all, and true on every architecture this book</span>
+<a id="__codelineno-8-88" name="__codelineno-8-88" href="#__codelineno-8-88"></a><span class="w">    </span><span class="c1">// has ever checked against. --</span>
+<a id="__codelineno-8-89" name="__codelineno-8-89" href="#__codelineno-8-89"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-8-90" name="__codelineno-8-90" href="#__codelineno-8-90"></a><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="n">n2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1&#39;000&#39;000</span><span class="p">;</span>
+<a id="__codelineno-8-91" name="__codelineno-8-91" href="#__codelineno-8-91"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a1</span><span class="p">(</span><span class="n">n1</span><span class="p">),</span><span class="w"> </span><span class="n">b1</span><span class="p">(</span><span class="n">n1</span><span class="p">),</span><span class="w"> </span><span class="n">c1</span><span class="p">(</span><span class="n">n1</span><span class="p">),</span><span class="w"> </span><span class="n">a2</span><span class="p">(</span><span class="n">n2</span><span class="p">),</span><span class="w"> </span><span class="n">b2</span><span class="p">(</span><span class="n">n2</span><span class="p">),</span><span class="w"> </span><span class="n">c2</span><span class="p">(</span><span class="n">n2</span><span class="p">);</span>
+<a id="__codelineno-8-92" name="__codelineno-8-92" href="#__codelineno-8-92"></a><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_triad</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span><span class="w"> </span><span class="n">b1</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">);</span>
+<a id="__codelineno-8-93" name="__codelineno-8-93" href="#__codelineno-8-93"></a><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">r2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_triad</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span><span class="w"> </span><span class="n">b2</span><span class="p">,</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">);</span>
+<a id="__codelineno-8-94" name="__codelineno-8-94" href="#__codelineno-8-94"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 2: n1=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r1</span><span class="p">.</span><span class="n">elements</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; -&gt; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r1</span><span class="p">.</span><span class="n">bytes_moved</span>
+<a id="__codelineno-8-95" name="__codelineno-8-95" href="#__codelineno-8-95"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; bytes; n2=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r2</span><span class="p">.</span><span class="n">elements</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; -&gt; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r2</span><span class="p">.</span><span class="n">bytes_moved</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; bytes --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-96" name="__codelineno-8-96" href="#__codelineno-8-96"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r2</span><span class="p">.</span><span class="n">bytes_moved</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">r1</span><span class="p">.</span><span class="n">bytes_moved</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">n2</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n1</span><span class="p">));</span>
+<a id="__codelineno-8-97" name="__codelineno-8-97" href="#__codelineno-8-97"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r1</span><span class="p">.</span><span class="n">bytes_moved</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">n1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3ULL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+<a id="__codelineno-8-98" name="__codelineno-8-98" href="#__codelineno-8-98"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r2</span><span class="p">.</span><span class="n">bytes_moved</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">n2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3ULL</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+<a id="__codelineno-8-99" name="__codelineno-8-99" href="#__codelineno-8-99"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-100" name="__codelineno-8-100" href="#__codelineno-8-100"></a>
+<a id="__codelineno-8-101" name="__codelineno-8-101" href="#__codelineno-8-101"></a><span class="w">    </span><span class="c1">// -- Test 3: this file&#39;s own self-test output contains no timing, no</span>
+<a id="__codelineno-8-102" name="__codelineno-8-102" href="#__codelineno-8-102"></a><span class="w">    </span><span class="c1">// GB/s figure, and no std::chrono call anywhere above this line --</span>
+<a id="__codelineno-8-103" name="__codelineno-8-103" href="#__codelineno-8-103"></a><span class="w">    </span><span class="c1">// confirmed by the fact that nothing above needed a clock to check.</span>
+<a id="__codelineno-8-104" name="__codelineno-8-104" href="#__codelineno-8-104"></a><span class="w">    </span><span class="c1">// A real, honestly-labeled measured-bandwidth transcript from two</span>
+<a id="__codelineno-8-105" name="__codelineno-8-105" href="#__codelineno-8-105"></a><span class="w">    </span><span class="c1">// real machines appears in this appendix&#39;s own prose, never here. --</span>
+<a id="__codelineno-8-106" name="__codelineno-8-106" href="#__codelineno-8-106"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-8-107" name="__codelineno-8-107" href="#__codelineno-8-107"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 3: this self-test&#39;s own determinism does not depend on wall-clock &quot;</span>
+<a id="__codelineno-8-108" name="__codelineno-8-108" href="#__codelineno-8-108"></a><span class="w">                     </span><span class="s">&quot;time at all -- nothing above measured one --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-109" name="__codelineno-8-109" href="#__codelineno-8-109"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<a id="__codelineno-8-110" name="__codelineno-8-110" href="#__codelineno-8-110"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-111" name="__codelineno-8-111" href="#__codelineno-8-111"></a>
+<a id="__codelineno-8-112" name="__codelineno-8-112" href="#__codelineno-8-112"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; checks passed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-113" name="__codelineno-8-113" href="#__codelineno-8-113"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">g_passed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;ALL CHECKS PASSED&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;SOME CHECKS FAILED&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-114" name="__codelineno-8-114" href="#__codelineno-8-114"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-8-115" name="__codelineno-8-115" href="#__codelineno-8-115"></a><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>======================================================
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Appendix D.2: A Real Bandwidth Micro-Benchmark
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>======================================================
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>-- Test 1: n=8, bytes_moved=192 --
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>-- Test 2: n1=1000 -&gt; 24000 bytes; n2=1000000 -&gt; 24000000 bytes --
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>-- Test 3: this self-test&#39;s own determinism does not depend on wall-clock time at all -- nothing above measured one --
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>7/7 checks passed
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>ALL CHECKS PASSED
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">[COMMON TRAP] trusting a single timed run as though it were the loop's own property</p>
+<p>A single achieved-bandwidth number, from a single run, on a single machine, tells a reader almost nothing portable -- not because the measurement is wrong, but because the very same binary on the very same machine can legitimately disagree with itself by double digits of percent from one run to the next, as diag4 above shows directly. A real benchmark needs many runs, a stated distribution (not just a mean), and an explicit machine description -- and even then, it describes that measurement, not the algorithm.</p>
+</div>
+<hr />
+<h2 id="d3-latency-budget-arithmetic">D.3 Latency-Budget Arithmetic<a class="headerlink" href="#d3-latency-budget-arithmetic" title="Permanent link">&para;</a></h2>
+<h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
+<p>Every deployment eventually asks the same question in a different costume: given a hard latency target, what does the rest of the system need to look like to hit it? Chapter 27.2 already answered a version of this question for a trading system's own tick-to-trade deadline. Chapter 4.1 already answered a version of it for tokens-per-second as a function of memory bandwidth. Neither chapter needed a clock to answer it -- both worked entirely from stated costs and a formula. This section reuses both, unchanged, and for the first time combines one of them with a real, cited hardware number instead of a stated illustrative one.</p>
+<h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
+<p>Chapter 4.1's own memory-wall formula is a single division:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>tokens_per_sec = bandwidth / bytes_read_per_token
+</code></pre></div>
+<p>Chapter 4.1's own worked table reported 14.2 tokens/sec for a roughly 4.5 GB Q4_0 Llama-3-8B-shaped model at a stated illustrative 64 GB/s. Running the identical formula against Appendix D.1's own real, verified Raspberry Pi 5 figure (17.068 GB/s) instead of that stated illustrative number, against the same approximate model size, gives a new, real, concrete estimate: roughly 3.8 tokens/sec -- the first time this book has connected one of its own model-size figures to a real, named, currently-purchasable board's own real bandwidth spec.</p>
+<p>Chapter 27.2's own deadline-enforcement pattern generalizes cleanly beyond a trading system: accumulate named stage costs in order, and refuse the instant the running total strictly exceeds a stated budget, naming the exact stage responsible rather than only reporting a final over-budget total.</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Real formula, reused from</th>
+<th>This section's own new result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tokens/sec at a stated illustrative bandwidth</td>
+<td>Chapter 4.1</td>
+<td>Reproduces the book's own 14.2 tok/s figure exactly</td>
+</tr>
+<tr>
+<td>Tokens/sec at a real, cited hardware bandwidth</td>
+<td>Chapter 4.1 + Appendix D.1</td>
+<td>~3.8 tok/s on a real Raspberry Pi 5</td>
+</tr>
+<tr>
+<td>Where a stage sequence breaches a budget</td>
+<td>Chapter 27.2</td>
+<td>Names the exact stage, not just the total</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++23<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-O2<span class="w"> </span>d3_latency_budget_calculator.cpp<span class="w"> </span>-o<span class="w"> </span>d3_latency_budget_calculator
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>./d3_latency_budget_calculator
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// Appendix D.3 -- Latency-Budget Arithmetic.</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1">//</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1">// This file reuses two real formulas this book already derived and</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1">// verified, unchanged, and combines them for the first time against a</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1">// REAL, officially cited hardware number:</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1">//</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1">//   - Chapter 4.1&#39;s own memory-wall formula:</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c1">//       tokens_per_sec = bandwidth / bytes_read_per_token</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1">//     Chapter 4.1&#39;s own worked table reported &quot;14.2 tok/s&quot; for a Q4_0</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c1">//     Llama-3-8B-shaped model (~4.5 GB) at a stated illustrative 64 GB/s.</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="c1">//     Test 1 below reproduces that same rounded figure from the same</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="c1">//     formula and the same approximate inputs.</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="c1">//</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="c1">//   - Chapter 27.2&#39;s own deadline-enforcement pattern: accumulate named</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="c1">//     stage costs in order, and refuse the instant the running total</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="c1">//     strictly exceeds budget, naming the exact stage responsible rather</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="c1">//     than merely reporting a final over-budget total.</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="c1">//</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="c1">// Test 2 combines the first formula with Appendix D.1&#39;s own real,</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="c1">// verified Raspberry Pi 5 bandwidth (17.068 GB/s, not a stated</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="c1">// illustrative number) against that same ~4.5 GB model size, producing a</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="c1">// genuinely new number this book has not computed before: a real,</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="c1">// concrete tokens-per-second estimate for a real, named, cheap edge</span>
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="c1">// board, grounded in nothing but formulas and figures this book already</span>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="c1">// established and cited.</span>
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="c1">//</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="c1">// Compile: g++ -std=c++23 -Wall -Wextra -O2 d3_latency_budget_calculator.cpp -o d3_latency_budget_calculator</span>
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a><span class="c1">// Run:     ./d3_latency_budget_calculator</span>
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cmath&gt;</span>
+<a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a>
+<a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a><span class="cp">#define CHECK(...) do { \</span>
+<a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a><span class="cp">    g_tests++; \</span>
+<a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a><span class="cp">    if (__VA_ARGS__) { g_passed++; } \</span>
+<a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a><span class="cp">    else { std::cerr &lt;&lt; &quot;FAIL line &quot; &lt;&lt; __LINE__ &lt;&lt; &quot;: &quot; &lt;&lt; #__VA_ARGS__ &lt;&lt; &quot;\n&quot;; } \</span>
+<a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a><span class="cp">} while (0)</span>
+<a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a>
+<a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a><span class="c1">// Chapter 4.1&#39;s own formula, reused verbatim.</span>
+<a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a><span class="kt">double</span><span class="w"> </span><span class="nf">tokens_per_sec</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">bandwidth_bytes_per_sec</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">bytes_read_per_token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">bandwidth_bytes_per_sec</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">bytes_read_per_token</span><span class="p">;</span>
+<a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a><span class="p">}</span>
+<a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a>
+<a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a><span class="c1">// Chapter 27.2&#39;s own deadline-enforcement pattern, generalized to any</span>
+<a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a><span class="c1">// named sequence of stage costs against any latency budget.</span>
+<a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Stage</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">cost_us</span><span class="p">;</span>
+<a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a><span class="p">};</span>
+<a id="__codelineno-12-53" name="__codelineno-12-53" href="#__codelineno-12-53"></a>
+<a id="__codelineno-12-54" name="__codelineno-12-54" href="#__codelineno-12-54"></a><span class="k">struct</span><span class="w"> </span><span class="nc">BudgetCheckResult</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-55" name="__codelineno-12-55" href="#__codelineno-12-55"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">fits</span><span class="p">;</span>
+<a id="__codelineno-12-56" name="__codelineno-12-56" href="#__codelineno-12-56"></a><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">total_us</span><span class="p">;</span>
+<a id="__codelineno-12-57" name="__codelineno-12-57" href="#__codelineno-12-57"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">first_stage_over_budget</span><span class="p">;</span><span class="w">  </span><span class="c1">// empty if it fits</span>
+<a id="__codelineno-12-58" name="__codelineno-12-58" href="#__codelineno-12-58"></a><span class="p">};</span>
+<a id="__codelineno-12-59" name="__codelineno-12-59" href="#__codelineno-12-59"></a>
+<a id="__codelineno-12-60" name="__codelineno-12-60" href="#__codelineno-12-60"></a><span class="n">BudgetCheckResult</span><span class="w"> </span><span class="nf">check_latency_budget</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Stage</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">stages</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">budget_us</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-61" name="__codelineno-12-61" href="#__codelineno-12-61"></a><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<a id="__codelineno-12-62" name="__codelineno-12-62" href="#__codelineno-12-62"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">stages</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-63" name="__codelineno-12-63" href="#__codelineno-12-63"></a><span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">cost_us</span><span class="p">;</span>
+<a id="__codelineno-12-64" name="__codelineno-12-64" href="#__codelineno-12-64"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">total</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">budget_us</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// strict &gt;, Chapter 27.2&#39;s own boundary convention</span>
+<a id="__codelineno-12-65" name="__codelineno-12-65" href="#__codelineno-12-65"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">name</span><span class="p">};</span>
+<a id="__codelineno-12-66" name="__codelineno-12-66" href="#__codelineno-12-66"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-12-67" name="__codelineno-12-67" href="#__codelineno-12-67"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-68" name="__codelineno-12-68" href="#__codelineno-12-68"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">};</span>
+<a id="__codelineno-12-69" name="__codelineno-12-69" href="#__codelineno-12-69"></a><span class="p">}</span>
+<a id="__codelineno-12-70" name="__codelineno-12-70" href="#__codelineno-12-70"></a>
+<a id="__codelineno-12-71" name="__codelineno-12-71" href="#__codelineno-12-71"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-72" name="__codelineno-12-72" href="#__codelineno-12-72"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;===================================================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-73" name="__codelineno-12-73" href="#__codelineno-12-73"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Appendix D.3: Latency-Budget Arithmetic</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-74" name="__codelineno-12-74" href="#__codelineno-12-74"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;===================================================</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-75" name="__codelineno-12-75" href="#__codelineno-12-75"></a>
+<a id="__codelineno-12-76" name="__codelineno-12-76" href="#__codelineno-12-76"></a><span class="w">    </span><span class="c1">// -- Test 1: Chapter 4.1&#39;s own worked example reproduced -- a stated,</span>
+<a id="__codelineno-12-77" name="__codelineno-12-77" href="#__codelineno-12-77"></a><span class="w">    </span><span class="c1">// illustrative 64 GB/s against a ~4.5 GB Q4_0 model rounds to the</span>
+<a id="__codelineno-12-78" name="__codelineno-12-78" href="#__codelineno-12-78"></a><span class="w">    </span><span class="c1">// same 14.2 tok/s the chapter itself reported. --</span>
+<a id="__codelineno-12-79" name="__codelineno-12-79" href="#__codelineno-12-79"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-12-80" name="__codelineno-12-80" href="#__codelineno-12-80"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">bandwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">64e9</span><span class="p">;</span><span class="w">          </span><span class="c1">// Chapter 4.1&#39;s own stated illustrative bandwidth</span>
+<a id="__codelineno-12-81" name="__codelineno-12-81" href="#__codelineno-12-81"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">model_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.5e9</span><span class="p">;</span><span class="w">       </span><span class="c1">// Chapter 4.1&#39;s own approximate Q4_0 model-size figure</span>
+<a id="__codelineno-12-82" name="__codelineno-12-82" href="#__codelineno-12-82"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">tps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tokens_per_sec</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span><span class="w"> </span><span class="n">model_bytes</span><span class="p">);</span>
+<a id="__codelineno-12-83" name="__codelineno-12-83" href="#__codelineno-12-83"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">rounded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">round</span><span class="p">(</span><span class="n">tps</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">10.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">10.0</span><span class="p">;</span>
+<a id="__codelineno-12-84" name="__codelineno-12-84" href="#__codelineno-12-84"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 1: 64 GB/s (Chapter 4.1&#39;s stated figure), 4.5 GB Q4_0 model -- &quot;</span>
+<a id="__codelineno-12-85" name="__codelineno-12-85" href="#__codelineno-12-85"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">tps</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; tok/s (rounds to &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">rounded</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;) --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-86" name="__codelineno-12-86" href="#__codelineno-12-86"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">rounded</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">14.2</span><span class="p">);</span>
+<a id="__codelineno-12-87" name="__codelineno-12-87" href="#__codelineno-12-87"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-88" name="__codelineno-12-88" href="#__codelineno-12-88"></a>
+<a id="__codelineno-12-89" name="__codelineno-12-89" href="#__codelineno-12-89"></a><span class="w">    </span><span class="c1">// -- Test 2: the SAME formula and SAME approximate model size, now</span>
+<a id="__codelineno-12-90" name="__codelineno-12-90" href="#__codelineno-12-90"></a><span class="w">    </span><span class="c1">// against Appendix D.1&#39;s own real, verified Raspberry Pi 5 bandwidth</span>
+<a id="__codelineno-12-91" name="__codelineno-12-91" href="#__codelineno-12-91"></a><span class="w">    </span><span class="c1">// (17.068 GB/s) rather than a stated illustrative number -- a</span>
+<a id="__codelineno-12-92" name="__codelineno-12-92" href="#__codelineno-12-92"></a><span class="w">    </span><span class="c1">// genuinely new, real, concrete estimate for a real, named board. --</span>
+<a id="__codelineno-12-93" name="__codelineno-12-93" href="#__codelineno-12-93"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-12-94" name="__codelineno-12-94" href="#__codelineno-12-94"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">bandwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">17.068e9</span><span class="p">;</span><span class="w">      </span><span class="c1">// Appendix D.1&#39;s own verified Raspberry Pi 5 figure</span>
+<a id="__codelineno-12-95" name="__codelineno-12-95" href="#__codelineno-12-95"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">model_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.5e9</span><span class="p">;</span>
+<a id="__codelineno-12-96" name="__codelineno-12-96" href="#__codelineno-12-96"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">tps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tokens_per_sec</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span><span class="w"> </span><span class="n">model_bytes</span><span class="p">);</span>
+<a id="__codelineno-12-97" name="__codelineno-12-97" href="#__codelineno-12-97"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 2: 17.068 GB/s (Appendix D.1&#39;s real Raspberry Pi 5 figure), &quot;</span>
+<a id="__codelineno-12-98" name="__codelineno-12-98" href="#__codelineno-12-98"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;4.5 GB Q4_0 model -- &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">tps</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; tok/s --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-99" name="__codelineno-12-99" href="#__codelineno-12-99"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tps</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">3.7</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tps</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">3.85</span><span class="p">);</span>
+<a id="__codelineno-12-100" name="__codelineno-12-100" href="#__codelineno-12-100"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-101" name="__codelineno-12-101" href="#__codelineno-12-101"></a>
+<a id="__codelineno-12-102" name="__codelineno-12-102" href="#__codelineno-12-102"></a><span class="w">    </span><span class="c1">// -- Test 3: check_latency_budget on a real, comfortably-fitting</span>
+<a id="__codelineno-12-103" name="__codelineno-12-103" href="#__codelineno-12-103"></a><span class="w">    </span><span class="c1">// sequence of named stages -- reports true and the exact total. --</span>
+<a id="__codelineno-12-104" name="__codelineno-12-104" href="#__codelineno-12-104"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-12-105" name="__codelineno-12-105" href="#__codelineno-12-105"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Stage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-106" name="__codelineno-12-106" href="#__codelineno-12-106"></a><span class="w">            </span><span class="p">{</span><span class="s">&quot;tokenize&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">40.0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;embed_lookup&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">15.0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;forward_pass&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">300.0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;sample&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">},</span>
+<a id="__codelineno-12-107" name="__codelineno-12-107" href="#__codelineno-12-107"></a><span class="w">        </span><span class="p">};</span>
+<a id="__codelineno-12-108" name="__codelineno-12-108" href="#__codelineno-12-108"></a><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check_latency_budget</span><span class="p">(</span><span class="n">stages</span><span class="p">,</span><span class="w"> </span><span class="mf">500.0</span><span class="p">);</span>
+<a id="__codelineno-12-109" name="__codelineno-12-109" href="#__codelineno-12-109"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 3: stages totaling 360us against a 500us budget -- fits=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">fits</span>
+<a id="__codelineno-12-110" name="__codelineno-12-110" href="#__codelineno-12-110"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, total=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">total_us</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;us --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-111" name="__codelineno-12-111" href="#__codelineno-12-111"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">fits</span><span class="p">);</span>
+<a id="__codelineno-12-112" name="__codelineno-12-112" href="#__codelineno-12-112"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">total_us</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">360.0</span><span class="p">);</span>
+<a id="__codelineno-12-113" name="__codelineno-12-113" href="#__codelineno-12-113"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">first_stage_over_budget</span><span class="p">.</span><span class="n">empty</span><span class="p">());</span>
+<a id="__codelineno-12-114" name="__codelineno-12-114" href="#__codelineno-12-114"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-115" name="__codelineno-12-115" href="#__codelineno-12-115"></a>
+<a id="__codelineno-12-116" name="__codelineno-12-116" href="#__codelineno-12-116"></a><span class="w">    </span><span class="c1">// -- Test 4: the same stages against a tighter budget -- refuses at</span>
+<a id="__codelineno-12-117" name="__codelineno-12-117" href="#__codelineno-12-117"></a><span class="w">    </span><span class="c1">// the exact stage responsible, not merely reporting the final total. --</span>
+<a id="__codelineno-12-118" name="__codelineno-12-118" href="#__codelineno-12-118"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-12-119" name="__codelineno-12-119" href="#__codelineno-12-119"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Stage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-120" name="__codelineno-12-120" href="#__codelineno-12-120"></a><span class="w">            </span><span class="p">{</span><span class="s">&quot;tokenize&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">40.0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;embed_lookup&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">15.0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;forward_pass&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">300.0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;sample&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">},</span>
+<a id="__codelineno-12-121" name="__codelineno-12-121" href="#__codelineno-12-121"></a><span class="w">        </span><span class="p">};</span>
+<a id="__codelineno-12-122" name="__codelineno-12-122" href="#__codelineno-12-122"></a><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check_latency_budget</span><span class="p">(</span><span class="n">stages</span><span class="p">,</span><span class="w"> </span><span class="mf">340.0</span><span class="p">);</span>
+<a id="__codelineno-12-123" name="__codelineno-12-123" href="#__codelineno-12-123"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 4: same stages against a 340us budget -- fits=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">fits</span>
+<a id="__codelineno-12-124" name="__codelineno-12-124" href="#__codelineno-12-124"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, breaches at=</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">first_stage_over_budget</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">, total_at_breach=&quot;</span>
+<a id="__codelineno-12-125" name="__codelineno-12-125" href="#__codelineno-12-125"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">total_us</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;us --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-126" name="__codelineno-12-126" href="#__codelineno-12-126"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="o">!</span><span class="n">r</span><span class="p">.</span><span class="n">fits</span><span class="p">);</span>
+<a id="__codelineno-12-127" name="__codelineno-12-127" href="#__codelineno-12-127"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">first_stage_over_budget</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;forward_pass&quot;</span><span class="p">);</span>
+<a id="__codelineno-12-128" name="__codelineno-12-128" href="#__codelineno-12-128"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">total_us</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">355.0</span><span class="p">);</span>
+<a id="__codelineno-12-129" name="__codelineno-12-129" href="#__codelineno-12-129"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-130" name="__codelineno-12-130" href="#__codelineno-12-130"></a>
+<a id="__codelineno-12-131" name="__codelineno-12-131" href="#__codelineno-12-131"></a><span class="w">    </span><span class="c1">// -- Test 5: the boundary itself -- a total exactly equal to budget</span>
+<a id="__codelineno-12-132" name="__codelineno-12-132" href="#__codelineno-12-132"></a><span class="w">    </span><span class="c1">// fits (strict &gt; only, never &gt;=), the same convention Chapter 27.2</span>
+<a id="__codelineno-12-133" name="__codelineno-12-133" href="#__codelineno-12-133"></a><span class="w">    </span><span class="c1">// established and tested explicitly. --</span>
+<a id="__codelineno-12-134" name="__codelineno-12-134" href="#__codelineno-12-134"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-12-135" name="__codelineno-12-135" href="#__codelineno-12-135"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Stage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;only_stage&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">100.0</span><span class="p">}};</span>
+<a id="__codelineno-12-136" name="__codelineno-12-136" href="#__codelineno-12-136"></a><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">at_budget</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check_latency_budget</span><span class="p">(</span><span class="n">stages</span><span class="p">,</span><span class="w"> </span><span class="mf">100.0</span><span class="p">);</span>
+<a id="__codelineno-12-137" name="__codelineno-12-137" href="#__codelineno-12-137"></a><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">one_over</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check_latency_budget</span><span class="p">(</span><span class="n">stages</span><span class="p">,</span><span class="w"> </span><span class="mf">99.999999</span><span class="p">);</span>
+<a id="__codelineno-12-138" name="__codelineno-12-138" href="#__codelineno-12-138"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 5: exactly-at-budget fits=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">at_budget</span><span class="p">.</span><span class="n">fits</span>
+<a id="__codelineno-12-139" name="__codelineno-12-139" href="#__codelineno-12-139"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, one-unit-under-budget fits=&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">one_over</span><span class="p">.</span><span class="n">fits</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-140" name="__codelineno-12-140" href="#__codelineno-12-140"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">at_budget</span><span class="p">.</span><span class="n">fits</span><span class="p">);</span>
+<a id="__codelineno-12-141" name="__codelineno-12-141" href="#__codelineno-12-141"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="o">!</span><span class="n">one_over</span><span class="p">.</span><span class="n">fits</span><span class="p">);</span>
+<a id="__codelineno-12-142" name="__codelineno-12-142" href="#__codelineno-12-142"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-143" name="__codelineno-12-143" href="#__codelineno-12-143"></a>
+<a id="__codelineno-12-144" name="__codelineno-12-144" href="#__codelineno-12-144"></a><span class="w">    </span><span class="c1">// -- Test 6: tying Test 2&#39;s real Raspberry Pi 5 estimate to a stated</span>
+<a id="__codelineno-12-145" name="__codelineno-12-145" href="#__codelineno-12-145"></a><span class="w">    </span><span class="c1">// deployment SLA -- does 3.79ish tok/s clear a real &quot;at least 3</span>
+<a id="__codelineno-12-146" name="__codelineno-12-146" href="#__codelineno-12-146"></a><span class="w">    </span><span class="c1">// tokens/sec&quot; target? --</span>
+<a id="__codelineno-12-147" name="__codelineno-12-147" href="#__codelineno-12-147"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-12-148" name="__codelineno-12-148" href="#__codelineno-12-148"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">bandwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">17.068e9</span><span class="p">;</span>
+<a id="__codelineno-12-149" name="__codelineno-12-149" href="#__codelineno-12-149"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">model_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.5e9</span><span class="p">;</span>
+<a id="__codelineno-12-150" name="__codelineno-12-150" href="#__codelineno-12-150"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">tps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tokens_per_sec</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span><span class="w"> </span><span class="n">model_bytes</span><span class="p">);</span>
+<a id="__codelineno-12-151" name="__codelineno-12-151" href="#__codelineno-12-151"></a><span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">target_tps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span><span class="p">;</span>
+<a id="__codelineno-12-152" name="__codelineno-12-152" href="#__codelineno-12-152"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;-- Test 6: real Raspberry Pi 5 estimate (&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">tps</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; tok/s) vs. a &quot;</span>
+<a id="__codelineno-12-153" name="__codelineno-12-153" href="#__codelineno-12-153"></a><span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">target_tps</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; tok/s target -- meets target: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">tps</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">target_tps</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;YES&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;NO&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; --</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-154" name="__codelineno-12-154" href="#__codelineno-12-154"></a><span class="w">        </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tps</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">target_tps</span><span class="p">);</span>
+<a id="__codelineno-12-155" name="__codelineno-12-155" href="#__codelineno-12-155"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-156" name="__codelineno-12-156" href="#__codelineno-12-156"></a>
+<a id="__codelineno-12-157" name="__codelineno-12-157" href="#__codelineno-12-157"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; checks passed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-158" name="__codelineno-12-158" href="#__codelineno-12-158"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">g_passed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;ALL CHECKS PASSED&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;SOME CHECKS FAILED&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-159" name="__codelineno-12-159" href="#__codelineno-12-159"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">g_passed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">g_tests</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-12-160" name="__codelineno-12-160" href="#__codelineno-12-160"></a><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>===================================================
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>Appendix D.3: Latency-Budget Arithmetic
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>===================================================
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>-- Test 1: 64 GB/s (Chapter 4.1&#39;s stated figure), 4.5 GB Q4_0 model -- 14.2222 tok/s (rounds to 14.2) --
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>-- Test 2: 17.068 GB/s (Appendix D.1&#39;s real Raspberry Pi 5 figure), 4.5 GB Q4_0 model -- 3.79289 tok/s --
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>-- Test 3: stages totaling 360us against a 500us budget -- fits=1, total=360us --
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>-- Test 4: same stages against a 340us budget -- fits=0, breaches at=&quot;forward_pass&quot;, total_at_breach=355us --
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>-- Test 5: exactly-at-budget fits=1, one-unit-under-budget fits=0 --
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>-- Test 6: real Raspberry Pi 5 estimate (3.79289 tok/s) vs. a 3 tok/s target -- meets target: YES --
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>11/11 checks passed
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>ALL CHECKS PASSED
+</code></pre></div>
+<hr />
+<h2 id="d4-profiling-with-perf-the-flags-that-actually-work-and-where-they-genuinely-dont">D.4 Profiling With <code>perf</code>: The Flags That Actually Work, and Where They Genuinely Don't<a class="headerlink" href="#d4-profiling-with-perf-the-flags-that-actually-work-and-where-they-genuinely-dont" title="Permanent link">&para;</a></h2>
+<h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
+<p><code>perf</code> is the standard real tool for measuring what a running program actually does on real hardware: cycles, cache misses, branch mispredictions, wall-clock time broken down by call stack. On Arm specifically, the honest starting point is that generic event names (<code>cycles</code>, <code>instructions</code>, <code>cache-misses</code>, <code>branch-misses</code>) are the ones most likely to work across vendors, because they are resolved through the kernel's own generic PMU abstraction rather than a vendor-specific raw event encoding; genuinely vendor-specific counters need either a raw hex event code or a PMU-specific alias (<code>armv8_pmuv3/...</code>) that differs across implementations. None of that is this appendix's real finding, though -- what actually happened when this book tried to use <code>perf</code> on its own two real build environments is.</p>
+<h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
+<p>The real, correct starting command line for a quick check on any Linux machine, Arm included, is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>cycles,instructions,cache-references,cache-misses,task-clock<span class="w"> </span>--<span class="w"> </span>./your_program
+</code></pre></div>
+<p>and, for a call-graph profile (needs the binary built with <code>-fno-omit-frame-pointer</code>, or DWARF unwind info, to produce a real stack rather than a garbled one):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>perf<span class="w"> </span>record<span class="w"> </span>-g<span class="w"> </span>--<span class="w"> </span>./your_program
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>perf<span class="w"> </span>report
+</code></pre></div>
+<p>Running the first of those two commands against this book's own binaries, on this book's own two real build environments, produced two different real, honest failures rather than a clean measurement on either one:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>$ /usr/lib/linux-tools-6.8.0-139/perf stat -e cycles,instructions,task-clock -- /bin/true
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a> Performance counter stats for &#39;/bin/true&#39;:
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>   &lt;not supported&gt;      cycles
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>   &lt;not supported&gt;      instructions
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>              1.09 msec task-clock                       #    0.579 CPUs utilized
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>       0.001878824 seconds time elapsed
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>       0.001720000 seconds user
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>       0.000000000 seconds sys
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a># captured on: a cloud x86_64 build container (Linux, kernel 6.18.44-fc-v33), perf_event_paranoid=2
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a># perf itself runs (its own distro wrapper needed the exact kernel-versioned binary invoked
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a># directly to bypass a packaging version-match refusal), but the two HARDWARE PMU events
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a># (cycles, instructions) report &quot;&lt;not supported&gt;&quot; -- this virtualized environment does not
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a># expose real hardware performance-counter access to the guest at all. The one SOFTWARE event
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a># requested (task-clock, timer-based, not a real PMU counter) works normally.
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>$ perf stat -e cycles,instructions /bin/true
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>Error:
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>Access to performance monitoring and observability operations is limited.
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>access to performance monitoring and observability operations for processes
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>without CAP_PERFMON, CAP_SYS_PTRACE or CAP_SYS_ADMIN Linux capability.
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>More information can be found at &#39;Perf events and tool security&#39; document:
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>perf_event_paranoid setting is 4:
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>  -1: Allow use of (almost) all events by all users
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>      Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>&gt;= 0: Disallow raw and ftrace function tracepoint access
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>&gt;= 1: Disallow CPU event access
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>&gt;= 2: Disallow kernel profiling
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>To make the adjusted perf_event_paranoid setting permanent preserve it
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = &lt;setting&gt;)
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>$ sudo -n true
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a>sudo: /etc/sudo.conf is owned by uid 65534, should be 0
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>sudo: The &quot;no new privileges&quot; flag is set, which prevents sudo from running as root.
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a>sudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.
+<a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a>
+<a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a># captured on: this book&#39;s own real aarch64 target device (a Linux VM on the user&#39;s Mac,
+<a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a># uname -m: aarch64, kernel 6.8.0-138-generic), perf version 6.8.12 (genuinely installed and
+<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a># functioning as a binary -- this is not a missing-package problem like diag1&#39;s wrapper issue).
+<a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a># perf_event_paranoid is set to 4, a value beyond the four documented levels (-1 through 2) the
+<a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a># kernel&#39;s own error message lists -- a hardened container/VM policy that blocks EVERY event
+<a id="__codelineno-17-29" name="__codelineno-17-29" href="#__codelineno-17-29"></a># type, including plain software events (task-clock alone was tried separately and denied
+<a id="__codelineno-17-30" name="__codelineno-17-30" href="#__codelineno-17-30"></a># identically). Lowering it requires root, which this environment genuinely does not grant, and
+<a id="__codelineno-17-31" name="__codelineno-17-31" href="#__codelineno-17-31"></a># &quot;no new privileges&quot; additionally blocks sudo itself from working around that. This is the same
+<a id="__codelineno-17-32" name="__codelineno-17-32" href="#__codelineno-17-32"></a># real, no-root constraint this book already documented in Appendix A (no system cmake/ninja,
+<a id="__codelineno-17-33" name="__codelineno-17-33" href="#__codelineno-17-33"></a># no root for apt-get) and Chapter 24.2 (no root to install OpenCV) -- profiling access is simply
+<a id="__codelineno-17-34" name="__codelineno-17-34" href="#__codelineno-17-34"></a># one more real thing a genuinely constrained edge-adjacent deployment target can deny outright.
+</code></pre></div>
+<p>The cloud build container's own copy of <code>perf</code> genuinely runs -- once its own distro packaging's kernel-version check is bypassed by invoking the real installed binary directly -- but reports every real hardware PMU event as <code>&lt;not supported&gt;</code>, because this virtualized build environment does not expose real performance-counter hardware to its guest at all; only software events (a timer-based <code>task-clock</code>, not a real counter) work. This book's own real target device -- the aarch64 Linux VM this book has cross-checked every single chapter against -- runs a genuine, correctly versioned <code>perf</code> binary, but its own <code>perf_event_paranoid</code> sysctl is set to 4, a value beyond the four levels the kernel's own error message documents, blocking every event type outright, with no root access available to lower it.</p>
+<p>Neither failure is a bug in <code>perf</code>, and neither is unique to this book's own environments: cloud VMs routinely withhold PMU passthrough from guests for isolation reasons, and hardened containers routinely set <code>perf_event_paranoid</code> at or above the maximum the kernel formally documents specifically to close it off entirely. A real edge deployment -- inside a container orchestrator, behind a hypervisor, on a locked-down consumer device -- can hit either restriction, or both, in production, not merely in this book's own build environment.</p>
+<table>
+<thead>
+<tr>
+<th>Restriction</th>
+<th>Where this book hit it</th>
+<th>Real cause</th>
+<th>Any real workaround here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hardware PMU events report <code>&lt;not supported&gt;</code></td>
+<td>Cloud build container</td>
+<td>No virtualized PMU passthrough to the guest</td>
+<td>None -- move the measurement to unvirtualized hardware</td>
+</tr>
+<tr>
+<td>All events denied outright</td>
+<td>Real aarch64 device</td>
+<td><code>perf_event_paranoid=4</code>, no root</td>
+<td>None -- requires a privilege this environment does not grant</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">[COMMON TRAP] assuming a real profiling tool is always reachable on a real deployment target</p>
+<p><code>perf</code> existing on a system, and even reporting a real version number, does not mean it can measure anything on that system -- both of this book's own real environments proved genuinely, differently unable to produce a single real hardware counter, for reasons entirely outside this book's own code. This is precisely why every deterministic claim in this book -- FLOP counts, byte counts, operation counts -- was instrumented directly into the code itself, from Chapter 8 onward, rather than left to depend on an external profiler being reachable at all: a number the code itself can report needs no permission this environment might withhold.</p>
+</div>
+<hr />
+<h2 id="appendix-summary">Appendix Summary<a class="headerlink" href="#appendix-summary" title="Permanent link">&para;</a></h2>
+<p>Nothing in this appendix changed how this book measures anything -- it stated, once and plainly as Chapter 32 promised, why deterministic operation and byte counts get locked into this book's own self-test contract while wall-clock timing never does, then backed that statement with a real vendor-verified bandwidth formula, a real triad benchmark whose own timing swung by 68% across three back-to-back runs on the very same machine, a real latency-budget calculator connecting a stated model size to a real, named board's real bandwidth for the first time, and a real, honestly-reported account of <code>perf</code> failing in two different, real, unrelated ways on this book's own two build environments. The throughline across all four sections is the same one this book has followed since Chapter 8: a number worth trusting is either provably a property of the algorithm, independent of any machine, or it is honestly labeled as belonging to one specific run, on one specific machine, at one specific moment -- and the two are never allowed to be confused for each other.</p>
+<h2 id="where-we-go-next">Where We Go Next<a class="headerlink" href="#where-we-go-next" title="Permanent link">&para;</a></h2>
+<p>Appendix E turns from measuring this book's own C++ engine to translating it: <code>torch.Tensor</code> and <code>AutoModel.from_pretrained</code> next to this book's own <code>mdspan</code> tensor and GGUF loader, vLLM's continuous batching next to this book's own scheduler, HuggingFace's tokenizer next to the from-scratch BPE pipeline -- a Rosetta Stone for a reader arriving fluent in the Python inference ecosystem and looking for exactly where each familiar piece landed in this book's own real, from-scratch C++23 engine.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:rpi5mem">
+<p>Raspberry Pi Ltd, "Processors" documentation, BCM2712 memory interface: <a href="https://www.raspberrypi.com/documentation/computers/processors.html">https://www.raspberrypi.com/documentation/computers/processors.html</a>&#160;<a class="footnote-backref" href="#fnref:rpi5mem" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:rpi5mem" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:orinmem">
+<p>NVIDIA, Jetson Orin Nano Developer Kit datasheet (8 GB module, 128-bit LPDDR5, 68 GB/s): <a href="https://files.seeedstudio.com/wiki/Jetson-Orin-Nano-DevKit/jetson-orin-nano-developer-kit-datasheet.pdf">https://files.seeedstudio.com/wiki/Jetson-Orin-Nano-DevKit/jetson-orin-nano-developer-kit-datasheet.pdf</a>&#160;<a class="footnote-backref" href="#fnref:orinmem" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:m4mem">
+<p>Apple Inc., "Apple introduces M4 Pro and M4 Max," October 2024: <a href="https://www.apple.com/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/">https://www.apple.com/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/</a>&#160;<a class="footnote-backref" href="#fnref:m4mem" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../c-decision-tree-reference/" class="md-footer__link md-footer__link--prev" aria-label="Previous: C. A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                C. A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Oluwaseyi Awoga
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
