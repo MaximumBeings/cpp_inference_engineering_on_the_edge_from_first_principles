@@ -1383,7 +1383,7 @@ This chapter closed Part 5 by building two real, privacy-respecting camera pipel
 
 ## Where We Go Next
 
-Part 5 is complete: eight chapters spanning industrial inspection, retail, medical imaging, document intelligence, security and accessibility, point-of-sale trust, natural-language photo editing, and now body-worn and personal cameras, each turning a continuous visual stream into a structured, checkable, honestly-scoped output. Part 6 turns from application domains to the mathematical and architectural foundations underneath every one of them: Chapter 30 works through the FLOPs, roofline, and Hessian mathematics that explain why these systems perform the way they do, Chapter 31 builds a real continuous-batching scheduler for serving many requests at once, and Chapter 32 takes this book's own inference engine to the GPU with a real Flash Attention implementation and CUDA kernels.
+This chapter closes out the book's original run of vision-language deployment domains -- eight chapters spanning industrial inspection, retail, medical imaging, document intelligence, security and accessibility, point-of-sale trust, natural-language photo editing, and now body-worn and personal cameras, each turning a continuous visual stream into a structured, checkable, honestly-scoped output. Part 5 continues, though: Chapter 26 turns to a different real financial setting entirely -- check and invoice fraud detection at a bank branch or back office, where the fraud patterns are well-documented and often checkable by a real published formula or a real structural redundancy the payment instrument's own printed form was designed to provide.
 
 ## Worked Solutions
 
