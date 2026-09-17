@@ -1400,6 +1400,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/29-on-device-aml-transaction-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29. On-Device AML Transaction Anomaly Monitoring at ATMs and POS Terminals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2163,7 +2191,7 @@
 <li>This book's own running discipline of never claiming a wall-clock timing result as part of a locked, deterministic self-test contract (stated plainly in Appendix D) is what shapes this chapter's own definition of "benchmark": real FLOP counts and real peak-memory byte counts, both exactly reproducible on every real run, stand in for timing throughout this chapter.</li>
 </ul>
 <hr />
-<p>This book has built one real inference engine, from <code>std::mdspan</code> tensors through quantization, threading, the KV cache, real deployed models, and eleven real edge deployments, entirely in portable C++23 that runs identically on an x86 development machine and real aarch64 hardware. This final chapter takes that same engine to the one real place it has not yet gone: a GPU. It does so with the identical discipline every chapter before it used -- derive the real problem precisely, build a real fix from scratch, and verify it directly rather than asserting it -- but it also does something this book has not had to do before: it tells you plainly, in detail, exactly which of its own real claims a GPU-less pipeline can verify and which it genuinely cannot, rather than blurring that line to make the chapter read more impressively than the truth supports.</p>
+<p>This book has built one real inference engine, from <code>std::mdspan</code> tensors through quantization, threading, the KV cache, real deployed models, and twelve real edge deployments, entirely in portable C++23 that runs identically on an x86 development machine and real aarch64 hardware. This final chapter takes that same engine to the one real place it has not yet gone: a GPU. It does so with the identical discipline every chapter before it used -- derive the real problem precisely, build a real fix from scratch, and verify it directly rather than asserting it -- but it also does something this book has not had to do before: it tells you plainly, in detail, exactly which of its own real claims a GPU-less pipeline can verify and which it genuinely cannot, rather than blurring that line to make the chapter read more impressively than the truth supports.</p>
 <h2 id="321-the-on2-memory-wall-and-the-online-softmax-fix">32.1 The O(N^2) Memory Wall and the Online-Softmax Fix<a class="headerlink" href="#321-the-on2-memory-wall-and-the-online-softmax-fix" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Standard attention computes a full N x N score matrix -- one entry per query-key pair -- before it can take a single softmax over any row of it. That matrix's own real memory cost grows with the SQUARE of sequence length, and at the real sequence lengths modern serving systems actually handle, it becomes the genuine bottleneck long before raw compute does.</p>
@@ -3150,7 +3178,7 @@
 <li>Across all three sections of this chapter, identify the ONE real property of the online-softmax recurrence, first proven in Section 32.1, that both Section 32.2's tiled CPU implementation and Section 32.3's CUDA kernel each depend on being true in order for their own real correctness claims to hold.</li>
 </ol>
 <h2 id="where-we-go-next">Where We Go Next<a class="headerlink" href="#where-we-go-next" title="Permanent link">&para;</a></h2>
-<p>This chapter closes the main text of this book. Every real technique built across 32 chapters -- from <code>std::mdspan</code> tensors and affine quantization through SIMD, threading, the KV cache, real deployed models, eleven real edge deployments, the mathematics underlying every kernel, a real continuous-batching scheduler, and finally a real GPU kernel -- was built from scratch and verified directly rather than merely asserted, on real, portable C++23 that compiles and runs identically across an x86 development machine and real aarch64 hardware. What remains is the book's own set of appendices: cross-compilation setup for real edge targets, a practice quiz spanning every Part, a consolidated decision-tree reference, a profiling and benchmarking guide for real edge hardware, and a Rosetta Stone for readers arriving fluent in the Python inference ecosystem.</p>
+<p>This chapter closes the main text of this book. Every real technique built across 32 chapters -- from <code>std::mdspan</code> tensors and affine quantization through SIMD, threading, the KV cache, real deployed models, twelve real edge deployments, the mathematics underlying every kernel, a real continuous-batching scheduler, and finally a real GPU kernel -- was built from scratch and verified directly rather than merely asserted, on real, portable C++23 that compiles and runs identically across an x86 development machine and real aarch64 hardware. What remains is the book's own set of appendices: cross-compilation setup for real edge targets, a practice quiz spanning every Part, a consolidated decision-tree reference, a profiling and benchmarking guide for real edge hardware, and a Rosetta Stone for readers arriving fluent in the Python inference ecosystem.</p>
 <h2 id="worked-solutions">Worked Solutions<a class="headerlink" href="#worked-solutions" title="Permanent link">&para;</a></h2>
 <p><strong>1.</strong> The real score-matrix formula is <code>N * N * dtype_bytes</code> -- N appears TWICE, once for the number of queries and once for the number of keys, since every query is scored against every key. Doubling N therefore multiplies the result by <code>2 * 2 = 4</code>, not <code>2</code>: quadratic growth is a direct, mechanical consequence of N appearing as a product with itself in the formula, not an incidental property of this specific example.</p>
 <p><strong>2.</strong> A block size of 1 forces the recurrence to update its own running max, sum, and output after processing a SINGLE key at a time, which is the maximum possible number of real update steps (and real correction-term applications) for a given sequence length. If the online recurrence's own algebra had any subtle error -- in the correction term, in the order of operations, in the handling of the running max -- the more update steps that occur, the more real opportunities that error has to compound or reveal itself. A single large block, in the extreme case one block covering the entire sequence, would apply the correction step zero or one times and could mask a real bug that only manifests when the running state is actually updated repeatedly.</p>
