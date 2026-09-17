@@ -1,5 +1,5 @@
-// Chapter 28.3 -- A real CUDA production kernel implementing Sections
-// 28.1 and 28.2's own tiled online-softmax attention on the GPU, and a
+// Chapter 32.3 -- A real CUDA production kernel implementing Sections
+// 32.1 and 32.2's own tiled online-softmax attention on the GPU, and a
 // real kernel-validation suite built to check its output against a real
 // CPU golden reference. This section's own verification is honestly
 // different in kind from every other file in this book: nvcc genuinely
@@ -56,7 +56,7 @@ constexpr int MAX_HEAD_DIM = 64; // a stated real limit for this kernel's own pe
 // PART 1: the real CUDA kernel. One real thread owns one query row's own
 // online-softmax state; every thread in a block cooperates to load the
 // SAME real K/V tile into shared memory once per tile, then each thread
-// updates its own running (m, l, o) using Sections 28.1 and 28.2's own
+// updates its own running (m, l, o) using Sections 32.1 and 32.2's own
 // already-proven-correct real recurrence.
 // =======================================================================
 __global__ void flash_attention_kernel(const float* q, const float* k, const float* v,
@@ -111,7 +111,7 @@ __global__ void flash_attention_kernel(const float* q, const float* k, const flo
 }
 
 // =======================================================================
-// PART 2: the real CPU golden reference -- Sections 28.1 and 28.2's own
+// PART 2: the real CPU golden reference -- Sections 32.1 and 32.2's own
 // already-proven-correct naive attention, restated here in float32 (the
 // kernel's own real precision) so a real GPU's output could be compared
 // against it apples-to-apples.
@@ -211,11 +211,11 @@ ValidationStatus validate_kernel_on_device(const std::vector<float>& q, const st
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 28.3: A CUDA Production Engine and Its Own Kernel-Validation Suite\n";
+    std::cout << "Chapter 32.3: A CUDA Production Engine and Its Own Kernel-Validation Suite\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: the real CPU golden reference, restated here in float32 precision, reduces "
-                 "correctly on the identical zero-query-vector degenerate case Sections 28.1 and 28.2 both "
+                 "correctly on the identical zero-query-vector degenerate case Sections 32.1 and 32.2 both "
                  "already verified by hand, confirming this section's own golden reference is itself "
                  "correct before it is ever used as a comparison baseline --\n";
     {
@@ -227,7 +227,7 @@ int main() {
         CHECK(std::fabs(out[0] - 4.0f) < 1e-5f);
         CHECK(std::fabs(out[1] - 6.0f) < 1e-5f);
         std::cout << "  the real float32 golden reference produces {" << out[0] << ", " << out[1]
-                  << "}, matching the identical exact result Sections 28.1 and 28.2 both verified in "
+                  << "}, matching the identical exact result Sections 32.1 and 32.2 both verified in "
                      "double precision\n";
     }
 

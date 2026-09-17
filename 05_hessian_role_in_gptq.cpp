@@ -1,5 +1,5 @@
-// Chapter 26.5 -- Quantizing a weight independently of every other
-// weight, as Section 26.4's own affine map does, ignores something a
+// Chapter 30.5 -- Quantizing a weight independently of every other
+// weight, as Section 30.4's own affine map does, ignores something a
 // real calibration dataset already knows: some weights matter more to
 // a layer's real output than others, and the ones that don't yet have
 // a fixed quantized value can still be nudged to compensate for the
@@ -94,7 +94,7 @@ std::vector<double> matvec(const Matrix& m, const std::vector<double>& v) {
 
 // =======================================================================
 // PART 2: real round-to-nearest quantization at a stated fixed scale --
-// the same real affine map from Section 26.4, applied here to a single
+// the same real affine map from Section 30.4, applied here to a single
 // scalar weight.
 // =======================================================================
 double quantize_weight(double w, double scale) { return std::round(w / scale) * scale; }
@@ -131,7 +131,7 @@ double sum_squared_error(const std::vector<double>& a, const std::vector<double>
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.5: The Hessian's Role in GPTQ\n";
+    std::cout << "Chapter 30.5: The Hessian's Role in GPTQ\n";
     std::cout << "========================================================\n";
 
     // A real, tiny calibration dataset: 3 real samples, 2 real features each.

@@ -89,9 +89,9 @@ nav:
       - "24. Natural Language Photo Editing: From Prompt to cv::Mat on Edge Hardware": part5/24-natural-language-photo-editing.md
       - "25. Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking": part5/25-body-worn-and-personal-cameras.md
   - "Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration":
-      - "26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian": part6/26-mathematical-foundations.md
-      - "27. Continuous Batching and Production Serving Architecture": part6/27-continuous-batching-and-production-serving.md
-      - "28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU": part6/28-flash-attention-and-cuda-kernels.md
+      - "30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian": part6/30-mathematical-foundations.md
+      - "31. Continuous Batching and Production Serving Architecture": part6/31-continuous-batching-and-production-serving.md
+      - "32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU": part6/32-flash-attention-and-cuda-kernels.md
   - "Appendices":
       - "A. Installation and Setup -- Cross-Compiling for the Edge": appendix/a-installation-and-setup.md
       - "B. Practice Quiz": appendix/b-practice-quiz.md

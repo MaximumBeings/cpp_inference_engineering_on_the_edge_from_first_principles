@@ -1,5 +1,5 @@
 ========================================================
-Chapter 26.6: A Full Roofline Analysis of a Transformer Layer
+Chapter 30.6: A Full Roofline Analysis of a Transformer Layer
 ========================================================
 
 -- Test 1: at batch 1, every real FLOP sub-total, the real total, the real weight-byte total, and the resulting real arithmetic intensity all match an exact hand computation for this tiny, fully traceable layer shape --

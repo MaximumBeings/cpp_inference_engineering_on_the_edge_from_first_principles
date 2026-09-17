@@ -1,5 +1,5 @@
 ========================================================
-Chapter 26.4: Quantization as Affine Algebra
+Chapter 30.4: Quantization as Affine Algebra
 ========================================================
 
 -- Test 1: the real optimal scale formula, and an exact real round-trip at both endpoints of the quantization range --

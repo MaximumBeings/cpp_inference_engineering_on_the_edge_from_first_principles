@@ -1,4 +1,4 @@
-// Appendix B, Challenge 1 -- Chapter 26.2 warned that naive softmax
+// Appendix B, Challenge 1 -- Chapter 30.2 warned that naive softmax
 // (exp(x_i) / sum(exp(x_j))) silently overflows to NaN on large real
 // inputs, and fixed it with the shift-invariant identity
 // softmax(x) == softmax(x - max(x)). Before compiling and running this

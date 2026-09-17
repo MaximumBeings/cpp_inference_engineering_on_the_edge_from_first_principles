@@ -1,4 +1,4 @@
-// Chapter 26.4 -- Chapter 4 implemented affine quantization as a working
+// Chapter 30.4 -- Chapter 4 implemented affine quantization as a working
 // tool; this section treats it as what it actually is: a real affine
 // map, quantize(x) = round(x / scale) + zero_point, whose only
 // non-linear step is the round itself. That single fact is what
@@ -61,7 +61,7 @@ double quantization_error(double x, double min_val, double scale) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.4: Quantization as Affine Algebra\n";
+    std::cout << "Chapter 30.4: Quantization as Affine Algebra\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: the real optimal scale formula, and an exact real round-trip at both "

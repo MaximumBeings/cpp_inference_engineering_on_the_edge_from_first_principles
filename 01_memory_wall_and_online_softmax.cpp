@@ -1,4 +1,4 @@
-// Chapter 28.1 -- The real O(N^2) memory wall standard attention hits, and
+// Chapter 32.1 -- The real O(N^2) memory wall standard attention hits, and
 // the real online-softmax recurrence that fixes it. Standard attention
 // materializes a full N x N score matrix before it can take a single
 // softmax -- a real, quadratic memory cost that becomes the actual
@@ -47,7 +47,7 @@ double bytes_for_streaming_block(int64_t block_size, int64_t dtype_bytes) {
 
 // =======================================================================
 // PART 2: naive attention -- materializes the full real score row, applies
-// Chapter 26.2's own shift-invariant stable softmax to the WHOLE row at
+// Chapter 30.2's own shift-invariant stable softmax to the WHOLE row at
 // once, then computes the weighted sum over V directly.
 // =======================================================================
 double dot(const std::vector<double>& a, const std::vector<double>& b) {
@@ -156,7 +156,7 @@ bool vec_near(const std::vector<double>& a, const std::vector<double>& b, double
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 28.1: The O(N^2) Memory Wall and the Online-Softmax Fix\n";
+    std::cout << "Chapter 32.1: The O(N^2) Memory Wall and the Online-Softmax Fix\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: standard attention's own real score-matrix memory grows quadratically -- doubling "

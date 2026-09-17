@@ -1,5 +1,5 @@
-// Chapter 26.6 -- This chapter's own capstone: every real formula built
-// in Sections 26.1 through 26.5 -- FLOP counting, weight-dominated byte
+// Chapter 30.6 -- This chapter's own capstone: every real formula built
+// in Sections 30.1 through 30.5 -- FLOP counting, weight-dominated byte
 // accounting, arithmetic intensity, and the real roofline crossover --
 // applied together to a complete real transformer decoder layer (QKV
 // projection, attention, output projection, and the FFN), at a stated
@@ -64,7 +64,7 @@ FlopBreakdown layer_flops(const LayerShape& s, int64_t batch) {
 
 // =======================================================================
 // PART 3: real weight-byte accounting -- the same weight-dominated
-// approximation Section 26.1 derived and honestly bounded, applied here
+// approximation Section 30.1 derived and honestly bounded, applied here
 // to the layer's own 4 real weight tensors. Batch-independent by
 // construction: the weights themselves do not grow with batch size.
 // =======================================================================
@@ -106,7 +106,7 @@ double crossover_batch_size(const LayerShape& s, double ridge_point) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.6: A Full Roofline Analysis of a Transformer Layer\n";
+    std::cout << "Chapter 30.6: A Full Roofline Analysis of a Transformer Layer\n";
     std::cout << "========================================================\n";
 
     // A tiny, fully hand-traceable real layer shape.

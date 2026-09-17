@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify docs/part6/27-continuous-batching-and-production-serving.md.
+"""Verify docs/part6/31-continuous-batching-and-production-serving.md.
 
 All 4 sections in this chapter depend on nothing but the C++ standard
 library, so all 4 get this book's usual, unconditional compile/run/
@@ -10,14 +10,14 @@ import subprocess
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
-MD_PATH = BASE / "docs/part6/27-continuous-batching-and-production-serving.md"
+MD_PATH = BASE / "docs/part6/31-continuous-batching-and-production-serving.md"
 
-EXPECTED_H1 = "# Chapter 27: Continuous Batching and Production Serving Architecture"
+EXPECTED_H1 = "# Chapter 31: Continuous Batching and Production Serving Architecture"
 EXPECTED_H2 = [
-    "## 27.1 The Static-Batching Problem and Head-of-Line Blocking",
-    "## 27.2 The Prefill/Decode Conflict and Chunked Prefill",
-    "## 27.3 A Continuous-Batching Scheduler Built From Scratch",
-    "## 27.4 Numerical Debugging Tools: NaN-Propagation Tracing and Floating-Point Drift Detection",
+    "## 31.1 The Static-Batching Problem and Head-of-Line Blocking",
+    "## 31.2 The Prefill/Decode Conflict and Chunked Prefill",
+    "## 31.3 A Continuous-Batching Scheduler Built From Scratch",
+    "## 31.4 Numerical Debugging Tools: NaN-Propagation Tracing and Floating-Point Drift Detection",
     "## Chapter Summary",
     "## Self-Check Questions",
     "## Where We Go Next",

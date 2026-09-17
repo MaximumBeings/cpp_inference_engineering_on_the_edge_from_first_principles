@@ -11,7 +11,7 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 **Part 0 -- Foundations (Chapters 2-3)**
 
 1. Why does `std::mdspan` improve on a raw pointer plus manual index arithmetic for representing a tensor, and what specific GCC-version constraint did this book have to work around for its own multi-dimensional subscript syntax?
-2. Why does RoPE (rotary position embedding) encode position via rotation rather than by directly adding a position vector to the embedding, per the composition identity `R(a)^T * R(b) = R(b-a)` derived in Chapter 26.3?
+2. Why does RoPE (rotary position embedding) encode position via rotation rather than by directly adding a position vector to the embedding, per the composition identity `R(a)^T * R(b) = R(b-a)` derived in Chapter 30.3?
 
 **Part 1 -- Shrinking the Model: Quantization (Chapters 4-7)**
 
@@ -40,12 +40,12 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 
 **Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration (Chapters 26-28)**
 
-13. Why does naive softmax overflow to NaN on large real inputs, and what single algebraic identity (used throughout Chapters 26.2 and 28.1) fixes it without changing the mathematical result?
-14. Chapter 28 could not launch its CUDA kernel on a real GPU anywhere in this book's own pipeline. What could a clean `nvcc` compile still prove about that kernel, and what could it NOT prove?
+13. Why does naive softmax overflow to NaN on large real inputs, and what single algebraic identity (used throughout Chapters 30.2 and 32.1) fixes it without changing the mathematical result?
+14. Chapter 32 could not launch its CUDA kernel on a real GPU anywhere in this book's own pipeline. What could a clean `nvcc` compile still prove about that kernel, and what could it NOT prove?
 
 ## B.3 Conceptual Review Answers
 
-**1.** `std::mdspan` attaches a tensor's shape (extents) and layout policy directly to the view type, so indexing math is computed in one consistent place rather than re-derived by hand as `row * cols + col` at every call site, where a transposed dimension or an off-by-one is easy to introduce silently. This book's own real constraint: its actual aarch64 target device runs GCC 11.4.0, which predates GCC 12's support for C++23's multi-argument `operator[]` (`view[i, j]`) and ships no native `<mdspan>` header at all -- so every `mdspan`-based file in this book uses a vendored, header-only reference implementation plus an `idx2()`/`idx3()` helper that packages indices into the `std::array` overload GCC 11 does support, a convention established in Chapter 13's own appendix note and reused unchanged through Chapter 28.
+**1.** `std::mdspan` attaches a tensor's shape (extents) and layout policy directly to the view type, so indexing math is computed in one consistent place rather than re-derived by hand as `row * cols + col` at every call site, where a transposed dimension or an off-by-one is easy to introduce silently. This book's own real constraint: its actual aarch64 target device runs GCC 11.4.0, which predates GCC 12's support for C++23's multi-argument `operator[]` (`view[i, j]`) and ships no native `<mdspan>` header at all -- so every `mdspan`-based file in this book uses a vendored, header-only reference implementation plus an `idx2()`/`idx3()` helper that packages indices into the `std::array` overload GCC 11 does support, a convention established in Chapter 13's own appendix note and reused unchanged through Chapter 32.
 
 **2.** Rotating the query and key vectors by their own absolute positions makes their dot product depend ONLY on the relative distance between them, not on either position alone -- exactly the property attention needs, since two tokens three positions apart near the start of a sequence should relate the same way as two tokens three positions apart near the end. This falls directly out of the rotation-composition identity `R(a)^T * R(b) = R(b-a)`. Adding a position vector directly has no equivalent algebraic guarantee: two tokens' additive position encodings don't combine into a clean function of relative distance when dotted together, so a model using additive position encoding has to learn that structure from data instead of getting it for free from the geometry.
 
@@ -63,7 +63,7 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 
 **9.** Re-reading your own code mainly re-exercises the same mental model that produced the bug in the first place -- if you believed a RoPE pairing convention was correct when you wrote it, rereading the identical code tends to confirm that same belief rather than surface the assumption that's actually wrong. An independently built second implementation encodes a different set of assumptions arrived at separately, so a genuine numerical disagreement between the two systems is real signal that at least one of them has an actual bug, in a way no amount of rereading a single implementation can substitute for -- which is exactly how Chapter 15 found four separate real bugs against an independently-built llama.cpp.
 
-**10.** Wall-clock time is entangled with everything about the specific machine it was measured on -- clock frequency, thermal throttling, background load, cache sizes -- so a timing number from one run on one machine says little about whether an approach is genuinely more efficient in a way that would hold on different hardware, and it cannot be locked into an exactly-reproducible self-test the way this book's own build-verify-lock discipline requires. This book measured real, machine-independent quantities instead: exact multiply-accumulate counts (Chapter 28.2), exact peak-memory byte counts read from actual allocation sizes, and exact padding-waste and utilization counts (Chapter 27.1) -- numbers reproducible bit-for-bit on any machine that also explain WHY one approach is faster, not just that it measured faster once.
+**10.** Wall-clock time is entangled with everything about the specific machine it was measured on -- clock frequency, thermal throttling, background load, cache sizes -- so a timing number from one run on one machine says little about whether an approach is genuinely more efficient in a way that would hold on different hardware, and it cannot be locked into an exactly-reproducible self-test the way this book's own build-verify-lock discipline requires. This book measured real, machine-independent quantities instead: exact multiply-accumulate counts (Chapter 32.2), exact peak-memory byte counts read from actual allocation sizes, and exact padding-waste and utilization counts (Chapter 31.1) -- numbers reproducible bit-for-bit on any machine that also explain WHY one approach is faster, not just that it measured faster once.
 
 **11.** A system that could output a diagnosis would need some kind of diagnosis field, or a confidence-over-conditions structure, somewhere in its result type. Chapter 20 instead defines a report schema that structurally has no such field at all -- only observations, flagged regions, and a routing decision into a human radiologist's worklist -- so there is no diagnosis-shaped value anywhere in the type for a caller to misread as one. The constraint is enforced by what the schema CAN represent, not by a policy note asking a caller not to over-interpret a field that could otherwise be read as a diagnosis.
 
@@ -77,10 +77,10 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 
 ### Challenge 1: The Softmax Overflow Trap
 
-Chapter 26.2 warned that naive softmax (`exp(x_i) / sum(exp(x_j))`) silently overflows to NaN on large real inputs, and fixed it with the shift-invariant identity `softmax(x) == softmax(x - max(x))`. Before compiling and running the program below, predict: for the input `{1000.0, 1001.0, 1002.0}`, does the naive version produce NaN, and does the shifted version still produce the mathematically correct probabilities?
+Chapter 30.2 warned that naive softmax (`exp(x_i) / sum(exp(x_j))`) silently overflows to NaN on large real inputs, and fixed it with the shift-invariant identity `softmax(x) == softmax(x - max(x))`. Before compiling and running the program below, predict: for the input `{1000.0, 1001.0, 1002.0}`, does the naive version produce NaN, and does the shifted version still produce the mathematically correct probabilities?
 
 ```cpp
-// Appendix B, Challenge 1 -- Chapter 26.2 warned that naive softmax
+// Appendix B, Challenge 1 -- Chapter 30.2 warned that naive softmax
 // (exp(x_i) / sum(exp(x_j))) silently overflows to NaN on large real
 // inputs, and fixed it with the shift-invariant identity
 // softmax(x) == softmax(x - max(x)). Before compiling and running this
@@ -176,10 +176,10 @@ shifted softmax sums to 1.0: YES (sum = 1)
 
 ### Challenge 2: Reduction Order and Float32 Non-Associativity
 
-Chapter 27.4 warned that float32 addition is NOT associative: summing the same values in a different order can produce a genuinely different result, not just a hypothetical one. Before compiling and running the program below, predict: does summing one large value plus eight small values give the same float32 result forwards (large value first) as backwards (large value last)?
+Chapter 31.4 warned that float32 addition is NOT associative: summing the same values in a different order can produce a genuinely different result, not just a hypothetical one. Before compiling and running the program below, predict: does summing one large value plus eight small values give the same float32 result forwards (large value first) as backwards (large value last)?
 
 ```cpp
-// Appendix B, Challenge 2 -- Chapter 27.4 warned that float32 addition is
+// Appendix B, Challenge 2 -- Chapter 31.4 warned that float32 addition is
 // NOT associative: summing the same values in a different order can
 // produce a genuinely different result, not just a hypothetical one.
 // Before compiling and running this file, predict: does summing one very
@@ -237,10 +237,10 @@ difference: 0.023438
 
 ### Challenge 3: The Re-Quantization Trap
 
-Chapter 26.4 proved that affine re-quantization is NOT associative: quantizing at a fine scale, then re-quantizing that already-quantized value at a coarser scale, can give a different final dequantized value than quantizing the ORIGINAL value directly at the coarse scale. Before compiling and running the program below, predict: for the value `0.246`, fine scale `0.07`, and coarse scale `0.5`, do "fine-then-coarse" and "direct-coarse" produce the same dequantized result?
+Chapter 30.4 proved that affine re-quantization is NOT associative: quantizing at a fine scale, then re-quantizing that already-quantized value at a coarser scale, can give a different final dequantized value than quantizing the ORIGINAL value directly at the coarse scale. Before compiling and running the program below, predict: for the value `0.246`, fine scale `0.07`, and coarse scale `0.5`, do "fine-then-coarse" and "direct-coarse" produce the same dequantized result?
 
 ```cpp
-// Appendix B, Challenge 3 -- Chapter 26.4 proved that affine
+// Appendix B, Challenge 3 -- Chapter 30.4 proved that affine
 // re-quantization is NOT associative: quantizing at a fine scale, then
 // re-quantizing that already-quantized value at a coarser scale, can give
 // a different final dequantized value than quantizing the ORIGINAL value
@@ -256,7 +256,7 @@ Chapter 26.4 proved that affine re-quantization is NOT associative: quantizing a
 #include <cstdio>
 
 // A minimal real affine quantizer: round-to-nearest, zero-point-free
-// (symmetric), matching Chapter 26.4's own scale/2 error-bound analysis.
+// (symmetric), matching Chapter 30.4's own scale/2 error-bound analysis.
 int quantize(double value, double scale) {
     return static_cast<int>(std::lround(value / scale));
 }
@@ -326,4 +326,4 @@ B.2 and B.3 asked whether this book's individual ideas actually connect across P
 
 ## Where We Go Next
 
-Appendix C consolidates the decision trees scattered across individual chapters -- when to reach for blockwise vs. TurboQuant quantization, when a mutex is enough vs. when a lock-free structure is warranted, which KV cache eviction policy fits which serving pattern -- into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 27.4 and Chapter 10.
+Appendix C consolidates the decision trees scattered across individual chapters -- when to reach for blockwise vs. TurboQuant quantization, when a mutex is enough vs. when a lock-free structure is warranted, which KV cache eviction policy fits which serving pattern -- into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 31.4 and Chapter 10.

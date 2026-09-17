@@ -1,4 +1,4 @@
-// Chapter 26.3 -- Chapter 3 implemented RoPE as a working piece of a
+// Chapter 30.3 -- Chapter 3 implemented RoPE as a working piece of a
 // real computational graph; this section derives WHY it actually works.
 // A 2D rotation matrix is a real orthogonal transformation, and
 // composing the transpose of one rotation with another real rotation
@@ -75,7 +75,7 @@ Vec2 rope_rotate(const Vec2& v, int64_t position, double theta_base) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.3: RoPE's Rotation Math\n";
+    std::cout << "Chapter 30.3: RoPE's Rotation Math\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: the rotation matrix itself matches exact, hand-verifiable real angles --\n";

@@ -1,4 +1,4 @@
-# Chapter 26: Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
+# Chapter 30: Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
 
 **What you will understand by the end of this chapter:**
 
@@ -12,14 +12,14 @@
 **What you need to know first:**
 
 - Chapter 8's own Roofline Model (peak FLOPs, peak bandwidth, and the ridge point separating memory-bound work from compute-bound work) is the real framework this chapter builds directly on top of -- this chapter derives the actual formulas Chapter 8 introduced conceptually, and applies them to real transformer operations.
-- Chapter 3's own working RoPE implementation and Chapter 4's own working affine quantization are both real, correct code this chapter does not repeat -- Section 26.3 and Section 26.4 instead derive and prove WHY those working implementations behave the way they do.
-- Section 19.4's and Section 22.3's own real least-squares reuse, and this book's general habit of implementing an independently-famous real algorithm from scratch and verifying it against known values (Sections 23.1, 23.2, 23.4), both recur here: Section 26.5's own from-scratch Gauss-Jordan matrix inverse and GPTQ compensation formula follow the identical discipline.
+- Chapter 3's own working RoPE implementation and Chapter 4's own working affine quantization are both real, correct code this chapter does not repeat -- Section 30.3 and Section 30.4 instead derive and prove WHY those working implementations behave the way they do.
+- Section 19.4's and Section 22.3's own real least-squares reuse, and this book's general habit of implementing an independently-famous real algorithm from scratch and verifying it against known values (Sections 23.1, 23.2, 23.4), both recur here: Section 30.5's own from-scratch Gauss-Jordan matrix inverse and GPTQ compensation formula follow the identical discipline.
 
 ---
 
 Every chapter before this one built a working system and verified it against the correct answer. This chapter asks a different question of the same material: not "does it work," but "why does it work, and what does that explain about its own real limits." A dot product's own arithmetic intensity explains why decode is slow no matter how fast the GPU is. A rotation matrix's own algebra explains why RoPE encodes relative position at all. A Hessian explains why GPTQ beats naive rounding, not just that it does. Part 6 exists to give the kernel-level intuition Parts 1 through 5 relied on without deriving, and this chapter is where that derivation happens -- entirely in real, checkable, from-scratch C++, exactly like every chapter before it.
 
-## 26.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover
+## 30.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover
 
 ### Intuition
 
@@ -34,7 +34,7 @@ GEMM is genuinely different, and Test 3 derives why: for a batch of M rows throu
 ### Code and Verification
 
 ```cpp
-// Chapter 26.1 -- Every operation in a transformer, no matter how large,
+// Chapter 30.1 -- Every operation in a transformer, no matter how large,
 // decomposes into real dot products, and a dot product's own real
 // arithmetic intensity (FLOPs moved per byte read) is a fixed constant,
 // never improving no matter how long the vectors get -- which is
@@ -133,7 +133,7 @@ double crossover_batch_size(double ridge_pt) { return 2.0 * ridge_pt; }
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.1: The Dot Product, Arithmetic Intensity, and the GEMV/GEMM Crossover\n";
+    std::cout << "Chapter 30.1: The Dot Product, Arithmetic Intensity, and the GEMV/GEMM Crossover\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: a dot product's own real arithmetic intensity is a fixed constant, "
@@ -236,7 +236,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_dot_product_arithmetic_intensity_and_gemv_ge
 
 ```text
 ========================================================
-Chapter 26.1: The Dot Product, Arithmetic Intensity, and the GEMV/GEMM Crossover
+Chapter 30.1: The Dot Product, Arithmetic Intensity, and the GEMV/GEMM Crossover
 ========================================================
 
 -- Test 1: a dot product's own real arithmetic intensity is a fixed constant, identical for a short vector and a vector 1000x longer --
@@ -258,7 +258,7 @@ ALL CHECKS PASSED
 !!! warning "[COMMON TRAP] assuming a bigger model changes GEMV's own real memory-bound verdict"
     It is tempting to think a sufficiently large model, with enough real FLOPs per token, must eventually become compute-bound even during single-token decode. Test 2 shows precisely why that intuition is wrong: GEMV's own real arithmetic intensity converges toward a FIXED ceiling of exactly 0.5 FLOPs/byte as the matrix grows -- it does not keep climbing. A bigger model has proportionally more real FLOPs AND proportionally more real bytes to read, and those two quantities grow together, leaving the ratio essentially unchanged. The only real lever that moves arithmetic intensity for a linear layer is the BATCH size, not the model size -- which is exactly why real serving systems build continuous batching (this book's own next chapter) rather than simply hoping a bigger GPU fixes decode-time memory-boundedness on its own.
 
-## 26.2 Numerically Stable Softmax: The Log-Sum-Exp Fix
+## 30.2 Numerically Stable Softmax: The Log-Sum-Exp Fix
 
 ### Intuition
 
@@ -273,7 +273,7 @@ Test 4 and Test 5 apply the identical shift-invariant identity to log-sum-exp, a
 ### Code and Verification
 
 ```cpp
-// Chapter 26.2 -- Softmax turns raw logits into real probabilities, and
+// Chapter 30.2 -- Softmax turns raw logits into real probabilities, and
 // its own textbook definition, exp(x_i) / sum(exp(x_j)), is exactly
 // correct mathematically and dangerously wrong to implement literally:
 // a single large real logit overflows a real floating-point exponential
@@ -366,7 +366,7 @@ double stable_log_sum_exp(const std::vector<double>& x) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.2: Numerically Stable Softmax and Log-Sum-Exp\n";
+    std::cout << "Chapter 30.2: Numerically Stable Softmax and Log-Sum-Exp\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: a single real large logit makes naive_softmax_f32 produce a genuine NaN "
@@ -460,7 +460,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_numerically_stable_softmax_and_log_sum_exp.c
 
 ```text
 ========================================================
-Chapter 26.2: Numerically Stable Softmax and Log-Sum-Exp
+Chapter 30.2: Numerically Stable Softmax and Log-Sum-Exp
 ========================================================
 
 -- Test 1: a single real large logit makes naive_softmax_f32 produce a genuine NaN for exactly the entry that should carry nearly all the real probability mass --
@@ -485,7 +485,7 @@ ALL CHECKS PASSED
 !!! warning "[COMMON TRAP] treating the absence of a NaN as proof a numerical computation is correct"
     Test 1's naive softmax fails loudly enough that a NaN check would catch it immediately. Test 5's naive log-sum-exp is the more instructive real failure precisely because it does NOT fail loudly: `+inf` is a normal, valid-looking `double`, and a system that only checks `std::isnan` on its own outputs would let this real bug through completely undetected, silently corrupting every downstream computation that treats that `+inf` as a legitimate log-probability. The real lesson is not "check for NaN" -- it is that a numerically unstable formula can fail in whatever way is easiest for it to fail, and the only real fix is the shift-invariant identity itself, applied everywhere the unstable formula would otherwise be used, not a downstream check for one specific symptom.
 
-## 26.3 RoPE's Rotation Math
+## 30.3 RoPE's Rotation Math
 
 ### Intuition
 
@@ -500,7 +500,7 @@ Test 3 turns that identity into RoPE's own central, load-bearing property: the r
 ### Code and Verification
 
 ```cpp
-// Chapter 26.3 -- Chapter 3 implemented RoPE as a working piece of a
+// Chapter 30.3 -- Chapter 3 implemented RoPE as a working piece of a
 // real computational graph; this section derives WHY it actually works.
 // A 2D rotation matrix is a real orthogonal transformation, and
 // composing the transpose of one rotation with another real rotation
@@ -577,7 +577,7 @@ Vec2 rope_rotate(const Vec2& v, int64_t position, double theta_base) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.3: RoPE's Rotation Math\n";
+    std::cout << "Chapter 30.3: RoPE's Rotation Math\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: the rotation matrix itself matches exact, hand-verifiable real angles --\n";
@@ -678,7 +678,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_rope_rotation_math.cpp -o 03_rope_rotation_m
 
 ```text
 ========================================================
-Chapter 26.3: RoPE's Rotation Math
+Chapter 30.3: RoPE's Rotation Math
 ========================================================
 
 -- Test 1: the rotation matrix itself matches exact, hand-verifiable real angles --
@@ -700,7 +700,7 @@ ALL CHECKS PASSED
 !!! warning "[COMMON TRAP] treating RoPE's relative-position property as something to verify only empirically"
     It is possible to convince yourself RoPE "seems to" encode relative position by trying a few position pairs and noticing the dot products look related. Test 2 and Test 4 exist to do something stronger: derive the REASON algebraically (rotation composition reduces to a single angle subtraction, because a rotation matrix's transpose is its own real inverse) and then confirm the concrete numerical computation matches that abstract identity exactly. The difference matters because an empirical-only check cannot tell you whether the property holds for every possible position pair or only the ones you happened to try; the algebraic identity, once confirmed to match the concrete computation, guarantees it holds for all of them.
 
-## 26.4 Quantization as Affine Algebra: Real Error Bounds and the Optimal Scale
+## 30.4 Quantization as Affine Algebra: Real Error Bounds and the Optimal Scale
 
 ### Intuition
 
@@ -715,7 +715,7 @@ Test 4 is this section's own sharper, more consequential point: re-quantization 
 ### Code and Verification
 
 ```cpp
-// Chapter 26.4 -- Chapter 4 implemented affine quantization as a working
+// Chapter 30.4 -- Chapter 4 implemented affine quantization as a working
 // tool; this section treats it as what it actually is: a real affine
 // map, quantize(x) = round(x / scale) + zero_point, whose only
 // non-linear step is the round itself. That single fact is what
@@ -778,7 +778,7 @@ double quantization_error(double x, double min_val, double scale) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.4: Quantization as Affine Algebra\n";
+    std::cout << "Chapter 30.4: Quantization as Affine Algebra\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: the real optimal scale formula, and an exact real round-trip at both "
@@ -883,7 +883,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_quantization_as_affine_algebra.cpp -o 04_qua
 
 ```text
 ========================================================
-Chapter 26.4: Quantization as Affine Algebra
+Chapter 30.4: Quantization as Affine Algebra
 ========================================================
 
 -- Test 1: the real optimal scale formula, and an exact real round-trip at both endpoints of the quantization range --
@@ -905,11 +905,11 @@ ALL CHECKS PASSED
 !!! warning "[COMMON TRAP] assuming re-quantizing an already-quantized value is the same as quantizing the original"
     A system that dequantizes a value to re-scale it -- converting from one bit width to another, say, during a real re-quantization pass -- might assume the result is equivalent to having quantized the true original value directly at the new scale, since dequantization is "supposed to" recover the original. Test 4 shows this assumption is false in general: the intermediate fine-grained rounding step introduces its own small real error, and that error can be just enough to push the value across a coarser bin's own boundary, landing on a genuinely different final code than a direct quantization would have. Any real system that quantizes more than once -- exactly the situation Chapter 14's own streaming re-quantization is built to handle carefully -- has to treat this as a real, accumulating source of error, not something dequantization quietly undoes.
 
-## 26.5 The Hessian's Role in GPTQ: Second-Order Error Compensation
+## 30.5 The Hessian's Role in GPTQ: Second-Order Error Compensation
 
 ### Intuition
 
-Quantizing every weight independently, as Section 26.4's own affine map does in isolation, ignores real information a calibration dataset already provides: once one weight is quantized, the weights that are not yet quantized can be nudged to compensate for the error that quantization just introduced. GPTQ's real insight is that the layer's own Hessian is exactly the second-order information needed to compute that compensation optimally.
+Quantizing every weight independently, as Section 30.4's own affine map does in isolation, ignores real information a calibration dataset already provides: once one weight is quantized, the weights that are not yet quantized can be nudged to compensate for the error that quantization just introduced. GPTQ's real insight is that the layer's own Hessian is exactly the second-order information needed to compute that compensation optimally.
 
 ### The Concept, In Detail
 
@@ -920,8 +920,8 @@ Test 3 confirms the real GPTQ compensation formula -- `delta_w_f = -(e_p / [H^-1
 ### Code and Verification
 
 ```cpp
-// Chapter 26.5 -- Quantizing a weight independently of every other
-// weight, as Section 26.4's own affine map does, ignores something a
+// Chapter 30.5 -- Quantizing a weight independently of every other
+// weight, as Section 30.4's own affine map does, ignores something a
 // real calibration dataset already knows: some weights matter more to
 // a layer's real output than others, and the ones that don't yet have
 // a fixed quantized value can still be nudged to compensate for the
@@ -1016,7 +1016,7 @@ std::vector<double> matvec(const Matrix& m, const std::vector<double>& v) {
 
 // =======================================================================
 // PART 2: real round-to-nearest quantization at a stated fixed scale --
-// the same real affine map from Section 26.4, applied here to a single
+// the same real affine map from Section 30.4, applied here to a single
 // scalar weight.
 // =======================================================================
 double quantize_weight(double w, double scale) { return std::round(w / scale) * scale; }
@@ -1053,7 +1053,7 @@ double sum_squared_error(const std::vector<double>& a, const std::vector<double>
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.5: The Hessian's Role in GPTQ\n";
+    std::cout << "Chapter 30.5: The Hessian's Role in GPTQ\n";
     std::cout << "========================================================\n";
 
     // A real, tiny calibration dataset: 3 real samples, 2 real features each.
@@ -1185,7 +1185,7 @@ g++ -std=c++23 -Wall -Wextra -O2 05_hessian_role_in_gptq.cpp -o 05_hessian_role_
 
 ```text
 ========================================================
-Chapter 26.5: The Hessian's Role in GPTQ
+Chapter 30.5: The Hessian's Role in GPTQ
 ========================================================
 
 -- Test 1: the real Hessian H = 2 * X^T * X, computed from scratch, matches an exact hand computation over this section's own real calibration data --
@@ -1207,7 +1207,7 @@ ALL CHECKS PASSED
 !!! warning "[COMMON TRAP] assuming Hessian-based compensation always helps a LATER weight, never a chain of them"
     It is easy to read GPTQ's own compensation formula and assume its benefit is limited to the single, immediately adjacent weight it updates. Test 4's own real pipeline shows the mechanism is genuinely sequential and cumulative: quantizing weight 0 changes the value weight 1 is compensated toward, and in a layer with more than 2 weights, quantizing weight 1 (now itself already nudged once) would go on to compensate weight 2, and so on. Each real compensation step uses the CURRENT state of the not-yet-quantized weights, not the original ones -- which is exactly why GPTQ processes weights in a specific real sequence rather than computing every compensation independently up front from the unquantized original values.
 
-## 26.6 A Full Roofline Analysis of a Transformer Layer
+## 30.6 A Full Roofline Analysis of a Transformer Layer
 
 ### Intuition
 
@@ -1217,13 +1217,13 @@ Every real formula this chapter derived -- arithmetic intensity, weight-dominate
 
 Test 1 confirms every real FLOP sub-total (QKV projection, attention, output projection, FFN) and the real weight-byte total for a tiny, fully hand-traceable layer shape, matching a direct hand computation exactly: 576 total FLOPs, 512 total weight bytes, an arithmetic intensity of exactly 1.125. Test 2 confirms a real, general algebraic property this section's own crossover formula depends on: doubling batch size exactly doubles both total FLOPs and arithmetic intensity, while weight bytes -- which do not depend on batch at all -- stay exactly unchanged.
 
-Test 3 applies Section 26.1's own roofline classification to the WHOLE layer: against a stated real ridge point of 2.0, the identical layer classifies `MEMORY_BOUND` at batch 1 and `COMPUTE_BOUND` at batch 2. Test 4 confirms the real, closed-form crossover formula predicts precisely this observed transition rather than merely rationalizing it afterward, and Test 5 confirms the formula's own real algebraic correctness across several genuinely different stated ridge points at once.
+Test 3 applies Section 30.1's own roofline classification to the WHOLE layer: against a stated real ridge point of 2.0, the identical layer classifies `MEMORY_BOUND` at batch 1 and `COMPUTE_BOUND` at batch 2. Test 4 confirms the real, closed-form crossover formula predicts precisely this observed transition rather than merely rationalizing it afterward, and Test 5 confirms the formula's own real algebraic correctness across several genuinely different stated ridge points at once.
 
 ### Code and Verification
 
 ```cpp
-// Chapter 26.6 -- This chapter's own capstone: every real formula built
-// in Sections 26.1 through 26.5 -- FLOP counting, weight-dominated byte
+// Chapter 30.6 -- This chapter's own capstone: every real formula built
+// in Sections 30.1 through 30.5 -- FLOP counting, weight-dominated byte
 // accounting, arithmetic intensity, and the real roofline crossover --
 // applied together to a complete real transformer decoder layer (QKV
 // projection, attention, output projection, and the FFN), at a stated
@@ -1288,7 +1288,7 @@ FlopBreakdown layer_flops(const LayerShape& s, int64_t batch) {
 
 // =======================================================================
 // PART 3: real weight-byte accounting -- the same weight-dominated
-// approximation Section 26.1 derived and honestly bounded, applied here
+// approximation Section 30.1 derived and honestly bounded, applied here
 // to the layer's own 4 real weight tensors. Batch-independent by
 // construction: the weights themselves do not grow with batch size.
 // =======================================================================
@@ -1330,7 +1330,7 @@ double crossover_batch_size(const LayerShape& s, double ridge_point) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.6: A Full Roofline Analysis of a Transformer Layer\n";
+    std::cout << "Chapter 30.6: A Full Roofline Analysis of a Transformer Layer\n";
     std::cout << "========================================================\n";
 
     // A tiny, fully hand-traceable real layer shape.
@@ -1462,7 +1462,7 @@ g++ -std=c++23 -Wall -Wextra -O2 06_full_transformer_layer_roofline_analysis.cpp
 
 ```text
 ========================================================
-Chapter 26.6: A Full Roofline Analysis of a Transformer Layer
+Chapter 30.6: A Full Roofline Analysis of a Transformer Layer
 ========================================================
 
 -- Test 1: at batch 1, every real FLOP sub-total, the real total, the real weight-byte total, and the resulting real arithmetic intensity all match an exact hand computation for this tiny, fully traceable layer shape --
@@ -1489,24 +1489,24 @@ ALL CHECKS PASSED
 
 ## Chapter Summary
 
-This chapter derived the real mathematics Parts 1 through 5 relied on without deriving. Section 26.1 showed a dot product's own arithmetic intensity is a fixed constant, explaining why GEMV-based decode is intrinsically memory-bound, and derived the real batch size at which GEMM crosses over to compute-bound. Section 26.2 reproduced softmax's real overflow failure on purpose, fixed it with a real shift-invariant identity, and showed the identical bug reappears silently, as a wrong finite value rather than a NaN, in log-sum-exp. Section 26.3 proved RoPE's own relative-position property follows directly from a real rotation-composition identity. Section 26.4 treated quantization as a genuine affine map, deriving its own provably tight error bound and its own real non-associativity under repeated quantization. Section 26.5 built a real Hessian and a real Gauss-Jordan inverse from scratch to prove, on a fully hand-traceable example, that GPTQ's second-order compensation produces strictly lower real error than naive independent rounding. Section 26.6 closed the chapter by combining every one of these real formulas into a complete roofline analysis of an entire transformer decoder layer.
+This chapter derived the real mathematics Parts 1 through 5 relied on without deriving. Section 30.1 showed a dot product's own arithmetic intensity is a fixed constant, explaining why GEMV-based decode is intrinsically memory-bound, and derived the real batch size at which GEMM crosses over to compute-bound. Section 30.2 reproduced softmax's real overflow failure on purpose, fixed it with a real shift-invariant identity, and showed the identical bug reappears silently, as a wrong finite value rather than a NaN, in log-sum-exp. Section 30.3 proved RoPE's own relative-position property follows directly from a real rotation-composition identity. Section 30.4 treated quantization as a genuine affine map, deriving its own provably tight error bound and its own real non-associativity under repeated quantization. Section 30.5 built a real Hessian and a real Gauss-Jordan inverse from scratch to prove, on a fully hand-traceable example, that GPTQ's second-order compensation produces strictly lower real error than naive independent rounding. Section 30.6 closed the chapter by combining every one of these real formulas into a complete roofline analysis of an entire transformer decoder layer.
 
 ## Self-Check Questions
 
-1. Section 26.1 shows GEMV's own arithmetic intensity converges toward exactly 0.5 as the matrix grows, rather than continuing to increase. Explain, in terms of what grows in the numerator versus the denominator, why a bigger matrix alone can never push GEMV past this ceiling.
-2. Section 26.1's Test 3 shows the weight-dominated M/2 approximation's own real error grows as batch size M increases. Explain concretely which bytes the approximation ignores, and why ignoring them matters more at larger M.
-3. Section 26.2's Test 5 describes naive log-sum-exp's silent +inf as a MORE dangerous failure than naive softmax's NaN in Test 1. Explain concretely why a system that only checks for NaN would not catch this failure.
-4. Section 26.3's Test 2 confirms R(a)^T * R(b) = R(b - a) as a real matrix identity. Explain what specific property of a rotation matrix (true of rotation matrices in general, not just this one) is what makes its own transpose equal its own inverse.
-5. Section 26.4's Test 3 constructs a real value exactly at a quantization bin's own midpoint to demonstrate the scale/2 bound is tight. Explain why a value chosen randomly within the range, rather than at a midpoint, would be much less likely to demonstrate this.
-6. Section 26.4's Test 4 shows re-quantization does not commute. Construct, in your own words, a concrete real scenario (outside this section's own hand-picked example) in a serving system where this specific non-associativity could silently degrade model quality over time.
-7. Section 26.5's GPTQ compensation formula divides by `[H^-1]_pp`. Explain, in terms of what the Hessian represents about a weight's own real sensitivity, what a very LARGE value of `[H^-1]_pp` would suggest about that weight, and how that would affect the resulting compensation.
-8. Section 26.5's Test 4 processes the 2 weights in a SPECIFIC order (index 0 before index 1). Explain why processing them in the opposite order could produce a genuinely different final result.
-9. Section 26.6's whole-layer crossover analysis depends on every sub-block scaling identically with batch size. Name one real architectural change to a transformer layer (not necessarily mixture-of-experts) that could break this assumption, and explain concretely why.
+1. Section 30.1 shows GEMV's own arithmetic intensity converges toward exactly 0.5 as the matrix grows, rather than continuing to increase. Explain, in terms of what grows in the numerator versus the denominator, why a bigger matrix alone can never push GEMV past this ceiling.
+2. Section 30.1's Test 3 shows the weight-dominated M/2 approximation's own real error grows as batch size M increases. Explain concretely which bytes the approximation ignores, and why ignoring them matters more at larger M.
+3. Section 30.2's Test 5 describes naive log-sum-exp's silent +inf as a MORE dangerous failure than naive softmax's NaN in Test 1. Explain concretely why a system that only checks for NaN would not catch this failure.
+4. Section 30.3's Test 2 confirms R(a)^T * R(b) = R(b - a) as a real matrix identity. Explain what specific property of a rotation matrix (true of rotation matrices in general, not just this one) is what makes its own transpose equal its own inverse.
+5. Section 30.4's Test 3 constructs a real value exactly at a quantization bin's own midpoint to demonstrate the scale/2 bound is tight. Explain why a value chosen randomly within the range, rather than at a midpoint, would be much less likely to demonstrate this.
+6. Section 30.4's Test 4 shows re-quantization does not commute. Construct, in your own words, a concrete real scenario (outside this section's own hand-picked example) in a serving system where this specific non-associativity could silently degrade model quality over time.
+7. Section 30.5's GPTQ compensation formula divides by `[H^-1]_pp`. Explain, in terms of what the Hessian represents about a weight's own real sensitivity, what a very LARGE value of `[H^-1]_pp` would suggest about that weight, and how that would affect the resulting compensation.
+8. Section 30.5's Test 4 processes the 2 weights in a SPECIFIC order (index 0 before index 1). Explain why processing them in the opposite order could produce a genuinely different final result.
+9. Section 30.6's whole-layer crossover analysis depends on every sub-block scaling identically with batch size. Name one real architectural change to a transformer layer (not necessarily mixture-of-experts) that could break this assumption, and explain concretely why.
 10. This chapter is titled "Mathematical Foundations for Kernel Authors." Choose any ONE of this chapter's 6 sections and explain concretely how the specific mathematical property it derives would change a real decision a kernel author makes when writing or optimizing an actual transformer inference kernel.
 
 ## Where We Go Next
 
-This chapter derived the mathematics; the next two chapters put it to work at serving scale. Chapter 27 builds a real continuous-batching scheduler from scratch, directly exploiting Section 26.1's own real batch-size-dependent arithmetic intensity to keep a serving system as close to compute-bound as real traffic allows, and adds real numerical debugging tools -- NaN-propagation tracing and floating-point drift detection -- for catching the bugs Section 26.2's own numerical instability foreshadowed, at a scale where they only appear under real production load. Chapter 28 closes the book by taking this book's own inference engine to the GPU, building a real Flash Attention implementation around the same online-softmax idea Section 26.2 introduced, and a real CUDA production engine for the edge devices that carry a small GPU.
+This chapter derived the mathematics; the next two chapters put it to work at serving scale. Chapter 31 builds a real continuous-batching scheduler from scratch, directly exploiting Section 30.1's own real batch-size-dependent arithmetic intensity to keep a serving system as close to compute-bound as real traffic allows, and adds real numerical debugging tools -- NaN-propagation tracing and floating-point drift detection -- for catching the bugs Section 30.2's own numerical instability foreshadowed, at a scale where they only appear under real production load. Chapter 32 closes the book by taking this book's own inference engine to the GPU, building a real Flash Attention implementation around the same online-softmax idea Section 30.2 introduced, and a real CUDA production engine for the edge devices that carry a small GPU.
 
 ## Worked Solutions
 
@@ -1520,7 +1520,7 @@ This chapter derived the mathematics; the next two chapters put it to work at se
 
 **5.** A randomly chosen value within the range is, with high probability, somewhere between a bin's own center and its edge, and the resulting error is typically much smaller than `scale/2` -- most real values do not happen to land exactly at the worst-case point. Only a value constructed deliberately at the exact midpoint between two adjacent quantization levels is guaranteed to sit at the real maximum possible distance from both, which is precisely why Test 3 constructs that value on purpose rather than sampling one randomly and hoping it happens to be near the boundary.
 
-**6.** Consider a real KV cache using Chapter 14's own streaming re-quantization: cached keys and values, once written at a fine-grained scale, get re-quantized to a coarser scale as they age out of a hot window to save memory. If this re-quantization is applied repeatedly -- perhaps a value gets moved between cache tiers more than once as access patterns shift -- each individual re-quantization step is a fresh dequantize-then-quantize round trip, and Section 26.4's own Test 4 shows this is NOT equivalent to quantizing the true original value directly at the final coarse scale. Over enough repeated tier transitions, this could silently accumulate more real error than a single, correctly-designed direct re-quantization from the original cached value would have produced.
+**6.** Consider a real KV cache using Chapter 14's own streaming re-quantization: cached keys and values, once written at a fine-grained scale, get re-quantized to a coarser scale as they age out of a hot window to save memory. If this re-quantization is applied repeatedly -- perhaps a value gets moved between cache tiers more than once as access patterns shift -- each individual re-quantization step is a fresh dequantize-then-quantize round trip, and Section 30.4's own Test 4 shows this is NOT equivalent to quantizing the true original value directly at the final coarse scale. Over enough repeated tier transitions, this could silently accumulate more real error than a single, correctly-designed direct re-quantization from the original cached value would have produced.
 
 **7.** `[H^-1]_pp` being large means that, from the Hessian's own real perspective (built from calibration data `X`), weight `p`'s own contribution to the layer's output is comparatively insensitive to small perturbations in that weight relative to the other weights -- intuitively, the calibration data does not "notice" weight `p` moving very much. Since the compensation formula divides by `[H^-1]_pp`, a very large value there would make the resulting `delta_w_f` correction SMALL (dividing by a large number), meaning a weight the Hessian considers relatively unimportant produces a smaller real compensation to the remaining weights when it is quantized -- exactly the intuitively correct behavior, since a change to an insensitive weight has less real output error to compensate for in the first place.
 
@@ -1528,4 +1528,4 @@ This chapter derived the mathematics; the next two chapters put it to work at se
 
 **9.** A mixture-of-experts FFN, where each real token is routed to only a small subset of a much larger set of expert weight matrices, breaks this assumption directly: the ACTIVE weight bytes a given batch actually touches depend on which real experts that batch's own tokens route to, not on a single fixed weight tensor size the way this section's own dense FFN does. A batch of tokens that happens to route to many different real experts touches far more total weight bytes than a batch that concentrates on a few, so the layer's own real arithmetic intensity for a mixture-of-experts FFN is not a clean function of batch size alone the way this section's dense capstone example is -- it also depends on the real routing decisions made at that specific batch, which this section's single whole-layer formula has no way to account for.
 
-**10.** Section 26.1's own real crossover batch size directly informs a genuinely practical decision: a kernel author building a serving system's own batching scheduler (this book's next chapter) can use the exact derived crossover point to decide how aggressively to batch requests together before dispatching a GEMM kernel -- below the crossover batch, the kernel is memory-bound and further optimizing its own compute (say, using a more arithmetically efficient but more complex kernel) buys little real speedup, since the bottleneck is bandwidth; above the crossover, the kernel is compute-bound and the opposite investment (a more compute-efficient kernel, even at some cost to memory access patterns) becomes the right real engineering trade-off. Without this section's own derived formula, a kernel author would be guessing at this trade-off rather than computing it directly from the machine's own stated peak compute and peak bandwidth figures.
+**10.** Section 30.1's own real crossover batch size directly informs a genuinely practical decision: a kernel author building a serving system's own batching scheduler (this book's next chapter) can use the exact derived crossover point to decide how aggressively to batch requests together before dispatching a GEMM kernel -- below the crossover batch, the kernel is memory-bound and further optimizing its own compute (say, using a more arithmetically efficient but more complex kernel) buys little real speedup, since the bottleneck is bandwidth; above the crossover, the kernel is compute-bound and the opposite investment (a more compute-efficient kernel, even at some cost to memory access patterns) becomes the right real engineering trade-off. Without this section's own derived formula, a kernel author would be guessing at this trade-off rather than computing it directly from the machine's own stated peak compute and peak bandwidth figures.

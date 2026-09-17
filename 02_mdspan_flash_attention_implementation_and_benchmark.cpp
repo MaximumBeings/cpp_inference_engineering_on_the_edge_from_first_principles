@@ -1,4 +1,4 @@
-// Chapter 28.2 -- A real, from-scratch, std::mdspan-based tiled Flash
+// Chapter 32.2 -- A real, from-scratch, std::mdspan-based tiled Flash
 // Attention implementation, checked directly against a naive full-matrix
 // reference for exact numerical agreement, and "benchmarked" the way this
 // book's own Appendix D discipline requires: with real, deterministic
@@ -54,8 +54,8 @@ struct MacCounter {
 // =======================================================================
 // PART 1: naive attention -- materializes the REAL, FULL Nq x Nk score
 // matrix as one real mdspan-viewed allocation before taking a single
-// softmax, exactly the real behavior Section 28.1 quantified the memory
-// cost of. Chapter 26.2's own shift-invariant stable softmax is applied to
+// softmax, exactly the real behavior Section 32.1 quantified the memory
+// cost of. Chapter 30.2's own shift-invariant stable softmax is applied to
 // each real row.
 // =======================================================================
 void naive_attention_full(ConstMatrixView q, ConstMatrixView k, ConstMatrixView v, MatrixView out,
@@ -89,7 +89,7 @@ void naive_attention_full(ConstMatrixView q, ConstMatrixView k, ConstMatrixView 
 }
 
 // =======================================================================
-// PART 2: tiled Flash Attention -- Section 28.1's own online-softmax
+// PART 2: tiled Flash Attention -- Section 32.1's own online-softmax
 // recurrence, applied per real Q-block over real K/V blocks, using a
 // SINGLE, block-sized real score buffer reused across every block rather
 // than ever materializing the full Nq x Nk matrix.
@@ -165,12 +165,12 @@ void fill_deterministic(std::vector<double>& buf, size_t rows, size_t cols, doub
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 28.2: A std::mdspan-Based Flash Attention Implementation and Benchmark\n";
+    std::cout << "Chapter 32.2: A std::mdspan-Based Flash Attention Implementation and Benchmark\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: naive full-matrix attention, on a real, hand-verifiable single-query, "
                  "2-key case with a zero query vector, reduces to an exact unweighted average of the value "
-                 "rows -- the identical degenerate case Section 28.1 verified by hand, now computed through "
+                 "rows -- the identical degenerate case Section 32.1 verified by hand, now computed through "
                  "a real mdspan-viewed matrix rather than raw vectors --\n";
     {
         std::vector<double> qbuf = {0.0, 0.0};
@@ -185,7 +185,7 @@ int main() {
         CHECK(near(out[idx2(0, 0)], 4.0));
         CHECK(near(out[idx2(0, 1)], 6.0));
         std::cout << "  naive_attention_full's own real mdspan-based output is {4.0, 6.0} -- exactly the "
-                     "average of {2.0, 4.0} and {6.0, 8.0}, matching Section 28.1's own hand-verified "
+                     "average of {2.0, 4.0} and {6.0, 8.0}, matching Section 32.1's own hand-verified "
                      "result exactly\n";
     }
 
@@ -256,7 +256,7 @@ int main() {
     }
 
     std::cout << "\n-- Test 4: naive attention's own real peak score-buffer size grows with Nq and Nk exactly "
-                 "as Section 28.1 quantified, while tiled Flash Attention's own real peak score-buffer size "
+                 "as Section 32.1 quantified, while tiled Flash Attention's own real peak score-buffer size "
                  "-- read directly from an actually allocated buffer's own real byte count, not merely a "
                  "formula -- stays fixed at block_rows * block_cols regardless of how large the real "
                  "underlying sequence grows --\n";

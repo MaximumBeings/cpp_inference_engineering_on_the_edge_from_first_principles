@@ -1,4 +1,4 @@
-// Appendix B, Challenge 2 -- Chapter 27.4 warned that float32 addition is
+// Appendix B, Challenge 2 -- Chapter 31.4 warned that float32 addition is
 // NOT associative: summing the same values in a different order can
 // produce a genuinely different result, not just a hypothetical one.
 // Before compiling and running this file, predict: does summing one very

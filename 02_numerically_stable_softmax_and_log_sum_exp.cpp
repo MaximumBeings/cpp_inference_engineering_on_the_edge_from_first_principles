@@ -1,4 +1,4 @@
-// Chapter 26.2 -- Softmax turns raw logits into real probabilities, and
+// Chapter 30.2 -- Softmax turns raw logits into real probabilities, and
 // its own textbook definition, exp(x_i) / sum(exp(x_j)), is exactly
 // correct mathematically and dangerously wrong to implement literally:
 // a single large real logit overflows a real floating-point exponential
@@ -91,7 +91,7 @@ double stable_log_sum_exp(const std::vector<double>& x) {
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.2: Numerically Stable Softmax and Log-Sum-Exp\n";
+    std::cout << "Chapter 30.2: Numerically Stable Softmax and Log-Sum-Exp\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: a single real large logit makes naive_softmax_f32 produce a genuine NaN "

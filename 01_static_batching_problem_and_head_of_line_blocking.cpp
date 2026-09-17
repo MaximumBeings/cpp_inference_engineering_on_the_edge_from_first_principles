@@ -1,4 +1,4 @@
-// Chapter 27.1 -- The static-batching problem: a real, from-scratch discrete-
+// Chapter 31.1 -- The static-batching problem: a real, from-scratch discrete-
 // step simulator for the naive batching scheme real early inference servers
 // actually used -- fixed-size batches that cannot start until the PREVIOUS
 // batch has fully retired, and cannot retire early even if some of their own
@@ -28,7 +28,7 @@ static int g_tests = 0, g_passed = 0;
 // real discrete-step model: the number of real steps it takes to produce
 // the final token of its own response is stated directly as needed_steps
 // (abstracting prefill and decode into one real total for this section's
-// own purposes -- Section 27.2 separates them explicitly).
+// own purposes -- Section 31.2 separates them explicitly).
 // =======================================================================
 struct Request {
     int id = 0;
@@ -129,7 +129,7 @@ const StaticBatchResult& find_result(const std::vector<StaticBatchResult>& resul
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 27.1: The Static-Batching Problem and Head-of-Line Blocking\n";
+    std::cout << "Chapter 31.1: The Static-Batching Problem and Head-of-Line Blocking\n";
     std::cout << "========================================================\n";
 
     // A tiny, fully hand-traceable real workload: two requests arrive

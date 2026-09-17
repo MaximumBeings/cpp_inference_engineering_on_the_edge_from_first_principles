@@ -1,5 +1,5 @@
 ========================================================
-Chapter 26.5: The Hessian's Role in GPTQ
+Chapter 30.5: The Hessian's Role in GPTQ
 ========================================================
 
 -- Test 1: the real Hessian H = 2 * X^T * X, computed from scratch, matches an exact hand computation over this section's own real calibration data --

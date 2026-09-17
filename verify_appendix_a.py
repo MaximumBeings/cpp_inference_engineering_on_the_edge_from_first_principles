@@ -16,7 +16,7 @@ on every machine this script runs on (in particular, this book's own real
 aarch64 device has no aarch64-linux-gnu-g++, g++-11, or nvcc, and running
 its own native g++ IS the point there). Each such check is skipped with a
 clear, explicit message rather than failing when its tool is absent --
-the same documented-exception pattern Chapter 28's own verify script used
+the same documented-exception pattern Chapter 32's own verify script used
 for nvcc.
 """
 import os
@@ -397,7 +397,7 @@ def check_diagnostics():
     # Diagnostic 5: nvcc rejecting -std=c++23.
     if shutil.which("nvcc") is None:
         ok("nvcc not found on this machine -- expected (no CUDA toolchain on macOS/Apple Silicon, "
-           "the same documented exception Chapter 28's own verify script uses); skipping "
+           "the same documented exception Chapter 32's own verify script uses); skipping "
            "Diagnostic 5's fresh reproduction.")
     else:
         r = run(["nvcc", "-std=c++23", "-arch=sm_87", "diag5_nvcc_cpp23.cu",

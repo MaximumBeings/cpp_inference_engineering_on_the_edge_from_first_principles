@@ -1,9 +1,9 @@
-// Chapter 27.3 -- A real, from-scratch continuous-batching scheduler. Unlike
-// Section 27.1's own static batching, which cannot free a slot until its
+// Chapter 31.3 -- A real, from-scratch continuous-batching scheduler. Unlike
+// Section 31.1's own static batching, which cannot free a slot until its
 // ENTIRE batch has retired, continuous batching frees a slot the instant its
 // own sequence finishes -- immediately admitting the next waiting request
 // into that same slot, on the very next scheduling step. This section
-// restates Section 27.1's own static simulator to run it, unmodified, on the
+// restates Section 31.1's own static simulator to run it, unmodified, on the
 // identical real workload, so this section's own continuous scheduler can be
 // checked directly against it rather than against a hardcoded number.
 //
@@ -25,7 +25,7 @@ static int g_tests = 0, g_passed = 0;
 } while (0)
 
 // =======================================================================
-// PART 1: Section 27.1's own request shape and static-batching simulator,
+// PART 1: Section 31.1's own request shape and static-batching simulator,
 // restated here in full so this section's own continuous scheduler can be
 // checked directly against it, on the identical real workload, within this
 // one self-contained file.
@@ -154,10 +154,10 @@ const StaticBatchResult& find_static(const std::vector<StaticBatchResult>& resul
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 27.3: A Continuous-Batching Scheduler Built From Scratch\n";
+    std::cout << "Chapter 31.3: A Continuous-Batching Scheduler Built From Scratch\n";
     std::cout << "========================================================\n";
 
-    // The identical 4-request, 2-slot workload from Section 27.1.
+    // The identical 4-request, 2-slot workload from Section 31.1.
     std::vector<Request> requests = {
         {0, 0, 10},
         {1, 0, 2},
@@ -168,7 +168,7 @@ int main() {
 
     std::cout << "\n-- Test 1: the real continuous-batching schedule for this identical 4-request workload "
                  "matches an exact hand trace, with every completion tick strictly earlier than that "
-                 "identical request's own static-batching completion step from Section 27.1 --\n";
+                 "identical request's own static-batching completion step from Section 31.1 --\n";
     {
         auto results = simulate_continuous_batching(requests, max_slots);
 
@@ -185,14 +185,14 @@ int main() {
 
         std::cout << "  request 1 (2 steps) retires at tick 1, freeing its own slot immediately; request 2 "
                      "(1 step, arrived at tick 1) is admitted into that freed slot at tick 2 -- a real wait "
-                     "of only 1 tick, against Section 27.1's own 9-tick wait for the identical request -- "
+                     "of only 1 tick, against Section 31.1's own 9-tick wait for the identical request -- "
                      "and completes that same tick; request 3 (3 steps, arrived at tick 1) is admitted next "
                      "at tick 3 and completes at tick 5; request 0 (10 steps) occupies the other slot "
                      "throughout and completes last, at tick 9\n";
     }
 
     std::cout << "\n-- Test 2: this identical workload's own real static-batching schedule, computed by the "
-                 "SAME simulator restated from Section 27.1 within this file, completes every request "
+                 "SAME simulator restated from Section 31.1 within this file, completes every request "
                  "strictly later than continuous batching did -- confirming continuous batching's own real "
                  "improvement is checked directly against a live computation, not a hardcoded number --\n";
     {
@@ -216,7 +216,7 @@ int main() {
     std::cout << "\n-- Test 3: continuous batching's own real slot-tick accounting has ZERO padding waste by "
                  "construction -- the total number of active-slot ticks spent across the whole real "
                  "schedule equals exactly the sum of every request's own needed_steps, with nothing wasted "
-                 "on an already-finished sequence's slot, unlike Section 27.1's own static schedule, which "
+                 "on an already-finished sequence's slot, unlike Section 31.1's own static schedule, which "
                  "wasted a real, nonzero 10 slot-steps on the identical workload --\n";
     {
         auto continuous_results = simulate_continuous_batching(requests, max_slots);

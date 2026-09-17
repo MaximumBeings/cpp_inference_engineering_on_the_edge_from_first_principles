@@ -1,5 +1,5 @@
 ========================================================
-Chapter 27.1: The Static-Batching Problem and Head-of-Line Blocking
+Chapter 31.1: The Static-Batching Problem and Head-of-Line Blocking
 ========================================================
 
 -- Test 1: the real static-batching schedule for this tiny 4-request workload matches an exact hand trace: batch A = {0, 1} starts at step 0 with a real makespan of 10 (bounded by request 0's own 10 needed steps), retiring at step 10; batch B = {2, 3} cannot start until batch A retires, at step 10, despite both of its own members having arrived at step 1 --

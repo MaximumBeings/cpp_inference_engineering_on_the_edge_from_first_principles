@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify docs/part6/26-mathematical-foundations.md.
+"""Verify docs/part6/30-mathematical-foundations.md.
 
 All 6 sections in this chapter depend on nothing but the C++ standard
 library, so all 6 get this book's usual, unconditional compile/run/
@@ -10,16 +10,16 @@ import subprocess
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
-MD_PATH = BASE / "docs/part6/26-mathematical-foundations.md"
+MD_PATH = BASE / "docs/part6/30-mathematical-foundations.md"
 
-EXPECTED_H1 = "# Chapter 26: Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian"
+EXPECTED_H1 = "# Chapter 30: Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian"
 EXPECTED_H2 = [
-    "## 26.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover",
-    "## 26.2 Numerically Stable Softmax: The Log-Sum-Exp Fix",
-    "## 26.3 RoPE's Rotation Math",
-    "## 26.4 Quantization as Affine Algebra: Real Error Bounds and the Optimal Scale",
-    "## 26.5 The Hessian's Role in GPTQ: Second-Order Error Compensation",
-    "## 26.6 A Full Roofline Analysis of a Transformer Layer",
+    "## 30.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover",
+    "## 30.2 Numerically Stable Softmax: The Log-Sum-Exp Fix",
+    "## 30.3 RoPE's Rotation Math",
+    "## 30.4 Quantization as Affine Algebra: Real Error Bounds and the Optimal Scale",
+    "## 30.5 The Hessian's Role in GPTQ: Second-Order Error Compensation",
+    "## 30.6 A Full Roofline Analysis of a Transformer Layer",
     "## Chapter Summary",
     "## Self-Check Questions",
     "## Where We Go Next",

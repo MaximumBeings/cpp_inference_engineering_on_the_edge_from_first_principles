@@ -111,13 +111,13 @@ Police body-camera scene tagging and report drafting under an explicit no-facial
 
 ## Part 6 — Going Further: Mathematical Foundations and GPU Acceleration
 
-**26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian**
+**30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian**
 The dot product as inference's atomic unit, GEMM as the real bandwidth hog, why naive softmax overflows and the numerically stable fix, RoPE's rotation math, quantization as affine algebra, the Hessian's role in GPTQ, and FLOP counting for a full roofline analysis of a transformer layer.
 
-**27. Continuous Batching and Production Serving Architecture**
+**31. Continuous Batching and Production Serving Architecture**
 The static-batching problem and why real serving systems abandon it, the prefill/decode conflict a scheduler must resolve, a continuous-batching scheduler built from scratch, and numerical debugging tools (NaN-propagation tracing, floating-point drift detection) for catching the bugs that only appear at serving scale.
 
-**28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU**
+**32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU**
 The O(N²) memory wall standard attention hits and the online-softmax trick that fixes it, a `std::mdspan`-based Flash Attention implementation and benchmark, and a CUDA production engine with its own kernel-validation suite for the edge devices — Jetson-class boards among them — that do carry a small GPU.
 
 ---
@@ -174,8 +174,8 @@ Nearly every chapter above is built directly from a drafted companion guide alre
 | 23. Trust and Authenticity at Point of Sale | *Chapters 16A-D — Counterfeit Screening, Reconciliation, Expense Audit, Luxury Authentication* |
 | 24. Natural Language Photo Editing | *Chapter 17 — Natural Language Photo Editing* (both drafts) |
 | 25. Body-Worn and Personal Cameras | *Chapters 18A-B — Police Body Camera, Exercise/Nutrition Tracking* |
-| 26. Mathematical Foundations | *Production Guide — From Mathematical Foundations to CUDA Kernels, Version 2* (math sections) |
-| 27. Continuous Batching and Production Serving | *Production Guide* (serving architecture + numerical debugging sections) |
-| 28. Flash Attention and CUDA Kernels | *Production Guide* (Flash Attention + CUDA sections) |
+| 30. Mathematical Foundations | *Production Guide — From Mathematical Foundations to CUDA Kernels, Version 2* (math sections) |
+| 31. Continuous Batching and Production Serving | *Production Guide* (serving architecture + numerical debugging sections) |
+| 32. Flash Attention and CUDA Kernels | *Production Guide* (Flash Attention + CUDA sections) |
 
 **New material this TOC adds** (not present in your drafts, written to give the book its edge-first spine): Chapter 1's edge-vs-cloud constraint framing, and Appendices A, C, D, E, and F, which consolidate material scattered across many chapters' own "Quick Reference" sections into dedicated, cross-referenced appendices in the CUDA book's style.

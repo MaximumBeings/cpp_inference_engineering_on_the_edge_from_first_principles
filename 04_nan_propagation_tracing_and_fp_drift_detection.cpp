@@ -1,4 +1,4 @@
-// Chapter 27.4 -- Real numerical debugging tools for catching the bugs that
+// Chapter 31.4 -- Real numerical debugging tools for catching the bugs that
 // only appear at serving scale. Part 1 builds a real NaN/Inf-propagation
 // tracer: given a real sequence of per-layer activation snapshots, it finds
 // the layer where corruption FIRST appeared, not merely the layer where it
@@ -104,7 +104,7 @@ std::vector<std::vector<double>> build_realistic_propagation_trace() {
 // in a different order can produce a genuinely different result, because
 // each individual addition rounds to the nearest representable float32.
 // This matters directly for continuous batching: which sequences a given
-// real step groups together (Section 27.3) can change which order a
+// real step groups together (Section 31.3) can change which order a
 // reduction (a sum over a batch dimension, say) is actually computed in
 // across different runs of the identical logical computation.
 // =======================================================================
@@ -125,7 +125,7 @@ float sum_small_first_then_huge(float huge, const std::vector<float>& small_valu
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 27.4: Numerical Debugging Tools -- NaN-Propagation Tracing and FP Drift Detection\n";
+    std::cout << "Chapter 31.4: Numerical Debugging Tools -- NaN-Propagation Tracing and FP Drift Detection\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: a real 5-layer forward-pass trace in which corruption genuinely ORIGINATES at "

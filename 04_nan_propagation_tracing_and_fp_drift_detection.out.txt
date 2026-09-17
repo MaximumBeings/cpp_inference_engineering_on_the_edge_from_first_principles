@@ -1,5 +1,5 @@
 ========================================================
-Chapter 27.4: Numerical Debugging Tools -- NaN-Propagation Tracing and FP Drift Detection
+Chapter 31.4: Numerical Debugging Tools -- NaN-Propagation Tracing and FP Drift Detection
 ========================================================
 
 -- Test 1: a real 5-layer forward-pass trace in which corruption genuinely ORIGINATES at layer 2 (a real division-by-zero in a broken normalization step) and then propagates forward, unmodified in cause, through layers 3 and 4 purely via ordinary arithmetic -- first_nan_layer correctly reports the real ORIGIN, layer 2, not merely one of the 3 layers where corruption happens to still be visible --

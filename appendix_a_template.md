@@ -155,7 +155,7 @@ $ qemu-aarch64 ./diag4_dynamic_bin
 
 The real fix is exactly the `CMAKE_EXE_LINKER_FLAGS_INIT "-static"` setting in Section A.3's own toolchain file: statically linking folds the C++ runtime and standard library directly into the binary, so `qemu-aarch64` never needs to locate a dynamic linker or any shared library at all.
 
-**Diagnostic 5 -- `nvcc` rejecting `-std=c++23`.** Chapter 28's own real CUDA section hit this directly: `nvcc` 12.0's host-compiler pass does not recognize `c++23` as a valid value for `-std` at all, failing before any actual kernel code is even parsed:
+**Diagnostic 5 -- `nvcc` rejecting `-std=c++23`.** Chapter 32's own real CUDA section hit this directly: `nvcc` 12.0's host-compiler pass does not recognize `c++23` as a valid value for `-std` at all, failing before any actual kernel code is even parsed:
 
 ```
 $ nvcc -std=c++23 -arch=sm_87 diag5_nvcc_cpp23.cu -o diag5_out
@@ -163,7 +163,7 @@ $ nvcc -std=c++23 -arch=sm_87 diag5_nvcc_cpp23.cu -o diag5_out
 
 @@DIAG5@@
 
-The real fix, used throughout Chapter 28.3, is compiling with `-std=c++20` instead -- a real, documented toolchain constraint of CUDA 12.0's own host-compiler pass, not a limitation of the kernel code itself.
+The real fix, used throughout Chapter 32.3, is compiling with `-std=c++20` instead -- a real, documented toolchain constraint of CUDA 12.0's own host-compiler pass, not a limitation of the kernel code itself.
 
 !!! warning "[COMMON TRAP] assuming every real toolchain error means the underlying code is wrong"
     Diagnostics 1, 2, and 5 above are not bugs in the code being compiled -- they are real, documented gaps between a specific compiler version's own feature support and the C++23 standard the code is deliberately written against. GCC 11 predates GCC 12's multi-argument `operator[]` support and ships no native `<mdspan>` header at all; `nvcc` 12.0's host pass simply does not accept `c++23` as a `-std` value yet. Each real fix above works around a specific, real, version-bound toolchain limitation, not a defect in the algorithm or the code's own logic -- which is exactly why this book's own pipeline checks the SAME source tree against multiple real compiler versions and architectures on every chapter, rather than trusting a single toolchain's own silence as proof of correctness.
@@ -174,4 +174,4 @@ This appendix documented the real cross-compilation toolchain this book's own pi
 
 ## Where We Go Next
 
-Appendix B is this book's own practice quiz, spanning every Part. Appendix C consolidates the decision trees scattered across individual chapters into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 27.4 and Chapter 10.
+Appendix B is this book's own practice quiz, spanning every Part. Appendix C consolidates the decision trees scattered across individual chapters into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 31.4 and Chapter 10.

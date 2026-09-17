@@ -1,4 +1,4 @@
-// Appendix B, Challenge 3 -- Chapter 26.4 proved that affine
+// Appendix B, Challenge 3 -- Chapter 30.4 proved that affine
 // re-quantization is NOT associative: quantizing at a fine scale, then
 // re-quantizing that already-quantized value at a coarser scale, can give
 // a different final dequantized value than quantizing the ORIGINAL value
@@ -14,7 +14,7 @@
 #include <cstdio>
 
 // A minimal real affine quantizer: round-to-nearest, zero-point-free
-// (symmetric), matching Chapter 26.4's own scale/2 error-bound analysis.
+// (symmetric), matching Chapter 30.4's own scale/2 error-bound analysis.
 int quantize(double value, double scale) {
     return static_cast<int>(std::lround(value / scale));
 }

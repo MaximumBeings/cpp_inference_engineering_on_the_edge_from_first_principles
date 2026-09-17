@@ -1,4 +1,4 @@
-// Chapter 27.2 -- The real prefill/decode conflict a continuous-batching
+// Chapter 31.2 -- The real prefill/decode conflict a continuous-batching
 // scheduler must resolve. Prefill (processing a new request's own full
 // prompt in one shot) and decode (advancing every already-running sequence
 // by exactly one token) have genuinely different real cost profiles: decode
@@ -95,7 +95,7 @@ double max_injected_latency(const std::vector<double>& step_costs, double baseli
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 27.2: The Prefill/Decode Conflict and Chunked Prefill\n";
+    std::cout << "Chapter 31.2: The Prefill/Decode Conflict and Chunked Prefill\n";
     std::cout << "========================================================\n";
 
     const int active_decodes = 8;

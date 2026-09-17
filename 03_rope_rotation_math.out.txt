@@ -1,5 +1,5 @@
 ========================================================
-Chapter 26.3: RoPE's Rotation Math
+Chapter 30.3: RoPE's Rotation Math
 ========================================================
 
 -- Test 1: the rotation matrix itself matches exact, hand-verifiable real angles --

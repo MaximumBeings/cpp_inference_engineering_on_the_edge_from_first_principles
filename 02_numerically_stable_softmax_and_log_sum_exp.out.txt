@@ -1,5 +1,5 @@
 ========================================================
-Chapter 26.2: Numerically Stable Softmax and Log-Sum-Exp
+Chapter 30.2: Numerically Stable Softmax and Log-Sum-Exp
 ========================================================
 
 -- Test 1: a single real large logit makes naive_softmax_f32 produce a genuine NaN for exactly the entry that should carry nearly all the real probability mass --

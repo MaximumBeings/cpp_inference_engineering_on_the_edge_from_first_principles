@@ -1,5 +1,5 @@
 ========================================================
-Chapter 27.2: The Prefill/Decode Conflict and Chunked Prefill
+Chapter 31.2: The Prefill/Decode Conflict and Chunked Prefill
 ========================================================
 
 -- Test 1: this section's own real baseline decode-step cost, with 8 sequences concurrently decoding and no prefill injected at all, matches an exact hand computation of 1024 real cost units --

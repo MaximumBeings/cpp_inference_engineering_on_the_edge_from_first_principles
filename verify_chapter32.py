@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify docs/part6/28-flash-attention-and-cuda-kernels.md.
+"""Verify docs/part6/32-flash-attention-and-cuda-kernels.md.
 
 Sections 1 and 2 depend on nothing but the C++ standard library (Section 2
 also needs the vendored mdspan headers already used throughout this book),
@@ -26,13 +26,13 @@ import subprocess
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
-MD_PATH = BASE / "docs/part6/28-flash-attention-and-cuda-kernels.md"
+MD_PATH = BASE / "docs/part6/32-flash-attention-and-cuda-kernels.md"
 
-EXPECTED_H1 = "# Chapter 28: Flash Attention and CUDA Kernels: Taking the Engine to the GPU"
+EXPECTED_H1 = "# Chapter 32: Flash Attention and CUDA Kernels: Taking the Engine to the GPU"
 EXPECTED_H2 = [
-    "## 28.1 The O(N^2) Memory Wall and the Online-Softmax Fix",
-    "## 28.2 A std::mdspan-Based Flash Attention Implementation and Benchmark",
-    "## 28.3 A CUDA Production Engine and Its Own Kernel-Validation Suite",
+    "## 32.1 The O(N^2) Memory Wall and the Online-Softmax Fix",
+    "## 32.2 A std::mdspan-Based Flash Attention Implementation and Benchmark",
+    "## 32.3 A CUDA Production Engine and Its Own Kernel-Validation Suite",
     "## Chapter Summary",
     "## Self-Check Questions",
     "## Where We Go Next",

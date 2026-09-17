@@ -156,7 +156,7 @@ This chapter closed Part 5 by building two real, privacy-respecting camera pipel
 
 ## Where We Go Next
 
-Part 5 is complete: eight chapters spanning industrial inspection, retail, medical imaging, document intelligence, security and accessibility, point-of-sale trust, natural-language photo editing, and now body-worn and personal cameras, each turning a continuous visual stream into a structured, checkable, honestly-scoped output. Part 6 turns from application domains to the mathematical and architectural foundations underneath every one of them: Chapter 26 works through the FLOPs, roofline, and Hessian mathematics that explain why these systems perform the way they do, Chapter 27 builds a real continuous-batching scheduler for serving many requests at once, and Chapter 28 takes this book's own inference engine to the GPU with a real Flash Attention implementation and CUDA kernels.
+Part 5 is complete: eight chapters spanning industrial inspection, retail, medical imaging, document intelligence, security and accessibility, point-of-sale trust, natural-language photo editing, and now body-worn and personal cameras, each turning a continuous visual stream into a structured, checkable, honestly-scoped output. Part 6 turns from application domains to the mathematical and architectural foundations underneath every one of them: Chapter 30 works through the FLOPs, roofline, and Hessian mathematics that explain why these systems perform the way they do, Chapter 31 builds a real continuous-batching scheduler for serving many requests at once, and Chapter 32 takes this book's own inference engine to the GPU with a real Flash Attention implementation and CUDA kernels.
 
 ## Worked Solutions
 

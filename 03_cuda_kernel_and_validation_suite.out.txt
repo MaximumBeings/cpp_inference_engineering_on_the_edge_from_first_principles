@@ -1,9 +1,9 @@
 ========================================================
-Chapter 28.3: A CUDA Production Engine and Its Own Kernel-Validation Suite
+Chapter 32.3: A CUDA Production Engine and Its Own Kernel-Validation Suite
 ========================================================
 
--- Test 1: the real CPU golden reference, restated here in float32 precision, reduces correctly on the identical zero-query-vector degenerate case Sections 28.1 and 28.2 both already verified by hand, confirming this section's own golden reference is itself correct before it is ever used as a comparison baseline --
-  the real float32 golden reference produces {4, 6}, matching the identical exact result Sections 28.1 and 28.2 both verified in double precision
+-- Test 1: the real CPU golden reference, restated here in float32 precision, reduces correctly on the identical zero-query-vector degenerate case Sections 32.1 and 32.2 both already verified by hand, confirming this section's own golden reference is itself correct before it is ever used as a comparison baseline --
+  the real float32 golden reference produces {4, 6}, matching the identical exact result Sections 32.1 and 32.2 both verified in double precision
 
 -- Test 2: the real CUDA Runtime API is genuinely callable from this compiled program. On a real machine with at least one real device, a successful call reports a real, non-negative count; this specific machine's own real call instead returns an error, which this section's own validation logic treats as zero available devices rather than trusting whatever value the count argument happens to hold on an error path --
   cudaGetDeviceCount on this real machine returns the error "no CUDA-capable device is detected" -- confirming, directly rather than assumed, that this book's own cloud sandbox has zero real CUDA-capable devices, exactly like this book's own real aarch64 hardware (an Apple Silicon Mac, which has never supported NVIDIA GPUs at all)

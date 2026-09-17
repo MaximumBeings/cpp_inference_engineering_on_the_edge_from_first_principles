@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Build docs/part6/27-continuous-batching-and-production-serving.md from
-chapter27_template.md by substituting @@CODEn@@ with each section's locked
+"""Build docs/part6/31-continuous-batching-and-production-serving.md from
+chapter31_template.md by substituting @@CODEn@@ with each section's locked
 source file (fenced as cpp) and @@OUTn@@ with each section's locked
 self-test output file (fenced as text).
 """
@@ -9,8 +9,8 @@ import sys
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
-TEMPLATE = BASE / "chapter27_template.md"
-OUTPUT = BASE / "docs/part6/27-continuous-batching-and-production-serving.md"
+TEMPLATE = BASE / "chapter31_template.md"
+OUTPUT = BASE / "docs/part6/31-continuous-batching-and-production-serving.md"
 
 FILES = {
     1: "01_static_batching_problem_and_head_of_line_blocking.cpp",

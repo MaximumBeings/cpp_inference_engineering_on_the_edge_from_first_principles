@@ -1,4 +1,4 @@
-// Chapter 26.1 -- Every operation in a transformer, no matter how large,
+// Chapter 30.1 -- Every operation in a transformer, no matter how large,
 // decomposes into real dot products, and a dot product's own real
 // arithmetic intensity (FLOPs moved per byte read) is a fixed constant,
 // never improving no matter how long the vectors get -- which is
@@ -97,7 +97,7 @@ double crossover_batch_size(double ridge_pt) { return 2.0 * ridge_pt; }
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 26.1: The Dot Product, Arithmetic Intensity, and the GEMV/GEMM Crossover\n";
+    std::cout << "Chapter 30.1: The Dot Product, Arithmetic Intensity, and the GEMV/GEMM Crossover\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: a dot product's own real arithmetic intensity is a fixed constant, "

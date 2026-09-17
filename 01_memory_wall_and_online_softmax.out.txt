@@ -1,5 +1,5 @@
 ========================================================
-Chapter 28.1: The O(N^2) Memory Wall and the Online-Softmax Fix
+Chapter 32.1: The O(N^2) Memory Wall and the Online-Softmax Fix
 ========================================================
 
 -- Test 1: standard attention's own real score-matrix memory grows quadratically -- doubling the real sequence length quadruples the real bytes needed to hold it, matching an exact hand computation at a real, production-scale sequence length --

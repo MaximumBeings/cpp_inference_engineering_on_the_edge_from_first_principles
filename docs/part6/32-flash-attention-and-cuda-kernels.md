@@ -1,4 +1,4 @@
-# Chapter 28: Flash Attention and CUDA Kernels: Taking the Engine to the GPU
+# Chapter 32: Flash Attention and CUDA Kernels: Taking the Engine to the GPU
 
 **What you will understand by the end of this chapter:**
 
@@ -10,7 +10,7 @@
 
 **What you need to know first:**
 
-- Section 26.2's own real numerically stable softmax -- the shift-invariant max-subtraction identity -- is the exact real building block this chapter's own online-softmax recurrence generalizes from a single row, computed all at once, to a real streaming computation over blocks that are never all in memory simultaneously.
+- Section 30.2's own real numerically stable softmax -- the shift-invariant max-subtraction identity -- is the exact real building block this chapter's own online-softmax recurrence generalizes from a single row, computed all at once, to a real streaming computation over blocks that are never all in memory simultaneously.
 - Chapter 2.1's own `std::mdspan` technique (a non-owning view over flat memory, indexed through the `idx2()`/`idx3()` helpers Chapter 13's own appendix established for real compatibility with this book's own GCC 11.4.0 aarch64 hardware) is applied here, unchanged, to this book's own final numerical kernel.
 - This book's own running discipline of never claiming a wall-clock timing result as part of a locked, deterministic self-test contract (stated plainly in Appendix D) is what shapes this chapter's own definition of "benchmark": real FLOP counts and real peak-memory byte counts, both exactly reproducible on every real run, stand in for timing throughout this chapter.
 
@@ -18,7 +18,7 @@
 
 This book has built one real inference engine, from `std::mdspan` tensors through quantization, threading, the KV cache, real deployed models, and eleven real edge deployments, entirely in portable C++23 that runs identically on an x86 development machine and real aarch64 hardware. This final chapter takes that same engine to the one real place it has not yet gone: a GPU. It does so with the identical discipline every chapter before it used -- derive the real problem precisely, build a real fix from scratch, and verify it directly rather than asserting it -- but it also does something this book has not had to do before: it tells you plainly, in detail, exactly which of its own real claims a GPU-less pipeline can verify and which it genuinely cannot, rather than blurring that line to make the chapter read more impressively than the truth supports.
 
-## 28.1 The O(N^2) Memory Wall and the Online-Softmax Fix
+## 32.1 The O(N^2) Memory Wall and the Online-Softmax Fix
 
 ### Intuition
 
@@ -33,7 +33,7 @@ Tests 3 through 5 build and prove that streaming approach directly: a real onlin
 ### Code and Verification
 
 ```cpp
-// Chapter 28.1 -- The real O(N^2) memory wall standard attention hits, and
+// Chapter 32.1 -- The real O(N^2) memory wall standard attention hits, and
 // the real online-softmax recurrence that fixes it. Standard attention
 // materializes a full N x N score matrix before it can take a single
 // softmax -- a real, quadratic memory cost that becomes the actual
@@ -82,7 +82,7 @@ double bytes_for_streaming_block(int64_t block_size, int64_t dtype_bytes) {
 
 // =======================================================================
 // PART 2: naive attention -- materializes the full real score row, applies
-// Chapter 26.2's own shift-invariant stable softmax to the WHOLE row at
+// Chapter 30.2's own shift-invariant stable softmax to the WHOLE row at
 // once, then computes the weighted sum over V directly.
 // =======================================================================
 double dot(const std::vector<double>& a, const std::vector<double>& b) {
@@ -191,7 +191,7 @@ bool vec_near(const std::vector<double>& a, const std::vector<double>& b, double
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 28.1: The O(N^2) Memory Wall and the Online-Softmax Fix\n";
+    std::cout << "Chapter 32.1: The O(N^2) Memory Wall and the Online-Softmax Fix\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: standard attention's own real score-matrix memory grows quadratically -- doubling "
@@ -295,7 +295,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_memory_wall_and_online_softmax.cpp -o 01_mem
 
 ```text
 ========================================================
-Chapter 28.1: The O(N^2) Memory Wall and the Online-Softmax Fix
+Chapter 32.1: The O(N^2) Memory Wall and the Online-Softmax Fix
 ========================================================
 
 -- Test 1: standard attention's own real score-matrix memory grows quadratically -- doubling the real sequence length quadruples the real bytes needed to hold it, matching an exact hand computation at a real, production-scale sequence length --
@@ -318,24 +318,24 @@ ALL CHECKS PASSED
 ```
 
 !!! warning "[COMMON TRAP] treating online-softmax as an approximation that trades accuracy for memory"
-    It is easy to assume any technique that avoids materializing the full real score matrix must be giving something up numerically to get there. Test 4 exists specifically to rule this out: streaming attention with a block size of 1 -- processing one real key at a time, the maximally memory-frugal case -- produces a result matching naive full-row attention to within 1e-9, not "close enough for practical purposes." The online-softmax recurrence is a real algebraic identity: the running max, sum, and output correction terms are derived directly from the same shift-invariant softmax identity Chapter 26.2 already proved, rearranged to update incrementally rather than requiring the whole row up front. There is no accuracy given up for the memory saved -- which is exactly why Flash Attention became the real, universal default rather than a memory-constrained fallback used only when the full matrix does not fit.
+    It is easy to assume any technique that avoids materializing the full real score matrix must be giving something up numerically to get there. Test 4 exists specifically to rule this out: streaming attention with a block size of 1 -- processing one real key at a time, the maximally memory-frugal case -- produces a result matching naive full-row attention to within 1e-9, not "close enough for practical purposes." The online-softmax recurrence is a real algebraic identity: the running max, sum, and output correction terms are derived directly from the same shift-invariant softmax identity Chapter 30.2 already proved, rearranged to update incrementally rather than requiring the whole row up front. There is no accuracy given up for the memory saved -- which is exactly why Flash Attention became the real, universal default rather than a memory-constrained fallback used only when the full matrix does not fit.
 
-## 28.2 A std::mdspan-Based Flash Attention Implementation and Benchmark
+## 32.2 A std::mdspan-Based Flash Attention Implementation and Benchmark
 
 ### Intuition
 
-Section 28.1 proved the online-softmax recurrence correct on raw vectors. This section implements the identical real algorithm as a proper tiled Flash Attention pass over `std::mdspan`-viewed Q, K, and V matrices, and "benchmarks" it the only way this book's own discipline allows: with real, deterministic counts, never wall-clock time.
+Section 32.1 proved the online-softmax recurrence correct on raw vectors. This section implements the identical real algorithm as a proper tiled Flash Attention pass over `std::mdspan`-viewed Q, K, and V matrices, and "benchmarks" it the only way this book's own discipline allows: with real, deterministic counts, never wall-clock time.
 
 ### The Concept, In Detail
 
-`naive_attention_full` genuinely materializes the real, full Nq x Nk score matrix as one real mdspan-viewed allocation -- the actual behavior Section 28.1 quantified the cost of, not a stand-in for it. `tiled_flash_attention` applies Section 28.1's own recurrence per real Q-block over real K/V-blocks, reusing a SINGLE block-sized score buffer for every block rather than ever allocating the full matrix. Test 1 confirms the naive reference is itself correct via mdspan on the identical degenerate case Section 28.1 used. Test 2 confirms the tiled implementation matches the naive reference to within 1e-9 across 5 genuinely different real shapes and tile sizes.
+`naive_attention_full` genuinely materializes the real, full Nq x Nk score matrix as one real mdspan-viewed allocation -- the actual behavior Section 32.1 quantified the cost of, not a stand-in for it. `tiled_flash_attention` applies Section 32.1's own recurrence per real Q-block over real K/V-blocks, reusing a SINGLE block-sized score buffer for every block rather than ever allocating the full matrix. Test 1 confirms the naive reference is itself correct via mdspan on the identical degenerate case Section 32.1 used. Test 2 confirms the tiled implementation matches the naive reference to within 1e-9 across 5 genuinely different real shapes and tile sizes.
 
 Test 3 is this section's own central, real finding, and it is counted directly rather than assumed: both implementations perform EXACTLY 2 x Nq x Nk x d real multiply-accumulate operations, an empirically counted fact from each implementation's own innermost loop -- confirming Flash Attention's real benefit is reduced memory TRAFFIC, not reduced compute. Test 4 completes the honest benchmark: naive attention's own real peak score-buffer size, read directly from an actual allocation's own byte count, grows from 128 to 512 to 2048 bytes as the sequence grows, while tiled Flash Attention's own real peak buffer size stays fixed at exactly `block_rows * block_cols * sizeof(double)` regardless.
 
 ### Code and Verification
 
 ```cpp
-// Chapter 28.2 -- A real, from-scratch, std::mdspan-based tiled Flash
+// Chapter 32.2 -- A real, from-scratch, std::mdspan-based tiled Flash
 // Attention implementation, checked directly against a naive full-matrix
 // reference for exact numerical agreement, and "benchmarked" the way this
 // book's own Appendix D discipline requires: with real, deterministic
@@ -391,8 +391,8 @@ struct MacCounter {
 // =======================================================================
 // PART 1: naive attention -- materializes the REAL, FULL Nq x Nk score
 // matrix as one real mdspan-viewed allocation before taking a single
-// softmax, exactly the real behavior Section 28.1 quantified the memory
-// cost of. Chapter 26.2's own shift-invariant stable softmax is applied to
+// softmax, exactly the real behavior Section 32.1 quantified the memory
+// cost of. Chapter 30.2's own shift-invariant stable softmax is applied to
 // each real row.
 // =======================================================================
 void naive_attention_full(ConstMatrixView q, ConstMatrixView k, ConstMatrixView v, MatrixView out,
@@ -426,7 +426,7 @@ void naive_attention_full(ConstMatrixView q, ConstMatrixView k, ConstMatrixView 
 }
 
 // =======================================================================
-// PART 2: tiled Flash Attention -- Section 28.1's own online-softmax
+// PART 2: tiled Flash Attention -- Section 32.1's own online-softmax
 // recurrence, applied per real Q-block over real K/V blocks, using a
 // SINGLE, block-sized real score buffer reused across every block rather
 // than ever materializing the full Nq x Nk matrix.
@@ -502,12 +502,12 @@ void fill_deterministic(std::vector<double>& buf, size_t rows, size_t cols, doub
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 28.2: A std::mdspan-Based Flash Attention Implementation and Benchmark\n";
+    std::cout << "Chapter 32.2: A std::mdspan-Based Flash Attention Implementation and Benchmark\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: naive full-matrix attention, on a real, hand-verifiable single-query, "
                  "2-key case with a zero query vector, reduces to an exact unweighted average of the value "
-                 "rows -- the identical degenerate case Section 28.1 verified by hand, now computed through "
+                 "rows -- the identical degenerate case Section 32.1 verified by hand, now computed through "
                  "a real mdspan-viewed matrix rather than raw vectors --\n";
     {
         std::vector<double> qbuf = {0.0, 0.0};
@@ -522,7 +522,7 @@ int main() {
         CHECK(near(out[idx2(0, 0)], 4.0));
         CHECK(near(out[idx2(0, 1)], 6.0));
         std::cout << "  naive_attention_full's own real mdspan-based output is {4.0, 6.0} -- exactly the "
-                     "average of {2.0, 4.0} and {6.0, 8.0}, matching Section 28.1's own hand-verified "
+                     "average of {2.0, 4.0} and {6.0, 8.0}, matching Section 32.1's own hand-verified "
                      "result exactly\n";
     }
 
@@ -593,7 +593,7 @@ int main() {
     }
 
     std::cout << "\n-- Test 4: naive attention's own real peak score-buffer size grows with Nq and Nk exactly "
-                 "as Section 28.1 quantified, while tiled Flash Attention's own real peak score-buffer size "
+                 "as Section 32.1 quantified, while tiled Flash Attention's own real peak score-buffer size "
                  "-- read directly from an actually allocated buffer's own real byte count, not merely a "
                  "formula -- stays fixed at block_rows * block_cols regardless of how large the real "
                  "underlying sequence grows --\n";
@@ -654,11 +654,11 @@ g++ -std=c++23 -Wall -Wextra -O2 -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_I
 
 ```text
 ========================================================
-Chapter 28.2: A std::mdspan-Based Flash Attention Implementation and Benchmark
+Chapter 32.2: A std::mdspan-Based Flash Attention Implementation and Benchmark
 ========================================================
 
--- Test 1: naive full-matrix attention, on a real, hand-verifiable single-query, 2-key case with a zero query vector, reduces to an exact unweighted average of the value rows -- the identical degenerate case Section 28.1 verified by hand, now computed through a real mdspan-viewed matrix rather than raw vectors --
-  naive_attention_full's own real mdspan-based output is {4.0, 6.0} -- exactly the average of {2.0, 4.0} and {6.0, 8.0}, matching Section 28.1's own hand-verified result exactly
+-- Test 1: naive full-matrix attention, on a real, hand-verifiable single-query, 2-key case with a zero query vector, reduces to an exact unweighted average of the value rows -- the identical degenerate case Section 32.1 verified by hand, now computed through a real mdspan-viewed matrix rather than raw vectors --
+  naive_attention_full's own real mdspan-based output is {4.0, 6.0} -- exactly the average of {2.0, 4.0} and {6.0, 8.0}, matching Section 32.1's own hand-verified result exactly
 
 -- Test 2: tiled Flash Attention agrees with naive full-matrix attention to within 1e-9 on every real output element, across several genuinely different real shapes and tile sizes -- confirming the tiled real implementation is mathematically identical to the naive reference, not merely a plausible-looking approximation --
   across 5 genuinely different real (Nq, Nk, d, block_rows, block_cols) shape combinations, tiled Flash Attention's own real output matches naive full-matrix attention's own output to within 1e-9 on every element, every single time
@@ -666,7 +666,7 @@ Chapter 28.2: A std::mdspan-Based Flash Attention Implementation and Benchmark
 -- Test 3: tiled Flash Attention performs EXACTLY the same real number of multiply-accumulate operations as naive attention, counted directly at each implementation's own innermost real loop -- confirming Flash Attention's own genuine benefit is reduced real memory traffic, not reduced real compute, across the identical shapes Test 2 used --
   for every one of the 5 real shapes, both implementations perform exactly 2*Nq*Nk*d real multiply-accumulate operations -- an empirically counted fact, not an assumed formula -- confirming tiling changes only WHEN and WHERE those real operations touch memory, never how many of them there are
 
--- Test 4: naive attention's own real peak score-buffer size grows with Nq and Nk exactly as Section 28.1 quantified, while tiled Flash Attention's own real peak score-buffer size -- read directly from an actually allocated buffer's own real byte count, not merely a formula -- stays fixed at block_rows * block_cols regardless of how large the real underlying sequence grows --
+-- Test 4: naive attention's own real peak score-buffer size grows with Nq and Nk exactly as Section 32.1 quantified, while tiled Flash Attention's own real peak score-buffer size -- read directly from an actually allocated buffer's own real byte count, not merely a formula -- stays fixed at block_rows * block_cols regardless of how large the real underlying sequence grows --
   naive attention's own real peak score-buffer size grows from 128 to 512 to 2048 bytes as (Nq, Nk) grows from (4,4) to (8,8) to (16,16); tiled Flash Attention's own real peak score-buffer size, read directly from its one reused allocation, stays fixed at exactly 32 bytes (2 x 2 doubles) at every one of those same 3 real sequence lengths
 
 31/31 checks passed
@@ -674,25 +674,25 @@ ALL CHECKS PASSED
 ```
 
 !!! warning "[COMMON TRAP] assuming Flash Attention's own real speedup comes from doing less arithmetic"
-    Test 3's own real, counted result is easy to misread in the opposite direction from the Section 28.1 trap: it is tempting to assume Flash Attention must ALSO be doing fewer real floating-point operations, since it is famous for being faster in practice. Test 3 proves directly that it is not: both implementations perform the identical `2 * Nq * Nk * d` real multiply-accumulate operations, counted at each one's own innermost loop, every single time. Flash Attention's own genuine real speedup on actual hardware comes from a different resource entirely -- it never writes the full O(N^2) score matrix out to slow real memory and reads it back in for the softmax and the second matmul, which Chapter 26's own roofline framing already established is the ACTUAL bottleneck for a memory-bound operation. Same real compute, drastically less real memory traffic -- that distinction is the entire point of this section's own choice to benchmark bytes and operation counts rather than assume the FLOP count itself must have changed.
+    Test 3's own real, counted result is easy to misread in the opposite direction from the Section 32.1 trap: it is tempting to assume Flash Attention must ALSO be doing fewer real floating-point operations, since it is famous for being faster in practice. Test 3 proves directly that it is not: both implementations perform the identical `2 * Nq * Nk * d` real multiply-accumulate operations, counted at each one's own innermost loop, every single time. Flash Attention's own genuine real speedup on actual hardware comes from a different resource entirely -- it never writes the full O(N^2) score matrix out to slow real memory and reads it back in for the softmax and the second matmul, which Chapter 30's own roofline framing already established is the ACTUAL bottleneck for a memory-bound operation. Same real compute, drastically less real memory traffic -- that distinction is the entire point of this section's own choice to benchmark bytes and operation counts rather than assume the FLOP count itself must have changed.
 
-## 28.3 A CUDA Production Engine and Its Own Kernel-Validation Suite
+## 32.3 A CUDA Production Engine and Its Own Kernel-Validation Suite
 
 ### Intuition
 
-Sections 28.1 and 28.2 proved a real algorithm correct on the CPU. This section takes that identical algorithm to a real CUDA kernel -- and is exactly as honest about what a pipeline with no NVIDIA GPU anywhere in it can and cannot actually verify about that kernel as every other chapter in this book has been about everything else.
+Sections 32.1 and 32.2 proved a real algorithm correct on the CPU. This section takes that identical algorithm to a real CUDA kernel -- and is exactly as honest about what a pipeline with no NVIDIA GPU anywhere in it can and cannot actually verify about that kernel as every other chapter in this book has been about everything else.
 
 ### The Concept, In Detail
 
-`flash_attention_kernel` implements Sections 28.1 and 28.2's own identical real online-softmax recurrence on the GPU: one real thread per query row, with every thread in a block cooperating to load the same real K/V tile into shared memory before each thread updates its own running state. This is real, complete CUDA C++, and `nvcc` genuinely compiles it end to end -- generating real device code for 3 genuinely different real Jetson-class architectures (`sm_53`, Jetson Nano and TX1; `sm_72`, Jetson Xavier; `sm_87`, Jetson Orin) -- which is a real, meaningful compiler-verified fact about this kernel's own syntax and semantics.
+`flash_attention_kernel` implements Sections 32.1 and 32.2's own identical real online-softmax recurrence on the GPU: one real thread per query row, with every thread in a block cooperating to load the same real K/V tile into shared memory before each thread updates its own running state. This is real, complete CUDA C++, and `nvcc` genuinely compiles it end to end -- generating real device code for 3 genuinely different real Jetson-class architectures (`sm_53`, Jetson Nano and TX1; `sm_72`, Jetson Xavier; `sm_87`, Jetson Orin) -- which is a real, meaningful compiler-verified fact about this kernel's own syntax and semantics.
 
 What this section's own self-test cannot do, and says so directly rather than pretending otherwise, is launch that kernel on a real device and check its real output: neither this book's own cloud sandbox nor its own real aarch64 hardware (an Apple Silicon Mac, which has never supported NVIDIA GPUs or CUDA at all) has a CUDA-capable device physically present. Test 1 confirms the real CPU golden reference this validation suite depends on is itself correct. Test 2 confirms the real CUDA Runtime API is genuinely callable and correctly reports this specific machine's own real device count as zero, using the error code rather than trusting an unreliable count value on the error path. Test 3 proves the real comparison harness itself is correct -- accepting a matching output and rejecting a genuinely wrong one -- independent of whether a device is ever available to produce output for it to check. Test 4 confirms the real end-to-end entry point honestly reports `NO_DEVICE_AVAILABLE` on this machine rather than fabricating a pass, while remaining the identical, unmodified code path that would allocate memory, launch the real kernel, and validate its real output on a real Jetson-class board.
 
 ### Code and Verification
 
 ```cuda
-// Chapter 28.3 -- A real CUDA production kernel implementing Sections
-// 28.1 and 28.2's own tiled online-softmax attention on the GPU, and a
+// Chapter 32.3 -- A real CUDA production kernel implementing Sections
+// 32.1 and 32.2's own tiled online-softmax attention on the GPU, and a
 // real kernel-validation suite built to check its output against a real
 // CPU golden reference. This section's own verification is honestly
 // different in kind from every other file in this book: nvcc genuinely
@@ -749,7 +749,7 @@ constexpr int MAX_HEAD_DIM = 64; // a stated real limit for this kernel's own pe
 // PART 1: the real CUDA kernel. One real thread owns one query row's own
 // online-softmax state; every thread in a block cooperates to load the
 // SAME real K/V tile into shared memory once per tile, then each thread
-// updates its own running (m, l, o) using Sections 28.1 and 28.2's own
+// updates its own running (m, l, o) using Sections 32.1 and 32.2's own
 // already-proven-correct real recurrence.
 // =======================================================================
 __global__ void flash_attention_kernel(const float* q, const float* k, const float* v,
@@ -804,7 +804,7 @@ __global__ void flash_attention_kernel(const float* q, const float* k, const flo
 }
 
 // =======================================================================
-// PART 2: the real CPU golden reference -- Sections 28.1 and 28.2's own
+// PART 2: the real CPU golden reference -- Sections 32.1 and 32.2's own
 // already-proven-correct naive attention, restated here in float32 (the
 // kernel's own real precision) so a real GPU's output could be compared
 // against it apples-to-apples.
@@ -904,11 +904,11 @@ ValidationStatus validate_kernel_on_device(const std::vector<float>& q, const st
 // =======================================================================
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 28.3: A CUDA Production Engine and Its Own Kernel-Validation Suite\n";
+    std::cout << "Chapter 32.3: A CUDA Production Engine and Its Own Kernel-Validation Suite\n";
     std::cout << "========================================================\n";
 
     std::cout << "\n-- Test 1: the real CPU golden reference, restated here in float32 precision, reduces "
-                 "correctly on the identical zero-query-vector degenerate case Sections 28.1 and 28.2 both "
+                 "correctly on the identical zero-query-vector degenerate case Sections 32.1 and 32.2 both "
                  "already verified by hand, confirming this section's own golden reference is itself "
                  "correct before it is ever used as a comparison baseline --\n";
     {
@@ -920,7 +920,7 @@ int main() {
         CHECK(std::fabs(out[0] - 4.0f) < 1e-5f);
         CHECK(std::fabs(out[1] - 6.0f) < 1e-5f);
         std::cout << "  the real float32 golden reference produces {" << out[0] << ", " << out[1]
-                  << "}, matching the identical exact result Sections 28.1 and 28.2 both verified in "
+                  << "}, matching the identical exact result Sections 32.1 and 32.2 both verified in "
                      "double precision\n";
     }
 
@@ -1008,11 +1008,11 @@ nvcc -std=c++20 -arch=sm_87 03_cuda_kernel_and_validation_suite.cu -o 03_cuda_ke
 
 ```text
 ========================================================
-Chapter 28.3: A CUDA Production Engine and Its Own Kernel-Validation Suite
+Chapter 32.3: A CUDA Production Engine and Its Own Kernel-Validation Suite
 ========================================================
 
--- Test 1: the real CPU golden reference, restated here in float32 precision, reduces correctly on the identical zero-query-vector degenerate case Sections 28.1 and 28.2 both already verified by hand, confirming this section's own golden reference is itself correct before it is ever used as a comparison baseline --
-  the real float32 golden reference produces {4, 6}, matching the identical exact result Sections 28.1 and 28.2 both verified in double precision
+-- Test 1: the real CPU golden reference, restated here in float32 precision, reduces correctly on the identical zero-query-vector degenerate case Sections 32.1 and 32.2 both already verified by hand, confirming this section's own golden reference is itself correct before it is ever used as a comparison baseline --
+  the real float32 golden reference produces {4, 6}, matching the identical exact result Sections 32.1 and 32.2 both verified in double precision
 
 -- Test 2: the real CUDA Runtime API is genuinely callable from this compiled program. On a real machine with at least one real device, a successful call reports a real, non-negative count; this specific machine's own real call instead returns an error, which this section's own validation logic treats as zero available devices rather than trusting whatever value the count argument happens to hold on an error path --
   cudaGetDeviceCount on this real machine returns the error "no CUDA-capable device is detected" -- confirming, directly rather than assumed, that this book's own cloud sandbox has zero real CUDA-capable devices, exactly like this book's own real aarch64 hardware (an Apple Silicon Mac, which has never supported NVIDIA GPUs at all)
@@ -1032,20 +1032,20 @@ ALL CHECKS PASSED
 
 ## Chapter Summary
 
-This chapter took this book's own inference engine to the GPU, with the identical honesty discipline every chapter before it used. Section 28.1 quantified standard attention's own real O(N^2) memory wall in exact bytes and proved a real online-softmax recurrence produces exactly the same result while using a fixed, N-independent amount of memory. Section 28.2 implemented that identical algorithm as a proper `std::mdspan`-based tiled Flash Attention pass, verified against a naive reference across genuinely different shapes, and benchmarked it with real, deterministic operation counts and peak-memory byte counts -- proving Flash Attention's real benefit is reduced memory traffic, not reduced compute. Section 28.3 took that identical algorithm to a real CUDA kernel, compiled it with a real, current toolchain against 3 genuinely different real Jetson-class architectures, and built a real kernel-validation suite whose every component -- the golden reference, the comparison harness, and the device-detection path -- is proven correct on its own, while being completely explicit that this book's own pipeline has no NVIDIA GPU anywhere in it to launch the kernel against.
+This chapter took this book's own inference engine to the GPU, with the identical honesty discipline every chapter before it used. Section 32.1 quantified standard attention's own real O(N^2) memory wall in exact bytes and proved a real online-softmax recurrence produces exactly the same result while using a fixed, N-independent amount of memory. Section 32.2 implemented that identical algorithm as a proper `std::mdspan`-based tiled Flash Attention pass, verified against a naive reference across genuinely different shapes, and benchmarked it with real, deterministic operation counts and peak-memory byte counts -- proving Flash Attention's real benefit is reduced memory traffic, not reduced compute. Section 32.3 took that identical algorithm to a real CUDA kernel, compiled it with a real, current toolchain against 3 genuinely different real Jetson-class architectures, and built a real kernel-validation suite whose every component -- the golden reference, the comparison harness, and the device-detection path -- is proven correct on its own, while being completely explicit that this book's own pipeline has no NVIDIA GPU anywhere in it to launch the kernel against.
 
 ## Self-Check Questions
 
-1. Section 28.1's Test 1 shows the real score-matrix memory quadruples when sequence length doubles. Explain, from the formula itself, why this growth is quadratic rather than linear.
-2. Section 28.1's Test 4 uses a block size of exactly 1 as the section's own central proof. Explain why this specific choice is a stronger test of the online recurrence's own correctness than a larger, more "realistic" block size would be.
-3. Section 28.1's online-softmax recurrence relies on `exp(-infinity)` evaluating to exactly `0.0` for its own initial-block correctness. Explain what would go wrong with the very first block's own computed result if this were not true.
-4. Section 28.2's Test 3 shows naive and tiled attention perform the identical number of real multiply-accumulate operations. Given that result, explain in your own words what Flash Attention's own real speedup on actual hardware actually comes from instead.
-5. Section 28.2's `naive_attention_full` genuinely allocates the full real Nq x Nk score matrix, rather than only computing one row at a time. Explain why this specific choice matters for Test 4's own real peak-memory comparison to be a fair, honest one.
-6. Section 28.3 states that a clean `nvcc` compile across 3 real architectures does not prove the kernel's own output is correct. Name one specific real category of bug that compilation could never catch, and explain why it could not.
-7. Section 28.3's Test 2 checks the CUDA Runtime API's own error code rather than only checking whether `device_count` is non-negative. Explain, using this section's own real, observed result on this machine, why checking the count alone would have been insufficient.
-8. Section 28.3's `validate_kernel_on_device` function contains a real code path that would allocate device memory and launch the real kernel, but that path never executes anywhere in this book's own pipeline. Explain what specifically would need to be true of the machine running this exact file for that path to execute instead.
-9. Section 28.3's Test 3 validates the comparison harness using only CPU-computed vectors, with no GPU involved at all. Explain why this test is still a meaningful, real check of the kernel-validation suite's own correctness, despite never touching a GPU.
-10. Across all three sections of this chapter, identify the ONE real property of the online-softmax recurrence, first proven in Section 28.1, that both Section 28.2's tiled CPU implementation and Section 28.3's CUDA kernel each depend on being true in order for their own real correctness claims to hold.
+1. Section 32.1's Test 1 shows the real score-matrix memory quadruples when sequence length doubles. Explain, from the formula itself, why this growth is quadratic rather than linear.
+2. Section 32.1's Test 4 uses a block size of exactly 1 as the section's own central proof. Explain why this specific choice is a stronger test of the online recurrence's own correctness than a larger, more "realistic" block size would be.
+3. Section 32.1's online-softmax recurrence relies on `exp(-infinity)` evaluating to exactly `0.0` for its own initial-block correctness. Explain what would go wrong with the very first block's own computed result if this were not true.
+4. Section 32.2's Test 3 shows naive and tiled attention perform the identical number of real multiply-accumulate operations. Given that result, explain in your own words what Flash Attention's own real speedup on actual hardware actually comes from instead.
+5. Section 32.2's `naive_attention_full` genuinely allocates the full real Nq x Nk score matrix, rather than only computing one row at a time. Explain why this specific choice matters for Test 4's own real peak-memory comparison to be a fair, honest one.
+6. Section 32.3 states that a clean `nvcc` compile across 3 real architectures does not prove the kernel's own output is correct. Name one specific real category of bug that compilation could never catch, and explain why it could not.
+7. Section 32.3's Test 2 checks the CUDA Runtime API's own error code rather than only checking whether `device_count` is non-negative. Explain, using this section's own real, observed result on this machine, why checking the count alone would have been insufficient.
+8. Section 32.3's `validate_kernel_on_device` function contains a real code path that would allocate device memory and launch the real kernel, but that path never executes anywhere in this book's own pipeline. Explain what specifically would need to be true of the machine running this exact file for that path to execute instead.
+9. Section 32.3's Test 3 validates the comparison harness using only CPU-computed vectors, with no GPU involved at all. Explain why this test is still a meaningful, real check of the kernel-validation suite's own correctness, despite never touching a GPU.
+10. Across all three sections of this chapter, identify the ONE real property of the online-softmax recurrence, first proven in Section 32.1, that both Section 32.2's tiled CPU implementation and Section 32.3's CUDA kernel each depend on being true in order for their own real correctness claims to hold.
 
 ## Where We Go Next
 
@@ -1059,9 +1059,9 @@ This chapter closes the main text of this book. Every real technique built acros
 
 **3.** The very first block's own real correction term is computed as `exp(m_old - m_new)` where `m_old` is initialized to `-infinity`. If this did not evaluate to exactly `0.0`, the first block's own running sum and output would be corrupted by multiplying the (empty, zero-valued) initial state by whatever `exp(-infinity - m_new)` actually returned instead -- if it returned NaN, for instance, every subsequent real update would also become NaN, since any arithmetic involving a NaN produces NaN, corrupting the entire computation from the very first block onward.
 
-**4.** Since both implementations perform the identical number of real multiply-accumulate operations, Flash Attention's own real speedup cannot come from doing less arithmetic. It comes instead from real memory traffic: naive attention writes the entire real O(N^2) score matrix out to memory and reads it back in for the softmax and the second matmul, while tiled Flash Attention never writes more than one real block's worth of scores to memory at any point, keeping the running state in fast on-chip storage (registers or shared memory) instead. Chapter 26's own roofline framing already established that a memory-bound operation's real bottleneck is bandwidth, not FLOPs -- Flash Attention's real benefit is reducing that memory traffic, not the arithmetic.
+**4.** Since both implementations perform the identical number of real multiply-accumulate operations, Flash Attention's own real speedup cannot come from doing less arithmetic. It comes instead from real memory traffic: naive attention writes the entire real O(N^2) score matrix out to memory and reads it back in for the softmax and the second matmul, while tiled Flash Attention never writes more than one real block's worth of scores to memory at any point, keeping the running state in fast on-chip storage (registers or shared memory) instead. Chapter 30's own roofline framing already established that a memory-bound operation's real bottleneck is bandwidth, not FLOPs -- Flash Attention's real benefit is reducing that memory traffic, not the arithmetic.
 
-**5.** If `naive_attention_full` only ever computed one real row of scores at a time internally, its own real peak memory would already be `Nk * dtype_bytes` rather than `Nq * Nk * dtype_bytes` -- much closer to tiled attention's own real peak memory, and the comparison in Test 4 would understate naive attention's own real, actual memory behavior as production systems genuinely implement it (materializing the WHOLE matrix at once). Allocating the full real matrix, exactly as Section 28.1's own introduction describes standard attention actually doing, is what makes Test 4's comparison an honest one rather than a comparison against a strawman.
+**5.** If `naive_attention_full` only ever computed one real row of scores at a time internally, its own real peak memory would already be `Nk * dtype_bytes` rather than `Nq * Nk * dtype_bytes` -- much closer to tiled attention's own real peak memory, and the comparison in Test 4 would understate naive attention's own real, actual memory behavior as production systems genuinely implement it (materializing the WHOLE matrix at once). Allocating the full real matrix, exactly as Section 32.1's own introduction describes standard attention actually doing, is what makes Test 4's comparison an honest one rather than a comparison against a strawman.
 
 **6.** A real race condition in the shared-memory tile load -- for instance, if a thread began reading from `k_tile` or `v_tile` before every thread in the block had finished writing its own portion of that same tile -- would compile without any error at all, since the CUDA compiler has no way to know, purely from the kernel's own source code, whether a `__syncthreads()` call is missing or misplaced relative to how the tile is actually used. This category of bug only manifests as an actual incorrect numerical result (or, worse, one that is only wrong nondeterministically depending on real thread-scheduling timing) when the kernel is genuinely executed on real hardware -- compilation checks syntax and generates valid instructions, it does not simulate the real, concurrent execution of thousands of real threads.
 
@@ -1071,4 +1071,4 @@ This chapter closes the main text of this book. Every real technique built acros
 
 **9.** The comparison harness's own job is a purely algorithmic one: given two real numeric vectors and a stated tolerance, correctly decide whether they match closely enough. That job is completely independent of WHERE either vector came from -- a GPU kernel, a CPU reference, or, as Test 3 does, a hand-constructed vector designed specifically to be either an exact match, a match within float32 rounding noise, or a genuine mismatch. Proving the harness correctly distinguishes all three cases establishes that IF a real GPU kernel's output were ever passed to it, the harness would correctly judge it -- which is precisely the property a validation suite needs, checked here in the one way this pipeline actually can check it.
 
-**10.** All three sections depend on the SAME real property: that the online-softmax recurrence -- computing a running max, then rescaling the running sum and output by `exp(old_max - new_max)` before incorporating each new block -- produces a result that is EXACTLY equal to computing the full softmax over all blocks at once, first proven directly in Section 28.1's Test 4. Section 28.2's tiled CPU implementation depends on this to claim its own output matches the naive reference; Section 28.3's CUDA kernel implements this identical recurrence in device code and depends on the same property to claim that, were it ever launched on real hardware and found to match the CPU golden reference, that match would confirm real correctness rather than a real coincidence. Every later claim in this chapter rests on that one real algebraic fact established first.
+**10.** All three sections depend on the SAME real property: that the online-softmax recurrence -- computing a running max, then rescaling the running sum and output by `exp(old_max - new_max)` before incorporating each new block -- produces a result that is EXACTLY equal to computing the full softmax over all blocks at once, first proven directly in Section 32.1's Test 4. Section 32.2's tiled CPU implementation depends on this to claim its own output matches the naive reference; Section 32.3's CUDA kernel implements this identical recurrence in device code and depends on the same property to claim that, were it ever launched on real hardware and found to match the CPU golden reference, that match would confirm real correctness rather than a real coincidence. Every later claim in this chapter rests on that one real algebraic fact established first.
