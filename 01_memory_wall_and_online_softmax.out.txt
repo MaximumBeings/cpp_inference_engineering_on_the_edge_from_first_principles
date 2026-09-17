@@ -1,0 +1,21 @@
+========================================================
+Chapter 28.1: The O(N^2) Memory Wall and the Online-Softmax Fix
+========================================================
+
+-- Test 1: standard attention's own real score-matrix memory grows quadratically -- doubling the real sequence length quadruples the real bytes needed to hold it, matching an exact hand computation at a real, production-scale sequence length --
+  a real 8192-token sequence's own full score matrix, at 4 real bytes per element, costs exactly 268435456 bytes (256 MiB) for a SINGLE batch-and-head pair; doubling the sequence length to 16384 costs exactly 1073741824 bytes (1 GiB) -- a real, exact 4x blowup from a real 2x length increase
+
+-- Test 2: streaming attention's own real peak memory -- one block's worth of scores -- is a fixed constant that does not depend on N at all, confirmed directly by computing it at two wildly different real sequence lengths and finding it identical --
+  a real block size of 128 keys, at 4 bytes each, costs exactly 512 bytes of real peak score memory -- structurally identical whether the real sequence is 1,000 tokens or 1,000,000, since N never appears in this formula at all
+
+-- Test 3: naive attention on a real, hand-verifiable degenerate case -- a zero query vector, which produces identical real scores against every key -- correctly reduces to an exact, unweighted average of the value vectors, matched against a direct hand computation --
+  a zero query vector against 2 real keys produces two IDENTICAL real scores (both 0.0), so softmax assigns exactly 0.5 weight to each -- the real output, {4.0, 6.0}, is exactly the unweighted average of {2.0, 4.0} and {6.0, 8.0}, matching a direct hand computation exactly
+
+-- Test 4: on a real, non-degenerate 6-key example, streaming attention with a block size of exactly 1 -- the most extreme real streaming case, one key processed at a time -- produces a result numerically identical to naive attention's own full-row computation, confirming the online recurrence is a genuine algebraic REFORMULATION of softmax, not an approximation --
+  naive attention's own full-row output and streaming attention's own block-size-1 output agree to within 1e-9 on every component -- the online recurrence's own running max, sum, and output correctly reconstruct the identical real softmax-weighted result, one key at a time, never having materialized all 6 real scores at once
+
+-- Test 5: on the identical 6-key example, streaming attention's own real result does not depend on the real block size used to process it -- block sizes of 1, 2, 3, and 6 (the entire sequence in one real block) all agree with naive attention and with each other, confirming block size is purely a real memory/compute granularity choice with no effect whatsoever on the actual mathematical result --
+  block sizes of 1, 2, 3, and 6 keys all produce a real output matching naive attention to within 1e-9 -- streaming attention's own choice of block size changes only how much real memory and compute happen at once, never what the final real answer is
+
+11/11 checks passed
+ALL CHECKS PASSED

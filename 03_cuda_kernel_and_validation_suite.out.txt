@@ -1,0 +1,18 @@
+========================================================
+Chapter 28.3: A CUDA Production Engine and Its Own Kernel-Validation Suite
+========================================================
+
+-- Test 1: the real CPU golden reference, restated here in float32 precision, reduces correctly on the identical zero-query-vector degenerate case Sections 28.1 and 28.2 both already verified by hand, confirming this section's own golden reference is itself correct before it is ever used as a comparison baseline --
+  the real float32 golden reference produces {4, 6}, matching the identical exact result Sections 28.1 and 28.2 both verified in double precision
+
+-- Test 2: the real CUDA Runtime API is genuinely callable from this compiled program. On a real machine with at least one real device, a successful call reports a real, non-negative count; this specific machine's own real call instead returns an error, which this section's own validation logic treats as zero available devices rather than trusting whatever value the count argument happens to hold on an error path --
+  cudaGetDeviceCount on this real machine returns the error "no CUDA-capable device is detected" -- confirming, directly rather than assumed, that this book's own cloud sandbox has zero real CUDA-capable devices, exactly like this book's own real aarch64 hardware (an Apple Silicon Mac, which has never supported NVIDIA GPUs at all)
+
+-- Test 3: the real comparison harness a kernel-validation suite depends on correctly accepts a matching real output and correctly REJECTS a deliberately corrupted one beyond the stated real tolerance -- proving this harness would genuinely catch a real GPU kernel bug, independent of whether a real device is ever available to produce one --
+  the real comparison harness accepts an exact copy and a copy differing only by real float32 rounding noise (1e-7), and correctly REJECTS a copy with a genuine 0.5-magnitude error at index 3 -- the harness's own pass/fail logic is proven correct independent of any real GPU ever running
+
+-- Test 4: the real end-to-end validation entry point, run on THIS machine, correctly and honestly detects the real absence of a CUDA-capable device and reports NO_DEVICE_AVAILABLE rather than fabricating a PASSED result -- exactly the behavior this section's own introduction promised, confirmed directly rather than merely asserted --
+  0 CUDA-capable devices detected (no CUDA-capable device is detected) -- GPU kernel validation skipped; the CPU golden reference below was computed and is available for a reader running this identical file on a real Jetson-class board to compare their own real device output against.
+
+8/8 checks passed
+ALL CHECKS PASSED
