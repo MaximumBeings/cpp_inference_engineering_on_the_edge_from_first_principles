@@ -1,0 +1,13 @@
+========================================================
+Chapter 29.2: Transaction Velocity Anomaly Detection
+========================================================
+
+-- Test 1: 2 transactions, 20 minutes apart -- flagged=NO, max_count_in_window=2 --
+-- Test 2: 4 transactions within 10 minutes -- flagged=YES, max_count_in_window=4 --
+-- Test 3: exactly 3 transactions within 30 minutes -- flagged=NO, max_count_in_window=3 --
+-- Test 4: 4 transactions within 30 minutes -- flagged=YES, max_count_in_window=4 --
+-- Test 5: 4 transactions steadily spread across 45 minutes -- flagged=NO, max_count_in_window=3 --
+-- Test 6: two accounts, one bursting, one normal -- flagged=[ACC-6A] --
+
+12/12 checks passed
+ALL CHECKS PASSED

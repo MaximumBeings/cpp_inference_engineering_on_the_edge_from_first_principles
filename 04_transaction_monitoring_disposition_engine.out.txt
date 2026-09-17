@@ -1,0 +1,14 @@
+========================================================
+Chapter 29.4: The Transaction Monitoring Disposition Engine
+========================================================
+
+-- Test 1: clean account -- disposition=NO_ACTION --
+-- Test 2: exactly one signal fired -- structuring-only=INTERNAL_REVIEW, velocity-only=INTERNAL_REVIEW, travel-only=INTERNAL_REVIEW --
+-- Test 3: exactly two signals fired (structuring + velocity) -- disposition=FILE_SAR_RECOMMENDED --
+-- Test 4: all three signals fired -- disposition=FILE_SAR_RECOMMENDED --
+-- Test 5: strongest disposition name = "FILE_SAR_RECOMMENDED" -- ends in RECOMMENDED: YES (correct) --
+-- Test 6: audit trail -- [structuring pattern detected (Section 29.1)] [impossible travel pattern detected (Section 29.3)] --
+-- Test 7: 3-account batch -- ACC-7A=NO_ACTION ACC-7B=INTERNAL_REVIEW ACC-7C=FILE_SAR_RECOMMENDED --
+
+19/19 checks passed
+ALL CHECKS PASSED

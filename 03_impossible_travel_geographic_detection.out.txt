@@ -1,0 +1,16 @@
+========================================================
+Chapter 29.3: Impossible Travel Geographic Detection
+========================================================
+
+(reference) real great-circle distance New York <-> Los Angeles: 3935.75 km; London <-> Paris: 343.556 km
+
+-- Test 1: identical location, 1 minute apart -- distance=0 km, flagged=NO --
+-- Test 2: NYC to LA in 6 hours -- required_speed=655.958 km/h, flagged=NO --
+-- Test 3: NYC to LA in 30 minutes -- required_speed=7871.49 km/h, flagged=YES --
+-- Test 4: NYC to LA in exactly 262.383 minutes -- required_speed=900 km/h (max=900), flagged=NO --
+-- Test 5: one minute less than that boundary -- required_speed=903.443 km/h, flagged=YES --
+-- Test 6: London to Paris (343.556 km) in 10 minutes -- required_speed=2061.34 km/h, flagged=YES --
+-- Test 7: two accounts, one impossible-travel pattern, one normal -- flagged=[ACC-7A] --
+
+13/13 checks passed
+ALL CHECKS PASSED
