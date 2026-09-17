@@ -1,0 +1,14 @@
+========================================================
+Chapter 26.2: Invoice Duplicate Detection
+========================================================
+
+-- Test 1: Levenshtein("KITTEN", "SITTING") = 3 (the algorithm's own famous reference value) --
+-- Test 2: candidate INV-10423 ($1284.5, Acme Office Supply) vs. paid history -- flagged: YES, matches paid invoice INV-10422 at edit distance 1 --
+-- Test 3: candidate INV-99871 ($1284.5, Acme Office Supply) vs. paid history -- flagged: NO (correctly not flagged) --
+-- Test 4: candidate INV-10422 (an EXACT resubmission, already caught by a plain dedup pass) -- flagged by THIS near-match detector: NO (correctly out of this detector's own scope) --
+-- Test 5: candidate INV-10423 from a DIFFERENT vendor (Northbridge Logistics) at the identical amount -- flagged: NO (correctly not flagged) --
+-- Test 6: candidate INV-10423 at a genuinely different amount ($55 vs. the paid $1284.50) -- flagged: NO (correctly not flagged) --
+-- Test 7: candidate INV-10499 at hand-computed edit distance 2 from the paid invoice (the stated boundary of 2) -- flagged: YES --
+
+10/10 checks passed
+ALL CHECKS PASSED

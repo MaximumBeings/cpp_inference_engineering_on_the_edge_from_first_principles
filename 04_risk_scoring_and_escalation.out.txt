@@ -1,0 +1,14 @@
+========================================================
+Chapter 26.4: Risk Scoring and Escalation
+========================================================
+
+-- Test 1 (clean transaction): score = 0, disposition = AUTO_CLEAR, fired signals: []
+-- Test 2 (one moderate flag): score = 40, disposition = ESCALATE_TO_REVIEW, fired signals: [duplicate_invoice]
+-- Test 3 (two flags, crosses reject threshold): score = 90, disposition = AUTO_REJECT, fired signals: [duplicate_invoice, amount_words_mismatch]
+-- Test 4 (MICR checksum failure alone, all other signals clean): score = 0, disposition = ESCALATE_TO_REVIEW (forced by MICR checksum failure), fired signals: []
+-- Test 5 (MICR checksum failure PLUS signals that already reject): score = 90, disposition = AUTO_REJECT, fired signals: [duplicate_invoice, amount_words_mismatch]
+-- Test 6 (score exactly at the escalate boundary of 30): score = 30, disposition = ESCALATE_TO_REVIEW, fired signals: [minor_signal]
+-- Test 7 (score exactly at the reject boundary of 70): score = 70, disposition = AUTO_REJECT, fired signals: [duplicate_invoice, signature_mismatch]
+
+19/19 checks passed
+ALL CHECKS PASSED

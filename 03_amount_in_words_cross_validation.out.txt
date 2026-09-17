@@ -1,0 +1,14 @@
+========================================================
+Chapter 26.3: Amount-in-Words Cross-Validation
+========================================================
+
+-- Test 1: $1234.56 vs. "One thousand two hundred thirty-four and 56/100 dollars" -- numerals = 123456 cents, words = 123456 cents, match: YES --
+-- Test 2: $9234.56 (numerals altered) vs. the SAME unaltered words field -- numerals = 923456 cents, words = 123456 cents, match: NO (correctly caught) --
+-- Test 3: $1234.56 vs. "Nine thousand two hundred thirty-four and 56/100 dollars" (words altered) -- match: NO (correctly caught) --
+-- Test 4: $500.00 vs. "Five hundred dollars" (no cents stated) -- words = 50000 cents, match: YES --
+-- Test 5: "A gazillion dollars" (an unrecognized token) -- words_parse_failed: YES (correctly reported) --
+-- Test 6: $99.00 vs. "Ninety-nine dollars" -- words = 9900 cents, match: YES --
+-- Test 7: $42305.75 vs. "Forty-two thousand three hundred five and 75/100 dollars" -- words = 4230575 cents, match: YES --
+
+13/13 checks passed
+ALL CHECKS PASSED

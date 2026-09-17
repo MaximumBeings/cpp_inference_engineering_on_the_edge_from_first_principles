@@ -1,0 +1,13 @@
+========================================================
+Chapter 26.1: MICR Checksum Validation and Signature Comparison
+========================================================
+
+-- Test 1: routing number 021000021 (a real, published ABA routing number) checksum-valid: YES --
+-- Test 2: routing number 021000029 (last digit altered from a valid routing number) checksum-valid: NO --
+-- Test 3: a 7-digit routing number and a routing number containing a letter both checksum-valid: NO (correctly rejected) --
+-- Test 4: reference signature vs. a pixel-identical re-scan, Hamming distance = 0 --
+-- Test 5: reference signature vs. the same signature re-scanned with sensor noise, Hamming distance = 4, matches under the stated tolerance of 10: YES --
+-- Test 6: reference signature vs. a visibly different image standing in for a forged signature, Hamming distance = 34, matches under the stated tolerance: NO (correctly rejected) --
+
+9/9 checks passed
+ALL CHECKS PASSED
