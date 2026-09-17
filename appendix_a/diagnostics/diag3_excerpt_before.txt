@@ -1,0 +1,2 @@
+    Start 1: portable_dot_product_self_test
+1/1 Test #1: portable_dot_product_self_test ...***Failed    0.00 sec

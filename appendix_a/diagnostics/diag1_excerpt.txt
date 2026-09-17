@@ -1,0 +1,5 @@
+diag1_multiarg_subscript.cpp: In function 'int main()':
+diag1_multiarg_subscript.cpp:5:35: warning: top-level comma expression in array subscript is deprecated [-Wcomma-subscript]
+    5 |     return static_cast<int>(view[1, 2]);
+      |                                   ^
+diag1_multiarg_subscript.cpp:5:33: error: no match for 'operator[]' (operand types are 'std::mdspan<float, std::extents<long unsigned int, 18446744073709551615, 18446744073709551615>, std::layout_right, std::default_accessor<float> >' and 'int')

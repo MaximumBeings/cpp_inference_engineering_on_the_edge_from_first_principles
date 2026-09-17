@@ -1,0 +1,4 @@
+diag2_no_native_mdspan.cpp:1:10: fatal error: mdspan: No such file or directory
+    1 | #include <mdspan>
+      |          ^~~~~~~~
+compilation terminated.

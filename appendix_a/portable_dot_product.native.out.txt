@@ -1,0 +1,13 @@
+========================================================
+Appendix A smoke test: portable_dot_product
+Backend selected at compile time: AVX2 (x86_64)
+========================================================
+
+-- Test 1: a small, hand-verifiable real case -- {1,2,3,4,5} . {2,2,2,2,2} = 30 -- matches on both the portable scalar reference and this architecture's own accelerated path --
+  scalar = 30, accelerated (AVX2 (x86_64)) = 30
+
+-- Test 2: on a real, deterministically generated 257-element vector pair (a length deliberately not a multiple of 4 or 8, exercising each accelerated path's own real scalar tail-handling code), the accelerated path matches the portable scalar reference to within a tight real tolerance --
+  scalar = -4.78072, accelerated (AVX2 (x86_64)) = -4.78072 (257 elements -- exercises the tail loop)
+
+3/3 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,1 @@
+nvcc fatal   : Value 'c++23' is not defined for option 'std'

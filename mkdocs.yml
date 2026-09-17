@@ -92,6 +92,8 @@ nav:
       - "26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian": part6/26-mathematical-foundations.md
       - "27. Continuous Batching and Production Serving Architecture": part6/27-continuous-batching-and-production-serving.md
       - "28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU": part6/28-flash-attention-and-cuda-kernels.md
+  - "Appendices":
+      - "A. Installation and Setup -- Cross-Compiling for the Edge": appendix/a-installation-and-setup.md
 
 extra:
   social: []

@@ -1,0 +1,21 @@
+Internal ctest changing into directory: /home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build
+Test project /home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build
+    Start 1: portable_dot_product_self_test
+1/1 Test #1: portable_dot_product_self_test ...***Failed    0.00 sec
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 1: Ω: not found
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 1: 4‡™9Lî: not found
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 1: 4‡™: not found
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 2: Lî: not found
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 1: Bë@π?qÅT°ÄRπ}: not found
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 2: @π: not found
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 1: ELF∑@@¿ç2@8@@@_¯: not found
+/home/claude/cpp_inference_book/appendix_a/diagnostics/_diag3_no_emulator_proj/build/portable_dot_product: 1: Syntax error: Unterminated quoted string
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+	  1 - portable_dot_product_self_test (Failed)
+Errors while running CTest

@@ -1,0 +1,54 @@
+diag1_multiarg_subscript.cpp: In function 'int main()':
+diag1_multiarg_subscript.cpp:5:35: warning: top-level comma expression in array subscript is deprecated [-Wcomma-subscript]
+    5 |     return static_cast<int>(view[1, 2]);
+      |                                   ^
+diag1_multiarg_subscript.cpp:5:33: error: no match for 'operator[]' (operand types are 'std::mdspan<float, std::extents<long unsigned int, 18446744073709551615, 18446744073709551615>, std::layout_right, std::default_accessor<float> >' and 'int')
+    5 |     return static_cast<int>(view[1, 2]);
+      |                                 ^
+In file included from /home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/mdspan.hpp:17,
+                 from diag1_multiarg_subscript.cpp:1:
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:298:23: note: candidate: 'template<class SizeType>  requires (is_convertible_v<const SizeType&, typename extents_type::index_type>) && (is_nothrow_constructible_v<typename extents_type::index_type, const SizeType&>) constexpr std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::reference std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::operator[](const std::array<SizeType, std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::rank()>&) const [with SizeType = SizeType; ElementType = float; Extents = std::extents<long unsigned int, 18446744073709551615, 18446744073709551615>; LayoutPolicy = std::layout_right; AccessorPolicy = std::default_accessor<float>]'
+  298 |   constexpr reference operator[](const std::array<SizeType, rank()>& indices) const
+      |                       ^~~~~~~~
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:298:23: note:   template argument deduction/substitution failed:
+diag1_multiarg_subscript.cpp:5:38: note:   mismatched types 'const std::array<SizeType, 2>' and 'int'
+    5 |     return static_cast<int>(view[1, 2]);
+      |                                      ^
+In file included from /home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/mdspan.hpp:17,
+                 from diag1_multiarg_subscript.cpp:1:
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:312:23: note: candidate: 'template<class SizeType>  requires (is_convertible_v<const SizeType&, typename extents_type::index_type>) && (is_nothrow_constructible_v<typename extents_type::index_type, const SizeType&>) constexpr std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::reference std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::operator[](std::span<SizeType, std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::rank()>) const [with SizeType = SizeType; ElementType = float; Extents = std::extents<long unsigned int, 18446744073709551615, 18446744073709551615>; LayoutPolicy = std::layout_right; AccessorPolicy = std::default_accessor<float>]'
+  312 |   constexpr reference operator[](std::span<SizeType, rank()> indices) const
+      |                       ^~~~~~~~
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:312:23: note:   template argument deduction/substitution failed:
+diag1_multiarg_subscript.cpp:5:38: note:   mismatched types 'std::span<SizeType, 2>' and 'int'
+    5 |     return static_cast<int>(view[1, 2]);
+      |                                      ^
+In file included from /home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/mdspan.hpp:17,
+                 from diag1_multiarg_subscript.cpp:1:
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:328:23: note: candidate: 'template<class Index>  requires (is_convertible_v<Index, typename extents_type::index_type>) && (is_nothrow_constructible_v<typename extents_type::index_type, Index>) && (extents_type::rank)() == 1 constexpr std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::reference std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::operator[](Index) const [with Index = Index; ElementType = float; Extents = std::extents<long unsigned int, 18446744073709551615, 18446744073709551615>; LayoutPolicy = std::layout_right; AccessorPolicy = std::default_accessor<float>]'
+  328 |   constexpr reference operator[](Index idx) const
+      |                       ^~~~~~~~
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:328:23: note:   template argument deduction/substitution failed:
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:328:23: note: constraints not satisfied
+In file included from /home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/default_accessor.hpp:6,
+                 from /home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/mdspan.hpp:15,
+                 from diag1_multiarg_subscript.cpp:1:
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp: In substitution of 'template<class Index>  requires (is_convertible_v<Index, typename extents_type::index_type>) && (is_nothrow_constructible_v<typename extents_type::index_type, Index>) && (extents_type::rank)() == 1 constexpr float& std::mdspan<float, std::extents<long unsigned int, 18446744073709551615, 18446744073709551615>, std::layout_right, std::default_accessor<float> >::operator[]<Index>(Index) const [with Index = float]':
+diag1_multiarg_subscript.cpp:5:38:   required from here
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:328:23:   required by the constraints of 'template<class ElementType, class Extents, class LayoutPolicy, class AccessorPolicy> template<class Index>  requires (is_convertible_v<Index, typename extents_type::index_type>) && (is_nothrow_constructible_v<typename extents_type::index_type, Index>) && (extents_type::rank)() == 1 constexpr std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::reference std::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>::operator[](Index) const'
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:324:28: note: the expression '(extents_type::rank)() == 1 [with ElementType = float; Extents = std::extents<long unsigned int, 18446744073709551615, 18446744073709551615>; LayoutPolicy = std::layout_right; AccessorPolicy = std::default_accessor<float>]' evaluated to 'false'
+  324 |       extents_type::rank() == 1
+      |       ~~~~~~~~~~~~~~~~~~~~~^~~~
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/macros.hpp:182:55: note: in definition of macro 'MDSPAN_CLOSE_ANGLE_REQUIRES'
+  182 | #  define MDSPAN_CLOSE_ANGLE_REQUIRES(REQ) > requires REQ
+      |                                                       ^~~
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/macros.hpp:91:32: note: in expansion of macro 'MDSPAN_TEMPLATE_REQUIRES_2'
+   91 | #define MDSPAN_PP_EVAL(X, ...) X(__VA_ARGS__)
+      |                                ^
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/macros.hpp:205:5: note: in expansion of macro 'MDSPAN_PP_EVAL'
+  205 |     MDSPAN_PP_EVAL( \
+      |     ^~~~~~~~~~~~~~
+/home/claude/cpp_inference_book/_vendor_mdspan/include/mdspan/../experimental/__p0009_bits/mdspan.hpp:319:3: note: in expansion of macro 'MDSPAN_TEMPLATE_REQUIRES'
+  319 |   MDSPAN_TEMPLATE_REQUIRES(
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~
+exit=1
