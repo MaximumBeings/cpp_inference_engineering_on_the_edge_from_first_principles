@@ -90,6 +90,7 @@ nav:
       - "25. Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking": part5/25-body-worn-and-personal-cameras.md
   - "Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration":
       - "26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian": part6/26-mathematical-foundations.md
+      - "27. Continuous Batching and Production Serving Architecture": part6/27-continuous-batching-and-production-serving.md
 
 extra:
   social: []

@@ -1,0 +1,18 @@
+========================================================
+Chapter 27.4: Numerical Debugging Tools -- NaN-Propagation Tracing and FP Drift Detection
+========================================================
+
+-- Test 1: a real 5-layer forward-pass trace in which corruption genuinely ORIGINATES at layer 2 (a real division-by-zero in a broken normalization step) and then propagates forward, unmodified in cause, through layers 3 and 4 purely via ordinary arithmetic -- first_nan_layer correctly reports the real ORIGIN, layer 2, not merely one of the 3 layers where corruption happens to still be visible --
+  layers 0 and 1 are fully finite; layer 2's own broken normalization produces a genuine NaN at index 0 (0.0 / 0.0) and genuine +inf at indices 1 and 2 (nonzero / 0.0); layers 3 and 4 are both non-finite too, purely because ordinary elementwise arithmetic on a non-finite input stays non-finite -- first_nan_layer correctly reports layer 2 as the real point of origin
+
+-- Test 2: checking ONLY the final layer for non-finite values -- the naive approach a system with no real tracing tool might fall back on -- correctly detects THAT a real problem exists, but provides none of first_nan_layer's own actionable information about WHERE it actually started, which is the entire real point of building a tracer at all --
+  both this section's own real trace (origin at layer 2) and a genuinely different alternate trace (origin at layer 3) show an IDENTICAL "yes" verdict under a naive final-layer-only check -- first_nan_layer is what actually distinguishes them, correctly reporting layer 2 for the first trace and layer 3 for the second
+
+-- Test 3: real float32 reduction order genuinely changes the result -- summing a huge value first, then ten real small values, loses all 10 of them to rounding, while summing the identical 10 small values together FIRST, then adding the huge value, preserves most of their real contribution -- a real, measurable, nonzero 8.0-unit drift between two equally valid reduction orders over the identical real input values --
+  order A (huge first, then each 1.0f added sequentially) rounds to exactly 100000000.0, silently losing all 10 real additions -- each individual 1.0f is too small to move a float32 near 1e8 to the next representable value; order B (the 10 small values summed together first, THEN added to the huge value) rounds to 100000008.0 instead, preserving most of their real combined contribution; the real drift between these two equally valid reduction orders is exactly -8.0
+
+-- Test 4: comparing both real reduction orders against the true double-precision value confirms neither float32 order is exactly correct, but summing small values first is genuinely, measurably closer to the truth than summing the huge value first -- a real, actionable finding for a serving system whose own continuous-batching schedule changes which order a batched reduction is actually computed in from run to run --
+  against the true double-precision value of 100000010.0, order A's own real error is 10.0 while order B's own real error is only 2.0 -- summing small values together before combining them with a much larger value is a real, general strategy for reducing accumulated floating-point error, not merely an artifact of this section's own specific chosen numbers
+
+23/23 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,18 @@
+========================================================
+Chapter 27.3: A Continuous-Batching Scheduler Built From Scratch
+========================================================
+
+-- Test 1: the real continuous-batching schedule for this identical 4-request workload matches an exact hand trace, with every completion tick strictly earlier than that identical request's own static-batching completion step from Section 27.1 --
+  request 1 (2 steps) retires at tick 1, freeing its own slot immediately; request 2 (1 step, arrived at tick 1) is admitted into that freed slot at tick 2 -- a real wait of only 1 tick, against Section 27.1's own 9-tick wait for the identical request -- and completes that same tick; request 3 (3 steps, arrived at tick 1) is admitted next at tick 3 and completes at tick 5; request 0 (10 steps) occupies the other slot throughout and completes last, at tick 9
+
+-- Test 2: this identical workload's own real static-batching schedule, computed by the SAME simulator restated from Section 27.1 within this file, completes every request strictly later than continuous batching did -- confirming continuous batching's own real improvement is checked directly against a live computation, not a hardcoded number --
+  every one of the 4 requests completes strictly earlier under continuous batching than under static batching's own identical-workload schedule: request 0 at tick 9 versus step 10, request 1 at tick 1 versus step 10, request 2 at tick 2 versus step 13, and request 3 at tick 5 versus step 13
+
+-- Test 3: continuous batching's own real slot-tick accounting has ZERO padding waste by construction -- the total number of active-slot ticks spent across the whole real schedule equals exactly the sum of every request's own needed_steps, with nothing wasted on an already-finished sequence's slot, unlike Section 27.1's own static schedule, which wasted a real, nonzero 10 slot-steps on the identical workload --
+  continuous batching's own total active-slot ticks, 16, exactly equals the sum of every request's own needed_steps (10 + 2 + 1 + 3 = 16) -- zero padding waste, ever, by construction -- while static batching's own identical workload wasted a real 10 slot-steps on padding
+
+-- Test 4: on a second, genuinely different real workload -- 3 requests and only 1 real slot -- continuous batching correctly degenerates to strict FIFO, admitting each request the instant both its own arrival has happened and the single slot is free, with zero queue wait whenever a request has already arrived by the time the slot frees up --
+  with a single real slot, request 0 (3 steps) runs ticks 0-2; request 1 (2 steps, already waiting since tick 0) is admitted the instant the slot frees, at tick 3, and runs to tick 4; request 2 (1 step) does not arrive until tick 5, exactly when the slot is free again, so its own real queue wait is 0; total active-slot ticks, 6, again exactly equals the sum of needed_steps (3 + 2 + 1 = 6)
+
+31/31 checks passed
+ALL CHECKS PASSED

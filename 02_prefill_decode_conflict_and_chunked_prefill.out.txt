@@ -1,0 +1,18 @@
+========================================================
+Chapter 27.2: The Prefill/Decode Conflict and Chunked Prefill
+========================================================
+
+-- Test 1: this section's own real baseline decode-step cost, with 8 sequences concurrently decoding and no prefill injected at all, matches an exact hand computation of 1024 real cost units --
+  cost_decode_step(8) = 8 * 128 = 1024 real cost units
+
+-- Test 2: injecting a real new request's entire 64-token prompt into a SINGLE step alongside those 8 concurrently decoding sequences produces a combined step cost of 3584 -- a real 2560-unit latency spike over the baseline, injected into every one of those 8 already-running sequences' own current step --
+  combined_step_cost(8, 64) = 1024 + (64 * 40) = 1024 + 2560 = 3584; real injected latency over baseline = 2560 cost units
+
+-- Test 3: splitting that identical 64-token prompt into real chunks of at most 16 tokens produces exactly 4 chunks, each injected into its own separate step at a bounded cost of 1664 -- a real 640-unit injected latency per step, one quarter of the unchunked spike -- while the TOTAL extra work performed across all 4 chunked steps combined is conserved exactly, matching the unchunked total exactly --
+  4 chunks of 16 tokens each, every one costing 1024 + (16 * 40) = 1664 -- a real per-step injected latency of 640 units, one quarter of the unchunked 2560-unit spike -- while the total real extra work across all 4 steps, 2560, exactly conserves the unchunked total: chunking spreads the identical real work out, it does not create or destroy any of it
+
+-- Test 4: the real bound chunked prefill provides -- worst-case injected latency never exceeds max_chunk_tokens' own cost, REGARDLESS of the full prompt's own real length -- holds across several genuinely different real prompt lengths, while the unchunked injected latency grows linearly and UNBOUNDED with prompt length, eventually exceeding that same fixed bound by a wide margin --
+  across prompt lengths 17, 100, 200, and 333 tokens, chunked prefill's own worst real per-step injected latency never exceeds the fixed 640-unit bound, while the unchunked injected latency -- 680, 4000, 8000, and 13320 units respectively -- grows linearly with prompt length and exceeds that fixed bound in every single case
+
+24/24 checks passed
+ALL CHECKS PASSED
