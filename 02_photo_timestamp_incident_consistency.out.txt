@@ -1,0 +1,15 @@
+========================================================
+Chapter 28.2: Photo Timestamp vs. Incident Date Consistency
+========================================================
+
+-- Test 1: incident=day 100, report=day 105, photo captured day 102 -- verdict=CONSISTENT --
+-- Test 2: photo captured day 99, before incident day 100 -- verdict=PRE_DATED, note="photo captured 1 day(s) BEFORE the claim's own stated incident day -- a structural impossibility" --
+-- Test 3: photo captured exactly on incident day 100 -- verdict=CONSISTENT --
+-- Test 4: photo captured exactly at the grace-period boundary (day 119) -- verdict=CONSISTENT --
+-- Test 5: photo captured one day past the grace period (day 120) -- verdict=STALE_OR_LATE, note="photo captured 1 day(s) beyond the stated 14-day grace period after the claim's own report day" --
+-- Test 6: photo captured day 30, 70 days before incident day 100 -- verdict=PRE_DATED, note="photo captured 70 day(s) BEFORE the claim's own stated incident day -- a structural impossibility" --
+-- Test 7: 3 photos (front_bumper day 102, hood day 96, rear_bumper day 103) -- flagged=1 --
+     hood: photo captured 4 day(s) BEFORE the claim's own stated incident day -- a structural impossibility
+
+12/12 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,15 @@
+========================================================
+Chapter 28.4: The Claims Disposition Engine
+========================================================
+
+-- Test 1: clean 2-zone claim -- disposition=PROCESS_NORMALLY, total=[750, 3100] --
+-- Test 2: one MEDIUM zone among two clean zones -- disposition=FLAG_FOR_SIU_REVIEW --
+-- Test 3: one HIGH zone among a clean and a MEDIUM zone -- disposition=HOLD_PENDING_VERIFICATION --
+-- Test 4: HOLD-triggering total=[3250, 12100], fully-clean total=[3250, 12100] -- identical, disposition differs (HOLD_PENDING_VERIFICATION vs. PROCESS_NORMALLY) --
+-- Test 5: all 3 real dispositions checked for denial wording -- found: NONE (correct) --
+-- Test 6: audit trail -- [windshield: fraud likelihood HIGH] --
+-- Test 7: single zone, exactly 2 fraud signals -- disposition=HOLD_PENDING_VERIFICATION --
+-- Test 8: 3-zone claim total=[3250, 12100], disposition=FLAG_FOR_SIU_REVIEW --
+
+21/21 checks passed
+ALL CHECKS PASSED

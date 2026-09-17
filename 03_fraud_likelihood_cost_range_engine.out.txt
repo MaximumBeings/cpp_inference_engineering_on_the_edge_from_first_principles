@@ -1,0 +1,15 @@
+========================================================
+Chapter 28.3: Extending the Cost-Range Engine with a Fraud-Likelihood Signal
+========================================================
+
+-- Test 1: Chapter 21.3's own cost-range policy, reused unchanged --
+-- Test 2: zero signals fired -- level=LOW --
+-- Test 3: exactly one signal fired -- duplicate-only=MEDIUM, timestamp-only=MEDIUM, inconsistent-only=MEDIUM --
+-- Test 4: exactly two signals fired (duplicate + timestamp) -- level=HIGH --
+-- Test 5: all three signals fired -- level=HIGH --
+-- Test 6: clean total=[3100, 11500], all-signals-firing total=[3100, 11500] -- identical --
+-- Test 7: 3-zone claim -- front_bumper=LOW driver_door=HIGH rear_bumper=MEDIUM --
+-- Test 8: claimed SEVERE against a measured photo difference of 2 -- photo_inconsistent=true, fraud level=MEDIUM, total=[2500, 9000] --
+
+27/27 checks passed
+ALL CHECKS PASSED

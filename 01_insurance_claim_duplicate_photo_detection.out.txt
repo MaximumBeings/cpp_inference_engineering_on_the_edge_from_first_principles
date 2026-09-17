@@ -1,0 +1,15 @@
+========================================================
+Chapter 28.1: Insurance Claim Duplicate Photo Detection
+========================================================
+
+(reference) Hamming distance between two genuinely different real photos (A vs. C): 32 -- well above the stated duplicate threshold of 10
+
+-- Test 1: a genuinely unique new photo against a 1-entry database -- matches=0 --
+-- Test 2: new claim CLM-2050 submits the identical photo already on file under CLM-1001 -- matches=[CLM-1001] --
+-- Test 3: CLM-1001 re-submits its OWN already-on-file photo -- matches=0 (self-resubmission correctly excluded) --
+-- Test 4: a photo already shared by CLM-1001 and CLM-1500 is submitted again under CLM-3000 -- matches=[CLM-1001, CLM-1500] --
+-- Test 5: exact boundary, Hamming distance = 10 (threshold = 10) -- matches=1 --
+-- Test 6: one past the boundary, Hamming distance = 11 -- matches=0 --
+
+11/11 checks passed
+ALL CHECKS PASSED
