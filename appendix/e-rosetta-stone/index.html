@@ -1,0 +1,2651 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Building LLM and Vision-Language Inference Systems in C++23, From First Principles">
+      
+      
+        <meta name="author" content="Oluwaseyi Awoga">
+      
+      
+      
+        <link rel="prev" href="../d-profiling-and-benchmarking/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>E. From PyTorch and llama.cpp to C++: A Rosetta Stone - C++ Inference Engineering on the Edge — Under Development</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="C++ Inference Engineering on the Edge — Under Development" class="md-header__button md-logo" aria-label="C++ Inference Engineering on the Edge — Under Development" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 4h12v1h3v2h-3v2h3v2h-3v2h3v2h-3v2h3v2h-3v1H6v-1H3v-2h3v-2H3v-2h3v-2H3V9h3V7H3V5h3zm5 11v3h1v-3zm2 0v3h1v-3zm2 0v3h1v-3z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            C++ Inference Engineering on the Edge — Under Development
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              E. From PyTorch and llama.cpp to C++: A Rosetta Stone
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="C++ Inference Engineering on the Edge — Under Development" class="md-nav__button md-logo" aria-label="C++ Inference Engineering on the Edge — Under Development" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 4h12v1h3v2h-3v2h3v2h-3v2h3v2h-3v2h3v2h-3v1H6v-1H3v-2h3v-2H3v-2h3v-2H3V9h3V7H3V5h3zm5 11v3h1v-3zm2 0v3h1v-3zm2 0v3h1v-3z"/></svg>
+
+    </a>
+    C++ Inference Engineering on the Edge — Under Development
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 0 -- Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 0 -- Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part0/02-the-tensor-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. The Tensor Engine: std::mdspan, Arena Allocators, and Mixed Precision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part0/03-the-computational-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. The Computational Graph: RMSNorm, SwiGLU, RoPE, and Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 1 -- Shrinking the Model: Quantization for Constrained Memory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 1 -- Shrinking the Model: Quantization for Constrained Memory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/04-quantization-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Quantization Strategies: Affine Math, Symmetric vs. Asymmetric, Blockwise Scales
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/05-model-file-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Model File Formats: GGUF, SafeTensors, and Memory-Mapped Loading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/06-hybrid-quantized-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. The Hybrid Quantized Engine: Mixing Precisions for Different Jobs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part1/07-turboquant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. TurboQuant: Online Vector Quantization with Near-Optimal Distortion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 2 -- Performance on the Metal: SIMD, Cache, and Threads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 2 -- Performance on the Metal: SIMD, Cache, and Threads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/08-memory-wall-and-roofline-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. The Memory Wall and the Roofline Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/09-simd-vectorization-avx2-neon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. SIMD Vectorization: AVX2 on x86, NEON on Arm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/10-threading-and-concurrency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Threading and Concurrency: Real Threads, Verified Without a Clock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part2/11-parallelizing-the-forward-pass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Parallelizing the Forward Pass: Row-Parallel, Head-Parallel, and Reproducible Across Thread Counts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 3 -- Serving State: Tokenization and the KV Cache
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 3 -- Serving State: Tokenization and the KV Cache
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/12-the-tokenizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. The Tokenizer: BPE, SentencePiece, and the Vocabulary Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/13-the-kv-cache-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. The KV Cache Manager: Paged Attention, Ring Buffers, and Smart Eviction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part3/14-advanced-kv-cache-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Advanced KV Cache Management: Sliding Windows, Streaming Re-Quantization, and Prefix Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 4 -- From Model to Binary: Real Weights, Real Models, Production Engines
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 4 -- From Model to Binary: Real Weights, Real Models, Production Engines
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/15-running-real-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. Running Real Models: From HuggingFace to First Token with Qwen2.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/16-production-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. The Production Engine: Integrating Everything into a Single Binary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part4/17-benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. Benchmarking Against llama.cpp and the Broader Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 5 -- Deploying Vision-Language Intelligence at the Edge
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 5 -- Deploying Vision-Language Intelligence at the Edge
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/18-industrial-visual-inspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Industrial Visual Inspection: Edge-Deployed Defect Detection on Manufacturing Lines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/19-retail-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Retail Inventory and Supply Chain Intelligence: Shelf Photography to Action
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/20-medical-imaging-triage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. Medical Imaging Triage: Preliminary Radiology Reads and Human-in-the-Loop Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/21-document-intelligence-claims-environmental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Document Intelligence, Insurance Claims, and Environmental Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/22-security-accessibility-art/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. Security Surveillance, Accessibility Compliance, and Art Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/23-trust-authenticity-point-of-sale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. Trust and Authenticity at the Point of Sale: Counterfeits, Reconciliation, Expense Audits, and Luxury Goods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/24-natural-language-photo-editing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Natural Language Photo Editing: From Prompt to cv::Mat on Edge Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/25-body-worn-and-personal-cameras/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25. Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/26-check-and-invoice-fraud-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26. Check and Invoice Fraud Detection at Bank Branches and Back Offices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/27-low-latency-market-signal-inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27. Low-Latency Market-Signal Inference Near the Exchange
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/28-insurance-claims-photo-assessment-fraud-flagging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28. Insurance Claims Photo Assessment with Fraud Flagging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part5/29-on-device-aml-transaction-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29. On-Device AML Transaction Anomaly Monitoring at ATMs and POS Terminals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part6/30-mathematical-foundations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part6/31-continuous-batching-and-production-serving/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    31. Continuous Batching and Production Serving Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part6/32-flash-attention-and-cuda-kernels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Appendices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../a-installation-and-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A. Installation and Setup -- Cross-Compiling for the Edge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../b-practice-quiz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    B. Practice Quiz
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c-decision-tree-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C. A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../d-profiling-and-benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    D. Profiling and Benchmarking on Edge Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E. From PyTorch and llama.cpp to C++: A Rosetta Stone
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E. From PyTorch and llama.cpp to C++: A Rosetta Stone
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.1 Tensors: std::mdspan and GGUF/SafeTensors vs. torch.Tensor and AutoModel.from_pretrained
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.1 Tensors: std::mdspan and GGUF/SafeTensors vs. torch.Tensor and AutoModel.from_pretrained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace's tokenizers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace&#39;s tokenizers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.3 KV Cache and PagedAttention: This Book's BlockManager vs. vLLM's Real PagedAttention and SGLang's RadixAttention
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.3 KV Cache and PagedAttention: This Book&#39;s BlockManager vs. vLLM&#39;s Real PagedAttention and SGLang&#39;s RadixAttention">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.5 Continuous Batching: This Book's Scheduler vs. Orca's Iteration-Level Scheduling and vLLM's Real Continuous Batching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.5 Continuous Batching: This Book&#39;s Scheduler vs. Orca&#39;s Iteration-Level Scheduling and vLLM&#39;s Real Continuous Batching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-we-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where We Go Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.1 Tensors: std::mdspan and GGUF/SafeTensors vs. torch.Tensor and AutoModel.from_pretrained
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.1 Tensors: std::mdspan and GGUF/SafeTensors vs. torch.Tensor and AutoModel.from_pretrained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace's tokenizers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace&#39;s tokenizers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.3 KV Cache and PagedAttention: This Book's BlockManager vs. vLLM's Real PagedAttention and SGLang's RadixAttention
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.3 KV Cache and PagedAttention: This Book&#39;s BlockManager vs. vLLM&#39;s Real PagedAttention and SGLang&#39;s RadixAttention">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E.5 Continuous Batching: This Book's Scheduler vs. Orca's Iteration-Level Scheduling and vLLM's Real Continuous Batching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E.5 Continuous Batching: This Book&#39;s Scheduler vs. Orca&#39;s Iteration-Level Scheduling and vLLM&#39;s Real Continuous Batching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intuition_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intuition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-concept-in-detail_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Concept, In Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-we-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where We Go Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone">Appendix E: From PyTorch and llama.cpp to C++: A Rosetta Stone<a class="headerlink" href="#appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone" title="Permanent link">&para;</a></h1>
+<p>This appendix builds nothing new in the sense Appendix C did -- there is no fresh compiled program here, and deliberately so. Every C++ name below (<code>std::mdspan</code>, <code>GGUFReader</code>, <code>BPEEncoder::encode</code>, <code>BlockManager</code>, <code>EngineConfig</code>, <code>simulate_continuous_batching</code>) is a real, already-compiled, already-locked piece of this book, cited back to the exact chapter and section that built and verified it; nothing here asks a reader to trust a claim this book has not already backed with real code somewhere else. What is genuinely new is the other half of each comparison: the real Python-ecosystem tool a reader coming from that world already knows, each one checked directly against its own official documentation, paper, or source repository rather than against memory -- so a <code>torch.Tensor</code> claim traces to PyTorch's own docs, a PagedAttention claim traces to vLLM's own paper, and a RadixAttention claim traces to SGLang's own announcement, exactly as this book's own claims trace to its own chapters. Where the two sides genuinely correspond, this appendix says so plainly; where this book's own real, working code is honestly simpler than its Python-ecosystem counterpart, this appendix says that too, using this book's own stated honest-scope language rather than papering over the gap.</p>
+<hr />
+<h2 id="e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained">E.1 Tensors: <code>std::mdspan</code> and GGUF/SafeTensors vs. <code>torch.Tensor</code> and <code>AutoModel.from_pretrained</code><a class="headerlink" href="#e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained" title="Permanent link">&para;</a></h2>
+<h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
+<p>A reader arriving from PyTorch has never had to think about a tensor's memory apart from the tensor itself -- <code>torch.Tensor</code> bundles a reference-counted block of storage together with the shape and stride metadata that describes how to read it, and the object stays alive for as long as anything holds a reference to it. Chapter 2 built something narrower and, in one specific way, more dangerous to use carelessly: <code>std::mdspan</code> is a pure view -- shape and stride metadata with no storage of its own, no reference count, and no say at all in how long the memory underneath it survives. Neither design is wrong; they are solving different problems. <code>torch.Tensor</code> manages memory so a Python program using it doesn't have to. <code>std::mdspan</code> refuses to manage memory at all, on the theory that a C++ program in control of its own allocations should decide that separately, once, rather than pay a reference count on every tensor operation in a real-time inference loop.</p>
+<h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>This book (real, cited)</th>
+<th>Python ecosystem (real, cited)</th>
+<th>Where they agree / where they don't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>std::mdspan&lt;T, Extents, Layout&gt;</code> -- Chapter 2.1, <code>01_mdspan_views_and_extents.cpp</code></td>
+<td><code>torch.Tensor</code></td>
+<td>Both attach shape and stride/layout metadata to a data pointer, and both support <code>layout_left</code>/<code>layout_right</code>-style row- vs. column-major strides. <code>torch.Tensor</code> additionally owns (reference-counts) its storage; <code>mdspan</code> owns nothing -- Chapter 2's own stated trap is "assuming <code>std::mdspan</code> copies its data" when it is in fact a non-owning view over memory the caller must keep alive.</td>
+</tr>
+<tr>
+<td><code>std::submdspan</code> with <code>std::full_extent</code> / <code>std::pair{start,end}</code> -- Chapter 2.2, <code>02_submdspan_attention_slicing.cpp</code></td>
+<td>Basic tensor slicing / indexing (e.g. <code>x[:, 4:8]</code>)</td>
+<td>Same idea, same surprise: Chapter 2.2 shows a dropped dimension does not shrink the remaining strides underneath it -- a real trap for anyone assuming a slice's own strides always start fresh from the sliced shape.</td>
+</tr>
+<tr>
+<td><code>Arena</code> bump-pointer allocator, 64-byte aligned -- Chapter 2.4, <code>04_arena_allocator.cpp</code></td>
+<td>A GPU memory allocator / caching allocator (e.g. PyTorch's own CUDA caching allocator)</td>
+<td>Same motivation (avoid a general-purpose allocator's overhead in a hot loop), different scope: <code>torch</code>'s allocator caches and reuses GPU blocks across a whole process; this book's <code>Arena</code> is a single-model-forward-pass O(1) bump-and-reset scheme, chosen for its simplicity rather than to match a production allocator's full feature set.</td>
+</tr>
+<tr>
+<td><code>std::variant&lt;std::vector&lt;float&gt;, std::vector&lt;bf16_t&gt;&gt;</code> + <code>std::visit</code>, hand-rolled <code>bf16_t</code> -- Chapter 2.5, <code>05_mixed_precision_bf16.cpp</code></td>
+<td><code>torch.dtype</code> (<code>torch.float32</code>, <code>torch.bfloat16</code>, native hardware support)</td>
+<td>Same underlying bit layout (BF16's 8-bit exponent matching FP32's range, at FP16's cost in mantissa precision) and the same real reason this book picked it over FP16 for activations; <code>torch.bfloat16</code> is a first-class dtype with hardware-accelerated kernels, while this book's <code>bf16_t</code> is truncated and reconstructed entirely in software, since no build target in this book's own pipeline has native BF16 arithmetic.</td>
+</tr>
+<tr>
+<td>GGUF reader/writer, <code>GGUFReader</code>/<code>GGUFWriter</code>/<code>MappedGGUF</code> -- Chapter 5.2-5.3, <code>02_gguf_writer_reader.cpp</code> / <code>03_zero_copy_weight_access.cpp</code></td>
+<td><code>safetensors</code> + <code>AutoModel.from_pretrained</code></td>
+<td>Both are real, deliberately simple, memory-mappable formats built to avoid loading a whole multi-gigabyte file into RAM up front. GGUF's own real spec<sup id="fnref2:gguf"><a class="footnote-ref" href="#fn:gguf">1</a></sup>: a 24-byte header (4-byte magic, 4-byte version, 8-byte tensor count, 8-byte KV count), length-prefixed strings with no null terminator, tensor offsets relative to an aligned data section -- and Chapter 5.2's own reader/writer match that real layout field for field, down to the real spec's version number 3. SafeTensors' own real layout (Chapter 5.4, <code>04_safetensors_format.cpp</code>) is an 8-byte header length plus a JSON header plus concatenated raw tensor bytes -- no compression, exactly the same "trust the OS page cache, mmap it" philosophy GGUF uses, just with a JSON header instead of a binary one.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The bug that only a real file could find:</strong> Chapter 5.2 and Chapter 12.5 both defined <code>GGUF_MAGIC = 0x46475547</code> and compared a file's first four bytes against it as a little-endian <code>uint32_t</code> -- and that constant is wrong. Its four little-endian bytes decode to the ASCII sequence <code>'G','U','G','F'</code>, not the real spec's <code>'G','G','U','F'</code>.<sup id="fnref:gguf"><a class="footnote-ref" href="#fn:gguf">1</a></sup> Neither chapter's own round-trip self-test could ever have caught this: each one only ever read back a file its own writer had just produced with the identical wrong constant, so writer and reader agreed with each other while both silently disagreed with the real world. Section 15.1 (<code>01_real_gguf_inspection.cpp</code>) is the moment this book pointed its own reader at a real, downloaded GGUF file for the first time, and the mismatch surfaced immediately. The fix -- <code>memcmp</code> against the literal bytes <code>"GGUF"</code> -- sidesteps the little-endian encoding question entirely rather than getting it wrong a second time. This is the appendix's own clearest argument, in miniature, for why "translate to a real file/tool, then check" beats "translate on paper and trust it": a synthetic self-test that only ever exercises code against itself can hide an error indefinitely.</p>
+<div class="admonition warning">
+<p class="admonition-title">[COMMON TRAP] assuming a format's own spec version number is a free-form implementation detail</p>
+<p>Chapter 5's own <code>GGUF_VERSION = 3</code> constant, chosen when the reader/writer were first written, turned out to already match the real spec's own current version number exactly -- not by careful research at the time, but by chance, since a version constant looks like an arbitrary implementation choice right up until a real file is read. GGUF_MAGIC was not so lucky, and encoded a genuine mistake instead. Two constants that look equally "internal" are not equally safe to leave unchecked against a real file.</p>
+</div>
+<hr />
+<h2 id="e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers">E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace's <code>tokenizers</code><a class="headerlink" href="#e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers" title="Permanent link">&para;</a></h2>
+<h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
+<p>The single most useful thing to understand, arriving from HuggingFace's <code>tokenizers</code> library, is that this book's own <code>BPEEncoder::encode</code> is not a simplified approximation of real byte-pair encoding -- it is real byte-pair encoding. Production BPE, including the byte-level BPE GPT-2 and RoBERTa use, tokenizes new text by applying merge rules in the order they were learned during training, greedily, with no lookahead.<sup id="fnref:bpe"><a class="footnote-ref" href="#fn:bpe">5</a></sup> Chapter 12.1's own worked example -- a merge table where <code>(l,o)</code> has a lower (earlier) priority than the full chain needed to reach the whole word "Hello," so encoding "Hello" yields <code>["He","l","lo"]</code> rather than the seemingly more sensible <code>["Hello"]</code> -- is not a bug this book introduced. It is exactly how real production tokenizers behave, and the appendix's job here is to say that plainly rather than let a reader assume the surprising result is this book's own shortcut.</p>
+<h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>This book (real, cited)</th>
+<th>Python ecosystem (real, cited)</th>
+<th>Where they agree / where they don't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MergeTable::priority_of</code>, <code>BPEEncoder::encode</code> -- Chapter 12.1, <code>01_bpe_merge_engine.cpp</code></td>
+<td>HuggingFace <code>tokenizers</code>' BPE model</td>
+<td>Agree completely on mechanism: merges are applied in discovery-rank order, greedily, with no preference for a chain that would reach a "nicer" final token.<sup id="fnref2:bpe"><a class="footnote-ref" href="#fn:bpe">5</a></sup> Chapter 12's own "priority, not opportunity" framing (Section 12.5's own self-test comment on the "Hello" example) is a real, general property of BPE, not a simplification.</td>
+</tr>
+<tr>
+<td><code>pretokenize</code> -- Chapter 12.2, <code>02_pretokenizer.cpp</code>: four-way ASCII character-class scan (alpha/digit/space/punct)</td>
+<td>GPT-2/RoBERTa-style byte-level BPE pre-tokenizer</td>
+<td>This is the real, stated gap. Byte-level BPE treats input as raw bytes with a 256-entry base vocabulary, so "every character you can think of will still be included and not end up being converted to the unknown token"<sup id="fnref3:bpe"><a class="footnote-ref" href="#fn:bpe">5</a></sup> -- full Unicode, emoji, anything. Chapter 12.2 states its own scope directly: "A production tokenizer's real pre-tokenization pattern additionally handles full Unicode letter categories and specific contractions...; this section's simplified ASCII-only scanner covers the same four-way structural idea those richer rules extend."</td>
+</tr>
+<tr>
+<td><code>ChatTemplateEncoder</code>, <code>namespace special</code> -- Chapter 12.3, <code>03_special_tokens_chat_template.cpp</code></td>
+<td>Chat templates (Jinja-based, e.g. a model's own <code>tokenizer.chat_template</code> in <code>tokenizer_config.json</code>)</td>
+<td>Same real-world necessity -- Chapter 15.4 later found the production consequence of getting this wrong (see E.4) -- implemented here as direct C++ string construction rather than an embedded Jinja interpreter.</td>
+</tr>
+<tr>
+<td><code>TokenDecoder</code> -- Chapter 12.4, <code>04_token_decoder.cpp</code>: byte-fallback IDs 0-255 emit the raw byte; multi-byte UTF-8 falls out with no Unicode-aware code</td>
+<td>HuggingFace's tokenizer <code>decode()</code></td>
+<td>Same byte-fallback idea real byte-level BPE decoders use; this book's decoder needs zero explicit Unicode logic precisely because it decodes bytes, not because it re-implements Unicode handling.</td>
+</tr>
+<tr>
+<td>GGUF tokenizer fields, ARRAY type tag 9 -- Chapter 12.5, <code>05_gguf_tokenizer_pipeline.cpp</code>: <code>tokenizer.ggml.tokens</code>, <code>token_type</code>, <code>scores</code> (unused, "written as all zeros"), <code>merges</code></td>
+<td>A model repository's <code>tokenizer.json</code> / <code>vocab.json</code> + <code>merges.txt</code></td>
+<td>Same information, different container -- GGUF bundles a model's tokenizer directly inside the same file as its weights (matching llama.cpp's own single-file philosophy), where HuggingFace ships the tokenizer as separate JSON/text files alongside the model weights.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">[COMMON TRAP] assuming a 'from scratch' tokenizer must be a weaker approximation of a real one</p>
+<p>The mechanism (rank-ordered greedy merges) is identical to production BPE; the honest gap is entirely in Chapter 12.2's pre-tokenizer scope (ASCII character classes, not full Unicode categories and contraction rules) and in the missing byte-level fallback at the pre-tokenization stage. Treating the whole pipeline as "simplified" overstates the gap -- treating the merge mechanism itself as simplified is simply inaccurate.</p>
+</div>
+<hr />
+<h2 id="e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention">E.3 KV Cache and PagedAttention: This Book's <code>BlockManager</code> vs. vLLM's Real PagedAttention and SGLang's RadixAttention<a class="headerlink" href="#e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention" title="Permanent link">&para;</a></h2>
+<h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
+<p>Chapter 13.2 does not merely resemble vLLM's PagedAttention -- it says so directly in its own code comments: "PagedAttention (the technique vLLM popularized) borrows virtual-memory paging's own idea... 16 is the size real systems like vLLM settle on." This is the one section in this whole book that already names its own real-world correspondence outright, which makes it the natural place to check that correspondence against vLLM's own paper rather than merely repeat the book's own claim.</p>
+<h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>This book (real, cited)</th>
+<th>Python ecosystem (real, cited)</th>
+<th>Where they agree / where they don't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BlockManager</code> (free-list, O(1) <code>alloc()</code>/<code>free()</code>), <code>KVBlock</code>, <code>Sequence{block_table, context_len}</code>, <code>translate()</code> -- Chapter 13.2, <code>02_paged_attention_block_manager.cpp</code>; <code>BLOCK_SIZE = 16</code></td>
+<td>vLLM's real PagedAttention -- block tables mapping logical to non-contiguous physical blocks<sup id="fnref:pagedattn"><a class="footnote-ref" href="#fn:pagedattn">2</a></sup></td>
+<td>Directly corresponding, down to the exact block size: vLLM's own paper picked 16 tokens per block after ablation, calling it "large enough to efficiently utilize the GPU and small enough to avoid significant internal fragmentation"<sup id="fnref2:pagedattn"><a class="footnote-ref" href="#fn:pagedattn">2</a></sup> -- the identical number Chapter 13.2 uses and the identical justification. Both solve the same real, named problem: the paper reports that "only 20.4%-38.2% of the KV cache memory is used to store the actual token states" under naive contiguous allocation.<sup id="fnref3:pagedattn"><a class="footnote-ref" href="#fn:pagedattn">2</a></sup></td>
+</tr>
+<tr>
+<td>Prefix sharing via copying <code>block_table</code> entries between <code>Sequence</code>s -- Chapter 13.2</td>
+<td>vLLM's reference-counted / copy-on-write block sharing for parallel sampling and beam search<sup id="fnref4:pagedattn"><a class="footnote-ref" href="#fn:pagedattn">2</a></sup></td>
+<td>Same mechanism at the block-table level; vLLM's real implementation adds copy-on-write semantics for beam search divergence that Chapter 13.2's own demonstration does not build out.</td>
+</tr>
+<tr>
+<td><code>RingBufferCtx</code>/<code>RingKVCache</code>, two counters (<code>write_slot()</code> wraps, <code>rope_position()</code> never wraps) -- Chapter 13.3, <code>03_ring_buffer_sink_tokens.cpp</code></td>
+<td>Sliding-window attention as used by models trained for it (e.g. Mistral 7B's real 4096-token training window, cited directly in Chapter 14.1)</td>
+<td>No single named Python-ecosystem <em>serving-system</em> feature corresponds one-to-one here; this is closer to a modeling-time architectural choice (which models bake in) than a serving-time cache-management trick, which Chapter 14.1 states directly.</td>
+</tr>
+<tr>
+<td><code>H2OPolicy</code>, running-sum attention-probability importance, <code>recent_window</code> immunity -- Chapter 13.4, <code>04_h2o_eviction.cpp</code></td>
+<td>The H2O ("Heavy-Hitter Oracle") eviction idea from the research literature this section is modeled on</td>
+<td>Same core idea (attention-mass-weighted eviction with recency protection); this book's own implementation is a from-scratch, self-contained reproduction of the policy's shape rather than a port of any specific published codebase.</td>
+</tr>
+<tr>
+<td><code>ConversationCache::apply_new_turn</code>, <code>longest_common_prefix</code> -- Chapter 14.3, <code>03_prefix_caching.cpp</code>: exact LCP match, only whole <code>floor(lcp/BLOCK_SIZE)</code> blocks reusable</td>
+<td>vLLM's real Automatic Prefix Caching: hash-based, block-level reuse<sup id="fnref2:vllmprefix"><a class="footnote-ref" href="#fn:vllmprefix">3</a></sup> -- <strong>and separately</strong> SGLang's RadixAttention: a radix tree enabling token-level reuse, with a page granularity of exactly one token<sup id="fnref2:radix"><a class="footnote-ref" href="#fn:radix">4</a></sup></td>
+<td>This is the correction this appendix exists to make plainly: Chapter 14.3's own text describes this as "an original design" built because its source material gave only an unverified "501x" prose claim with no code -- it never claims correspondence to any specific real system. Checked against the real systems, Chapter 14.3's own block-granularity limitation ("a block that straddles the divergence point... must be recomputed in full") is a genuine property vLLM's own real hash-based prefix caching shares -- both are block-aligned, wasting a matched-but-unreusable tail inside a straddling block. SGLang's RadixAttention is the real system that removes that limitation, by making its own cache granularity one token wide instead of one block wide.<sup id="fnref3:radix"><a class="footnote-ref" href="#fn:radix">4</a></sup> Chapter 14.3's design sits architecturally closer to vLLM's real approach than to SGLang's, even though it never says so itself.</td>
+</tr>
+<tr>
+<td>Streaming re-quantization tiers, <code>MultiQuant</code>/<code>TieredCache</code> -- Chapter 14.2, <code>02_streaming_requantization.cpp</code></td>
+<td>Not a named production KV-cache feature in the same way; closest in spirit to this book's own Chapter 7 (TurboQuant)</td>
+<td>Chapter 14.2 states its own honest scope directly: "This section uses a simplified symmetric uniform quantizer... rather than the full rotation-plus-codebook machinery of this book's own Chapter 7 (TurboQuant)."</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">[COMMON TRAP] assuming 'block-based KV cache reuse' always means a radix tree</p>
+<p>vLLM -- the very system Chapter 13.2 names as PagedAttention's origin -- does NOT use a radix tree for its own real prefix caching; it uses block-level content hashing, the same block-aligned granularity this book's own Chapter 14.3 design has.<sup id="fnref:vllmprefix"><a class="footnote-ref" href="#fn:vllmprefix">3</a></sup> The radix tree belongs specifically to SGLang's RadixAttention.<sup id="fnref:radix"><a class="footnote-ref" href="#fn:radix">4</a></sup> "PagedAttention" and "RadixAttention" name two different real systems solving two different parts of this problem, not two names for the same idea.</p>
+</div>
+<hr />
+<h2 id="e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack">E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack<a class="headerlink" href="#e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack" title="Permanent link">&para;</a></h2>
+<h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
+<p>Chapter 15's own real value was never the code it started with -- it was the four real bugs found only once that code met a real, downloaded 644 MB Qwen2.5-0.5B-Instruct GGUF file, each one invisible to every synthetic self-test that came before it, including Section 15.3's own 25/25-passing suite. That is the single strongest argument this book makes anywhere for why comparing against an independent second real implementation (here, an independently built <code>llama.cpp</code>) beats re-reading your own code more carefully -- a lesson equally true whether the "second implementation" is llama.cpp or, for a Python-ecosystem reader, a reference HuggingFace <code>generate()</code> run.</p>
+<h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
+<p>The four real bugs, found only against real weights (Chapter 15.4, capstone file <code>04_first_real_token.cpp</code>):</p>
+<ol>
+<li><strong>RoPE pairing convention.</strong> <code>apply_rope</code> used interleaved pairing (<code>vec[2k]</code>, <code>vec[2k+1]</code>); real Qwen2/HF-derived architectures use split-half pairing (<code>vec[k]</code>, <code>vec[k+half_dim]</code>). Found by comparing per-layer tensor sums against <code>llama.cpp</code>'s own <code>llama-eval-callback</code>. It survived Section 15.3's own self-test because RoPE's relative-position invariance holds under either convention -- a synthetic self-test checking relative-position behavior alone cannot distinguish the two.</li>
+<li><strong>Float32 accumulation drift.</strong> <code>rms_norm</code>, <code>matmul</code>, and <code>gqa_attention</code> all accumulated their reductions in <code>float</code>; across 24 real layers this diverged enough to flip the final argmax. Fixed by accumulating in <code>double</code> and rounding to <code>float</code> only at the end.</li>
+<li><strong>Missing default system turn.</strong> The real file's own embedded <code>tokenizer.chat_template</code> (a Jinja template, inspected directly with <code>strings</code>) always injects <code>"You are Qwen, created by Alibaba Cloud. You are a helpful assistant."</code> when the caller supplies none; an earlier draft omitted it. Confirmed against <code>llama-simple-chat</code>; the corrected 36-token prompt matched <code>llama-tokenize</code>'s reference token IDs exactly.</li>
+<li><strong>Cross-layer KV-cache sharing.</strong> <code>run_generation</code>'s position-major loop shared one <code>KVCache</code> object across all 24 layers, so each layer's <code>store()</code> overwrote the previous layer's data for that position. Fixed with <code>std::vector&lt;KVCache&gt;</code>, one per layer.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>This book (real, cited)</th>
+<th>Python ecosystem (real, cited)</th>
+<th>Where they agree / where they don't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GGUF loading + real-weight debugging -- Chapter 15</td>
+<td><code>AutoModelForCausalLM.from_pretrained(...)</code> (safetensors path) + <code>model.generate(...)</code></td>
+<td>Both load real, pretrained weights and run a real forward pass; a Python stack's own tokenizer/model/sampling code has already absorbed the equivalent of all four bugs above over years of independent real-world use, which is exactly why comparing against <code>llama.cpp</code> -- itself a mature, independently-debugged real C++ implementation -- was the check this book's own Chapter 15 actually needed.</td>
+</tr>
+<tr>
+<td><code>EngineConfig</code> + <code>parse_args</code> CLI (<code>-n</code>, <code>--temp</code>, <code>--top-k</code>, <code>--top-p</code>, <code>--repeat-penalty</code>, <code>--seed</code>, <code>--kv-cap</code>, <code>--system</code>, <code>-p</code>) -- Chapter 16.1</td>
+<td>A real serving stack's own request/config schema (e.g. an OpenAI-compatible <code>/v1/completions</code> request body)</td>
+<td>Same real sampling parameters, same idea of one canonical config struct; Chapter 16.1 states its own honest scope directly -- no <code>-t</code>/threads flag (Chapter 8's thread pool was never wired into the real forward pass) and no <code>--kv-bits</code> flag (Chapter 13/14's KV compression was never wired into the real per-layer <code>KVCache</code>), because "a flag that parses successfully is a promise, not a convenience."</td>
+</tr>
+<tr>
+<td>Fixed sampling order: repetition-penalty -&gt; temperature -&gt; top-k -&gt; top-p -&gt; categorical sample; <code>StreamingDecoder</code> -- Chapter 16.2</td>
+<td>HuggingFace <code>generate()</code>'s own <code>LogitsProcessorList</code> pipeline</td>
+<td>Same real sampling stages in the same real order; this book's <code>StreamingDecoder</code> solves the identical real problem HuggingFace's own streaming decode has (buffering partial UTF-8 across a byte-fallback token split) with the same real technique (buffer until a full code point is available).</td>
+</tr>
+<tr>
+<td><code>decode_step</code>/<code>prefill</code>/<code>generate_response</code>, <code>InferenceProfiler</code> (per-layer wall time + tokens/sec only, explicitly no attn/FFN sub-breakdown) -- Chapter 16.3-16.4, capstone <code>04_production_engine.cpp</code></td>
+<td>A real Python serving stack's own request-handling loop and profiler</td>
+<td>This book's own engine is single-request-in/single-reply-out, single-threaded end to end, with no batching and no separate control plane -- structurally closer to <code>llama.cpp</code>'s own single-session CLI (<code>llama-cli</code>) than to a real multi-tenant serving system. Section E.5 is exactly where that gap gets closed, on paper, with continuous batching.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching">E.5 Continuous Batching: This Book's Scheduler vs. Orca's Iteration-Level Scheduling and vLLM's Real Continuous Batching<a class="headerlink" href="#e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching" title="Permanent link">&para;</a></h2>
+<h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
+<p>Chapter 31 never once names vLLM, and never once uses the phrase "iteration-level scheduling" -- unlike Chapter 13.2, which credits vLLM by name for PagedAttention. This is not an oversight to route around quietly; it means the correspondence drawn in this section is genuinely new material contributed by this appendix, checked directly against the real research this idea traces to, rather than a restatement of something the book already said about itself.</p>
+<h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>
+<p>The real term "iteration-level scheduling" comes from Orca, a 2022 distributed-serving research system: it "schedules execution at the granularity of iteration (instead of request), where the scheduler invokes the execution engine to run only a single iteration of the model on the batch," solving the exact problem that "requests that have finished earlier than other requests in a batch cannot return to the client, while newly arrived requests have to wait until the current batch completely finishes."<sup id="fnref:orca"><a class="footnote-ref" href="#fn:orca">6</a></sup> Orca reported a 36.9x throughput improvement at matched latency over NVIDIA FasterTransformer on a GPT-3 175B model using this idea.<sup id="fnref2:orca"><a class="footnote-ref" href="#fn:orca">6</a></sup> vLLM's own real continuous batching, built on the same iteration-level principle and combined with PagedAttention's own real memory management (E.3), is the production system most readers arriving at this appendix already know by that name.</p>
+<table>
+<thead>
+<tr>
+<th>This book (real, cited)</th>
+<th>Python ecosystem (real, cited)</th>
+<th>Where they agree / where they don't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>simulate_static_batching</code>, worked head-of-line-blocking example (utilization ~= 0.615, a 1-step request delayed 11 steps) -- Chapter 31.1, <code>01_static_batching_problem_and_head_of_line_blocking.cpp</code></td>
+<td>The exact problem Orca's own paper opens with<sup id="fnref4:orca"><a class="footnote-ref" href="#fn:orca">6</a></sup></td>
+<td>Direct correspondence -- this book's own worked numbers are a from-scratch, minimal reproduction of the real problem Orca names and measures at production scale.</td>
+</tr>
+<tr>
+<td><code>cost_decode_step</code> (memory-bound) vs. <code>cost_prefill_chunk</code> (compute-bound), <code>combined_step_cost</code> -- Chapter 31.2, <code>02_prefill_decode_conflict_and_chunked_prefill.cpp</code>; chunked-prefill worked bound across prompt lengths</td>
+<td>vLLM's own real, named "Chunked Prefill" feature</td>
+<td>Same real name, same real motivation (bounding a long prefill's interference with in-flight decode steps) -- vLLM ships this as a configurable, named optimization; Chapter 31.2 derives its own bound from first principles rather than citing vLLM's own implementation directly.</td>
+</tr>
+<tr>
+<td><code>simulate_continuous_batching</code>, <code>ActiveSeq</code>, <code>ContinuousResult{start_tick, completion_tick, wait_ticks}</code>, admit/decode/retire per-tick loop -- Chapter 31.3, <code>03_continuous_batching_scheduler_from_scratch.cpp</code>; checked live against Chapter 31.1's own simulator on the identical workload</td>
+<td>Orca's iteration-level scheduling<sup id="fnref5:orca"><a class="footnote-ref" href="#fn:orca">6</a></sup> and vLLM's real continuous batching built on it</td>
+<td>This is the direct structural match: an admit/decode/retire decision made every tick, rather than waiting for a whole batch to finish, is iteration-level scheduling's own real definition, applied at the same granularity Orca's paper describes. Chapter 31.3's own zero-padding-waste proof (total active-slot ticks exactly equal the sum of <code>needed_steps</code>) is this book's own from-scratch confirmation of the same real effect Orca measured as a 36.9x throughput gain in production.</td>
+</tr>
+<tr>
+<td><code>first_nan_layer</code>/<code>first_non_finite_index</code>, floating-point drift detector -- Chapter 31.4, <code>04_nan_propagation_tracing_and_fp_drift_detection.cpp</code></td>
+<td>Numerical debugging in a real serving stack (e.g. tracing a NaN back through a request batch whose own composition changes run to run)</td>
+<td>Chapter 31.4 connects this directly in its own prose to continuous batching's own traffic-dependent regrouping changing reduction order run to run -- the same nondeterminism-from-batch-composition effect a real production server sees, reproduced here from scratch rather than observed in a live system.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">[COMMON TRAP] assuming this book's own silence about vLLM means no real correspondence exists</p>
+<p>Chapter 31's own text never claims a connection to Orca or vLLM anywhere -- no quote from that chapter can honestly be cited here the way Chapter 13.2's vLLM comment or Chapter 14.3's "original design" statement can. The admit/decode/retire mechanism itself is nonetheless a direct, checkable match to iteration-level scheduling's own real published definition.<sup id="fnref3:orca"><a class="footnote-ref" href="#fn:orca">6</a></sup> Absence of a book's own claim is not evidence against a real correspondence -- it just means this appendix, not that chapter, is where the correspondence is being drawn and checked for the first time.</p>
+</div>
+<hr />
+<h2 id="appendix-summary">Appendix Summary<a class="headerlink" href="#appendix-summary" title="Permanent link">&para;</a></h2>
+<p>Nothing in this appendix changed a single line of this book's own C++ -- every name on the "this book" side of every table above is exactly the function, struct, or section this book already built and locked somewhere between Chapter 2 and Chapter 31. What this appendix added was the other half of each comparison, checked the same way this book checks everything else: not from memory, but against vLLM's own paper for PagedAttention's real block size, SGLang's own announcement for RadixAttention's real one-token page granularity, Orca's own paper for iteration-level scheduling's real definition and real measured speedup, and HuggingFace's own course material for real byte-level BPE. Two corrections came directly out of that checking rather than being assumed going in: Chapter 14.3's prefix caching is architecturally closer to vLLM's own real block-hash approach than to SGLang's radix tree, and Chapter 12's "priority not opportunity" merge selection is not a simplification of real BPE at all -- it is real BPE, unmodified. Where this book's own code is honestly narrower than its Python-ecosystem counterpart -- ASCII-only pre-tokenization, no wired-in threading or KV-bit-compression flags, no attn/FFN profiler sub-breakdown -- this appendix repeats that book's own stated scope rather than either hiding it or overselling the match.</p>
+<h2 id="where-we-go-next">Where We Go Next<a class="headerlink" href="#where-we-go-next" title="Permanent link">&para;</a></h2>
+<p>Appendix F closes this book by turning from what each piece is supposed to do to what happens when it quietly doesn't: NaN propagation that surfaces symptoms layers away from its real origin, false sharing between threads that never shows up as a correctness bug at all, floating-point drift from nothing more than a changed reduction order, and alignment bugs that a lucky memory layout can hide for a long time before a real deployment finally exposes them.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:gguf">
+<p>ggml-org / llama.cpp, "GGUF File Format" concepts documentation (magic bytes, header layout, string and tensor-metadata encoding): <a href="https://ggml-org-llama-cpp.mintlify.app/concepts/gguf-format">https://ggml-org-llama-cpp.mintlify.app/concepts/gguf-format</a>&#160;<a class="footnote-backref" href="#fnref:gguf" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:gguf" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:pagedattn">
+<p>Kwon et al., "Efficient Memory Management for Large Language Model Serving with PagedAttention" (block size 16, block tables, fragmentation figures), arXiv:2309.06180: <a href="https://arxiv.org/pdf/2309.06180">https://arxiv.org/pdf/2309.06180</a>&#160;<a class="footnote-backref" href="#fnref:pagedattn" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:pagedattn" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:pagedattn" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref4:pagedattn" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:vllmprefix">
+<p>vLLM Project, "Automatic Prefix Caching" design documentation (hash-based, block-level cache reuse): <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">https://docs.vllm.ai/en/stable/design/prefix_caching/</a>&#160;<a class="footnote-backref" href="#fnref:vllmprefix" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:vllmprefix" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:radix">
+<p>LMSYS Org, "Fast and Expressive LLM Inference with RadixAttention and SGLang" (radix tree KV cache reuse, one-token page granularity): <a href="https://www.lmsys.org/blog/2024-01-17-sglang/">https://www.lmsys.org/blog/2024-01-17-sglang/</a>&#160;<a class="footnote-backref" href="#fnref:radix" title="Jump back to footnote 4 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:radix" title="Jump back to footnote 4 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:radix" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:bpe">
+<p>Hugging Face, "Byte-Pair Encoding tokenization," LLM Course, Chapter 6 (merge-rank application order, byte-level BPE's 256-entry base vocabulary): <a href="https://huggingface.co/learn/llm-course/en/chapter6/5">https://huggingface.co/learn/llm-course/en/chapter6/5</a>&#160;<a class="footnote-backref" href="#fnref:bpe" title="Jump back to footnote 5 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:bpe" title="Jump back to footnote 5 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:bpe" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:orca">
+<p>Yu et al., "Orca: A Distributed Serving System for Transformer-Based Generative Models," OSDI 2022, as summarized in FriendliAI's own research overview (iteration-level scheduling definition, 36.9x throughput figure): <a href="https://friendli.ai/research/orca">https://friendli.ai/research/orca</a>&#160;<a class="footnote-backref" href="#fnref:orca" title="Jump back to footnote 6 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:orca" title="Jump back to footnote 6 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:orca" title="Jump back to footnote 6 in the text">&#8617;</a><a class="footnote-backref" href="#fnref4:orca" title="Jump back to footnote 6 in the text">&#8617;</a><a class="footnote-backref" href="#fnref5:orca" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../d-profiling-and-benchmarking/" class="md-footer__link md-footer__link--prev" aria-label="Previous: D. Profiling and Benchmarking on Edge Hardware">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                D. Profiling and Benchmarking on Edge Hardware
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Oluwaseyi Awoga
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
