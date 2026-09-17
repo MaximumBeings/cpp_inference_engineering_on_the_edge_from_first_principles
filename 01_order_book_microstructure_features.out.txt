@@ -1,0 +1,14 @@
+========================================================
+Chapter 27.1: Order Book Microstructure Features
+========================================================
+
+-- Test 1: balanced book (bid 100.00x500, ask 100.02x500) -- state=OK, mid=100.0100, microprice=100.0100, spread=0.0200, imbalance=0.0000 --
+-- Test 2: heavy bid pressure (bid 100.00x900, ask 100.02x100) -- imbalance=0.8000, microprice=100.0180 (pulled toward the ask) --
+-- Test 3: heavy ask pressure (bid 100.00x100, ask 100.02x900) -- imbalance=-0.8000, microprice=100.0020 (pulled toward the bid) --
+-- Test 4: crossed book (bid 100.05 >= ask 100.00) -- state=CROSSED --
+-- Test 5: zero displayed size on both sides -- state=NO_LIQUIDITY --
+-- Test 6: zero size on the ask only (bid 100.00x600, ask 100.02x0) -- state=OK, imbalance=1.0000, microprice=100.0200 --
+-- Test 7: general case (bid 50.10x250, ask 50.14x750) -- mid=50.1200, spread=0.0400, imbalance=-0.5000, microprice=50.1100 --
+
+20/20 checks passed
+ALL CHECKS PASSED

@@ -89,6 +89,7 @@ nav:
       - "24. Natural Language Photo Editing: From Prompt to cv::Mat on Edge Hardware": part5/24-natural-language-photo-editing.md
       - "25. Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking": part5/25-body-worn-and-personal-cameras.md
       - "26. Check and Invoice Fraud Detection at Bank Branches and Back Offices": part5/26-check-and-invoice-fraud-detection.md
+      - "27. Low-Latency Market-Signal Inference Near the Exchange": part5/27-low-latency-market-signal-inference.md
   - "Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration":
       - "30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian": part6/30-mathematical-foundations.md
       - "31. Continuous Batching and Production Serving Architecture": part6/31-continuous-batching-and-production-serving.md

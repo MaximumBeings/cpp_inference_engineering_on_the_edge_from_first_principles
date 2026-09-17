@@ -1,0 +1,14 @@
+========================================================
+Chapter 27.3: Financial News Sentiment Scoring
+========================================================
+
+-- Test 1: "record profit ... strong growth" -- positive_hits=4, negative_hits=0, score=4, label=POSITIVE --
+-- Test 2: "decline ... missed earnings ... lawsuit" -- positive_hits=0, negative_hits=3, score=-3, label=NEGATIVE --
+-- Test 3: "profit and growth offset by loss and decline" -- positive_hits=2, negative_hits=2, score=0, label=NEUTRAL --
+-- Test 4: "not profitable this quarter" -> score=-1 (NEGATIVE), vs. "profitable this quarter" -> score=1 (POSITIVE) --
+-- Test 5: "higher tax and cost" -- finance-lexicon score=0 (NEUTRAL), generic-lexicon score=-2 (NEGATIVE) --
+-- Test 6: "Profit! Growth... Exceeded expectations." -- positive_hits=3, score=3, label=POSITIVE --
+-- Test 7: "The quarterly meeting was held Tuesday" -- positive_hits=0, negative_hits=0, score=0, label=NEUTRAL --
+
+29/29 checks passed
+ALL CHECKS PASSED

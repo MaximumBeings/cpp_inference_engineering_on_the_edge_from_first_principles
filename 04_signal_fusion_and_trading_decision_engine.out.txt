@@ -1,0 +1,15 @@
+========================================================
+Chapter 27.4: Signal Fusion and the Trading Decision Engine
+========================================================
+
+-- Test 1: bullish (imbalance=0.6, pressure=0.02, sentiment=+2) -- score=20.000, action=BUY --
+-- Test 2: bearish (imbalance=-0.6, pressure=-0.02, sentiment=-2) -- score=-20.000, action=SELL --
+-- Test 3: mixed (imbalance=0.3, pressure=0.01, sentiment=-1) -- score=6.000, action=HOLD, forced_hold_stale=NO --
+-- Test 4: identical bullish inputs to Test 1, but within_deadline=false -- score=20.000 (would have been BUY), action=HOLD, forced_hold_stale=YES --
+-- Test 5: invalid book state, sentiment=+5 -- action=HOLD, reason="book state invalid -- cannot compute a real signal, forced HOLD" --
+-- Test 6: exact BUY boundary (imbalance=0.3, pressure=0.02, sentiment=+1) -- score=15.000, action=BUY --
+-- Test 7: exact SELL boundary (imbalance=-0.3, pressure=-0.02, sentiment=-1) -- score=-15.000, action=SELL --
+-- Test 8: sentiment=-100 but w_sentiment=0 -- score=16.000, action=BUY --
+
+22/22 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,14 @@
+========================================================
+Chapter 27.2: The Latency Budget -- Tick-to-Trade Deadline Enforcement
+========================================================
+
+-- Test 1: 4 stages (80+120+150+90=440us), budget=500us -- missed=NO, elapsed=440us, completed=4 stages --
+-- Test 2: same 4 stages, budget=440us (exactly the total cost) -- missed=NO, elapsed=440us --
+-- Test 3: same 4 stages, budget=439us (1us short) -- missed=YES, stage_that_missed="send_order", elapsed=440us, completed=3 --
+-- Test 4: event age = 900us against a staleness limit of 500us -- rejected_stale=YES, completed=0 stages, elapsed=0us --
+-- Test 5: event age = 500us, exactly at the staleness limit of 500us -- rejected_stale=NO --
+-- Test 6: budget=0us -- missed=YES, stage_that_missed="parse_market_data", completed=0 --
+-- Test 7: front-loaded stages (300, 50, 50), budget=250us -- missed=YES, stage_that_missed="expensive_first_stage", elapsed=300us --
+
+25/25 checks passed
+ALL CHECKS PASSED
