@@ -1,0 +1,30 @@
+========================================================
+Chapter 24.2: A Complete OpenCV Edit-Processing Engine
+========================================================
+
+-- Test 1: brightness is a pure, exact integer offset with no rounding ambiguity at all 3 real strength levels, in both directions --
+  a uniform value-100 image brightened SUBTLE (+15) measures exactly 115.0; brightened STRONG (+50) measures exactly 150.0; darkened MODERATE (-30) measures exactly 70.0
+
+-- Test 2: contrast applies the real (old-128)*alpha+128 formula exactly, including clamping at the real 0-255 boundary --
+  a uniform value-228 image at SUBTLE contrast increase ((228-128)*1.10+128) measures 238; at MODERATE ((228-128)*1.25+128) measures 253; at STRONG ((228-128)*1.50+128=278) clamps exactly at the real 255 ceiling; a SUBTLE decrease measures 218
+
+-- Test 3: warmth shifts red and blue in exactly opposite, real directions by an exact integer amount, leaving green untouched --
+  a SUBTLE warmth increase moves blue from 100 to exactly 92 and red from 100 to exactly 108, leaving green at exactly 100; a MODERATE warmth decrease moves blue to exactly 116 and red to exactly 84
+
+-- Test 4: full desaturation produces a real, exactly-neutral gray -- all 3 channels equal at every pixel -- while partial saturation change moves in the real, expected direction without fully neutralizing color --
+  a real B=40,G=120,R=200 pixel fully desaturated becomes an exact neutral gray (all 3 channels equal); the same pixel with a STRONG (not full) saturation decrease still shows some real color difference between channels, just a smaller spread (64) than the original (160)
+
+-- Test 5: the sharpening kernel's own real weights sum to exactly 1, approximately preserving overall mean brightness while increasing local contrast (standard deviation) on a non-uniform image --
+  a checkerboard's own mean brightness before (125) and after MODERATE sharpening (126.444) differ by less than 2.0, confirming the kernel's own real mean-preserving property, while the standard deviation rises from 95 to 114.902, confirming real increased local contrast at the checkerboard's own edges
+
+-- Test 6: denoising (Gaussian blur) reduces a checkerboard's own real standard deviation, and a larger real kernel size reduces it further --
+  the checkerboard's own standard deviation drops from 95 (sharp edges) to 70.0734 under a SUBTLE blur, and further to 44.3668 under a STRONG blur -- a larger real kernel smooths more
+
+-- Test 7: center-square cropping produces the exact real expected output dimensions, and the crop's own computed offset is verified against a marker pixel --
+  a 100x60 image crops to an exact 60x60 square, and a marker pixel placed at the crop's own hand-computed real offset (x=20) lands exactly at (0,0) in the cropped output, confirming the crop's own offset math
+
+-- Test 8: this section's own full "make it look better" default plan, applied end to end, produces a real image that is neither identical to the input nor less saturated than it --
+  applying the full 3-step default plan (CONTRAST_INCREASE, SATURATION_INCREASE, SHARPEN, all SUBTLE) end to end produces a real image with a nonzero total pixel difference from the original, at the identical 40x40 resolution
+
+24/24 checks passed
+ALL CHECKS PASSED

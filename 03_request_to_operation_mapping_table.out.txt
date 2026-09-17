@@ -1,0 +1,21 @@
+========================================================
+Chapter 24.3: A Request-to-Operation Mapping Table
+========================================================
+
+-- Test 1: the resolution table's own real values match hand-computed constants exactly for a representative sample across every op family --
+  BRIGHTNESS_INCREASE/SUBTLE resolves to exactly 15.0; CONTRAST_DECREASE/STRONG to exactly 0.60; WARMTH_DECREASE/MODERATE to exactly -16.0; SATURATION_INCREASE/STRONG to exactly 1.60; SHARPEN/STRONG to exactly 1.75; DENOISE/SUBTLE to exactly 3.0
+
+-- Test 2: DESATURATE_FULL and CROP_CENTER_SQUARE resolve to the identical real value at all 3 strength levels -- their own stated real absoluteness, verified directly --
+  DESATURATE_FULL resolves to the identical value regardless of whether it is paired with SUBTLE, MODERATE, or STRONG; CROP_CENTER_SQUARE does the same -- both correctly marked strength_invariant in the table itself
+
+-- Test 3: a real, general table-integrity property -- STRONG always produces a strictly larger real magnitude of change than MODERATE, which is strictly larger than SUBTLE -- holds across every strength-sensitive intent in the entire table --
+  across all 10 strength-sensitive intents in the table (every intent except DESATURATE_FULL and CROP_CENTER_SQUARE), each intent's own real distance from its own neutral value strictly increases from SUBTLE to MODERATE to STRONG, with zero exceptions
+
+-- Test 4: directly opposing intents present in the same plan are flagged, while a plan combining unrelated, non-conflicting intents is not --
+  BRIGHTNESS_INCREASE + BRIGHTNESS_DECREASE together are flagged as 1 conflict; SATURATION_INCREASE + DESATURATE_FULL together are flagged as 1 conflict; a 3-intent plan combining BRIGHTNESS_INCREASE, SHARPEN, and CROP_CENTER_SQUARE -- none of which oppose each other -- is flagged with zero conflicts
+
+-- Test 5: a conflict-free plan resolves to its own exact, real sequence of concrete operation parameters, in the same order as the plan's own entries --
+  this section's own "make it look better" default plan, confirmed conflict-free, resolves to exactly 3 concrete operations in order: CONTRAST_ALPHA=1.10, SATURATION_SCALE=1.15, SHARPEN_K=0.5 -- the identical real values Section 24.2's own engine uses for these same 3 intents at SUBTLE strength
+
+39/39 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,24 @@
+========================================================
+Chapter 24.4: Iterative Refinement Through Conversation
+========================================================
+
+-- Test 1: repeated "more" requests step strength up one real level at a time, capping at STRONG rather than wrapping or erroring --
+  SHARPEN steps SUBTLE -> MODERATE -> STRONG across 2 real "more" requests; a 3rd "more" request is reported CAPPED_AT_MAX, leaving the plan at STRONG rather than silently wrapping back to SUBTLE or erroring
+
+-- Test 2: a "less" request on an already-SUBTLE intent removes it entirely rather than leaving it unchanged --
+  BRIGHTNESS_INCREASE steps MODERATE -> SUBTLE on the first "less" request; a second "less" request on an already-SUBTLE edit removes BRIGHTNESS_INCREASE from the plan entirely -- "less" than the smallest real amount means none at all
+
+-- Test 3: undo reverts exactly one refinement at a time through a real history stack, and undoing with an empty history is honestly refused --
+  after 2 real "more" requests (SUBTLE -> MODERATE -> STRONG), one undo reverts exactly to MODERATE, a second undo reverts exactly to the original SUBTLE plan, and a third undo with nothing left in history is honestly reported NOTHING_TO_UNDO, leaving the plan unchanged rather than erroring or reverting further
+
+-- Test 4: adding a genuinely new, non-conflicting intent is simply applied --
+  adding DENOISE at MODERATE to a plan that already has SHARPEN produces a clean 2-intent plan with both present -- no conflict, so nothing is replaced
+
+-- Test 5: a follow-up request that directly opposes an intent already in the plan REPLACES it -- this section's own central discipline, distinct from Section 24.3's own flag-only conflict detector --
+  a plan already containing WARMTH_INCREASE at MODERATE, given a follow-up request for WARMTH_DECREASE at STRONG, ends up containing ONLY WARMTH_DECREASE -- the user's own follow-up is treated as changing their mind, not as a second, simultaneously-held contradictory instruction
+
+-- Test 6: a full multi-turn conversation produces the exact real final plan across a sequence of refinements, including one that replaces a conflicting intent and one that undoes a prior step --
+  starting from the default 3-intent plan: SHARPEN is bumped to MODERATE, WARMTH_INCREASE is added, WARMTH_DECREASE then replaces it (4 intents total); undoing that last step restores WARMTH_INCREASE while correctly leaving the earlier SHARPEN bump at MODERATE untouched -- undo reverts exactly one real conversational turn, not the whole session
+
+28/28 checks passed
+ALL CHECKS PASSED

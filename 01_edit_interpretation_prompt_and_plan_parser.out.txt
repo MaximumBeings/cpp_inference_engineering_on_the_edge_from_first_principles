@@ -1,0 +1,24 @@
+========================================================
+Chapter 24.1: An Edit-Interpretation Prompt and Structured Plan Parser
+========================================================
+
+-- Test 1: a valid multi-intent completion parses to exactly its own real entries, in order, and an empty request parses to a valid, empty plan --
+  a 2-line completion parses to exactly 2 entries in order (BRIGHTNESS_INCREASE at MODERATE, SHARPEN at STRONG); an empty request parses to a valid plan with zero entries rather than an error
+
+-- Test 2: an intent token outside the closed vocabulary is rejected, naming the specific unrecognized token --
+  "REMOVE_BACKGROUND," a real edit a user might plausibly request but which is not in this section's own stated closed vocabulary, is rejected by name
+
+-- Test 3: a strength token outside the closed vocabulary is rejected, naming the specific unrecognized token --
+  "EXTREME," a plausible-sounding but non-existent strength level, is rejected by name
+
+-- Test 4: the same intent appearing twice in one plan is rejected, naming that specific intent --
+  BRIGHTNESS_INCREASE appearing at both SUBTLE and STRONG in the same plan is rejected as a duplicate, naming the specific intent rather than silently keeping the last one
+
+-- Test 5: a structurally malformed line is rejected, naming the exact line --
+  a line missing its own required STRENGTH field, and a line with the two fields in the wrong order, are both rejected, each naming the specific malformed line
+
+-- Test 6: this section's own stated default plan for a vague request parses to exactly the conservative 3-entry plan the system prompt itself commits to --
+  the exact text this section's own system prompt commits to for a vague "make it look better" request parses to exactly the stated conservative default plan (CONTRAST_INCREASE, SATURATION_INCREASE, SHARPEN, all SUBTLE) -- never a more aggressive, unrequested combination
+
+20/20 checks passed
+ALL CHECKS PASSED

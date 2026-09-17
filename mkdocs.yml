@@ -86,6 +86,7 @@ nav:
       - "21. Document Intelligence, Insurance Claims, and Environmental Monitoring": part5/21-document-intelligence-claims-environmental.md
       - "22. Security Surveillance, Accessibility Compliance, and Art Authentication": part5/22-security-accessibility-art.md
       - "23. Trust and Authenticity at the Point of Sale: Counterfeits, Reconciliation, Expense Audits, and Luxury Goods": part5/23-trust-authenticity-point-of-sale.md
+      - "24. Natural Language Photo Editing: From Prompt to cv::Mat on Edge Hardware": part5/24-natural-language-photo-editing.md
 
 extra:
   social: []
