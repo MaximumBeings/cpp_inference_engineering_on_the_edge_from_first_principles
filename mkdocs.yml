@@ -99,6 +99,7 @@ nav:
   - "Appendices":
       - "A. Installation and Setup -- Cross-Compiling for the Edge": appendix/a-installation-and-setup.md
       - "B. Practice Quiz": appendix/b-practice-quiz.md
+      - "C. A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance": appendix/c-decision-tree-reference.md
 
 extra:
   social: []

@@ -1,0 +1,19 @@
+====================================================
+Appendix C.1: The Quantization Format Advisor
+====================================================
+
+-- Test 1: static NORM weight -- format=F32 --
+-- Test 2: static EMBEDDING weight -- format=Q8_0 --
+-- Test 3: static ATTENTION weight -- format=Q8_0 --
+-- Test 4: static FFN weight -- format=Q4_0 --
+-- Test 5: online activation -- format=DYNAMIC_INT8 --
+-- Test 6: KV cache entry -- format=TURBOQUANT_MSE --
+-- Test 7: small illustrative model (DIM=8, N_LAYERS=2, D_FF=32, VOCAB=50) --
+   uniform Q4_0 total    = 1624.5 bytes
+   uniform Q8_0 total    = 3068.5 bytes
+   naive hybrid total    = 4768 bytes (embedding kept F32)
+   corrected hybrid total= 2418 bytes (embedding at Q8_0)
+   excess (naive - corrected) = 2350, embedding-only difference = 2350
+
+15/15 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,14 @@
+===================================================
+Appendix C.3: The KV Cache Strategy Advisor
+===================================================
+
+-- Test 1: multi-turn conversation -- strategy=PREFIX_CACHING_ON_PAGED --
+-- Test 2: trained-with-fixed-window model -- strategy=SLIDING_WINDOW --
+-- Test 3: short, bounded context -- strategy=PLAIN_RING_BUFFER --
+-- Test 4: long, unpredictably growing context -- strategy=PAGED_BLOCK_TABLE --
+-- Test 5: very long, memory-constrained context -- strategy=PAGED_WITH_H2O_EVICTION --
+-- Test 6: Llama-3-8B-shaped config -- bytes_per_token=131072 --
+-- Test 7: total KV cache at 128K-token context -- total_bytes=17179869184, total_gib=16 --
+
+10/10 checks passed
+ALL CHECKS PASSED

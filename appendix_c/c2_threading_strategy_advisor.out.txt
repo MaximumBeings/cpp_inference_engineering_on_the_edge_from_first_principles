@@ -1,0 +1,13 @@
+=========================================================
+Appendix C.2: The Threading and Parallelization Strategy Advisor
+=========================================================
+
+-- Test 1: ridge_point=40 -- crossover_batch_size=80 --
+-- Test 2: serial_fraction=0.05 -- speedup@8=5.92593, ceiling=20 --
+-- Test 3: speedup@1000000 threads=19.9996 (ceiling=20) --
+-- Test 4: matmul output rows -- strategy=ROW_PARALLEL --
+-- Test 5: GQA attention heads -- strategy=GROUP_ALIGNED_HEAD_PARALLEL --
+-- Test 6: elementwise reduction (e.g. RMSNorm) -- strategy=FIXED_BLOCK_REDUCTION --
+
+14/14 checks passed
+ALL CHECKS PASSED
