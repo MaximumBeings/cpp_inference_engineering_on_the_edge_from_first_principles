@@ -16,7 +16,7 @@
         <link rel="prev" href="../24-natural-language-photo-editing/">
       
       
-        <link rel="next" href="../../part6/26-mathematical-foundations/">
+        <link rel="next" href="../../part6/30-mathematical-foundations/">
       
       
         
@@ -1675,14 +1675,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/26-mathematical-foundations/" class="md-nav__link">
+      <a href="../../part6/30-mathematical-foundations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
+    30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
   
 
     
@@ -1703,14 +1703,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/27-continuous-batching-and-production-serving/" class="md-nav__link">
+      <a href="../../part6/31-continuous-batching-and-production-serving/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    27. Continuous Batching and Production Serving Architecture
+    31. Continuous Batching and Production Serving Architecture
   
 
     
@@ -1731,14 +1731,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/28-flash-attention-and-cuda-kernels/" class="md-nav__link">
+      <a href="../../part6/32-flash-attention-and-cuda-kernels/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
+    32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
   
 
     
@@ -3486,7 +3486,7 @@
 <li>Section 25.2 reuses Section 22.1's own presence-interval coalescing technique unchanged. Explain what property of that original technique made it reusable here in a completely different domain (incident reporting rather than surveillance narration) without modification.</li>
 </ol>
 <h2 id="where-we-go-next">Where We Go Next<a class="headerlink" href="#where-we-go-next" title="Permanent link">&para;</a></h2>
-<p>Part 5 is complete: eight chapters spanning industrial inspection, retail, medical imaging, document intelligence, security and accessibility, point-of-sale trust, natural-language photo editing, and now body-worn and personal cameras, each turning a continuous visual stream into a structured, checkable, honestly-scoped output. Part 6 turns from application domains to the mathematical and architectural foundations underneath every one of them: Chapter 26 works through the FLOPs, roofline, and Hessian mathematics that explain why these systems perform the way they do, Chapter 27 builds a real continuous-batching scheduler for serving many requests at once, and Chapter 28 takes this book's own inference engine to the GPU with a real Flash Attention implementation and CUDA kernels.</p>
+<p>Part 5 is complete: eight chapters spanning industrial inspection, retail, medical imaging, document intelligence, security and accessibility, point-of-sale trust, natural-language photo editing, and now body-worn and personal cameras, each turning a continuous visual stream into a structured, checkable, honestly-scoped output. Part 6 turns from application domains to the mathematical and architectural foundations underneath every one of them: Chapter 30 works through the FLOPs, roofline, and Hessian mathematics that explain why these systems perform the way they do, Chapter 31 builds a real continuous-batching scheduler for serving many requests at once, and Chapter 32 takes this book's own inference engine to the GPU with a real Flash Attention implementation and CUDA kernels.</p>
 <h2 id="worked-solutions">Worked Solutions<a class="headerlink" href="#worked-solutions" title="Permanent link">&para;</a></h2>
 <p><strong>1.</strong> They would have to add an actual member to <code>PersonBox</code> capable of holding an identity -- a field literally named <code>name</code>, <code>person_id</code>, or <code>face_embedding</code>, since <code>HasIdentityField</code>'s <code>requires</code>-expressions check for exactly those member names. The moment they did, the <code>static_assert(!HasIdentityField&lt;PersonBox&gt;, ...)</code> immediately above the struct would fail, and the ENTIRE file would refuse to compile, for every contributor, on every build, with an explicit message naming the violated boundary. Violating a policy stated in a comment requires only that a reviewer fail to notice a diff; violating this boundary requires actively breaking the build for the whole project, which is a far harder thing to do by accident and a far easier thing to catch on purpose.</p>
 <p><strong>2.</strong> A motion trigger arriving at, say, frame 250 for a clip that only actually has 100 frames is not real evidence of motion in the recording -- it is bad sensor or detector data, since no such frame exists. Clamping it to frame 99 would silently insert a fabricated "motion observed here" flag on a real frame that the motion detector never actually flagged, corrupting the evidentiary record with information the system invented rather than observed. Dropping it is the honest choice: it discards data that cannot possibly be correct rather than distorting it into something that looks plausible.</p>
@@ -3550,13 +3550,13 @@
         
         
           
-          <a href="../../part6/26-mathematical-foundations/" class="md-footer__link md-footer__link--next" aria-label="Next: 26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian">
+          <a href="../../part6/30-mathematical-foundations/" class="md-footer__link md-footer__link--next" aria-label="Next: 30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
+                30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../../part6/28-flash-attention-and-cuda-kernels/">
+        <link rel="prev" href="../../part6/32-flash-attention-and-cuda-kernels/">
       
       
         <link rel="next" href="../b-practice-quiz/">
@@ -1384,14 +1384,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/26-mathematical-foundations/" class="md-nav__link">
+      <a href="../../part6/30-mathematical-foundations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
+    30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
   
 
     
@@ -1412,14 +1412,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/27-continuous-batching-and-production-serving/" class="md-nav__link">
+      <a href="../../part6/31-continuous-batching-and-production-serving/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    27. Continuous Batching and Production Serving Architecture
+    31. Continuous Batching and Production Serving Architecture
   
 
     
@@ -1440,14 +1440,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/28-flash-attention-and-cuda-kernels/" class="md-nav__link">
+      <a href="../../part6/32-flash-attention-and-cuda-kernels/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
+    32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
   
 
     
@@ -2415,12 +2415,12 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>qemu-aarch64: Could not open &#39;/lib/ld-linux-aarch64.so.1&#39;: No such file or directory
 </code></pre></div>
 <p>The real fix is exactly the <code>CMAKE_EXE_LINKER_FLAGS_INIT "-static"</code> setting in Section A.3's own toolchain file: statically linking folds the C++ runtime and standard library directly into the binary, so <code>qemu-aarch64</code> never needs to locate a dynamic linker or any shared library at all.</p>
-<p><strong>Diagnostic 5 -- <code>nvcc</code> rejecting <code>-std=c++23</code>.</strong> Chapter 28's own real CUDA section hit this directly: <code>nvcc</code> 12.0's host-compiler pass does not recognize <code>c++23</code> as a valid value for <code>-std</code> at all, failing before any actual kernel code is even parsed:</p>
+<p><strong>Diagnostic 5 -- <code>nvcc</code> rejecting <code>-std=c++23</code>.</strong> Chapter 32's own real CUDA section hit this directly: <code>nvcc</code> 12.0's host-compiler pass does not recognize <code>c++23</code> as a valid value for <code>-std</code> at all, failing before any actual kernel code is even parsed:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>$ nvcc -std=c++23 -arch=sm_87 diag5_nvcc_cpp23.cu -o diag5_out
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>nvcc fatal   : Value &#39;c++23&#39; is not defined for option &#39;std&#39;
 </code></pre></div>
-<p>The real fix, used throughout Chapter 28.3, is compiling with <code>-std=c++20</code> instead -- a real, documented toolchain constraint of CUDA 12.0's own host-compiler pass, not a limitation of the kernel code itself.</p>
+<p>The real fix, used throughout Chapter 32.3, is compiling with <code>-std=c++20</code> instead -- a real, documented toolchain constraint of CUDA 12.0's own host-compiler pass, not a limitation of the kernel code itself.</p>
 <div class="admonition warning">
 <p class="admonition-title">[COMMON TRAP] assuming every real toolchain error means the underlying code is wrong</p>
 <p>Diagnostics 1, 2, and 5 above are not bugs in the code being compiled -- they are real, documented gaps between a specific compiler version's own feature support and the C++23 standard the code is deliberately written against. GCC 11 predates GCC 12's multi-argument <code>operator[]</code> support and ships no native <code>&lt;mdspan&gt;</code> header at all; <code>nvcc</code> 12.0's host pass simply does not accept <code>c++23</code> as a <code>-std</code> value yet. Each real fix above works around a specific, real, version-bound toolchain limitation, not a defect in the algorithm or the code's own logic -- which is exactly why this book's own pipeline checks the SAME source tree against multiple real compiler versions and architectures on every chapter, rather than trusting a single toolchain's own silence as proof of correctness.</p>
@@ -2428,7 +2428,7 @@
 <h2 id="appendix-summary">Appendix Summary<a class="headerlink" href="#appendix-summary" title="Permanent link">&para;</a></h2>
 <p>This appendix documented the real cross-compilation toolchain this book's own pipeline has used, unstated, since Chapter 2: how to install <code>aarch64-linux-gnu-g++</code> and <code>qemu-user</code> on a real Ubuntu 24.04 development machine, how to lay out a real CMake project that builds the identical source tree natively and cross-compiled for a 64-bit Arm target from a single toolchain file, and why that toolchain file needs both static linking and <code>CMAKE_CROSSCOMPILING_EMULATOR</code> to actually produce a runnable, testable cross-compiled binary. It closed with five real, verbatim diagnostic failures this book's own pipeline actually hit while building this exact setup -- a real GCC 11 C++23 rejection, a real missing standard header, a real garbled <code>ctest</code> failure, a real missing dynamic linker under <code>qemu-user</code>, and a real <code>nvcc</code> standard-version rejection -- each with the real fix that resolved it, in the same honest, verify-directly-rather-than-assert spirit as every chapter before it.</p>
 <h2 id="where-we-go-next">Where We Go Next<a class="headerlink" href="#where-we-go-next" title="Permanent link">&para;</a></h2>
-<p>Appendix B is this book's own practice quiz, spanning every Part. Appendix C consolidates the decision trees scattered across individual chapters into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 27.4 and Chapter 10.</p>
+<p>Appendix B is this book's own practice quiz, spanning every Part. Appendix C consolidates the decision trees scattered across individual chapters into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 31.4 and Chapter 10.</p>
 
 
 
@@ -2464,7 +2464,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../part6/28-flash-attention-and-cuda-kernels/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU">
+          <a href="../../part6/32-flash-attention-and-cuda-kernels/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2474,7 +2474,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
+                32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
               </div>
             </div>
           </a>

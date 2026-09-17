@@ -1382,14 +1382,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/26-mathematical-foundations/" class="md-nav__link">
+      <a href="../../part6/30-mathematical-foundations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    26. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
+    30. Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
   
 
     
@@ -1410,14 +1410,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/27-continuous-batching-and-production-serving/" class="md-nav__link">
+      <a href="../../part6/31-continuous-batching-and-production-serving/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    27. Continuous Batching and Production Serving Architecture
+    31. Continuous Batching and Production Serving Architecture
   
 
     
@@ -1438,14 +1438,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../part6/28-flash-attention-and-cuda-kernels/" class="md-nav__link">
+      <a href="../../part6/32-flash-attention-and-cuda-kernels/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    28. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
+    32. Flash Attention and CUDA Kernels: Taking the Engine to the GPU
   
 
     
@@ -1891,7 +1891,7 @@
 <p><strong>Part 0 -- Foundations (Chapters 2-3)</strong></p>
 <ol>
 <li>Why does <code>std::mdspan</code> improve on a raw pointer plus manual index arithmetic for representing a tensor, and what specific GCC-version constraint did this book have to work around for its own multi-dimensional subscript syntax?</li>
-<li>Why does RoPE (rotary position embedding) encode position via rotation rather than by directly adding a position vector to the embedding, per the composition identity <code>R(a)^T * R(b) = R(b-a)</code> derived in Chapter 26.3?</li>
+<li>Why does RoPE (rotary position embedding) encode position via rotation rather than by directly adding a position vector to the embedding, per the composition identity <code>R(a)^T * R(b) = R(b-a)</code> derived in Chapter 30.3?</li>
 </ol>
 <p><strong>Part 1 -- Shrinking the Model: Quantization (Chapters 4-7)</strong></p>
 <ol>
@@ -1920,11 +1920,11 @@
 </ol>
 <p><strong>Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration (Chapters 26-28)</strong></p>
 <ol>
-<li>Why does naive softmax overflow to NaN on large real inputs, and what single algebraic identity (used throughout Chapters 26.2 and 28.1) fixes it without changing the mathematical result?</li>
-<li>Chapter 28 could not launch its CUDA kernel on a real GPU anywhere in this book's own pipeline. What could a clean <code>nvcc</code> compile still prove about that kernel, and what could it NOT prove?</li>
+<li>Why does naive softmax overflow to NaN on large real inputs, and what single algebraic identity (used throughout Chapters 30.2 and 32.1) fixes it without changing the mathematical result?</li>
+<li>Chapter 32 could not launch its CUDA kernel on a real GPU anywhere in this book's own pipeline. What could a clean <code>nvcc</code> compile still prove about that kernel, and what could it NOT prove?</li>
 </ol>
 <h2 id="b3-conceptual-review-answers">B.3 Conceptual Review Answers<a class="headerlink" href="#b3-conceptual-review-answers" title="Permanent link">&para;</a></h2>
-<p><strong>1.</strong> <code>std::mdspan</code> attaches a tensor's shape (extents) and layout policy directly to the view type, so indexing math is computed in one consistent place rather than re-derived by hand as <code>row * cols + col</code> at every call site, where a transposed dimension or an off-by-one is easy to introduce silently. This book's own real constraint: its actual aarch64 target device runs GCC 11.4.0, which predates GCC 12's support for C++23's multi-argument <code>operator[]</code> (<code>view[i, j]</code>) and ships no native <code>&lt;mdspan&gt;</code> header at all -- so every <code>mdspan</code>-based file in this book uses a vendored, header-only reference implementation plus an <code>idx2()</code>/<code>idx3()</code> helper that packages indices into the <code>std::array</code> overload GCC 11 does support, a convention established in Chapter 13's own appendix note and reused unchanged through Chapter 28.</p>
+<p><strong>1.</strong> <code>std::mdspan</code> attaches a tensor's shape (extents) and layout policy directly to the view type, so indexing math is computed in one consistent place rather than re-derived by hand as <code>row * cols + col</code> at every call site, where a transposed dimension or an off-by-one is easy to introduce silently. This book's own real constraint: its actual aarch64 target device runs GCC 11.4.0, which predates GCC 12's support for C++23's multi-argument <code>operator[]</code> (<code>view[i, j]</code>) and ships no native <code>&lt;mdspan&gt;</code> header at all -- so every <code>mdspan</code>-based file in this book uses a vendored, header-only reference implementation plus an <code>idx2()</code>/<code>idx3()</code> helper that packages indices into the <code>std::array</code> overload GCC 11 does support, a convention established in Chapter 13's own appendix note and reused unchanged through Chapter 32.</p>
 <p><strong>2.</strong> Rotating the query and key vectors by their own absolute positions makes their dot product depend ONLY on the relative distance between them, not on either position alone -- exactly the property attention needs, since two tokens three positions apart near the start of a sequence should relate the same way as two tokens three positions apart near the end. This falls directly out of the rotation-composition identity <code>R(a)^T * R(b) = R(b-a)</code>. Adding a position vector directly has no equivalent algebraic guarantee: two tokens' additive position encodings don't combine into a clean function of relative distance when dotted together, so a model using additive position encoding has to learn that structure from data instead of getting it for free from the geometry.</p>
 <p><strong>3.</strong> A purely symmetric (scale-only) quantizer maps real zero to integer zero, which wastes representable range whenever the real distribution being quantized is not centered at zero -- activations after a ReLU, for instance, are all non-negative, so a symmetric int8 range of [-128, 127] would leave the entire negative half of that range completely unused. The zero-point shifts which integer value represents real zero, letting the quantizer's full integer range map onto the ACTUAL span of the data, at the cost of one extra offset to track and add back during dequantization.</p>
 <p><strong>4.</strong> A GGUF file lays its weight tensors out at known, fixed byte offsets recorded in its own header metadata, so <code>mmap</code> can map the file's bytes directly into the process's virtual address space without the operating system reading any tensor's actual bytes off disk until that specific memory page is first touched. It is the file's own contiguous, offset-addressable layout that lets the OS defer most of the real I/O work, rather than requiring an explicit "read the whole file into a buffer" step before any single weight can be used.</p>
@@ -1933,15 +1933,15 @@
 <p><strong>7.</strong> A ring buffer's eviction order is purely positional: it always overwrites the oldest slot next, with no way to distinguish "this sequence is still actively being generated" from "this sequence finished ten steps ago and is safe to evict." Multiple concurrent sequences of different, changing lengths need eviction decisions based on each sequence's own actual state, which requires the richer per-sequence bookkeeping Chapter 13's own KV cache manager tracks, not a single shared circular position counter.</p>
 <p><strong>8.</strong> Without prefix caching, every request -- even ones sharing an identical, possibly-long system prompt with many other requests -- must recompute that entire shared prefix's KV cache from scratch, wasting compute recomputing values a previous request already produced. Prefix caching recognizes when a new request's opening tokens exactly match an already-cached sequence's tokens and reuses those existing KV cache entries directly, paying the shared prefix's compute cost exactly once no matter how many later requests go on to use it.</p>
 <p><strong>9.</strong> Re-reading your own code mainly re-exercises the same mental model that produced the bug in the first place -- if you believed a RoPE pairing convention was correct when you wrote it, rereading the identical code tends to confirm that same belief rather than surface the assumption that's actually wrong. An independently built second implementation encodes a different set of assumptions arrived at separately, so a genuine numerical disagreement between the two systems is real signal that at least one of them has an actual bug, in a way no amount of rereading a single implementation can substitute for -- which is exactly how Chapter 15 found four separate real bugs against an independently-built llama.cpp.</p>
-<p><strong>10.</strong> Wall-clock time is entangled with everything about the specific machine it was measured on -- clock frequency, thermal throttling, background load, cache sizes -- so a timing number from one run on one machine says little about whether an approach is genuinely more efficient in a way that would hold on different hardware, and it cannot be locked into an exactly-reproducible self-test the way this book's own build-verify-lock discipline requires. This book measured real, machine-independent quantities instead: exact multiply-accumulate counts (Chapter 28.2), exact peak-memory byte counts read from actual allocation sizes, and exact padding-waste and utilization counts (Chapter 27.1) -- numbers reproducible bit-for-bit on any machine that also explain WHY one approach is faster, not just that it measured faster once.</p>
+<p><strong>10.</strong> Wall-clock time is entangled with everything about the specific machine it was measured on -- clock frequency, thermal throttling, background load, cache sizes -- so a timing number from one run on one machine says little about whether an approach is genuinely more efficient in a way that would hold on different hardware, and it cannot be locked into an exactly-reproducible self-test the way this book's own build-verify-lock discipline requires. This book measured real, machine-independent quantities instead: exact multiply-accumulate counts (Chapter 32.2), exact peak-memory byte counts read from actual allocation sizes, and exact padding-waste and utilization counts (Chapter 31.1) -- numbers reproducible bit-for-bit on any machine that also explain WHY one approach is faster, not just that it measured faster once.</p>
 <p><strong>11.</strong> A system that could output a diagnosis would need some kind of diagnosis field, or a confidence-over-conditions structure, somewhere in its result type. Chapter 20 instead defines a report schema that structurally has no such field at all -- only observations, flagged regions, and a routing decision into a human radiologist's worklist -- so there is no diagnosis-shaped value anywhere in the type for a caller to misread as one. The constraint is enforced by what the schema CAN represent, not by a policy note asking a caller not to over-interpret a field that could otherwise be read as a diagnosis.</p>
 <p><strong>12.</strong> A runtime check has to actually execute on every code path to catch a violation, so a new code path added later -- one nobody thought to add the check to -- can silently reintroduce exactly the behavior the check was meant to prevent, discovered only if that path happens to run during testing. Chapter 25's <code>HasIdentityField</code> concept plus <code>static_assert</code> instead makes adding an identity field to the scene-tagging model's data type a COMPILE failure everywhere that type is used, so no code path can exist at all where the violation could occur -- the guarantee holds by construction rather than by every future author remembering to preserve it.</p>
 <p><strong>13.</strong> <code>exp()</code> of a large real input overflows a float's or double's finite range and becomes infinity well before the division by the sum happens, and infinity divided by an infinity-containing sum evaluates to NaN, silently corrupting the entire softmax output rather than just its largest entry. The shift-invariant identity <code>softmax(x) == softmax(x - max(x))</code> fixes this WITHOUT changing the mathematical result: subtracting the input's own maximum guarantees the largest shifted value is exactly 0 (so <code>exp(0) = 1</code>, never overflowing) while every other shifted value is negative (so its <code>exp()</code> is a safe fraction below 1), and the algebra guarantees the final normalized probabilities come out identical to what the numerically-impossible unshifted computation would have produced had it not overflowed.</p>
 <p><strong>14.</strong> A clean compile across three real Jetson-class architectures proves the kernel is syntactically valid CUDA C++ and that the compiler could generate real device code implementing its stated logic for each target -- a genuine, meaningful fact about the kernel's correctness at the SOURCE level. It proves nothing about the kernel's actual RUNTIME behavior: a race condition in the shared-memory tile load, a tile-boundary off-by-one, or a genuine numerical error in the online-softmax update would all compile without any error, since none of them are visible from source code alone -- only actually launching the kernel on real hardware and comparing its output against the CPU golden reference, which this book's own pipeline was honest about never having a GPU available to do, could close that gap.</p>
 <h2 id="b4-predict-the-output-challenges">B.4 Predict-the-Output Challenges<a class="headerlink" href="#b4-predict-the-output-challenges" title="Permanent link">&para;</a></h2>
 <h3 id="challenge-1-the-softmax-overflow-trap">Challenge 1: The Softmax Overflow Trap<a class="headerlink" href="#challenge-1-the-softmax-overflow-trap" title="Permanent link">&para;</a></h3>
-<p>Chapter 26.2 warned that naive softmax (<code>exp(x_i) / sum(exp(x_j))</code>) silently overflows to NaN on large real inputs, and fixed it with the shift-invariant identity <code>softmax(x) == softmax(x - max(x))</code>. Before compiling and running the program below, predict: for the input <code>{1000.0, 1001.0, 1002.0}</code>, does the naive version produce NaN, and does the shifted version still produce the mathematically correct probabilities?</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Appendix B, Challenge 1 -- Chapter 26.2 warned that naive softmax</span>
+<p>Chapter 30.2 warned that naive softmax (<code>exp(x_i) / sum(exp(x_j))</code>) silently overflows to NaN on large real inputs, and fixed it with the shift-invariant identity <code>softmax(x) == softmax(x - max(x))</code>. Before compiling and running the program below, predict: for the input <code>{1000.0, 1001.0, 1002.0}</code>, does the naive version produce NaN, and does the shifted version still produce the mathematically correct probabilities?</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Appendix B, Challenge 1 -- Chapter 30.2 warned that naive softmax</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">// (exp(x_i) / sum(exp(x_j))) silently overflows to NaN on large real</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">// inputs, and fixed it with the shift-invariant identity</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">// softmax(x) == softmax(x - max(x)). Before compiling and running this</span>
@@ -2029,8 +2029,8 @@
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>shifted softmax sums to 1.0: YES (sum = 1)
 </code></pre></div>
 <h3 id="challenge-2-reduction-order-and-float32-non-associativity">Challenge 2: Reduction Order and Float32 Non-Associativity<a class="headerlink" href="#challenge-2-reduction-order-and-float32-non-associativity" title="Permanent link">&para;</a></h3>
-<p>Chapter 27.4 warned that float32 addition is NOT associative: summing the same values in a different order can produce a genuinely different result, not just a hypothetical one. Before compiling and running the program below, predict: does summing one large value plus eight small values give the same float32 result forwards (large value first) as backwards (large value last)?</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Appendix B, Challenge 2 -- Chapter 27.4 warned that float32 addition is</span>
+<p>Chapter 31.4 warned that float32 addition is NOT associative: summing the same values in a different order can produce a genuinely different result, not just a hypothetical one. Before compiling and running the program below, predict: does summing one large value plus eight small values give the same float32 result forwards (large value first) as backwards (large value last)?</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Appendix B, Challenge 2 -- Chapter 31.4 warned that float32 addition is</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1">// NOT associative: summing the same values in a different order can</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1">// produce a genuinely different result, not just a hypothetical one.</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1">// Before compiling and running this file, predict: does summing one very</span>
@@ -2080,8 +2080,8 @@
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>difference: 0.023438
 </code></pre></div>
 <h3 id="challenge-3-the-re-quantization-trap">Challenge 3: The Re-Quantization Trap<a class="headerlink" href="#challenge-3-the-re-quantization-trap" title="Permanent link">&para;</a></h3>
-<p>Chapter 26.4 proved that affine re-quantization is NOT associative: quantizing at a fine scale, then re-quantizing that already-quantized value at a coarser scale, can give a different final dequantized value than quantizing the ORIGINAL value directly at the coarse scale. Before compiling and running the program below, predict: for the value <code>0.246</code>, fine scale <code>0.07</code>, and coarse scale <code>0.5</code>, do "fine-then-coarse" and "direct-coarse" produce the same dequantized result?</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// Appendix B, Challenge 3 -- Chapter 26.4 proved that affine</span>
+<p>Chapter 30.4 proved that affine re-quantization is NOT associative: quantizing at a fine scale, then re-quantizing that already-quantized value at a coarser scale, can give a different final dequantized value than quantizing the ORIGINAL value directly at the coarse scale. Before compiling and running the program below, predict: for the value <code>0.246</code>, fine scale <code>0.07</code>, and coarse scale <code>0.5</code>, do "fine-then-coarse" and "direct-coarse" produce the same dequantized result?</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// Appendix B, Challenge 3 -- Chapter 30.4 proved that affine</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1">// re-quantization is NOT associative: quantizing at a fine scale, then</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1">// re-quantizing that already-quantized value at a coarser scale, can give</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1">// a different final dequantized value than quantizing the ORIGINAL value</span>
@@ -2097,7 +2097,7 @@
 <a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
 <a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>
 <a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="c1">// A minimal real affine quantizer: round-to-nearest, zero-point-free</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="c1">// (symmetric), matching Chapter 26.4&#39;s own scale/2 error-bound analysis.</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="c1">// (symmetric), matching Chapter 30.4&#39;s own scale/2 error-bound analysis.</span>
 <a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="kt">int</span><span class="w"> </span><span class="nf">quantize</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scale</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">lround</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">scale</span><span class="p">));</span>
 <a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="p">}</span>
@@ -2157,7 +2157,7 @@
 <h2 id="appendix-summary">Appendix Summary<a class="headerlink" href="#appendix-summary" title="Permanent link">&para;</a></h2>
 <p>B.2 and B.3 asked whether this book's individual ideas actually connect across Parts -- whether a reader can recognize the same underlying shape (a rounding boundary crossed twice, a guarantee enforced by construction rather than by policy, a benchmark substituted with something exactly reproducible) recurring in problems that look nothing alike on the surface, from tensor foundations all the way through GPU kernels. B.4 made three of the book's most consequential real mistakes concrete and checkable: softmax silently overflowing to NaN on realistic logit magnitudes, float32 addition genuinely depending on evaluation order, and re-quantization losing information in a way that a direct quantization at the same final scale does not. All three compile and run in seconds -- if a prediction did not match the revealed output, that mismatch is worth chasing back to the chapter that first built the idea, which this appendix has named at every step along the way.</p>
 <h2 id="where-we-go-next">Where We Go Next<a class="headerlink" href="#where-we-go-next" title="Permanent link">&para;</a></h2>
-<p>Appendix C consolidates the decision trees scattered across individual chapters -- when to reach for blockwise vs. TurboQuant quantization, when a mutex is enough vs. when a lock-free structure is warranted, which KV cache eviction policy fits which serving pattern -- into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 27.4 and Chapter 10.</p>
+<p>Appendix C consolidates the decision trees scattered across individual chapters -- when to reach for blockwise vs. TurboQuant quantization, when a mutex is enough vs. when a lock-free structure is warranted, which KV cache eviction policy fits which serving pattern -- into a single reference. Appendix D restates this book's own running discipline around timing, determinism, and what a locked self-test contract actually promises. Appendix E is a Rosetta Stone for readers arriving fluent in the Python inference ecosystem. Appendix F catalogs common failure modes -- NaN propagation, false sharing, floating-point drift, and alignment bugs -- much of it drawing directly on material this book already built in Chapter 31.4 and Chapter 10.</p>
 
 
 
