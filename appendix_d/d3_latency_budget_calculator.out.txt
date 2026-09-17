@@ -1,0 +1,13 @@
+===================================================
+Appendix D.3: Latency-Budget Arithmetic
+===================================================
+
+-- Test 1: 64 GB/s (Chapter 4.1's stated figure), 4.5 GB Q4_0 model -- 14.2222 tok/s (rounds to 14.2) --
+-- Test 2: 17.068 GB/s (Appendix D.1's real Raspberry Pi 5 figure), 4.5 GB Q4_0 model -- 3.79289 tok/s --
+-- Test 3: stages totaling 360us against a 500us budget -- fits=1, total=360us --
+-- Test 4: same stages against a 340us budget -- fits=0, breaches at="forward_pass", total_at_breach=355us --
+-- Test 5: exactly-at-budget fits=1, one-unit-under-budget fits=0 --
+-- Test 6: real Raspberry Pi 5 estimate (3.79289 tok/s) vs. a 3 tok/s target -- meets target: YES --
+
+11/11 checks passed
+ALL CHECKS PASSED

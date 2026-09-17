@@ -1,0 +1,9 @@
+=================================================
+Appendix D.1: Computing Theoretical Peak Bandwidth
+=================================================
+
+-- Test 1: Raspberry Pi 5 (BCM2712) -- channels=1, transfer_rate=4267 MT/s, bus_width=32-bit -- computed peak=17.068 GB/s --
+-- Test 2: linearity -- base=17.068, 2x channels=34.136, 2x transfer_rate=34.136, 2x bus_width=34.136 --
+
+5/5 checks passed
+ALL CHECKS PASSED

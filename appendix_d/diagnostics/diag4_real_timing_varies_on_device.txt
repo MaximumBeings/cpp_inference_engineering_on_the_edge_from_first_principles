@@ -1,0 +1,24 @@
+$ g++ -std=c++23 -O2 probe_bandwidth_timing.cpp -o probe_bandwidth_timing
+$ ./probe_bandwidth_timing
+n=50000000, bytes_moved=1200000000, elapsed_seconds=0.147115, achieved_bandwidth_gbps=8.157
+sanity check c[12345]=12351.0 (expect 12351.0)
+$ ./probe_bandwidth_timing
+n=50000000, bytes_moved=1200000000, elapsed_seconds=0.095616, achieved_bandwidth_gbps=12.550
+sanity check c[12345]=12351.0 (expect 12351.0)
+$ ./probe_bandwidth_timing
+n=50000000, bytes_moved=1200000000, elapsed_seconds=0.087469, achieved_bandwidth_gbps=13.719
+sanity check c[12345]=12351.0 (expect 12351.0)
+$ uname -m
+aarch64
+
+# captured on: this book's own real aarch64 target device (the same Linux VM as diag2), three
+# consecutive runs of the identical binary. bytes_moved is again exactly identical across all
+# three runs -- the same 1,200,000,000 bytes, provable without running anything. The measured
+# achieved_bandwidth_gbps swings from 8.157 to 12.550 to 13.719 GB/s across three back-to-back
+# runs of the SAME binary on the SAME machine -- a 68% swing, considerably wider than the cloud
+# sandbox's own ~2% variation in diag3, almost certainly reflecting this device's own real,
+# additional layer of virtualization (a Linux VM on top of the host Mac's own hypervisor) on top
+# of ordinary OS scheduling noise. Neither of these two real, freshly-reproduced transcripts (this
+# one or diag3) could have been locked as this book's own deterministic self-test output without
+# the check itself becoming flaky -- exactly the reasoning behind Appendix D.2's own decision to
+# never print a timing number in its locked contract at all.

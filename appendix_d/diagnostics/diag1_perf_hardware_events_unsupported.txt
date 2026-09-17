@@ -1,0 +1,19 @@
+$ /usr/lib/linux-tools-6.8.0-139/perf stat -e cycles,instructions,task-clock -- /bin/true
+
+ Performance counter stats for '/bin/true':
+
+   <not supported>      cycles
+   <not supported>      instructions
+              1.09 msec task-clock                       #    0.579 CPUs utilized
+
+       0.001878824 seconds time elapsed
+
+       0.001720000 seconds user
+       0.000000000 seconds sys
+
+# captured on: a cloud x86_64 build container (Linux, kernel 6.18.44-fc-v33), perf_event_paranoid=2
+# perf itself runs (its own distro wrapper needed the exact kernel-versioned binary invoked
+# directly to bypass a packaging version-match refusal), but the two HARDWARE PMU events
+# (cycles, instructions) report "<not supported>" -- this virtualized environment does not
+# expose real hardware performance-counter access to the guest at all. The one SOFTWARE event
+# requested (task-clock, timer-based, not a real PMU counter) works normally.

@@ -1,0 +1,18 @@
+$ g++ -std=c++23 -O2 probe_bandwidth_timing.cpp -o probe_bandwidth_timing
+$ ./probe_bandwidth_timing
+n=50000000, bytes_moved=1200000000, elapsed_seconds=0.102568, achieved_bandwidth_gbps=11.700
+sanity check c[12345]=12351.0 (expect 12351.0)
+$ ./probe_bandwidth_timing
+n=50000000, bytes_moved=1200000000, elapsed_seconds=0.100710, achieved_bandwidth_gbps=11.915
+sanity check c[12345]=12351.0 (expect 12351.0)
+$ ./probe_bandwidth_timing
+n=50000000, bytes_moved=1200000000, elapsed_seconds=0.100870, achieved_bandwidth_gbps=11.897
+sanity check c[12345]=12351.0 (expect 12351.0)
+
+# captured on: the same cloud x86_64 build container as diag1, three consecutive runs of the
+# IDENTICAL binary, back to back, seconds apart. bytes_moved (1,200,000,000) is exactly and
+# identically 24 bytes per element (2 reads + 1 write, 8 bytes each) times 50,000,000 elements --
+# deterministic, provable from the loop's own definition, and genuinely identical across all
+# three runs. achieved_bandwidth_gbps is not: 11.700, then 11.915, then 11.897 GB/s -- a real,
+# unforced, run-to-run variation of nearly 2% on the exact same machine running the exact same
+# instructions on the exact same data, with nothing else deliberately changed between runs.

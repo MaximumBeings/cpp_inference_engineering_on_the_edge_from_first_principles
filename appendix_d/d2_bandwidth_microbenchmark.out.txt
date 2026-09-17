@@ -1,0 +1,10 @@
+======================================================
+Appendix D.2: A Real Bandwidth Micro-Benchmark
+======================================================
+
+-- Test 1: n=8, bytes_moved=192 --
+-- Test 2: n1=1000 -> 24000 bytes; n2=1000000 -> 24000000 bytes --
+-- Test 3: this self-test's own determinism does not depend on wall-clock time at all -- nothing above measured one --
+
+7/7 checks passed
+ALL CHECKS PASSED
