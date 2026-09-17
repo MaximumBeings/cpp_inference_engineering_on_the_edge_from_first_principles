@@ -1,0 +1,21 @@
+========================================================
+Chapter 25.3: Exercise-Form Analysis and Rep Counting
+========================================================
+
+-- Test 1: the real joint-angle formula matches exact, hand-verifiable geometric configurations --
+  two perpendicular real vectors from a shared vertex measure to exactly 90 degrees; two opposite real vectors (a fully straightened leg) measure to exactly 180 degrees; a real 45-degree configuration measures to exactly 45 degrees; and two identical real vectors measure to exactly 0 degrees
+
+-- Test 2: 3 real full reps that reach true depth are counted, and a real partial rep that never reaches true depth before returning to standing is honestly excluded from the count --
+  a real 17-frame sequence containing 3 genuine full reps and 1 real partial rep that bottoms out at only 128 degrees (short of the real 100-degree depth threshold) before returning to standing counts to exactly 3 -- the partial rep is correctly never counted
+
+-- Test 3: a real dip back into full depth mid-ascent is correctly treated as the same rep still in progress, never a double count --
+  a rep that reaches bottom, rises partway to 130 degrees, dips back down to 95 degrees (real full depth again), then finally rises all the way to standing counts as exactly 1 real rep, not 2 -- the mid-ascent dip back into BOTTOM never triggers a premature or duplicate count
+
+-- Test 4: INSUFFICIENT_DEPTH is flagged only when a rep's own bottom angle genuinely fails to reach the real depth threshold, inclusive of the boundary itself --
+  bottom angles of 115/112 degrees (short of real depth) flag INSUFFICIENT_DEPTH; bottom angles of exactly 100/100 degrees -- the real threshold itself -- correctly do NOT flag it; bottom angles of 90/88 degrees flag no faults at all
+
+-- Test 5: KNEE_ASYMMETRY is flagged only once the real left/right difference genuinely exceeds this section's own stated threshold --
+  a real 2-degree left/right difference flags no fault at all; a real 15-degree difference -- exactly this section's own stated threshold -- correctly does NOT flag KNEE_ASYMMETRY; a real 16-degree difference does, and here it also correctly flags INSUFFICIENT_DEPTH at the same time, since 106 degrees also fails the real depth threshold on its own
+
+16/16 checks passed
+ALL CHECKS PASSED

@@ -1,0 +1,27 @@
+========================================================
+Chapter 25.1: Body-Camera Frame Sampling and Scene Tagging
+========================================================
+
+-- Test 1: periodic sampling at a real fixed interval, computed from fps and a stated base sample rate --
+  30 fps sampled at a 1 Hz base rate resolves to exactly a 30-frame interval; 100 total frames periodically sample to exactly frames 0, 30, 60, 90
+
+-- Test 2: real motion-triggered frames are merged with periodic coverage, deduped against any periodic frame they coincide with, and the whole result stays sorted --
+  motion triggers at frames 45, 30, and 61 merge with the periodic 0/30/60/90 sequence into exactly 0, 30, 45, 60, 61, 90 -- frame 30 appears exactly once, correctly still marked PERIODIC rather than duplicated as MOTION_TRIGGERED
+
+-- Test 3: a motion trigger reported outside the real recorded frame range is honestly dropped as sensor noise, never accepted as a real evidentiary frame --
+  motion triggers at frame -5 and frame 250 (outside the real 0..99 recorded range for a 100-frame clip) are both dropped; the one real in-range trigger at frame 50 is kept
+
+-- Test 4: periodic-only sampling can never leave a real coverage gap larger than its own computed interval, checked directly rather than merely assumed --
+  periodic-only sampling of a 100-frame clip at a 30-frame interval has a real worst-case gap of exactly 30 frames; adding a motion-triggered frame can only ever shrink that worst-case gap, never grow it
+
+-- Test 5: the closed scene-tag vocabulary's own strict parser accepts every real tag name and rejects anything outside it, by name --
+  "WEAPON_VISIBLE" parses to its own real enum value; the unrecognized token "SUSPICIOUS_PERSON" is rejected with that exact token named in the error, never silently mapped to the nearest-sounding real tag
+
+-- Test 6: a frame's own report line renders its real scene tags and real uniform roles exactly, and nothing else --
+  frame 120's report line renders to exactly "[frame 120] tags: WEAPON_VISIBLE, PERSON_ON_GROUND; people: 2 (OFFICER, CIVILIAN)" -- a role and a bounding box, never a name; an empty frame renders to exactly "[frame 0] tags: (none); people: 0"
+
+-- Test 7: PersonBox's own structural inability to hold an identity is a real, compile-time property, checked here at runtime against the identical concept the static_assert above already enforced at build time --
+  this file already failed to compile if PersonBox ever gained a name, person_id, or face_embedding field -- the fact this line runs at all is itself part of the proof, confirmed here directly against the same real concept
+
+24/24 checks passed
+ALL CHECKS PASSED

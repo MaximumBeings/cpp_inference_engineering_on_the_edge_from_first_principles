@@ -1,0 +1,24 @@
+========================================================
+Chapter 25.4: Camera-Based Nutrition Tracking via a USDA-Style Offline Reference
+========================================================
+
+-- Test 1: the offline reference subset's own stated real values are exactly what this section commits to for a representative sample --
+  apple (raw) is exactly 52 kcal per 100g; chicken breast (cooked) is exactly 165 kcal and exactly 31.0g protein per 100g; egg (large, cooked) is exactly 11.0g fat per 100g -- this section's own stated reference values, checked directly
+
+-- Test 2: every food in the closed vocabulary has a real, non-degenerate reference entry -- an exhaustive check, not a hand-picked sample --
+  all 6 foods in the closed vocabulary have a real, positive calorie count, density, and assumed serving thickness -- no food silently falls through to a missing or zeroed-out reference entry
+
+-- Test 3: real portion-mass estimation from a real reference-plate scale matches an exact, hand-computed value --
+  an 80cm^2 real chicken-breast area at a real 2600px reference-plate diameter estimates to exactly 120.0g at the midpoint, with an honest [96.0g, 144.0g] real range; a 50cm^2 real banana area under the identical scale estimates to exactly 50.0g at the midpoint, with an honest [40.0g, 60.0g] range
+
+-- Test 4: the real low/mid/high ordering of a portion estimate holds across every food in the closed vocabulary, not merely the hand-picked examples above --
+  across all 6 foods in the closed vocabulary, the real low estimate is strictly less than the real mid estimate, which is strictly less than the real high estimate, with zero exceptions -- this section never collapses its own honest range into a single value anywhere in the table
+
+-- Test 5: a daily tally over several real, human-confirmed log entries sums to an exact, hand-computed total across every real macro --
+  150g chicken breast + 200g white rice + 100g broccoli, all human-confirmed gram amounts, tally to exactly 541.5 kcal, 54.7g protein, 62.6g carbs, and 6.4g fat -- matching a real hand computation across every entry and every macro
+
+-- Test 6: daily-intake classification against a real stated target range is correct on both sides and inclusive at each real boundary --
+  against a real stated 1800-2200 kcal target range: 1500 kcal classifies BELOW_RANGE, 2000 kcal WITHIN_RANGE, 2500 kcal ABOVE_RANGE, and both real boundary values themselves, 1800 and 2200 kcal, correctly classify WITHIN_RANGE -- with 1799.9 and 2200.1 immediately outside on either side, confirming the boundary is genuinely inclusive rather than accidentally so
+
+53/53 checks passed
+ALL CHECKS PASSED

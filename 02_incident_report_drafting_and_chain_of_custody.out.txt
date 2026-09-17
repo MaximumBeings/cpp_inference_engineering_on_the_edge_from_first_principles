@@ -1,0 +1,24 @@
+========================================================
+Chapter 25.2: Incident Report Drafting and Chain of Custody
+========================================================
+
+-- Test 1: this section's own from-scratch FNV-1a implementation matches its real, published reference vectors exactly --
+  fnv1a_32("") = 0x811c9dc5, fnv1a_32("a") = 0xe40c292c, fnv1a_32("b") = 0xe70c2de5, fnv1a_32("foobar") = 0xbf9cf968 -- all 4 match FNV-1a's own real, published reference vectors exactly
+
+-- Test 2: real presence-interval coalescing merges contiguous same-tag frames into one interval, and splits into two once a real gap exceeds this section's own stated tolerance --
+  WEAPON_VISIBLE at 0ms, 1000ms, and 2000ms (each within the 5000ms tolerance) coalesces into one interval [0ms, 2000ms]; the same tag reappearing at 20000ms, 18 real seconds later, correctly starts its own separate second interval
+
+-- Test 3: a coalesced interval's own narrative line renders to an exact, deterministic mm:ss-formatted string --
+  an interval from 4000ms to 12000ms renders to exactly "[00:04 - 00:12] PERSON_ON_GROUND observed"; an interval crossing a real minute boundary, 65000ms to 130000ms, renders to exactly "[01:05 - 02:10] VEHICLE_PRESENT observed"
+
+-- Test 4: draft_report sorts genuinely out-of-order input frames before drafting, producing the identical real narrative an already-sorted input would --
+  the identical two frames, supplied once in real chronological order and once deliberately shuffled, draft to the exact identical report -- draft_report never assumes its own input already arrived sorted
+
+-- Test 5: a real, genuine gap with no tag activity at all is reported explicitly, never silently omitted --
+  a real 59-second silence between VEHICLE_PRESENT ending at 0ms and EMS_PRESENT starting at 60000ms, and a real 30-second silence after EMS_PRESENT ends and the incident's own stated end time, both get their own explicit "No notable activity" line rather than simply not appearing
+
+-- Test 6: the chain-of-custody hash is a real, tamper-evident checksum -- an identical record hashes identically, and changing even one tag on one frame changes the hash --
+  an identical copy of the same incident record hashes to the exact same real chain-of-custody value; silently removing just the PERSON_ON_GROUND tag from one single frame changes that hash, proving the checksum really does depend on every real tag on every real frame
+
+16/16 checks passed
+ALL CHECKS PASSED
