@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2406,6 +2408,13 @@
 </ul>
 <hr />
 <p>Every chapter so far has proven its code correct against data this book's own tools produced: a writer this book wrote, read back by a reader this book wrote, checked against values this book's own test computed. That symmetry is exactly what makes those chapters' cross-architecture verification possible, and exactly what this chapter breaks on purpose. A real, published model file was produced by someone else's tooling, encodes someone else's architecture choices, and makes no promise that this book's prior assumptions hold. Section 15.1 builds a GGUF reader that survives contact with such a file -- closing gaps (an unsupported metadata value type, wrong assumptions about a magic number's exact bytes) that no self-consistent round-trip test could ever have surfaced. Section 15.2 puts that reader to work identifying exactly where a real Qwen2.5 checkpoint's architecture diverges from the Llama-style choices this book built Part 0 and Part 3 against: five differences, each checked against the real file's own bytes rather than assumed from a spec sheet or carried forward from an unverified claim. Section 15.3 adapts the actual forward-pass and tokenizer code for those five differences and proves the adaptation correct against a small synthetic model shaped like the real one. Section 15.4, the chapter's capstone, wires every piece -- the reader, the dequantizer, the BPE engine, the adapted transformer block -- together, points the result at the actual 644 MB file, and produces one real, computed, decoded token. Getting that one token right required finding and fixing four genuine bugs that no synthetic self-test, however careful, could have caught -- and this chapter documents each one as it was actually found, not as though the correct answer were obvious from the start.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass." height="470" loading="lazy" src="../../images/15-overview.svg" width="1120" /></p>
+<figcaption>A synthetic self-test and a real checkpoint run validate different contracts.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="151-a-reader-that-survives-contact-with-a-real-file">15.1 A Reader That Survives Contact With a Real File<a class="headerlink" href="#151-a-reader-that-survives-contact-with-a-real-file" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Every earlier GGUF reader in this book was tested the same way: write a file with this book's own writer, read it back with this book's own reader, and confirm the two agree. That test proves internal consistency. It proves nothing about whether either tool agrees with the actual GGUF specification, because a writer and a reader that share the same misunderstanding will always agree with each other while both disagree with reality -- and nothing in a round-trip test can tell the difference.</p>

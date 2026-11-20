@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2506,6 +2508,13 @@
 </ul>
 <hr />
 <p>Chapter 8 established that a kernel's speed is capped by two independent resources, compute and bandwidth, and that the ratio between them — arithmetic intensity — decides which one actually limits a given kernel. This chapter is about the compute side of that ceiling: how a CPU's peak FLOP rate is actually achieved in practice, one instruction at a time, by processing more than one data element per instruction. Section 9.1 derives what a SIMD register buys a kernel from nothing but its bit width and element width, reusing Chapter 8.1's own peak-compute formula to show precisely how much of a chip's peak throughput its register width accounts for — and reusing Chapter 8.1's own COMMON TRAP to show, again, that none of it matters for a kernel that is memory-bound. Section 9.2 writes real AVX2 intrinsics against the Q8_0 and Q4_0 formats this book has quantized weights into since Chapter 4, including the integer unpacking a packed 4-bit format demands before any arithmetic can touch it. Section 9.3 writes the same two kernels again in Arm NEON, and finds a genuine, verifiable difference in how many instructions the identical logical step costs on the two architectures. Section 9.4 steps back from hand-written intrinsics entirely to ask what a compiler's auto-vectorizer does on its own, and what specific promise <code>__restrict</code> makes to unlock it. Section 9.5 closes the chapter with the piece every one of these kernels needs before it can ship: a runtime check that decides, once, at startup, which instruction set the CPU actually sitting under the binary supports.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="A dot product across SIMD lanes. Accumulate independent products in a vector register before reducing them." height="470" loading="lazy" src="../../images/09-overview.svg" width="1120" /></p>
+<figcaption>Vector width, alignment, tail elements and ISA support all matter.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="91-the-simd-register-model-derived-from-register-width">9.1 The SIMD Register Model, Derived From Register Width<a class="headerlink" href="#91-the-simd-register-model-derived-from-register-width" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A SIMD register is not a mysterious accelerator; it is a wider bucket that a fixed number of narrower values are poured into together. A 256-bit AVX2 register and a 128-bit NEON register both follow the identical rule — lanes equal register bits divided by element bits — and that one arithmetic fact, not a lookup table of vendor trivia, is enough to derive exactly how much peak compute a given register width is responsible for.</p>

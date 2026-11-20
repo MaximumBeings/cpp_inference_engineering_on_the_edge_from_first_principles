@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2305,6 +2307,13 @@
 </ul>
 <hr />
 <p>Chapter 16 produced a complete, working, self-contained production engine -- a real command line, a real sampling pipeline, a real multi-turn conversation, and a real two-turn exchange against the actual downloaded Qwen2.5-0.5B-Instruct checkpoint. It never once asked whether that engine was any GOOD, compared to anything else. This chapter asks exactly that question, against the reference every CPU inference engine in the world is measured against: <code>llama.cpp</code>. Answering it honestly takes three steps in order. First, agreeing on WHAT to measure, because a single "tokens per second" number quietly conflates at least three different phases of generation with different costs and different bottlenecks. Second, building a harness that measures those real numbers against this book's own REAL forward pass, not a simulation of one. Third, and only once both of those are trustworthy, actually running the comparison -- on identical hardware, an identical file, and a stated, narrow methodology -- and reporting whatever number comes out, including a number that is not flattering.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated." height="470" loading="lazy" src="../../images/17-overview.svg" width="1120" /></p>
+<figcaption>Report model, hardware, flags and measurement boundaries with every comparison.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="171-what-to-measure-and-why">17.1 What to Measure and Why<a class="headerlink" href="#171-what-to-measure-and-why" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>"How fast is it" hides a real ambiguity. A user waiting for a chatbot to start responding cares about one thing; a user watching text stream in afterward cares about a different one; and neither of those is the same as "how much memory did this cost to run," which no earlier chapter in this book ever had reason to measure at all.</p>

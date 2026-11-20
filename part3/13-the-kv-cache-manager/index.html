@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2505,6 +2507,13 @@
 </ul>
 <hr />
 <p>Every chapter through Part 2 asked how fast the CPU could compute a forward pass. This chapter asks a different question: once a model is generating token after token, what does it cost to remember everything it has already seen, and how do you keep that cost from destroying performance or correctness? Section 13.1 derives the memory wall itself — the equation that makes decode-time speed a function of bytes moved, not FLOPs computed — and shows exactly how much of that byte budget the KV cache claims as context grows. Section 13.2 solves the fragmentation half of the problem with PagedAttention: block-table indirection that allocates memory on demand and shares identical prefixes for free. Section 13.3 solves the unbounded-growth half with a Ring Buffer, and spends most of its attention on a subtle correctness property — RoPE position decoupling — that a naive implementation gets wrong in a way that looks fine until the model's output quietly stops making sense. Section 13.4 replaces FIFO eviction, which the Ring Buffer uses by default, with H2O's attention-probability-driven importance scoring, so eviction discards what the model has stopped needing rather than whatever merely arrived first. Section 13.5 closes the chapter by combining all three techniques into one manager and confirming that nothing about combining them weakens any guarantee proved in isolation.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="The KV cache preserves attention history. New tokens append keys and values; each query reads the retained history." height="470" loading="lazy" src="../../images/13-overview.svg" width="1120" /></p>
+<figcaption>KV bytes = layers * tokens * KV heads * head dimension * 2 * bytes per element</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="131-the-memory-wall-why-the-kv-cache-is-the-real-bottleneck">13.1 The Memory Wall: Why the KV Cache Is the Real Bottleneck<a class="headerlink" href="#131-the-memory-wall-why-the-kv-cache-is-the-real-bottleneck" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>An autoregressive model is stateful: generating the Nth token requires attending over all N-1 tokens that came before it. Storing their Key and Value vectors instead of recomputing them every step turns an O(N^2) total-FLOP generation into O(N) per step — a genuinely good trade, but one that swaps compute for memory traffic, and memory traffic has its own, much harder, speed limit.</p>

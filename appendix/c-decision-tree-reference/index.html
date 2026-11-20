@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2181,6 +2183,13 @@
 <h1 id="appendix-c-a-decision-tree-reference-quantization-threading-and-cache-strategies-at-a-glance">Appendix C: A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance<a class="headerlink" href="#appendix-c-a-decision-tree-reference-quantization-threading-and-cache-strategies-at-a-glance" title="Permanent link">&para;</a></h1>
 <p>This appendix builds nothing new. Every format, every partitioning rule, every cache strategy named below was already derived and verified somewhere in Parts 1 through 3 (and, for the threading crossover formula, Part 6) -- this appendix's only job is to pull those real, scattered conclusions into one place a reader can consult while making a real decision, with an exact pointer back to where each one was built. Each of the three sections below closes with a small, real, compiled advisor program that turns its own decision tree into an executable function returning both the recommendation and the specific chapter fact behind it -- restating a decision as code, exactly this book's own standing discipline for every other real claim, rather than leaving it as a diagram a reader has to trust on faith.</p>
 <hr />
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation." height="470" loading="lazy" src="../../images/c-overview.svg" width="1120" /></p>
+<figcaption>Each optimization must preserve the model&#x27;s numerical and state contracts.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="c1-choosing-a-quantization-strategy">C.1 Choosing a Quantization Strategy<a class="headerlink" href="#c1-choosing-a-quantization-strategy" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Chapters 4, 6, and 7 built five real formats -- F32, Q8_0, Q4_0, dynamic per-token INT8, and TurboQuant -- and none of them is simply "better." Each one trades away a different thing: Q8_0 and Q4_0 trade reconstruction accuracy for file size on data that will be calibrated once, offline, with unlimited time; dynamic INT8 trades a persisted, shrinkable scale for the ability to quantize data that does not exist until the current token is being generated; TurboQuant trades a per-vector rotation cost for the ability to compress data with no calibration pass available at all. The real question this section answers is never "which format is best" -- it is "what kind of data is this, and what does that kind of data actually need."</p>

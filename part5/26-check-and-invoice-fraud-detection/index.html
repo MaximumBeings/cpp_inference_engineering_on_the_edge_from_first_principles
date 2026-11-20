@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2404,6 +2406,13 @@
 </ul>
 <hr />
 <p>Chapter 25 closed Part 5's run of consumer- and field-facing vision-language deployments. This chapter turns to a different real financial setting: a bank branch or back office processing checks and invoices, where the fraud patterns are well-documented, real, and -- unlike a counterfeit product photo -- often checkable by a real published formula or a real structural redundancy the payment instrument's own printed form was designed to provide. Each of this chapter's four sections reapplies an algorithm this book already built from scratch (dHash, Levenshtein) to a new real domain, or builds a new real algorithm (a routing-number checksum, a words-to-number parser) with its own well-established provenance outside this book, and closes with a capstone risk-scoring engine that combines all of them into one fully auditable disposition.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Cross-check financial document fields. Independent checks expose inconsistencies for further review." height="470" loading="lazy" src="../../images/26-overview.svg" width="1120" /></p>
+<figcaption>Matching fields do not establish authenticity; preserve uncertainty and provenance.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="261-micr-checksum-validation-and-signature-comparison">26.1 MICR Checksum Validation and Signature Comparison<a class="headerlink" href="#261-micr-checksum-validation-and-signature-comparison" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A check's own MICR line is not just an identifier -- its routing number carries a real, published checksum, the same formula every US bank's own check-clearing system runs on every check that passes through it. A forged or badly transcribed routing number will very often fail this checksum outright, catching a structural problem before any human ever reads the check. Separately, a check's own payee signature can be compared against a signature on file using the identical real perceptual hash this book already built in Chapter 23.1 for a completely different purpose.</p>

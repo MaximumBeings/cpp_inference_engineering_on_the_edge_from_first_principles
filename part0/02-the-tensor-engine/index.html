@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2502,6 +2504,13 @@
 </ul>
 <hr />
 <p>Chapter 1 argued that edge inference is a different engineering problem from cloud inference: memory is scarce, allocation has to be predictable, and the difference between a contiguous buffer and one three cache lines away can decide whether a token generation loop hits its latency budget. This chapter builds the concrete C++23 tools this book uses everywhere from here forward to act on that argument. <code>std::mdspan</code> gives every later chapter a single, standard way to describe a tensor's shape without owning its memory. <code>std::submdspan</code> gives multi-head attention a way to slice that tensor per head without copying. The arena allocator gives the token generation loop a scratch-memory strategy with no per-token syscall and no fragmentation. And <code>std::variant</code>-based mixed precision gives every later chapter a type-safe way to store the same logical tensor as FP32 or BF16 without duplicating kernel code. Every other chapter in Part 0 through Part 5 assumes all four of these are already comfortable tools by the time they are needed again.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects." height="470" loading="lazy" src="../../images/02-overview.svg" width="1120" /></p>
+<figcaption>Row-major offset(i, j) = i * columns + j</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="21-stdmdspan-a-zero-copy-view-over-flat-memory">2.1 std::mdspan: A Zero-Copy View Over Flat Memory<a class="headerlink" href="#21-stdmdspan-a-zero-copy-view-over-flat-memory" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A <code>std::vector&lt;float&gt;</code> is just a flat run of bytes; nothing about it says whether those bytes represent one long vector, a 32x128 tile, or a batch of token embeddings. <code>std::mdspan</code> adds exactly that missing layer — a way to say "read this flat buffer as if it had this shape" — without allocating anywhere or copying a single element. It is a view in the same sense <code>std::string_view</code> and <code>std::span</code> are views: a pointer plus metadata, nothing more.</p>

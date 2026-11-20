@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2404,6 +2406,13 @@
 </ul>
 <hr />
 <p>This chapter closes Part 5 with two cameras that see far more of a person's life than any system this book has built so far, and that fact shapes every design choice in it. A police body camera records members of the public who never consented to being recorded, in circumstances where an identification error carries real legal weight -- so Section 25.1 and Section 25.2 build a real evidentiary pipeline whose own types make facial recognition impossible to add by accident, not merely discouraged by policy. A personal fitness or nutrition camera records its own owner, continuously, in their own home -- so Section 25.3 and Section 25.4 build real, useful health-tracking techniques that run entirely on-device, with no image or personal health data ever needing to leave it. Both halves of this chapter are united by the same real principle: a genuinely privacy-respecting camera system is not a promise layered on top of the architecture, it is the architecture.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording." height="470" loading="lazy" src="../../images/25-overview.svg" width="1120" /></p>
+<figcaption>Keep the original recording and its provenance alongside generated descriptions.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="251-body-camera-frame-sampling-and-scene-tagging-under-a-no-facial-recognition-boundary">25.1 Body-Camera Frame Sampling and Scene Tagging Under a No-Facial-Recognition Boundary<a class="headerlink" href="#251-body-camera-frame-sampling-and-scene-tagging-under-a-no-facial-recognition-boundary" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A body camera recording at 30 frames per second for an entire shift generates far more frames than any edge device can process in real time, and it must never be able to recognize a specific person even if someone later asked it to. This section builds a real frame-sampling strategy that keeps coverage honest without processing every frame, and a scene-tagging data model that makes identification structurally impossible rather than merely disallowed.</p>

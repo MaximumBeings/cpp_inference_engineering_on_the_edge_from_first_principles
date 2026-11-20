@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2283,6 +2285,13 @@
 </ul>
 <hr />
 <p>This book has built one real inference engine, from <code>std::mdspan</code> tensors through quantization, threading, the KV cache, real deployed models, and twelve real edge deployments, entirely in portable C++23 that runs identically on an x86 development machine and real aarch64 hardware. This final chapter takes that same engine to the one real place it has not yet gone: a GPU. It does so with the identical discipline every chapter before it used -- derive the real problem precisely, build a real fix from scratch, and verify it directly rather than asserting it -- but it also does something this book has not had to do before: it tells you plainly, in detail, exactly which of its own real claims a GPU-less pipeline can verify and which it genuinely cannot, rather than blurring that line to make the chapter read more impressively than the truth supports.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory." height="470" loading="lazy" src="../../images/32-overview.svg" width="1120" /></p>
+<figcaption>Validate partial tiles and query blocks against the CPU reference on a physical GPU.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="321-the-on2-memory-wall-and-the-online-softmax-fix">32.1 The O(N^2) Memory Wall and the Online-Softmax Fix<a class="headerlink" href="#321-the-on2-memory-wall-and-the-online-softmax-fix" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Standard attention computes a full N x N score matrix -- one entry per query-key pair -- before it can take a single softmax over any row of it. That matrix's own real memory cost grows with the SQUARE of sequence length, and at the real sequence lengths modern serving systems actually handle, it becomes the genuine bottleneck long before raw compute does.</p>

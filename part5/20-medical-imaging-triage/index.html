@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2505,6 +2507,13 @@
 </ul>
 <hr />
 <p>Chapter 18 taught a vision-language model to inspect a manufactured part and decide, on its own, whether the part passed. Chapter 19 taught the same core to reconcile a shelf against a planogram and raise its own findings. Medical imaging triage cannot work either way. A system that reads a scan and suggests how urgently a human should look at it is assisting a clinical decision, never making one, and this chapter states why that difference is not a matter of policy wording but of what a piece of software is structurally CAPABLE of doing on its own. This chapter builds every real piece that discipline requires, in the order a real triage pipeline would need them -- a state machine that cannot reach a final disposition without a real clinician's own sign-off, a real parser for the DICOM files a scan actually arrives in, a report format structurally incapable of smuggling a diagnosis into a queue-priority field, a worklist queue that extends the same sign-off discipline across many radiologists and many cases at once, and, finally, an honest account of how far a real explainability technique can see into the model's own reasoning, and exactly where it stops.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Medical triage with a human review gate. The examples illustrate workflow plumbing; clinical deployment requires separate validation." height="470" loading="lazy" src="../../images/20-overview.svg" width="1120" /></p>
+<figcaption>Automated triage output requires clinical review and deployment-specific validation.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="201-a-structural-human-in-the-loop-triage-state-machine">20.1 A Structural Human-in-the-Loop Triage State Machine<a class="headerlink" href="#201-a-structural-human-in-the-loop-triage-state-machine" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Chapter 18.4's <code>classify</code> decided, entirely on its own, whether a manufactured part passed or failed, gated only by a confidence threshold. A system suggesting how urgently a radiologist should look at a scan cannot be allowed to finalize anything on its own, at any confidence level -- and this section builds that guarantee as a property of the TYPE itself, not a rule a caller has to remember to follow.</p>

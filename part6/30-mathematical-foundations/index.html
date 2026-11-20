@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2606,6 +2608,13 @@
 </ul>
 <hr />
 <p>Every chapter before this one built a working system and verified it against the correct answer. This chapter asks a different question of the same material: not "does it work," but "why does it work, and what does that explain about its own real limits." A dot product's own arithmetic intensity explains why decode is slow no matter how fast the GPU is. A rotation matrix's own algebra explains why RoPE encodes relative position at all. A Hessian explains why GPTQ beats naive rounding, not just that it does. Part 6 exists to give the kernel-level intuition Parts 1 through 5 relied on without deriving, and this chapter is where that derivation happens -- entirely in real, checkable, from-scratch C++, exactly like every chapter before it.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures." height="470" loading="lazy" src="../../images/30-overview.svg" width="1120" /></p>
+<figcaption>Use the mathematical assumptions explicitly when interpreting measurements.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="301-the-dot-product-as-inferences-atomic-unit-and-the-real-gemvgemm-crossover">30.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover<a class="headerlink" href="#301-the-dot-product-as-inferences-atomic-unit-and-the-real-gemvgemm-crossover" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Every matrix multiply in a transformer decomposes into real dot products, and a real dot product's own arithmetic intensity -- FLOPs moved per byte read -- never improves no matter how long the vectors get. That single, unglamorous fact is the entire reason autoregressive decode is memory-bound, and it is what makes GEMM's own real transition to compute-bound, as batch size grows, a genuinely derivable number rather than a rule of thumb.</p>

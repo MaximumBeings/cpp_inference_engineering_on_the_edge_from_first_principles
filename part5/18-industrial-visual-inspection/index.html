@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2505,6 +2507,13 @@
 </ul>
 <hr />
 <p>Every earlier chapter's real file was already sitting on disk before this book's own code ever touched it -- a GGUF checkpoint, a conversation's own text. A manufacturing line is a different kind of deployment target entirely: its camera produces frames over a network in real time, its inspection model has to fuse what it sees with what it is told, its verdict has to become an action a conveyor's gate can act on within milliseconds, and its every decision has to be durably logged and reported upward to the SCADA system that runs the rest of the plant. This chapter builds all five of those pieces from scratch, in order -- frame acquisition, vision encoding, multimodal fusion, disposition and logging, and SCADA integration -- stating exactly where each one is a real, verifiable implementation and where it is an honest, clearly labeled simplification of a real industrial protocol this environment has no hardware to check byte-for-byte.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="A manufacturing inspection decision path. Model output is one input to a disposition policy." height="470" loading="lazy" src="../../images/18-overview.svg" width="1120" /></p>
+<figcaption>Confidence and model output require validation before actuating a production workflow.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="181-gige-vision-frame-acquisition-and-hardware-triggering">18.1 GigE Vision Frame Acquisition and Hardware Triggering<a class="headerlink" href="#181-gige-vision-frame-acquisition-and-hardware-triggering" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A manufacturing line's camera does not hand an inference engine a finished image. It hands it a stream of network packets, arriving over UDP, which offers no guarantee of order and no guarantee that every packet even arrives. The very first job any edge inference engine on a real line has -- before a single pixel reaches a vision encoder -- is turning that unreliable packet stream back into one complete, correctly ordered frame, and knowing honestly when it has failed to do so.</p>

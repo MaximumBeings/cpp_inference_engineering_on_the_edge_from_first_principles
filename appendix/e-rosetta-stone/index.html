@@ -53,6 +53,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2335,6 +2337,13 @@
 <h1 id="appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone">Appendix E: From PyTorch and llama.cpp to C++: A Rosetta Stone<a class="headerlink" href="#appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone" title="Permanent link">&para;</a></h1>
 <p>This appendix builds nothing new in the sense Appendix C did -- there is no fresh compiled program here, and deliberately so. Every C++ name below (<code>std::mdspan</code>, <code>GGUFReader</code>, <code>BPEEncoder::encode</code>, <code>BlockManager</code>, <code>EngineConfig</code>, <code>simulate_continuous_batching</code>) is a real, already-compiled, already-locked piece of this book, cited back to the exact chapter and section that built and verified it; nothing here asks a reader to trust a claim this book has not already backed with real code somewhere else. What is genuinely new is the other half of each comparison: the real Python-ecosystem tool a reader coming from that world already knows, each one checked directly against its own official documentation, paper, or source repository rather than against memory -- so a <code>torch.Tensor</code> claim traces to PyTorch's own docs, a PagedAttention claim traces to vLLM's own paper, and a RadixAttention claim traces to SGLang's own announcement, exactly as this book's own claims trace to its own chapters. Where the two sides genuinely correspond, this appendix says so plainly; where this book's own real, working code is honestly simpler than its Python-ecosystem counterpart, this appendix says that too, using this book's own stated honest-scope language rather than papering over the gap.</p>
 <hr />
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain." height="470" loading="lazy" src="../../images/e-overview.svg" width="1120" /></p>
+<figcaption>Check the book&#x27;s implemented scope before assuming framework feature parity.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained">E.1 Tensors: <code>std::mdspan</code> and GGUF/SafeTensors vs. <code>torch.Tensor</code> and <code>AutoModel.from_pretrained</code><a class="headerlink" href="#e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A reader arriving from PyTorch has never had to think about a tensor's memory apart from the tensor itself -- <code>torch.Tensor</code> bundles a reference-counted block of storage together with the shape and stride metadata that describes how to read it, and the object stays alive for as long as anything holds a reference to it. Chapter 2 built something narrower and, in one specific way, more dangerous to use carelessly: <code>std::mdspan</code> is a pure view -- shape and stride metadata with no storage of its own, no reference count, and no say at all in how long the memory underneath it survives. Neither design is wrong; they are solving different problems. <code>torch.Tensor</code> manages memory so a Python program using it doesn't have to. <code>std::mdspan</code> refuses to manage memory at all, on the theory that a C++ program in control of its own allocations should decide that separately, once, rather than pay a reference count on every tensor operation in a real-time inference loop.</p>

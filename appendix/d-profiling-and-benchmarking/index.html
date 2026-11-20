@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2259,6 +2261,13 @@
 <h1 id="appendix-d-profiling-and-benchmarking-on-edge-hardware">Appendix D: Profiling and Benchmarking on Edge Hardware<a class="headerlink" href="#appendix-d-profiling-and-benchmarking-on-edge-hardware" title="Permanent link">&para;</a></h1>
 <p>Chapter 32's own opening line makes a promise this appendix now keeps: "this book's own running discipline of never claiming a wall-clock timing result as part of a locked, deterministic self-test contract" is "stated plainly in Appendix D." Every chapter since Chapter 4 has followed that discipline without stopping to defend it at length -- byte counts and FLOP counts get locked and verified across four architectures; milliseconds and GB/s never do. This appendix states the reasoning explicitly, gives it a real formula for computing a theoretical ceiling, a real (deliberately unlocked) way to measure what a machine actually achieves, a real way to turn either into a latency budget, and an honest account of what happened when this book tried to reach for the most obvious real profiling tool -- <code>perf</code> -- on its own two real build environments.</p>
 <hr />
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Profile a controlled workload. A measurement only answers the question defined by its boundaries." height="470" loading="lazy" src="../../images/d-overview.svg" width="1120" /></p>
+<figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet">D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet<a class="headerlink" href="#d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A vendor's own published bandwidth figure is not measured on a running system -- it is computed, ahead of time, from three numbers on a spec sheet: how many independent memory channels a chip has, how fast each one transfers data, and how wide each transfer is. Chapter 8.1 derived exactly this formula for an illustrative machine. This section applies it, for the first time in this book, to a real, named, currently-shipping piece of edge hardware, using only numbers that chip's own vendor has actually published.</p>

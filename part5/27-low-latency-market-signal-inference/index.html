@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2404,6 +2406,13 @@
 </ul>
 <hr />
 <p>Chapter 26 turned to a bank branch or back office processing checks and invoices, where a fraud pattern -- once caught -- has no real time pressure attached to catching it a few seconds later. This chapter turns to a related but genuinely different real financial setting: inference on live market-signal data near the exchange, where the central constraint is not pattern detection at all, but a hard, real-time deadline measured in microseconds. Each of this chapter's four sections builds one real, independent piece of that pipeline -- order-book features, a deadline enforcement mechanism, a finance-specific sentiment score -- and closes with a capstone that fuses all three into one auditable trading decision, where a signal that arrived too late to act on safely is treated as no signal at all.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Fit inference into a market-data latency budget. Deadline handling is part of the decision path." height="470" loading="lazy" src="../../images/27-overview.svg" width="1120" /></p>
+<figcaption>An offline accuracy score does not establish live latency or trading performance.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="271-order-book-microstructure-features">27.1 Order Book Microstructure Features<a class="headerlink" href="#271-order-book-microstructure-features" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A real electronic exchange's own top-of-book -- the single best bid, best ask, and their own displayed sizes -- already carries real, computable signal before any history or model is involved. The mid-price is the obvious first cut, but the "microprice" is a more informative real quantity: it weights each side's price by the OPPOSITE side's own displayed size, so that heavy buying pressure (a large bid size resting against a thin ask) pulls the microprice up toward the ask, reflecting the real expectation that the thin side is more likely to be consumed next. Order-book imbalance captures the same asymmetry as a single bounded number.</p>

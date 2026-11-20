@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2605,6 +2607,13 @@
 </ul>
 <hr />
 <p>Chapters 2 and 3 built and ran a transformer block in full precision. This chapter exists because full precision does not fit: a 70-billion-parameter model stored as FP32 needs 280GB of RAM before a single token generates, and even on server-class hardware, every one of those bytes has to be read from memory for every token produced, at whatever the memory bus's bandwidth ceiling happens to be. Quantization is the answer — storing weights (and, at runtime, activations) as small integers with a shared floating-point scale — and this chapter builds that answer from first principles: the single affine formula every scheme reduces to, why blocks of 32 values need their own independent scale rather than sharing one, how to pack 4-bit values into bytes by hand, how to fuse dequantization directly into a dot product's inner loop, and how a model can be trained to expect the quantization noise it will eventually run under, using a technique — the Straight-Through Estimator — that fixes a broken gradient by simply pretending it isn't broken.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Represent a floating value with an integer. The scale and zero point define the affine mapping." height="470" loading="lazy" src="../../images/04-overview.svg" width="1120" /></p>
+<figcaption>Quantization error depends on scale, clipping and the distribution of values.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="41-the-memory-wall-and-affine-quantization">4.1 The Memory Wall and Affine Quantization<a class="headerlink" href="#41-the-memory-wall-and-affine-quantization" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A modern CPU's arithmetic units can perform billions of multiply-adds per second, but a next-token prediction with a large model spends almost none of that capacity waiting on math — it spends its time waiting for weights to arrive from RAM. Generating one token from an 8-billion-parameter model in FP32 requires reading all 32GB of its weights at least once; at a representative desktop memory bandwidth of 64 GB/s, that is a hard floor of half a second per token no matter how fast the CPU's multiply-add units are. Halving the bytes read per token does not just save disk space — under this memory-bandwidth-bound regime, it roughly doubles tokens per second.</p>

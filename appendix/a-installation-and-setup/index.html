@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2272,6 +2274,13 @@
 </ul>
 <hr />
 <p>Every chapter in this book compiled and ran identically on an x86_64 development machine and real aarch64 hardware, using a real cross-compilation toolchain invoked directly with <code>g++</code> and specific flags. This appendix documents that same real toolchain on its own, as a standalone, working CMake project a reader can copy directly: how to install it, how to structure a CMake project around it so cross-compiling is a single flag rather than a hand-maintained command line, and -- in the same honest spirit as every chapter before it -- five real failures this book's own pipeline actually hit while building this exact setup, captured verbatim, with the real fix for each one.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation." height="470" loading="lazy" src="../../images/a-overview.svg" width="1120" /></p>
+<figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="a1-toolchain-setup-on-the-development-machine">A.1 Toolchain Setup on the Development Machine<a class="headerlink" href="#a1-toolchain-setup-on-the-development-machine" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Cross-compiling means the compiler producing the binary runs on one architecture (the development machine, here x86_64) while the binary itself runs on another (the edge target, here 64-bit Arm). That requires a real cross-compiler that knows how to emit aarch64 machine code, and, to actually run and test the result without a physical board on hand, a real user-mode emulator.</p>

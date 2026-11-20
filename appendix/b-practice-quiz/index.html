@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2112,6 +2114,13 @@
 
 <h1 id="appendix-b-practice-quiz">Appendix B: Practice Quiz<a class="headerlink" href="#appendix-b-practice-quiz" title="Permanent link">&para;</a></h1>
 <p>Every chapter in this book already ends with its own self-check questions and worked solutions, testing that chapter's own material in isolation. This appendix is different: it tests whether the ideas actually connect across Parts -- whether you can look at a KV cache eviction problem and recognize the same underlying shape a re-quantization bug has, or say why a diagnosis-incapable medical report schema and a compile-time no-facial-recognition guarantee are solving the same kind of problem in different domains. B.2 asks fourteen conceptual questions, two from each of this book's seven Parts, with answers in B.3. B.4 raises the stakes: three short, genuinely compiled programs, each built around a specific real mistake this book warned about somewhere -- read the code, commit to a prediction, then compile and run it yourself before reading the revealed output.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision." height="470" loading="lazy" src="../../images/b-overview.svg" width="1120" /></p>
+<figcaption>Explain why an answer follows from the constraints.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="b1-how-to-use-this-quiz">B.1 How to Use This Quiz<a class="headerlink" href="#b1-how-to-use-this-quiz" title="Permanent link">&para;</a></h2>
 <p>Answer every question in B.2 in your own words -- out loud, or on paper -- before reading B.3's answer. For B.4, do the same with actual code: read the program, write down what you believe it will print, and only then compile it and compare. A prediction you get wrong tells you exactly which chapter to reread; a prediction you get right by guessing, without being able to explain why, is worth treating the same way. Every one of B.4's programs compiles and runs in seconds -- there is no reason to skip the "compile and run it yourself" half of the exercise, and every reason not to: this book's entire method has been "genuinely compiled, genuinely run, never assumed," and this quiz is not an exception.</p>
 <h2 id="b2-conceptual-review-questions">B.2 Conceptual Review Questions<a class="headerlink" href="#b2-conceptual-review-questions" title="Permanent link">&para;</a></h2>

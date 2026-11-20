@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2506,6 +2508,13 @@
 </ul>
 <hr />
 <p>Every kernel in this book so far has been judged by what it computes and how accurately. This chapter asks a different question: given a kernel that is already correct, what determines how FAST it can possibly run on real hardware — not "how fast did it run just now," which a shared sandbox cannot answer reproducibly, but "what is the hard ceiling imposed by the machine's own arithmetic and memory limits." Section 8.1 builds that ceiling, the roofline model, from first principles: peak compute and peak memory bandwidth, derived from stated architectural parameters, combining into a ridge point that separates kernels whose speed is capped by arithmetic from kernels whose speed is capped by how fast bytes can be fetched from memory. Section 8.2 measures where three real transformer kernels actually land relative to that ridge, by instrumenting them to count their own FLOPs and bytes as they run. Section 8.3 applies the same framework to the single most consequential distinction in an inference engine's performance profile — prefill versus decode — and finds the exact sequence length at which one becomes the other. Section 8.4 asks the same question from a serving system's point of view: continuous batching turns many decode requests' single-token GEMVs into one batched GEMM, the identical transition Section 8.3 analyzed, and this section asks what that means for latency, not just throughput. Section 8.5 closes the chapter with a full transformer layer's roofline profile, combining every kernel this book has built — RMSNorm, QKVO projections, GQA attention against a real KV cache, and the FFN — into one decode step, and asks which part of that step's memory traffic actually dominates.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel." height="470" loading="lazy" src="../../images/08-overview.svg" width="1120" /></p>
+<figcaption>Decode GEMV often has low intensity; batching can improve weight reuse.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="81-the-roofline-model-derived-from-first-principles">8.1 The Roofline Model, Derived From First Principles<a class="headerlink" href="#81-the-roofline-model-derived-from-first-principles" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A kernel's speed is capped by two entirely different resources: how many arithmetic operations the processor can perform per second, and how many bytes it can move between memory and the processor per second. Whichever of the two a given kernel demands more of, relative to what it does with each byte it touches, is the one that actually limits it — and that ratio, FLOPs per byte, is a property of the KERNEL, while the two peaks are properties of the MACHINE. Neither number is worth much on its own; the useful question is always how they compare for one specific kernel on one specific machine.</p>

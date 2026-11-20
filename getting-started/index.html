@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2078,6 +2080,13 @@
 
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
 <p>This book targets modern C++ compiled with <code>g++</code> (GCC 13 or newer). Most chapters use nothing beyond C++20/23 as shipped in any current GCC, but two specific areas need an extra toolchain component described below: <code>std::mdspan</code> (Part 0) and Arm NEON (Part 2).</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Choose the toolchain for the target. Compile for the processor that will execute the binary." height="470" loading="lazy" src="../images/getting-started-overview.svg" width="1120" /></p>
+<figcaption>A successful cross-compile still needs execution on the target or an emulator.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="the-base-toolchain">The base toolchain<a class="headerlink" href="#the-base-toolchain" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>g++<span class="w"> </span>--version<span class="w">                                   </span><span class="c1"># GCC 13.0 or newer</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++23<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-O2<span class="w"> </span>file.cpp<span class="w"> </span>-o<span class="w"> </span>binary

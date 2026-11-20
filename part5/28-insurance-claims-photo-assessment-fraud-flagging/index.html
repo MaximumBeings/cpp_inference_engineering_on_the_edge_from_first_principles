@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2404,6 +2406,13 @@
 </ul>
 <hr />
 <p>Chapter 27 turned to a hard, real-time deadline. This chapter turns to a genuinely different real constraint once more: an insurance claim, where the fraud-relevant signals are photographic and temporal rather than numeric, and where a false accusation carries real consequences for a genuine claimant. Each of this chapter's four sections builds one real, independent fraud signal -- reused photo detection, timestamp forensics -- and closes by extending Chapter 21.3's own cost-range engine with those signals, ending in a capstone disposition engine that routes a claim toward more or less human scrutiny, but never toward an automatic denial.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition." height="470" loading="lazy" src="../../images/28-overview.svg" width="1120" /></p>
+<figcaption>A fraud flag is an uncertainty-bearing signal for review.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="281-insurance-claim-duplicate-photo-detection">28.1 Insurance Claim Duplicate Photo Detection<a class="headerlink" href="#281-insurance-claim-duplicate-photo-detection" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A well-documented real insurance-fraud pattern is not a forged photo at all, but a genuine photo reused across two entirely unrelated claims. Catching this requires the identical real dHash algorithm this book has now built once and reapplied once already, applied for a third time to a new real domain: cross-claim photo deduplication, where the central design question is not the hashing itself but what counts as a real match.</p>

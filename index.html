@@ -53,6 +53,8 @@
       
     
     
+      <link rel="stylesheet" href="stylesheets/figures.css">
+    
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -1946,6 +1948,13 @@
 <p><em>Building LLM and Vision-Language Inference Systems in C++23, From First Principles</em></p>
 <p>Most inference-engineering material is written from the data center outward: elastic memory, a GPU a network call away, and throughput measured across thousands of concurrent requests. This book starts from the opposite machine — a fixed amount of RAM that will never grow, a CPU that may or may not have a companion GPU, a battery and a thermal ceiling, and no network round-trip to fall back on when local compute runs short — and builds an inference engine that has to work under those constraints from the first line of code, not as an afterthought bolted on once a cloud-shaped design already exists.</p>
 <p>This book is independent: it does not assume or reference any other book, and it builds its own tensor, quantization, and threading foundations from Chapter 2 rather than pointing elsewhere for them. What it keeps is a discipline: every piece of code in this book is genuinely compiled, and wherever a real answer does not require hardware this book's own authoring environment lacks, it is genuinely run — including executing cross-compiled Arm binaries under emulation and validating Chapter 32 attention on a physical A100. Where a claim depends on hardware this environment truly does not have — a physical GPU, a real embedded board — that limitation is stated plainly rather than papered over with a plausible-looking, unverified number.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="From model bytes to the next token. An edge engine must fit weights, live state and working memory on the device." height="470" loading="lazy" src="images/index-overview.svg" width="1120" /></p>
+<figcaption>Memory budget = weights + KV cache + activations + runtime overhead</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="what-this-book-covers">What this book covers<a class="headerlink" href="#what-this-book-covers" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Part 0 — Foundations for Inference at the Edge.</strong> Why edge inference is a fundamentally different problem from cloud inference, a zero-copy tensor engine built on <code>std::mdspan</code> with an arena allocator and mixed-precision support, and the computational graph (RMSNorm, SwiGLU, RoPE, attention) that every transformer forward pass is built from.</li>

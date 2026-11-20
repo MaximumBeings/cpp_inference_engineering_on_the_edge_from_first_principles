@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2405,6 +2407,13 @@
 </ul>
 <hr />
 <p>Chapter 20 handled a domain where a wrong call costs a delayed diagnosis. This chapter turns to three domains where the stakes are real, but different in kind: a document-intelligence pipeline whose wrong field association costs a rejected loan application or a misfiled claim; an insurance claim whose false precision or unexamined inconsistency costs money, in either direction, for an insurer or a policyholder; and an ecological monitoring deployment whose miscounted population estimate costs a conservation decision made on bad data. None of these domains needs Chapter 20's own clinical-grade structural guarantees, but every one of them needs this book's own recurring honesty discipline applied faithfully: never collapse a range into a false-precision point, never force a confident label out of data that does not support one, and never let a raw, computable signal be mistaken for a claim it was never built to support.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Route evidence through a structured pipeline. Documents, claims and camera images need different preprocessing and decision policies." height="470" loading="lazy" src="../../images/21-overview.svg" width="1120" /></p>
+<figcaption>Preserve the source evidence and record uncertainty with each derived result.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="211-why-a-vision-language-model-replaces-a-traditional-ocr-pipeline-outright">21.1 Why a Vision-Language Model Replaces a Traditional OCR Pipeline Outright<a class="headerlink" href="#211-why-a-vision-language-model-replaces-a-traditional-ocr-pipeline-outright" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A traditional document-extraction pipeline finds where the ink is, recognizes what it says, and then decides WHICH FIELD a recognized string belongs to by where it sits on the page -- a fixed coordinate region calibrated against one specific layout. This section builds that real coordinate-based pipeline from scratch, and then runs the one experiment that shows, with hand-verified numbers, exactly why its final step is the wrong one to keep.</p>

@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2405,6 +2407,13 @@
 </ul>
 <hr />
 <p>Every chapter before this one built one real piece of an inference engine and verified it in isolation. A real serving system has to run many of those pieces at once, for many concurrent real users, whose requests arrive at unpredictable times and need unpredictable amounts of work -- and the scheduling decisions that follow from that are not optional engineering polish, they are the actual difference between a system that serves real traffic efficiently and one that does not serve it at all. This chapter builds that scheduling layer from scratch: first by understanding, with real hand-traceable numbers, exactly what goes wrong with the naive approach; then by resolving the specific real conflict between the two fundamentally different kinds of work a serving step can do; then by building the real scheduler that puts both fixes to work; and finally by building the real numerical debugging tools a system running at this scale actually needs when something goes wrong.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries." height="470" loading="lazy" src="../../images/31-overview.svg" width="1120" /></p>
+<figcaption>KV capacity, per-step work and fairness constrain admission.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="311-the-static-batching-problem-and-head-of-line-blocking">31.1 The Static-Batching Problem and Head-of-Line Blocking<a class="headerlink" href="#311-the-static-batching-problem-and-head-of-line-blocking" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>The simplest way to batch real inference requests together is also the most wasteful one: group a fixed number of them, run the whole group until every single member is done, and only then admit the next group. This section builds a real, from-scratch simulator for exactly that scheme, to quantify -- not merely describe -- how much real GPU-slot time it wastes and how badly it can delay a request unlucky enough to arrive at the wrong moment.</p>

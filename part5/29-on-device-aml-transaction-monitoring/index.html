@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2405,6 +2407,13 @@
 </ul>
 <hr />
 <p>Chapter 28 turned to a claim's own photographic and temporal evidence. This chapter closes this book's four-chapter run through real financial-industry deployments with a genuinely different real constraint once more: catching a pattern that only becomes visible across a SEQUENCE of transactions from the same account, where no single transaction in the sequence is suspicious by itself. Each of this chapter's four sections builds one real, independent, sequence-based AML signal, and closes with a capstone that combines all three into one auditable, per-account disposition -- never an automated filing, since real law reserves that decision for a human.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Monitor transactions with explicit windows. Aggregate event history before combining anomaly signals." height="470" loading="lazy" src="../../images/29-overview.svg" width="1120" /></p>
+<figcaption>An alert needs contextual review; thresholds alone cannot establish money laundering.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="291-aml-structuring-smurfing-detection">29.1 AML Structuring (Smurfing) Detection<a class="headerlink" href="#291-aml-structuring-smurfing-detection" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>"Structuring" is a real, specifically named offense under the US Bank Secrecy Act: deliberately breaking a large cash transaction into several smaller ones, each kept under the real $10,000 Currency Transaction Report threshold, specifically to avoid the reporting the full amount would trigger. No individual transaction in the pattern looks suspicious -- the pattern is only visible across several transactions from the same account within a real, short window of time.</p>

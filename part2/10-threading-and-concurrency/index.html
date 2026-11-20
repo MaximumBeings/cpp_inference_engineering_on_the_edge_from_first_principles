@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2506,6 +2508,13 @@
 </ul>
 <hr />
 <p>Chapter 9 showed how a single core reaches its peak compute, one SIMD instruction at a time. This chapter reaches for the resource no single core has any more of to give: additional cores, coordinated by real threads. Section 10.1 derives why that coordination is necessary at all — a single core's real decode-step FLOP total, measured back in Chapter 8.5, is put through Chapter 8.1's own achievable-throughput formula, and comes out several times over a realistic interactive latency budget — and then derives the ceiling Amdahl's law puts on how much any number of additional cores can close that gap. Section 10.2 introduces this book's first real <code>std::thread</code>, and with it the two primitives, <code>std::atomic</code> and <code>std::mutex</code>, that make sharing mutable state across threads well-defined rather than undefined behavior, verified by running real concurrent code and checking an exact result rather than a fabricated one. Section 10.3 builds a persistent, <code>std::barrier</code>-synchronized thread pool and partitions a real GEMV across it by output row, verified bit-for-bit against a serial reference. Section 10.4 finds a hazard that changes no thread's computed value at all — two independent per-thread counters sharing one cache line — and verifies it the only honest way available without a clock: as address arithmetic. Section 10.5 closes the chapter with a work-stealing scheduler, and with it this chapter's central methodological point: a scheduler whose exact execution order is deliberately nondeterministic can still be verified with complete rigor, by checking the invariant its contract actually promises instead of the schedule it never did.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization." height="470" loading="lazy" src="../../images/10-overview.svg" width="1120" /></p>
+<figcaption>A data race is undefined behavior; volatile does not provide thread synchronization.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="101-the-latency-budget-and-amdahls-ceiling">10.1 The Latency Budget and Amdahl's Ceiling<a class="headerlink" href="#101-the-latency-budget-and-amdahls-ceiling" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Before writing a single thread, it is worth deriving whether one is even necessary — and, if so, roughly how much parallelism could possibly help. A single core's real cost for one decode step, already measured in Chapter 8.5, run through Chapter 8.1's own achievable-throughput formula, gives a concrete answer to "is one core enough," with no new workload invented for the purpose. Amdahl's law then answers the next question honestly: however many cores are added, some fraction of a real decode step — sampling the next token, updating a cursor, scheduling the next request — never parallelizes at all, and that fraction alone puts a hard, derivable ceiling on total speedup.</p>

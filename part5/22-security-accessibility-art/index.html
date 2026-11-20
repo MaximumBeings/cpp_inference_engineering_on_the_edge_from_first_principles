@@ -55,6 +55,8 @@
       
     
     
+      <link rel="stylesheet" href="../../stylesheets/figures.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2303,6 +2305,13 @@
 </ul>
 <hr />
 <p>Chapter 21 turned a single photograph into a structured extraction, claim assessment, or species label. This chapter turns to three domains united by a different real pattern: turning a CONTINUOUS stream -- a camera feed sampled over time, a rendered user interface, an ownership history spanning decades -- into a structured, auditable narrative, without ever collapsing that narrative's own real uncertainty into a false confident answer. A security system correlating detections across cameras must say AMBIGUOUS when two candidates both fit; an accessibility audit must cite the exact, real, standardized criterion a violation fails; and a provenance and condition-trend engine must flag a structural inconsistency by its exact computed size and classify a real trend, without ever pronouncing an artwork itself authentic, forged, or accurately dated. None of these three sections needs Chapter 20's own clinical-grade guarantees, but every one of them needs this book's own recurring discipline: report the honest range or the honest ambiguity, name the specific failure, and never let a computed signal be mistaken for a verdict it was never built to render.</p>
+<!-- chapter-figure -->
+<figure class="chapter-figure">
+<p><img alt="Combine visual findings with context. Security, accessibility and provenance examples use explicit evidence and review." height="470" loading="lazy" src="../../images/22-overview.svg" width="1120" /></p>
+<figcaption>A model&#x27;s description alone does not establish identity, authenticity or intent.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 <h2 id="221-a-multi-camera-surveillance-narration-engine-with-temporal-correlation">22.1 A Multi-Camera Surveillance Narration Engine with Temporal Correlation<a class="headerlink" href="#221-a-multi-camera-surveillance-narration-engine-with-temporal-correlation" title="Permanent link">&para;</a></h2>
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A raw stream of per-frame detections is not, by itself, a narrative a human reviewer can act on -- it is a flood of individually meaningless coordinates. This section builds the real structural step between the two: coalescing raw detections into presence intervals, rendering those intervals as a deterministic narration sentence, and correlating a subject's departure from one camera with their arrival at another, honestly refusing to guess when more than one arrival genuinely fits.</p>
