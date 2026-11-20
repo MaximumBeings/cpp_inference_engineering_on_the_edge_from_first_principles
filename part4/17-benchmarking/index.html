@@ -2293,7 +2293,7 @@
 <h1 id="chapter-17-benchmarking-against-llamacpp-and-the-broader-ecosystem">Chapter 17: Benchmarking Against llama.cpp and the Broader Ecosystem<a class="headerlink" href="#chapter-17-benchmarking-against-llamacpp-and-the-broader-ecosystem" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/17.svg"><img alt="Chapter 17: Measure the full request lifecycle" src="../../images/chapter-openers/17.svg" /></a></p>
+<p><a href="../../images/chapter-openers/17.svg?v=8cbb5df28267"><img alt="Chapter 17: Measure the full request lifecycle" src="../../images/chapter-openers/17.svg?v=8cbb5df28267" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2316,7 +2316,7 @@
 <p>Chapter 16 produced a complete, working, self-contained production engine -- a real command line, a real sampling pipeline, a real multi-turn conversation, and a real two-turn exchange against the actual downloaded Qwen2.5-0.5B-Instruct checkpoint. It never once asked whether that engine was any GOOD, compared to anything else. This chapter asks exactly that question, against the reference every CPU inference engine in the world is measured against: <code>llama.cpp</code>. Answering it honestly takes three steps in order. First, agreeing on WHAT to measure, because a single "tokens per second" number quietly conflates at least three different phases of generation with different costs and different bottlenecks. Second, building a harness that measures those real numbers against this book's own REAL forward pass, not a simulation of one. Third, and only once both of those are trustworthy, actually running the comparison -- on identical hardware, an identical file, and a stated, narrow methodology -- and reporting whatever number comes out, including a number that is not flattering.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated." loading="lazy" src="../../images/17-overview.svg" width="760" /></p>
+<p><img alt="Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated." loading="lazy" src="../../images/17-overview.svg?v=e353806f7502" width="760" /></p>
 <figcaption>Report model, hardware, flags and measurement boundaries with every comparison.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2324,7 +2324,7 @@
 <h2 id="171-what-to-measure-and-why">17.1 What to Measure and Why<a class="headerlink" href="#171-what-to-measure-and-why" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-17.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch17/17-01.svg"><img alt="Latency and throughput answer different questions" src="../../images/technical/ch17/17-01.svg" /></a></p>
+<p><a href="../../images/technical/ch17/17-01.svg?v=a118c07b3237"><img alt="Latency and throughput answer different questions" src="../../images/technical/ch17/17-01.svg?v=a118c07b3237" /></a></p>
 <figcaption>Declare workload, token counts, batch size and timing boundaries for every reported number.</figcaption>
 </figure>
 <!-- edge:concept-17.1:end -->
@@ -2619,7 +2619,7 @@
 <h2 id="172-a-from-scratch-benchmarking-harness">17.2 A From-Scratch Benchmarking Harness<a class="headerlink" href="#172-a-from-scratch-benchmarking-harness" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-17.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch17/17-02.svg"><img alt="A benchmark must control its measurement scope" src="../../images/technical/ch17/17-02.svg" /></a></p>
+<p><a href="../../images/technical/ch17/17-02.svg?v=716dc13dce09"><img alt="A benchmark must control its measurement scope" src="../../images/technical/ch17/17-02.svg?v=716dc13dce09" /></a></p>
 <figcaption>Asynchronous GPU work needs completion before timing ends. Include or exclude setup consistently.</figcaption>
 </figure>
 <!-- edge:concept-17.2:end -->
@@ -3479,7 +3479,7 @@
 <h2 id="173-an-honest-comparison-against-llamacpp">17.3 An Honest Comparison Against llama.cpp<a class="headerlink" href="#173-an-honest-comparison-against-llamacpp" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-17.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch17/17-03.svg"><img alt="A comparison needs the same work on both sides" src="../../images/technical/ch17/17-03.svg" /></a></p>
+<p><a href="../../images/technical/ch17/17-03.svg?v=0d194f7fd0b9"><img alt="A comparison needs the same work on both sides" src="../../images/technical/ch17/17-03.svg?v=0d194f7fd0b9" /></a></p>
 <figcaption>A schematic or analytical estimate must not be presented as a measured runtime comparison.</figcaption>
 </figure>
 <!-- edge:concept-17.3:end -->

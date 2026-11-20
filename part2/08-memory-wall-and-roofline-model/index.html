@@ -2493,7 +2493,7 @@
 <h1 id="chapter-8-the-memory-wall-and-the-roofline-model-why-arithmetic-is-rarely-the-bottleneck">Chapter 8: The Memory Wall and the Roofline Model -- Why Arithmetic Is Rarely the Bottleneck<a class="headerlink" href="#chapter-8-the-memory-wall-and-the-roofline-model-why-arithmetic-is-rarely-the-bottleneck" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/08.svg"><img alt="Chapter 8: The roofline bounds attainable throughput" src="../../images/chapter-openers/08.svg" /></a></p>
+<p><a href="../../images/chapter-openers/08.svg?v=162fd4dcc2fd"><img alt="Chapter 8: The roofline bounds attainable throughput" src="../../images/chapter-openers/08.svg?v=162fd4dcc2fd" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2517,7 +2517,7 @@
 <p>Every kernel in this book so far has been judged by what it computes and how accurately. This chapter asks a different question: given a kernel that is already correct, what determines how FAST it can possibly run on real hardware — not "how fast did it run just now," which a shared sandbox cannot answer reproducibly, but "what is the hard ceiling imposed by the machine's own arithmetic and memory limits." Section 8.1 builds that ceiling, the roofline model, from first principles: peak compute and peak memory bandwidth, derived from stated architectural parameters, combining into a ridge point that separates kernels whose speed is capped by arithmetic from kernels whose speed is capped by how fast bytes can be fetched from memory. Section 8.2 measures where three real transformer kernels actually land relative to that ridge, by instrumenting them to count their own FLOPs and bytes as they run. Section 8.3 applies the same framework to the single most consequential distinction in an inference engine's performance profile — prefill versus decode — and finds the exact sequence length at which one becomes the other. Section 8.4 asks the same question from a serving system's point of view: continuous batching turns many decode requests' single-token GEMVs into one batched GEMM, the identical transition Section 8.3 analyzed, and this section asks what that means for latency, not just throughput. Section 8.5 closes the chapter with a full transformer layer's roofline profile, combining every kernel this book has built — RMSNorm, QKVO projections, GQA attention against a real KV cache, and the FFN — into one decode step, and asks which part of that step's memory traffic actually dominates.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel." loading="lazy" src="../../images/08-overview.svg" width="760" /></p>
+<p><img alt="The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel." loading="lazy" src="../../images/08-overview.svg?v=5336ac1d9b5c" width="760" /></p>
 <figcaption>Decode GEMV often has low intensity; batching can improve weight reuse.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2525,7 +2525,7 @@
 <h2 id="81-the-roofline-model-derived-from-first-principles">8.1 The Roofline Model, Derived From First Principles<a class="headerlink" href="#81-the-roofline-model-derived-from-first-principles" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-8.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch08/08-01.svg"><img alt="A roofline bound combines two limits" src="../../images/technical/ch08/08-01.svg" /></a></p>
+<p><a href="../../images/technical/ch08/08-01.svg?v=8930a17077bd"><img alt="A roofline bound combines two limits" src="../../images/technical/ch08/08-01.svg?v=8930a17077bd" /></a></p>
 <figcaption>Use consistent units. This is an upper bound, not a prediction of achieved throughput.</figcaption>
 </figure>
 <!-- edge:concept-8.1:end -->
@@ -2776,7 +2776,7 @@
 <h2 id="82-measuring-arithmetic-intensity-in-real-kernels">8.2 Measuring Arithmetic Intensity in Real Kernels<a class="headerlink" href="#82-measuring-arithmetic-intensity-in-real-kernels" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-8.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch08/08-02.svg"><img alt="Count work and traffic for one kernel" src="../../images/technical/ch08/08-02.svg" /></a></p>
+<p><a href="../../images/technical/ch08/08-02.svg?v=04b7e2f2785a"><img alt="Count work and traffic for one kernel" src="../../images/technical/ch08/08-02.svg?v=04b7e2f2785a" /></a></p>
 <figcaption>Cache reuse, packing and fused operations affect the traffic actually observed at each memory level.</figcaption>
 </figure>
 <!-- edge:concept-8.2:end -->
@@ -3085,7 +3085,7 @@
 <h2 id="83-prefill-vs-decode-the-same-weights-different-arithmetic">8.3 Prefill vs. Decode: The Same Weights, Different Arithmetic<a class="headerlink" href="#83-prefill-vs-decode-the-same-weights-different-arithmetic" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-8.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch08/08-03.svg"><img alt="Prefill reuses weights across prompt tokens" src="../../images/technical/ch08/08-03.svg" /></a></p>
+<p><a href="../../images/technical/ch08/08-03.svg?v=7081bd37ca82"><img alt="Prefill reuses weights across prompt tokens" src="../../images/technical/ch08/08-03.svg?v=7081bd37ca82" /></a></p>
 <figcaption>The dominant bottleneck depends on shape, precision, hardware and implementation.</figcaption>
 </figure>
 <!-- edge:concept-8.3:end -->
@@ -3499,7 +3499,7 @@
 <h2 id="84-continuous-batching-the-same-crossover-a-different-question">8.4 Continuous Batching: the Same Crossover, a Different Question<a class="headerlink" href="#84-continuous-batching-the-same-crossover-a-different-question" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-8.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch08/08-04.svg"><img alt="Batching changes the work per weight read" src="../../images/technical/ch08/08-04.svg" /></a></p>
+<p><a href="../../images/technical/ch08/08-04.svg?v=b9ca692375f6"><img alt="Batching changes the work per weight read" src="../../images/technical/ch08/08-04.svg?v=b9ca692375f6" /></a></p>
 <figcaption>KV traffic and scheduling overhead still matter. Larger batches can also increase latency.</figcaption>
 </figure>
 <!-- edge:concept-8.4:end -->
@@ -3707,7 +3707,7 @@
 <h2 id="85-a-full-layers-roofline-profile">8.5 A Full Layer's Roofline Profile<a class="headerlink" href="#85-a-full-layers-roofline-profile" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-8.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch08/08-05.svg"><img alt="A layer has several memory consumers" src="../../images/technical/ch08/08-05.svg" /></a></p>
+<p><a href="../../images/technical/ch08/08-05.svg?v=8c9276eed3d3"><img alt="A layer has several memory consumers" src="../../images/technical/ch08/08-05.svg?v=8c9276eed3d3" /></a></p>
 <figcaption>Illustrative relative traffic only. Replace these schematic bars with measured byte counts for a model.</figcaption>
 </figure>
 <!-- edge:concept-8.5:end -->

@@ -2493,7 +2493,7 @@
 <h1 id="chapter-2-the-tensor-engine-stdmdspan-arena-allocators-and-mixed-precision">Chapter 2: The Tensor Engine -- std::mdspan, Arena Allocators, and Mixed Precision<a class="headerlink" href="#chapter-2-the-tensor-engine-stdmdspan-arena-allocators-and-mixed-precision" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/02.svg"><img alt="Chapter 2: A tensor view describes existing storage" src="../../images/chapter-openers/02.svg" /></a></p>
+<p><a href="../../images/chapter-openers/02.svg?v=aba0b85fe777"><img alt="Chapter 2: A tensor view describes existing storage" src="../../images/chapter-openers/02.svg?v=aba0b85fe777" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2513,7 +2513,7 @@
 <p>Chapter 1 argued that edge inference is a different engineering problem from cloud inference: memory is scarce, allocation has to be predictable, and the difference between a contiguous buffer and one three cache lines away can decide whether a token generation loop hits its latency budget. This chapter builds the concrete C++23 tools this book uses everywhere from here forward to act on that argument. <code>std::mdspan</code> gives every later chapter a single, standard way to describe a tensor's shape without owning its memory. <code>std::submdspan</code> gives multi-head attention a way to slice that tensor per head without copying. The arena allocator gives the token generation loop a scratch-memory strategy with no per-token syscall and no fragmentation. And <code>std::variant</code>-based mixed precision gives every later chapter a type-safe way to store the same logical tensor as FP32 or BF16 without duplicating kernel code. Every other chapter in Part 0 through Part 5 assumes all four of these are already comfortable tools by the time they are needed again.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects." loading="lazy" src="../../images/02-overview.svg" width="760" /></p>
+<p><img alt="A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects." loading="lazy" src="../../images/02-overview.svg?v=601d17220cca" width="760" /></p>
 <figcaption>Row-major offset(i, j) = i * columns + j</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2521,7 +2521,7 @@
 <h2 id="21-stdmdspan-a-zero-copy-view-over-flat-memory">2.1 std::mdspan: A Zero-Copy View Over Flat Memory<a class="headerlink" href="#21-stdmdspan-a-zero-copy-view-over-flat-memory" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-2.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch02/02-01.svg"><img alt="A two-dimensional view over one allocation" src="../../images/technical/ch02/02-01.svg" /></a></p>
+<p><a href="../../images/technical/ch02/02-01.svg?v=36cb1abd54f7"><img alt="A two-dimensional view over one allocation" src="../../images/technical/ch02/02-01.svg?v=36cb1abd54f7" /></a></p>
 <figcaption>The view stores shape and strides; the arena owns the twelve elements.</figcaption>
 </figure>
 <!-- edge:concept-2.1:end -->
@@ -2666,7 +2666,7 @@
 <h2 id="22-zero-copy-slicing-with-stdsubmdspan">2.2 Zero-Copy Slicing With std::submdspan<a class="headerlink" href="#22-zero-copy-slicing-with-stdsubmdspan" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-2.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch02/02-02.svg"><img alt="Slicing changes the view, not the allocation" src="../../images/technical/ch02/02-02.svg" /></a></p>
+<p><a href="../../images/technical/ch02/02-02.svg?v=02ef86b88423"><img alt="Slicing changes the view, not the allocation" src="../../images/technical/ch02/02-02.svg?v=02ef86b88423" /></a></p>
 <figcaption>A slice has a new origin and extents. Its lifetime cannot exceed the underlying storage.</figcaption>
 </figure>
 <!-- edge:concept-2.2:end -->
@@ -2799,7 +2799,7 @@
 <h2 id="23-cache-optimized-layouts-why-loop-order-is-not-free">2.3 Cache-Optimized Layouts: Why Loop Order Is Not Free<a class="headerlink" href="#23-cache-optimized-layouts-why-loop-order-is-not-free" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-2.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch02/02-03.svg"><img alt="Loop order determines the traversal" src="../../images/technical/ch02/02-03.svg" /></a></p>
+<p><a href="../../images/technical/ch02/02-03.svg?v=3f67d5a13589"><img alt="Loop order determines the traversal" src="../../images/technical/ch02/02-03.svg?v=3f67d5a13589" /></a></p>
 <figcaption>Row-major layout favors walking across columns in the inner loop. Measure the real kernel.</figcaption>
 </figure>
 <!-- edge:concept-2.3:end -->
@@ -2949,7 +2949,7 @@
 <h2 id="24-the-arena-allocator-o1-alloc-and-reset-for-per-token-scratch">2.4 The Arena Allocator: O(1) Alloc and Reset for Per-Token Scratch<a class="headerlink" href="#24-the-arena-allocator-o1-alloc-and-reset-for-per-token-scratch" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-2.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch02/02-04.svg"><img alt="Scratch storage advances a cursor" src="../../images/technical/ch02/02-04.svg" /></a></p>
+<p><a href="../../images/technical/ch02/02-04.svg?v=490361236d25"><img alt="Scratch storage advances a cursor" src="../../images/technical/ch02/02-04.svg?v=490361236d25" /></a></p>
 <figcaption>Aligned allocations advance the arena cursor. Reset reclaims scratch together after its users finish.</figcaption>
 </figure>
 <!-- edge:concept-2.4:end -->
@@ -3157,7 +3157,7 @@
 <h2 id="25-mixed-precision-type-safe-multi-format-storage-with-stdvariant">2.5 Mixed Precision: Type-Safe Multi-Format Storage With std::variant<a class="headerlink" href="#25-mixed-precision-type-safe-multi-format-storage-with-stdvariant" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-2.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch02/02-05.svg"><img alt="A format tag selects a typed representation" src="../../images/technical/ch02/02-05.svg" /></a></p>
+<p><a href="../../images/technical/ch02/02-05.svg?v=829f83c8ae24"><img alt="A format tag selects a typed representation" src="../../images/technical/ch02/02-05.svg?v=829f83c8ae24" /></a></p>
 <figcaption>std::variant makes the active storage alternative explicit. A tag does not convert the payload.</figcaption>
 </figure>
 <!-- edge:concept-2.5:end -->

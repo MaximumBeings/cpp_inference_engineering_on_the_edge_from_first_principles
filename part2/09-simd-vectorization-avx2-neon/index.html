@@ -2493,7 +2493,7 @@
 <h1 id="chapter-9-simd-vectorization-avx2-on-x86-neon-on-arm">Chapter 9: SIMD Vectorization -- AVX2 on x86, NEON on Arm<a class="headerlink" href="#chapter-9-simd-vectorization-avx2-on-x86-neon-on-arm" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/09.svg"><img alt="Chapter 9: A dot product across SIMD lanes" src="../../images/chapter-openers/09.svg" /></a></p>
+<p><a href="../../images/chapter-openers/09.svg?v=9a6bf5e11f17"><img alt="Chapter 9: A dot product across SIMD lanes" src="../../images/chapter-openers/09.svg?v=9a6bf5e11f17" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2517,7 +2517,7 @@
 <p>Chapter 8 established that a kernel's speed is capped by two independent resources, compute and bandwidth, and that the ratio between them — arithmetic intensity — decides which one actually limits a given kernel. This chapter is about the compute side of that ceiling: how a CPU's peak FLOP rate is actually achieved in practice, one instruction at a time, by processing more than one data element per instruction. Section 9.1 derives what a SIMD register buys a kernel from nothing but its bit width and element width, reusing Chapter 8.1's own peak-compute formula to show precisely how much of a chip's peak throughput its register width accounts for — and reusing Chapter 8.1's own COMMON TRAP to show, again, that none of it matters for a kernel that is memory-bound. Section 9.2 writes real AVX2 intrinsics against the Q8_0 and Q4_0 formats this book has quantized weights into since Chapter 4, including the integer unpacking a packed 4-bit format demands before any arithmetic can touch it. Section 9.3 writes the same two kernels again in Arm NEON, and finds a genuine, verifiable difference in how many instructions the identical logical step costs on the two architectures. Section 9.4 steps back from hand-written intrinsics entirely to ask what a compiler's auto-vectorizer does on its own, and what specific promise <code>__restrict</code> makes to unlock it. Section 9.5 closes the chapter with the piece every one of these kernels needs before it can ship: a runtime check that decides, once, at startup, which instruction set the CPU actually sitting under the binary supports.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="A dot product across SIMD lanes. Accumulate independent products in a vector register before reducing them." loading="lazy" src="../../images/09-overview.svg" width="760" /></p>
+<p><img alt="A dot product across SIMD lanes. Accumulate independent products in a vector register before reducing them." loading="lazy" src="../../images/09-overview.svg?v=5408113b5442" width="760" /></p>
 <figcaption>Vector width, alignment, tail elements and ISA support all matter.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2525,7 +2525,7 @@
 <h2 id="91-the-simd-register-model-derived-from-register-width">9.1 The SIMD Register Model, Derived From Register Width<a class="headerlink" href="#91-the-simd-register-model-derived-from-register-width" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-9.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch09/09-01.svg"><img alt="Register width determines lane count" src="../../images/technical/ch09/09-01.svg" /></a></p>
+<p><a href="../../images/technical/ch09/09-01.svg?v=fcf36eae9c07"><img alt="Register width determines lane count" src="../../images/technical/ch09/09-01.svg?v=fcf36eae9c07" /></a></p>
 <figcaption>These are storage lane counts; instruction semantics and accumulator width must be checked separately.</figcaption>
 </figure>
 <!-- edge:concept-9.1:end -->
@@ -2738,7 +2738,7 @@
 <h2 id="92-avx2-vectorized-quantized-dot-products-on-x86">9.2 AVX2: Vectorized Quantized Dot Products on x86<a class="headerlink" href="#92-avx2-vectorized-quantized-dot-products-on-x86" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-9.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch09/09-02.svg"><img alt="A quantized vector dot product widens before summing" src="../../images/technical/ch09/09-02.svg" /></a></p>
+<p><a href="../../images/technical/ch09/09-02.svg?v=b304524ac886"><img alt="A quantized vector dot product widens before summing" src="../../images/technical/ch09/09-02.svg?v=b304524ac886" /></a></p>
 <figcaption>Accumulators must be wide enough. Packed signedness and saturation rules cannot be inferred from lane count.</figcaption>
 </figure>
 <!-- edge:concept-9.2:end -->
@@ -3080,7 +3080,7 @@
 <h2 id="93-arm-neon-the-same-kernel-a-different-register">9.3 Arm NEON: The Same Kernel, a Different Register<a class="headerlink" href="#93-arm-neon-the-same-kernel-a-different-register" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-9.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch09/09-03.svg"><img alt="The algorithm stays, the intrinsic sequence changes" src="../../images/technical/ch09/09-03.svg" /></a></p>
+<p><a href="../../images/technical/ch09/09-03.svg?v=687d07762822"><img alt="The algorithm stays, the intrinsic sequence changes" src="../../images/technical/ch09/09-03.svg?v=687d07762822" /></a></p>
 <figcaption>Compare both implementations against the same scalar reference on all supported lengths.</figcaption>
 </figure>
 <!-- edge:concept-9.3:end -->
@@ -3418,7 +3418,7 @@
 <h2 id="94-auto-vectorization-and-the-restrict-promise">9.4 Auto-Vectorization and the Restrict Promise<a class="headerlink" href="#94-auto-vectorization-and-the-restrict-promise" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-9.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch09/09-04.svg"><img alt="A no-alias promise is a correctness contract" src="../../images/technical/ch09/09-04.svg" /></a></p>
+<p><a href="../../images/technical/ch09/09-04.svg?v=7a31660669ed"><img alt="A no-alias promise is a correctness contract" src="../../images/technical/ch09/09-04.svg?v=7a31660669ed" /></a></p>
 <figcaption>Only assert non-aliasing when the calling code guarantees it for every supported invocation.</figcaption>
 </figure>
 <!-- edge:concept-9.4:end -->
@@ -3683,7 +3683,7 @@
 <h2 id="95-runtime-cpu-feature-detection-and-dispatch">9.5 Runtime CPU Feature Detection and Dispatch<a class="headerlink" href="#95-runtime-cpu-feature-detection-and-dispatch" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-9.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch09/09-05.svg"><img alt="Select only an instruction set the machine supports" src="../../images/technical/ch09/09-05.svg" /></a></p>
+<p><a href="../../images/technical/ch09/09-05.svg?v=6bce0f8abda0"><img alt="Select only an instruction set the machine supports" src="../../images/technical/ch09/09-05.svg?v=6bce0f8abda0" /></a></p>
 <figcaption>Building a binary with an instruction set is different from safely dispatching to it at runtime.</figcaption>
 </figure>
 <!-- edge:concept-9.5:end -->

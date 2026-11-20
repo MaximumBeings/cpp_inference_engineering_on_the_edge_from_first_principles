@@ -2271,7 +2271,7 @@
 <h1 id="chapter-32-flash-attention-and-cuda-kernels-taking-the-engine-to-the-gpu">Chapter 32: Flash Attention and CUDA Kernels: Taking the Engine to the GPU<a class="headerlink" href="#chapter-32-flash-attention-and-cuda-kernels-taking-the-engine-to-the-gpu" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/32.svg"><img alt="Chapter 32: Tiled attention keeps the score matrix out of global memory" src="../../images/chapter-openers/32.svg" /></a></p>
+<p><a href="../../images/chapter-openers/32.svg?v=2f55589f8651"><img alt="Chapter 32: Tiled attention keeps the score matrix out of global memory" src="../../images/chapter-openers/32.svg?v=2f55589f8651" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2294,7 +2294,7 @@
 <p>This book has built one real inference engine, from <code>std::mdspan</code> tensors through quantization, threading, the KV cache, real deployed models, and twelve real edge deployments, entirely in portable C++23 that runs identically on an x86 development machine and real aarch64 hardware. This final chapter takes that same engine to the one real place it has not yet gone: a GPU. It does so with the identical discipline every chapter before it used -- derive the real problem precisely, build a real fix from scratch, and verify it directly rather than asserting it -- but it also does something this book has not had to do before: it tells you plainly, in detail, exactly which of its own real claims a GPU-less pipeline can verify and which it genuinely cannot, rather than blurring that line to make the chapter read more impressively than the truth supports.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory." loading="lazy" src="../../images/32-overview.svg" width="760" /></p>
+<p><img alt="Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory." loading="lazy" src="../../images/32-overview.svg?v=9cc1065a0768" width="760" /></p>
 <figcaption>Validate partial tiles and query blocks against the CPU reference on a physical GPU.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2302,7 +2302,7 @@
 <h2 id="321-the-on2-memory-wall-and-the-online-softmax-fix">32.1 The O(N^2) Memory Wall and the Online-Softmax Fix<a class="headerlink" href="#321-the-on2-memory-wall-and-the-online-softmax-fix" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-32.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch32/32-01.svg"><img alt="Online softmax rescales old and new contributions" src="../../images/technical/ch32/32-01.svg" /></a></p>
+<p><a href="../../images/technical/ch32/32-01.svg?v=b8a55023321d"><img alt="Online softmax rescales old and new contributions" src="../../images/technical/ch32/32-01.svg?v=b8a55023321d" /></a></p>
 <figcaption>Tile sums and weighted values use the same new maximum. Normalize o by l after the final tile.</figcaption>
 </figure>
 <!-- edge:concept-32.1:end -->
@@ -2597,7 +2597,7 @@
 <h2 id="322-a-stdmdspan-based-flash-attention-implementation-and-benchmark">32.2 A std::mdspan-Based Flash Attention Implementation and Benchmark<a class="headerlink" href="#322-a-stdmdspan-based-flash-attention-implementation-and-benchmark" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-32.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch32/32-02.svg"><img alt="Tiling changes intermediate storage, not the target result" src="../../images/technical/ch32/32-02.svg" /></a></p>
+<p><a href="../../images/technical/ch32/32-02.svg?v=a1f1c2702c0e"><img alt="Tiling changes intermediate storage, not the target result" src="../../images/technical/ch32/32-02.svg?v=a1f1c2702c0e" /></a></p>
 <figcaption>The tiled path avoids storing the full score matrix but remains subject to finite-precision differences.</figcaption>
 </figure>
 <!-- edge:concept-32.2:end -->
@@ -2946,7 +2946,7 @@
 <h2 id="323-a-cuda-production-engine-and-its-own-kernel-validation-suite">32.3 A CUDA Production Engine and Its Own Kernel-Validation Suite<a class="headerlink" href="#323-a-cuda-production-engine-and-its-own-kernel-validation-suite" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-32.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch32/32-03.svg"><img alt="Validate kernels on real device work" src="../../images/technical/ch32/32-03.svg" /></a></p>
+<p><a href="../../images/technical/ch32/32-03.svg?v=8750210e8bef"><img alt="Validate kernels on real device work" src="../../images/technical/ch32/32-03.svg?v=8750210e8bef" /></a></p>
 <figcaption>A skipped device run is not a pass. Partial tiles and block tails need explicit coverage.</figcaption>
 </figure>
 <!-- edge:concept-32.3:end -->
