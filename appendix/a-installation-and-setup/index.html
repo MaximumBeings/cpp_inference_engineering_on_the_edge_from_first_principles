@@ -12,6 +12,8 @@
         <meta name="author" content="Oluwaseyi Awoga">
       
       
+        <link rel="canonical" href="https://maximumbeings.github.io/cpp_inference_engineering_on_the_edge_from_first_principles/appendix/a-installation-and-setup/">
+      
       
         <link rel="prev" href="../../part6/32-flash-attention-and-cuda-kernels/">
       
@@ -195,6 +197,18 @@
       
     
     
+      <div class="md-header__source">
+        <a href="https://github.com/maximumbeings/cpp_inference_engineering_on_the_edge_from_first_principles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
   </nav>
   
 </header>
@@ -228,6 +242,18 @@
     </a>
     C++ Inference Engineering on the Edge — Under Development
   </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/maximumbeings/cpp_inference_engineering_on_the_edge_from_first_principles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
   
   <ul class="md-nav__list" data-md-scrollfix>
     
@@ -2226,6 +2252,9 @@
                   
 
 
+  
+  
+
 
 <h1 id="appendix-a-installation-and-setup-cross-compiling-for-the-edge">Appendix A: Installation and Setup -- Cross-Compiling for the Edge<a class="headerlink" href="#appendix-a-installation-and-setup-cross-compiling-for-the-edge" title="Permanent link">&para;</a></h1>
 <p><strong>What you will understand by the end of this appendix:</strong></p>
@@ -2578,6 +2607,7 @@
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>compilation terminated.
 </code></pre></div>
 <p>The real fix is the same one this book has used since Chapter 2: the vendored, header-only reference <code>mdspan</code> implementation under <code>_vendor_mdspan/</code>, included as <code>&lt;mdspan/mdspan.hpp&gt;</code> with the <code>MDSPAN_IMPL_STANDARD_NAMESPACE</code>/<code>MDSPAN_IMPL_PROPOSED_NAMESPACE</code> defines shown throughout this book's own compile commands, rather than the native standard header.</p>
+<p>A host may register QEMU through Linux <code>binfmt_misc</code>. In that configuration, the operating system transparently invokes the emulator and CTest can succeed even without <code>CMAKE_CROSSCOMPILING_EMULATOR</code>. Setting the CMake property explicitly makes the intended emulator portable across development hosts. The following captured failure comes from a host without that registration.</p>
 <p><strong>Diagnostic 3 -- <code>ctest</code> failing with a garbled error when <code>CMAKE_CROSSCOMPILING_EMULATOR</code> is not set.</strong> Configuring the aarch64 build without the <code>CMAKE_CROSSCOMPILING_EMULATOR</code> line from Section A.3 and running <code>ctest</code> produces a real, genuinely confusing failure: the host shell tries to interpret the cross-compiled binary's raw ELF bytes as a shell script, rather than reporting a clear "cannot execute" error:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>$ ctest --test-dir build --output-on-failure
 </code></pre></div>
@@ -2603,7 +2633,7 @@
 <a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>      1 - portable_dot_product_self_test (Failed)
 <a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>Errors while running CTest
 </code></pre></div>
-<p>The exact garbled text in the middle of this output depends on the specific compiled binary's own raw bytes and will differ from build to build; what stays constant is the shell attempting to run those bytes as a script at all, the resulting <code>Syntax error: Unterminated quoted string</code>, and the <code>0% tests passed</code> summary. The real fix is the <code>find_program(QEMU_AARCH64_EXECUTABLE qemu-aarch64)</code> / <code>CMAKE_CROSSCOMPILING_EMULATOR</code> lines in Section A.3's own toolchain file, confirmed above to bring <code>ctest</code> to a real, clean pass under <code>qemu-aarch64</code>.</p>
+<p>The exact garbled text in the middle of this output depends on the specific compiled binary's own raw bytes and will differ from build to build; the precise shell diagnostic also depends on the host. On a host with registered emulation, the test can pass instead. The real fix is the <code>find_program(QEMU_AARCH64_EXECUTABLE qemu-aarch64)</code> / <code>CMAKE_CROSSCOMPILING_EMULATOR</code> lines in Section A.3's own toolchain file, confirmed above to bring <code>ctest</code> to a real, clean pass under <code>qemu-aarch64</code>.</p>
 <p><strong>Diagnostic 4 -- <code>qemu-aarch64</code> failing on a dynamically linked binary.</strong> Building the identical source without <code>-static</code> and running the result directly under bare <code>qemu-aarch64</code> (with no sysroot configured) fails because the dynamic loader this machine's own aarch64 binary expects is not present at the path it looks for:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>$ aarch64-linux-gnu-g++ -std=c++23 diag4_dynamic.cpp -o diag4_dynamic_bin
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>$ qemu-aarch64 ./diag4_dynamic_bin

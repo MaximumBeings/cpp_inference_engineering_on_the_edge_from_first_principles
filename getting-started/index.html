@@ -12,6 +12,8 @@
         <meta name="author" content="Oluwaseyi Awoga">
       
       
+        <link rel="canonical" href="https://maximumbeings.github.io/cpp_inference_engineering_on_the_edge_from_first_principles/getting-started/">
+      
       
         <link rel="prev" href="..">
       
@@ -195,6 +197,18 @@
       
     
     
+      <div class="md-header__source">
+        <a href="https://github.com/maximumbeings/cpp_inference_engineering_on_the_edge_from_first_principles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
   </nav>
   
 </header>
@@ -228,6 +242,18 @@
     </a>
     C++ Inference Engineering on the Edge — Under Development
   </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/maximumbeings/cpp_inference_engineering_on_the_edge_from_first_principles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
   
   <ul class="md-nav__list" data-md-scrollfix>
     
@@ -351,6 +377,17 @@
     <span class="md-ellipsis">
       
         SIMD: two real, genuinely-executed paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sqlite-logging-chapter-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQLite logging (Chapter 18)
       
     </span>
   </a>
@@ -1965,6 +2002,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sqlite-logging-chapter-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQLite logging (Chapter 18)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#gpu-acceleration-part-6-only" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2024,6 +2072,9 @@
                   
 
 
+  
+  
+
 
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
 <p>This book targets modern C++ compiled with <code>g++</code> (GCC 13 or newer). Most chapters use nothing beyond C++20/23 as shipped in any current GCC, but two specific areas need an extra toolchain component described below: <code>std::mdspan</code> (Part 0) and Arm NEON (Part 2).</p>
@@ -2031,16 +2082,18 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>g++<span class="w"> </span>--version<span class="w">                                   </span><span class="c1"># GCC 13.0 or newer</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++23<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-O2<span class="w"> </span>file.cpp<span class="w"> </span>-o<span class="w"> </span>binary
 </code></pre></div>
-<p>Every plain host <code>.cpp</code> file in this book compiles and runs with exactly this line, no extra flags, no extra libraries.</p>
+<p>Standalone portable examples use the command above. Examples that create threads should also use <code>-pthread</code> on GCC/Linux. SIMD, mdspan, SQLite, POSIX model-loading, and CUDA examples have additional platform or dependency requirements listed below and in their chapters.</p>
+<p>On macOS, <code>g++</code> usually invokes Apple Clang. Check <code>g++ --version</code> before following GCC-specific instructions. The canonical validation scripts target GCC on Linux, and platform-dependent output can differ on other toolchains.</p>
 <h2 id="stdmdspan-a-vendored-reference-implementation"><code>std::mdspan</code>: a vendored reference implementation<a class="headerlink" href="#stdmdspan-a-vendored-reference-implementation" title="Permanent link">&para;</a></h2>
-<p><code>std::mdspan</code> is standard C++23, but no shipping standard library — not GCC 13's or 14's libstdc++, not current libc++ — implements it yet. This book uses the official Kokkos/mdspan reference implementation instead, the same reference implementation the standard itself was developed from, pinned to a specific commit for reproducibility:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kokkos/mdspan.git
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>mdspan<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>8989f70749e28f337e6f7aa210db88659dba6f2f
+<p><code>std::mdspan</code> is standard C++23, but support depends on the standard-library release. The GCC 13/14 setup used for the book requires a separate implementation. This book uses the official Kokkos/mdspan reference implementation instead, the same reference implementation the standard itself was developed from, pinned to a specific commit for reproducibility:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># From the root of this repository, matching the verification scripts:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kokkos/mdspan.git<span class="w"> </span>_vendor_mdspan
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>-C<span class="w"> </span>_vendor_mdspan<span class="w"> </span>checkout<span class="w"> </span>8989f70749e28f337e6f7aa210db88659dba6f2f
 </code></pre></div>
 <p>Compile any file that includes <code>&lt;mdspan/mdspan.hpp&gt;</code> with:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++23<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-O2<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>-DMDSPAN_IMPL_STANDARD_NAMESPACE<span class="o">=</span>std<span class="w"> </span>-DMDSPAN_IMPL_PROPOSED_NAMESPACE<span class="o">=</span>experimental<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>-I/path/to/mdspan/include<span class="w"> </span>file.cpp<span class="w"> </span>-o<span class="w"> </span>binary
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>-I_vendor_mdspan/include<span class="w"> </span>file.cpp<span class="w"> </span>-o<span class="w"> </span>binary
 </code></pre></div>
 <p>The two <code>-D</code> flags tell the reference implementation to define its types directly in namespace <code>std</code> (its default is the non-conflicting <code>Kokkos</code> namespace, for codebases that need both an experimental and a future standard version side by side). With them, <code>std::mdspan</code>, <code>std::extents</code>, and <code>std::submdspan</code> in this book's own code are exactly the standard-track API, backed by an implementation that runs correctly today rather than a stub.</p>
 <p>This book standardizes on <code>-std=c++23</code>, not <code>-std=c++20</code>, for every file that touches <code>std::mdspan</code> — verified directly rather than assumed. The reference implementation's templates compile fine under <code>-std=c++20</code>, but this book's own code leans on <code>matrix[i, j]</code>-style multi-argument <code>operator[]</code> throughout, and that specific syntax is a C++23 core-language feature (multi-dimensional subscript operators, P2128), not a library feature the reference implementation can backport on its own. Under <code>-std=c++20</code> a call like <code>matrix[1, 2]</code> still compiles — as a deprecated comma expression that silently discards the <code>1</code> and indexes with <code>2</code> alone — and then fails with a template error, not a clean rejection, the first time it hits a call whose rank actually requires two indices. <code>-std=c++23</code> is what makes <code>matrix[i, j]</code> mean what every example in this book needs it to mean.</p>
@@ -2059,23 +2112,32 @@
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>qemu-aarch64<span class="w"> </span>-L<span class="w"> </span>/usr/aarch64-linux-gnu<span class="w"> </span>./binary_arm
 </code></pre></div>
 <p>Both paths produce this book's own locked, verified output — neither is a description of what <em>should</em> happen on real hardware.</p>
-<h2 id="gpu-acceleration-part-6-only">GPU acceleration (Part 6 only)<a class="headerlink" href="#gpu-acceleration-part-6-only" title="Permanent link">&para;</a></h2>
-<p>Part 6's CUDA material follows the same honesty discipline this book uses everywhere else. A genuine <code>nvcc</code> toolchain, installable without a physical GPU or driver:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--break-system-packages<span class="w"> </span>nvidia-cuda-nvcc-cu13
+<h2 id="sqlite-logging-chapter-18">SQLite logging (Chapter 18)<a class="headerlink" href="#sqlite-logging-chapter-18" title="Permanent link">&para;</a></h2>
+<p>The inspection logging example links against SQLite. On the book's Linux setup:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++23<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-O2<span class="w"> </span>04_disposition_and_logging.cpp<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>-l:libsqlite3.so.0<span class="w"> </span>-o<span class="w"> </span>inspection_logging
 </code></pre></div>
-<p>Every <code>.cu</code> file in Part 6 is genuinely compiled for a real architecture (<code>-arch=sm_80</code> and newer). Where a kernel needs an actual device to <em>execute</em>, this book's authoring environment honestly reports back whatever a driver-less machine actually reports (typically <code>cudaErrorInsufficientDriver</code>) and verifies the kernel's logic instead with a host-side simulation of its exact grid, block, and thread structure — never a fabricated "it works" with no evidence behind it.</p>
+<p>On macOS, link the system library with <code>-lsqlite3</code> instead. The Chapter 17 peak-memory examples use Linux <code>/proc/self/status</code>; their Linux-specific memory assertions require that environment. Architecture-dependent random-distribution samples and compiler optimizations can also change the illustrative transcripts.</p>
+<h2 id="gpu-acceleration-part-6-only">GPU acceleration (Part 6 only)<a class="headerlink" href="#gpu-acceleration-part-6-only" title="Permanent link">&para;</a></h2>
+<p>Part 6 uses a CUDA toolchain for device code. Chapter 32's attention kernel has been compiled and executed on an A100 with CUDA 12.8. A compiler can also be installed in a separate environment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>.<span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>nvidia-cuda-nvcc-cu13
+</code></pre></div>
+<p>Select the architecture for the GPU that will execute the binary. A100 uses <code>-arch=sm_80</code>; Jetson Orin uses <code>-arch=sm_87</code>. The NVIDIA driver must be compatible with the toolkit. GPU validation requires a visible physical device.</p>
+<p>The Chapter 32 A100 suite checks 60 attention shapes against a CPU reference. NVIDIA Compute Sanitizer's memory, race, and synchronization checks also pass. A no-device run explicitly skips GPU comparisons while retaining host checks.</p>
 <h2 id="the-honesty-discipline-this-book-follows">The honesty discipline this book follows<a class="headerlink" href="#the-honesty-discipline-this-book-follows" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Plain host C++</strong> is genuinely compiled and genuinely run, natively, every time.</li>
 <li><strong>Arm NEON code</strong> is genuinely cross-compiled and genuinely run under <code>qemu-user</code> emulation — real execution, not a compile-only claim.</li>
 <li><strong>x86 AVX2 code</strong> is genuinely compiled and genuinely run natively.</li>
-<li><strong>CUDA kernels</strong> (Part 6 only) are genuinely compiled for a real architecture; where this environment cannot launch them, that limitation is stated plainly and the kernel's logic is verified instead by an exhaustive host-side simulation of its own exact indexing.</li>
+<li><strong>CUDA attention</strong> (Chapter 32) is compiled and run on an A100, checked against the CPU reference and with Compute Sanitizer. Hosts without a GPU report skipped device comparisons.</li>
 <li><strong>Timing and throughput numbers are never fabricated.</strong> Where a chapter's argument depends on which of two approaches is faster rather than merely which is correct, this book measures a genuinely computed, deterministic quantity instead of a wall-clock number wherever one exists — an operation count, a byte count, a cache-line count — specifically because a wall-clock number captured once is not reproducible on a rerun, let alone on a reader's own hardware, the way an exact count is. Where genuine wall-clock methodology itself is the topic, this book says so explicitly and separates any genuinely-varying raw number out of its own locked, verified output.</li>
 </ul>
 <p>Every chapter states which of the above applies to each piece of its own code, so nothing is left for a reader to guess about how a claim was actually established.</p>
 <h2 id="compile-line-conventions">Compile-line conventions<a class="headerlink" href="#compile-line-conventions" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Plain C++ host files (<code>.cpp</code>): <code>g++ -std=c++23 -Wall -Wextra -O2 file.cpp -o binary</code></li>
+<li>Portable C++ host files (<code>.cpp</code>): <code>g++ -std=c++23 -Wall -Wextra -O2 file.cpp -o binary</code>. Add <code>-pthread</code> for threaded examples on GCC/Linux and follow the platform notes above.</li>
 <li>Files using <code>std::mdspan</code>: add the two <code>-D</code> flags and the <code>-I</code> path shown above, and compile with <code>-std=c++23</code> — this book's <code>matrix[i, j]</code> multi-argument indexing is a C++23 core-language feature, not merely a library one, so <code>-std=c++20</code> will not reject it cleanly; it will instead misparse it as a deprecated comma expression.</li>
 <li>x86 SIMD files: add <code>-mavx2 -mfma</code> (or the specific instruction-set flag a section calls for).</li>
 <li>Arm NEON files: cross-compiled with <code>aarch64-linux-gnu-g++</code>, run with <code>qemu-aarch64 -L /usr/aarch64-linux-gnu</code>.</li>
