@@ -18,6 +18,15 @@
 
 Chapter 16 produced a complete, working, self-contained production engine -- a real command line, a real sampling pipeline, a real multi-turn conversation, and a real two-turn exchange against the actual downloaded Qwen2.5-0.5B-Instruct checkpoint. It never once asked whether that engine was any GOOD, compared to anything else. This chapter asks exactly that question, against the reference every CPU inference engine in the world is measured against: `llama.cpp`. Answering it honestly takes three steps in order. First, agreeing on WHAT to measure, because a single "tokens per second" number quietly conflates at least three different phases of generation with different costs and different bottlenecks. Second, building a harness that measures those real numbers against this book's own REAL forward pass, not a simulation of one. Third, and only once both of those are trustworthy, actually running the comparison -- on identical hardware, an identical file, and a stated, narrow methodology -- and reporting whatever number comes out, including a number that is not flattering.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated.](../images/17-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Report model, hardware, flags and measurement boundaries with every comparison.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 17.1 What to Measure and Why
 
 ### Intuition

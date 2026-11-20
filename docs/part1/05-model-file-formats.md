@@ -17,6 +17,15 @@
 
 Chapters 2 through 4 built every mechanism a transformer's forward pass needs — tensors, kernels, quantized blocks — but every one of those chapters generated its own weights in-process with a seeded random number generator. Real deployment starts from a file: five billion real, trained parameters that have to get from disk into a running engine without wasting time, memory, or correctness. This chapter builds the two file formats that matter for that step. GGUF (the format used by llama.cpp, Ollama, LM Studio, and every quantized model on HuggingFace's GGUF repositories) is built byte by byte, written, read back, and then read again through a zero-copy `mmap` view that turns Chapter 4's Q8/Q4 blocks into `std::span`s pointing straight into mapped file pages. SafeTensors — the format nearly every model ships in before quantization — gets its own hand-rolled JSON header parser and its own zero-copy round trip. The chapter closes by correcting an arithmetic slip in the kind of quantization-format documentation this material is drawn from, and using the corrected numbers to show what production "K-quant" formats actually trade for their better quality: not a smaller file, but a smarter way of spending the same number of bits.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Load model tensors without copying their payload. The file reader validates metadata before exposing mapped tensor ranges.](../images/05-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Validate every size and byte range before reading a tensor.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 5.1 The GGUF Binary Format: Header, Metadata, and Tensor Descriptors
 
 ### Intuition

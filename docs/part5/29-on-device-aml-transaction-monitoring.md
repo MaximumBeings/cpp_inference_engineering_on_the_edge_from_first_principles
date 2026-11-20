@@ -18,6 +18,15 @@
 
 Chapter 28 turned to a claim's own photographic and temporal evidence. This chapter closes this book's four-chapter run through real financial-industry deployments with a genuinely different real constraint once more: catching a pattern that only becomes visible across a SEQUENCE of transactions from the same account, where no single transaction in the sequence is suspicious by itself. Each of this chapter's four sections builds one real, independent, sequence-based AML signal, and closes with a capstone that combines all three into one auditable, per-account disposition -- never an automated filing, since real law reserves that decision for a human.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Monitor transactions with explicit windows. Aggregate event history before combining anomaly signals.](../images/29-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>An alert needs contextual review; thresholds alone cannot establish money laundering.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 29.1 AML Structuring (Smurfing) Detection
 
 ### Intuition

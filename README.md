@@ -27,3 +27,7 @@ python3 tests/inference_regressions.py
 ```
 
 Set `CXX=clang++` for the regression script when using Apple Clang. Historical transcripts and architecture-specific examples use the book's GCC/Linux environment. See [the audit report](AUDIT_REPORT.md) for the scope and remaining platform-specific validation.
+
+## Regenerate illustrations
+
+Run `python3 tools/build_diagrams.py` to rebuild the 38 accessible SVG figures and their chapter/template embeds. Figures are stored in `docs/images/` and styled by `docs/stylesheets/figures.css`. Chapter templates retain the embeds when their code examples are regenerated.

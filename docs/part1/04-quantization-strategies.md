@@ -18,6 +18,15 @@
 
 Chapters 2 and 3 built and ran a transformer block in full precision. This chapter exists because full precision does not fit: a 70-billion-parameter model stored as FP32 needs 280GB of RAM before a single token generates, and even on server-class hardware, every one of those bytes has to be read from memory for every token produced, at whatever the memory bus's bandwidth ceiling happens to be. Quantization is the answer — storing weights (and, at runtime, activations) as small integers with a shared floating-point scale — and this chapter builds that answer from first principles: the single affine formula every scheme reduces to, why blocks of 32 values need their own independent scale rather than sharing one, how to pack 4-bit values into bytes by hand, how to fuse dequantization directly into a dot product's inner loop, and how a model can be trained to expect the quantization noise it will eventually run under, using a technique — the Straight-Through Estimator — that fixes a broken gradient by simply pretending it isn't broken.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Represent a floating value with an integer. The scale and zero point define the affine mapping.](../images/04-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Quantization error depends on scale, clipping and the distribution of values.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 4.1 The Memory Wall and Affine Quantization
 
 ### Intuition

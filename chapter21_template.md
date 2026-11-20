@@ -18,6 +18,15 @@
 
 Chapter 20 handled a domain where a wrong call costs a delayed diagnosis. This chapter turns to three domains where the stakes are real, but different in kind: a document-intelligence pipeline whose wrong field association costs a rejected loan application or a misfiled claim; an insurance claim whose false precision or unexamined inconsistency costs money, in either direction, for an insurer or a policyholder; and an ecological monitoring deployment whose miscounted population estimate costs a conservation decision made on bad data. None of these domains needs Chapter 20's own clinical-grade structural guarantees, but every one of them needs this book's own recurring honesty discipline applied faithfully: never collapse a range into a false-precision point, never force a confident label out of data that does not support one, and never let a raw, computable signal be mistaken for a claim it was never built to support.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Route evidence through a structured pipeline. Documents, claims and camera images need different preprocessing and decision policies.](../images/21-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Preserve the source evidence and record uncertainty with each derived result.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 21.1 Why a Vision-Language Model Replaces a Traditional OCR Pipeline Outright
 
 ### Intuition

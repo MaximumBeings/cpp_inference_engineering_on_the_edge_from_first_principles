@@ -17,6 +17,15 @@
 
 This chapter closes Part 5 with two cameras that see far more of a person's life than any system this book has built so far, and that fact shapes every design choice in it. A police body camera records members of the public who never consented to being recorded, in circumstances where an identification error carries real legal weight -- so Section 25.1 and Section 25.2 build a real evidentiary pipeline whose own types make facial recognition impossible to add by accident, not merely discouraged by policy. A personal fitness or nutrition camera records its own owner, continuously, in their own home -- so Section 25.3 and Section 25.4 build real, useful health-tracking techniques that run entirely on-device, with no image or personal health data ever needing to leave it. Both halves of this chapter are united by the same real principle: a genuinely privacy-respecting camera system is not a promise layered on top of the architecture, it is the architecture.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording.](../images/25-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Keep the original recording and its provenance alongside generated descriptions.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 25.1 Body-Camera Frame Sampling and Scene Tagging Under a No-Facial-Recognition Boundary
 
 ### Intuition

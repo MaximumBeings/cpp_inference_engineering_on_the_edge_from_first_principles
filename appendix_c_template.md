@@ -4,6 +4,15 @@ This appendix builds nothing new. Every format, every partitioning rule, every c
 
 ---
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Each optimization must preserve the model&#x27;s numerical and state contracts.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## C.1 Choosing a Quantization Strategy
 
 ### Intuition

@@ -2,6 +2,15 @@
 
 Every chapter in this book already ends with its own self-check questions and worked solutions, testing that chapter's own material in isolation. This appendix is different: it tests whether the ideas actually connect across Parts -- whether you can look at a KV cache eviction problem and recognize the same underlying shape a re-quantization bug has, or say why a diagnosis-incapable medical report schema and a compile-time no-facial-recognition guarantee are solving the same kind of problem in different domains. B.2 asks fourteen conceptual questions, two from each of this book's seven Parts, with answers in B.3. B.4 raises the stakes: three short, genuinely compiled programs, each built around a specific real mistake this book warned about somewhere -- read the code, commit to a prediction, then compile and run it yourself before reading the revealed output.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Explain why an answer follows from the constraints.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## B.1 How to Use This Quiz
 
 Answer every question in B.2 in your own words -- out loud, or on paper -- before reading B.3's answer. For B.4, do the same with actual code: read the program, write down what you believe it will print, and only then compile it and compare. A prediction you get wrong tells you exactly which chapter to reread; a prediction you get right by guessing, without being able to explain why, is worth treating the same way. Every one of B.4's programs compiles and runs in seconds -- there is no reason to skip the "compile and run it yourself" half of the exercise, and every reason not to: this book's entire method has been "genuinely compiled, genuinely run, never assumed," and this quiz is not an exception.

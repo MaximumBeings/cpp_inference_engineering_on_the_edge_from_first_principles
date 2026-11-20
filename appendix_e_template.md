@@ -4,6 +4,15 @@ This appendix builds nothing new in the sense Appendix C did -- there is no fres
 
 ---
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain.](../images/e-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Check the book&#x27;s implemented scope before assuming framework feature parity.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## E.1 Tensors: `std::mdspan` and GGUF/SafeTensors vs. `torch.Tensor` and `AutoModel.from_pretrained`
 
 ### Intuition

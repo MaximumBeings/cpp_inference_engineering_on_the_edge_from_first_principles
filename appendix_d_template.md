@@ -4,6 +4,15 @@ Chapter 32's own opening line makes a promise this appendix now keeps: "this boo
 
 ---
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet
 
 ### Intuition

@@ -6,6 +6,15 @@ Most inference-engineering material is written from the data center outward: ela
 
 This book is independent: it does not assume or reference any other book, and it builds its own tensor, quantization, and threading foundations from Chapter 2 rather than pointing elsewhere for them. What it keeps is a discipline: every piece of code in this book is genuinely compiled, and wherever a real answer does not require hardware this book's own authoring environment lacks, it is genuinely run — including executing cross-compiled Arm binaries under emulation and validating Chapter 32 attention on a physical A100. Where a claim depends on hardware this environment truly does not have — a physical GPU, a real embedded board — that limitation is stated plainly rather than papered over with a plausible-looking, unverified number.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![From model bytes to the next token. An edge engine must fit weights, live state and working memory on the device.](images/index-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Memory budget = weights + KV cache + activations + runtime overhead</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## What this book covers
 
 - **Part 0 — Foundations for Inference at the Edge.** Why edge inference is a fundamentally different problem from cloud inference, a zero-copy tensor engine built on `std::mdspan` with an arena allocator and mixed-precision support, and the computational graph (RMSNorm, SwiGLU, RoPE, attention) that every transformer forward pass is built from.

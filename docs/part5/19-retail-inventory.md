@@ -18,6 +18,15 @@
 
 Chapter 18 taught a vision-language model to inspect a single manufactured part in isolation and decide, from what it saw, whether the part was good. A retail shelf asks a related but genuinely different question: not "what is this," but "is this where it is supposed to be, and if it is missing, has it been missing long enough to matter." This chapter builds every piece that question requires, in the order a real retail deployment would need them -- encoding what SHOULD be on a shelf, observing what actually is there across a batch of real photographs, reporting both into the ERP and WMS systems a retailer already runs its business on, aggregating that reporting honestly across every store in a chain, and finally reconciling expectation against observation into the two real findings -- misplacement and shrinkage -- a store operator can actually act on.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram.](../images/19-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Separate observed image evidence from inferred stock availability.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 19.1 Encoding a Planogram Directly into the System Prompt
 
 ### Intuition

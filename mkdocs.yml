@@ -108,3 +108,6 @@ nav:
 
 extra:
   social: []
+
+extra_css:
+  - stylesheets/figures.css

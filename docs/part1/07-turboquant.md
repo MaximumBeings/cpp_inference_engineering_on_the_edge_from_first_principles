@@ -18,6 +18,15 @@
 
 Every quantizer built so far in this book has worked one 32-element block at a time: find the block's largest magnitude, pick a scale, round each of the 32 values independently. That approach makes no use of the fact that those 32 values are part of a much longer vector living somewhere specific in space — it treats each block as an isolated signal with no relationship to its neighbors. TurboQuant, the subject of this chapter, throws that assumption away. It treats an entire vector as one geometric object on a high-dimensional sphere, applies a single principled transformation to that whole object, and only then quantizes coordinate by coordinate — but with a quantizer that has been custom-built for the exact statistical shape those coordinates are now guaranteed to have. Section 7.1 builds and verifies the rotation step that makes this possible. Section 7.2 builds the optimal per-coordinate quantizer the rotation sets up, combining the two into TurboQuant's reconstruction-optimal "MSE mode." Section 7.3 shows that MSE mode, despite being optimal for reconstruction, is quietly biased for a different and equally important task — estimating inner products — and derives the 1-bit correction that fixes it. Section 7.4 puts the resulting quantizer to work on the KV cache, the online, uncalibrated, ever-growing structure that blockwise quantization was never well matched to. Section 7.5 closes the chapter by comparing TurboQuant against Chapters 2-6's blockwise approach directly, on the same vectors, and checks TurboQuant's own distortion against the information-theoretic floor no quantizer of any kind can beat.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products.](../images/07-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Keep the MSE reconstruction, residual and query in compatible coordinates.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 7.1 Random Rotation: Turning Worst-Case Vectors into Average-Case Ones
 
 ### Intuition

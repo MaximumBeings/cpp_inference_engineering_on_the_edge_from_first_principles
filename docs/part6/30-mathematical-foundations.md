@@ -19,6 +19,15 @@
 
 Every chapter before this one built a working system and verified it against the correct answer. This chapter asks a different question of the same material: not "does it work," but "why does it work, and what does that explain about its own real limits." A dot product's own arithmetic intensity explains why decode is slow no matter how fast the GPU is. A rotation matrix's own algebra explains why RoPE encodes relative position at all. A Hessian explains why GPTQ beats naive rounding, not just that it does. Part 6 exists to give the kernel-level intuition Parts 1 through 5 relied on without deriving, and this chapter is where that derivation happens -- entirely in real, checkable, from-scratch C++, exactly like every chapter before it.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures.](../images/30-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Use the mathematical assumptions explicitly when interpreting measurements.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 30.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover
 
 ### Intuition

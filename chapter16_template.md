@@ -19,6 +19,15 @@
 
 Section 15.4 produced one real, correct, decoded token from a real forward pass -- and stopped there, because getting that one token right was already the whole job Chapter 15 set out to do. A production binary needs more than one token: it needs a command line a reader can actually type, a sampling pipeline that turns a raw logit distribution into a token someone would want to read, a decoder that reassembles that token's bytes into text correctly even when a single character spans two tokens, a loop that keeps generating until a real stopping condition fires, a conversation abstraction that lets a second question build on the first without recomputing everything, and enough error handling and visibility into its own performance that running it on a machine no one is watching doesn't mean flying blind. This chapter builds exactly those six things, in that order, states plainly which of this book's own earlier subsystems (Chapter 8's threads, Chapters 13 and 14's KV-cache compression) did NOT make it into this binary and why, and ends by running the complete result -- the CLI, the sampling pipeline, the streaming decoder, the conversation loop, and the profiler, all compiled into one file -- against the actual downloaded Qwen2.5-0.5B-Instruct checkpoint for a real two-turn conversation.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Turn the forward pass into a command-line engine. Parse input strictly and make capacity and numerical failures visible.](../images/16-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>A repeated token receives one repetition penalty per sampling step.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 16.1 Engine Configuration and the Command Line
 
 ### Intuition

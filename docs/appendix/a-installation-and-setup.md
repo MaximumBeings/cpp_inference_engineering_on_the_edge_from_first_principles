@@ -17,6 +17,15 @@
 
 Every chapter in this book compiled and ran identically on an x86_64 development machine and real aarch64 hardware, using a real cross-compilation toolchain invoked directly with `g++` and specific flags. This appendix documents that same real toolchain on its own, as a standalone, working CMake project a reader can copy directly: how to install it, how to structure a CMake project around it so cross-compiling is a single flag rather than a hand-maintained command line, and -- in the same honest spirit as every chapter before it -- five real failures this book's own pipeline actually hit while building this exact setup, captured verbatim, with the real fix for each one.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## A.1 Toolchain Setup on the Development Machine
 
 ### Intuition

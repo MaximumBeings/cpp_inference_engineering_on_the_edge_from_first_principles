@@ -18,6 +18,15 @@
 
 Every chapter so far has assumed tokens already exist as small integers flowing into an embedding table. This chapter builds the thing that produces them. Section 12.1 implements byte-pair encoding's actual merge loop — the algorithm that turns a stream of raw bytes into the hierarchical, always-representable vocabulary a real model was trained on — and traces a genuinely counterintuitive case by hand to show that merge PRIORITY, not merge OPPORTUNITY, decides the result. Section 12.2 builds the pre-tokenizer that runs before BPE ever sees a byte, so a merge rule can never accidentally fuse two words together. Section 12.3 turns to special tokens and the chat template that assembles a real multi-turn conversation, and makes concrete a security property this book has not needed to state before: special tokens are inserted by ID at fixed positions, never discovered by pattern-matching user text, so a user cannot inject a fake end-of-turn signal just by typing its literal string. Section 12.4 reverses the whole process with a token decoder, handling byte-fallback and control tokens correctly enough that a real multi-byte UTF-8 codepoint falls out of it with no Unicode-specific code at all. Section 12.5 closes the chapter by extending Chapter 5's real GGUF reader and writer with array support, writing an actual tokenizer vocabulary to a real file, and loading a complete, working tokenizer back out of it — proving the whole pipeline with a lossless round trip on ordinary text.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![From text to model token IDs. Pre-tokenization and BPE must match the vocabulary used to train the model.](../images/12-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Decoding can span multiple tokens for one UTF-8 character.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 12.1 Byte-Pair Encoding: The Merge Algorithm
 
 ### Intuition

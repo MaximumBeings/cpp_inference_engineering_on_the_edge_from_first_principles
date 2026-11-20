@@ -18,6 +18,15 @@
 
 This book has built one real inference engine, from `std::mdspan` tensors through quantization, threading, the KV cache, real deployed models, and twelve real edge deployments, entirely in portable C++23 that runs identically on an x86 development machine and real aarch64 hardware. This final chapter takes that same engine to the one real place it has not yet gone: a GPU. It does so with the identical discipline every chapter before it used -- derive the real problem precisely, build a real fix from scratch, and verify it directly rather than asserting it -- but it also does something this book has not had to do before: it tells you plainly, in detail, exactly which of its own real claims a GPU-less pipeline can verify and which it genuinely cannot, rather than blurring that line to make the chapter read more impressively than the truth supports.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory.](../images/32-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Validate partial tiles and query blocks against the CPU reference on a physical GPU.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 32.1 The O(N^2) Memory Wall and the Online-Softmax Fix
 
 ### Intuition

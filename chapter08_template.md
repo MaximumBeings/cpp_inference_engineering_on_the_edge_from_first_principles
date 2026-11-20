@@ -19,6 +19,15 @@
 
 Every kernel in this book so far has been judged by what it computes and how accurately. This chapter asks a different question: given a kernel that is already correct, what determines how FAST it can possibly run on real hardware — not "how fast did it run just now," which a shared sandbox cannot answer reproducibly, but "what is the hard ceiling imposed by the machine's own arithmetic and memory limits." Section 8.1 builds that ceiling, the roofline model, from first principles: peak compute and peak memory bandwidth, derived from stated architectural parameters, combining into a ridge point that separates kernels whose speed is capped by arithmetic from kernels whose speed is capped by how fast bytes can be fetched from memory. Section 8.2 measures where three real transformer kernels actually land relative to that ridge, by instrumenting them to count their own FLOPs and bytes as they run. Section 8.3 applies the same framework to the single most consequential distinction in an inference engine's performance profile — prefill versus decode — and finds the exact sequence length at which one becomes the other. Section 8.4 asks the same question from a serving system's point of view: continuous batching turns many decode requests' single-token GEMVs into one batched GEMM, the identical transition Section 8.3 analyzed, and this section asks what that means for latency, not just throughput. Section 8.5 closes the chapter with a full transformer layer's roofline profile, combining every kernel this book has built — RMSNorm, QKVO projections, GQA attention against a real KV cache, and the FFN — into one decode step, and asks which part of that step's memory traffic actually dominates.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel.](../images/08-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Decode GEMV often has low intensity; batching can improve weight reuse.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 8.1 The Roofline Model, Derived From First Principles
 
 ### Intuition

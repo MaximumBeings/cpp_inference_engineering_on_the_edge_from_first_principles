@@ -16,6 +16,15 @@
 
 Chapter 21 turned a single photograph into a structured extraction, claim assessment, or species label. This chapter turns to three domains united by a different real pattern: turning a CONTINUOUS stream -- a camera feed sampled over time, a rendered user interface, an ownership history spanning decades -- into a structured, auditable narrative, without ever collapsing that narrative's own real uncertainty into a false confident answer. A security system correlating detections across cameras must say AMBIGUOUS when two candidates both fit; an accessibility audit must cite the exact, real, standardized criterion a violation fails; and a provenance and condition-trend engine must flag a structural inconsistency by its exact computed size and classify a real trend, without ever pronouncing an artwork itself authentic, forged, or accurately dated. None of these three sections needs Chapter 20's own clinical-grade guarantees, but every one of them needs this book's own recurring discipline: report the honest range or the honest ambiguity, name the specific failure, and never let a computed signal be mistaken for a verdict it was never built to render.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Combine visual findings with context. Security, accessibility and provenance examples use explicit evidence and review.](../images/22-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>A model&#x27;s description alone does not establish identity, authenticity or intent.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 22.1 A Multi-Camera Surveillance Narration Engine with Temporal Correlation
 
 ### Intuition

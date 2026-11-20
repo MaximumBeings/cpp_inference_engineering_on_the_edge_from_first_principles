@@ -17,6 +17,15 @@
 
 Chapter 27 turned to a hard, real-time deadline. This chapter turns to a genuinely different real constraint once more: an insurance claim, where the fraud-relevant signals are photographic and temporal rather than numeric, and where a false accusation carries real consequences for a genuine claimant. Each of this chapter's four sections builds one real, independent fraud signal -- reused photo detection, timestamp forensics -- and closes by extending Chapter 21.3's own cost-range engine with those signals, ending in a capstone disposition engine that routes a claim toward more or less human scrutiny, but never toward an automatic denial.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition.](../images/28-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>A fraud flag is an uncertainty-bearing signal for review.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 28.1 Insurance Claim Duplicate Photo Detection
 
 ### Intuition

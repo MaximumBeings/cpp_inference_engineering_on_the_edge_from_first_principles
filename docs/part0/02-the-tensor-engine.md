@@ -15,6 +15,15 @@
 
 Chapter 1 argued that edge inference is a different engineering problem from cloud inference: memory is scarce, allocation has to be predictable, and the difference between a contiguous buffer and one three cache lines away can decide whether a token generation loop hits its latency budget. This chapter builds the concrete C++23 tools this book uses everywhere from here forward to act on that argument. `std::mdspan` gives every later chapter a single, standard way to describe a tensor's shape without owning its memory. `std::submdspan` gives multi-head attention a way to slice that tensor per head without copying. The arena allocator gives the token generation loop a scratch-memory strategy with no per-token syscall and no fragmentation. And `std::variant`-based mixed precision gives every later chapter a type-safe way to store the same logical tensor as FP32 or BF16 without duplicating kernel code. Every other chapter in Part 0 through Part 5 assumes all four of these are already comfortable tools by the time they are needed again.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects.](../images/02-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Row-major offset(i, j) = i * columns + j</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 2.1 std::mdspan: A Zero-Copy View Over Flat Memory
 
 ### Intuition

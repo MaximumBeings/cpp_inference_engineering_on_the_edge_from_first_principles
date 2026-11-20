@@ -18,6 +18,15 @@
 
 Every chapter before this one built one real piece of an inference engine and verified it in isolation. A real serving system has to run many of those pieces at once, for many concurrent real users, whose requests arrive at unpredictable times and need unpredictable amounts of work -- and the scheduling decisions that follow from that are not optional engineering polish, they are the actual difference between a system that serves real traffic efficiently and one that does not serve it at all. This chapter builds that scheduling layer from scratch: first by understanding, with real hand-traceable numbers, exactly what goes wrong with the naive approach; then by resolving the specific real conflict between the two fundamentally different kinds of work a serving step can do; then by building the real scheduler that puts both fixes to work; and finally by building the real numerical debugging tools a system running at this scale actually needs when something goes wrong.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries.](../images/31-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>KV capacity, per-step work and fairness constrain admission.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 31.1 The Static-Batching Problem and Head-of-Line Blocking
 
 ### Intuition

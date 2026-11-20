@@ -19,6 +19,15 @@
 
 Every chapter so far has proven its code correct against data this book's own tools produced: a writer this book wrote, read back by a reader this book wrote, checked against values this book's own test computed. That symmetry is exactly what makes those chapters' cross-architecture verification possible, and exactly what this chapter breaks on purpose. A real, published model file was produced by someone else's tooling, encodes someone else's architecture choices, and makes no promise that this book's prior assumptions hold. Section 15.1 builds a GGUF reader that survives contact with such a file -- closing gaps (an unsupported metadata value type, wrong assumptions about a magic number's exact bytes) that no self-consistent round-trip test could ever have surfaced. Section 15.2 puts that reader to work identifying exactly where a real Qwen2.5 checkpoint's architecture diverges from the Llama-style choices this book built Part 0 and Part 3 against: five differences, each checked against the real file's own bytes rather than assumed from a spec sheet or carried forward from an unverified claim. Section 15.3 adapts the actual forward-pass and tokenizer code for those five differences and proves the adaptation correct against a small synthetic model shaped like the real one. Section 15.4, the chapter's capstone, wires every piece -- the reader, the dequantizer, the BPE engine, the adapted transformer block -- together, points the result at the actual 644 MB file, and produces one real, computed, decoded token. Getting that one token right required finding and fixing four genuine bugs that no synthetic self-test, however careful, could have caught -- and this chapter documents each one as it was actually found, not as though the correct answer were obvious from the start.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass.](../images/15-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>A synthetic self-test and a real checkpoint run validate different contracts.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 15.1 A Reader That Survives Contact With a Real File
 
 ### Intuition

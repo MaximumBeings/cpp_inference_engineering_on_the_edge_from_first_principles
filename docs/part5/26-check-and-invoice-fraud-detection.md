@@ -17,6 +17,15 @@
 
 Chapter 25 closed Part 5's run of consumer- and field-facing vision-language deployments. This chapter turns to a different real financial setting: a bank branch or back office processing checks and invoices, where the fraud patterns are well-documented, real, and -- unlike a counterfeit product photo -- often checkable by a real published formula or a real structural redundancy the payment instrument's own printed form was designed to provide. Each of this chapter's four sections reapplies an algorithm this book already built from scratch (dHash, Levenshtein) to a new real domain, or builds a new real algorithm (a routing-number checksum, a words-to-number parser) with its own well-established provenance outside this book, and closes with a capstone risk-scoring engine that combines all of them into one fully auditable disposition.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Cross-check financial document fields. Independent checks expose inconsistencies for further review.](../images/26-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Matching fields do not establish authenticity; preserve uncertainty and provenance.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 26.1 MICR Checksum Validation and Signature Comparison
 
 ### Intuition

@@ -2,6 +2,15 @@
 
 This book targets modern C++ compiled with `g++` (GCC 13 or newer). Most chapters use nothing beyond C++20/23 as shipped in any current GCC, but two specific areas need an extra toolchain component described below: `std::mdspan` (Part 0) and Arm NEON (Part 2).
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Choose the toolchain for the target. Compile for the processor that will execute the binary.](images/getting-started-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>A successful cross-compile still needs execution on the target or an emulator.</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## The base toolchain
 
 ```bash

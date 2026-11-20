@@ -15,6 +15,15 @@
 
 Chapter 2 gave this book the tools to describe and allocate tensors; this chapter gives it something to compute with them. Every operation here is a genuine piece of a modern transformer block, in the order it actually runs: RMSNorm before attention and before the feed-forward network, RoPE applied to Q and K right after their projections, Grouped-Query Attention reading a KV cache that grows by one position per generated token, and a SwiGLU feed-forward network that alone accounts for roughly two-thirds of a forward pass's total FLOPs. The chapter closes by assembling these into a static compute graph — recorded once, replayed cheaply every token, with a liveness-aware memory plan — and by loading the weights that graph reads through `mmap`, so that a multi-gigabyte checkpoint never has to be copied wholesale into RAM before the first token can generate.
 
+<!-- chapter-figure -->
+<figure class="chapter-figure" markdown="1">
+
+![Inside a transformer block. Residual paths carry the input around attention and the feed-forward network.](../images/03-overview.svg){: loading="lazy" width="1120" height="470" }
+
+  <figcaption>Attention(Q, K, V) = softmax(QK^T / sqrt d) V</figcaption>
+</figure>
+<!-- /chapter-figure -->
+
 ## 3.1 RMSNorm: Cheap, Memory-Bound Normalization
 
 ### Intuition
