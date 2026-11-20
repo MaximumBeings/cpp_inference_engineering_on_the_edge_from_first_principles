@@ -8,3 +8,8 @@ site/
 # hand, on a reader's own machine, rather than reproduced by this repo's
 # own build. Readers following along download it themselves.
 *.gguf
+
+# Local toolchain dependencies and validation environments.
+_vendor_mdspan/
+.venv/
+__pycache__/

@@ -1,0 +1,36 @@
+OK:   H1 matches
+OK:   H2 sequence matches (4 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 bash compile/run blocks
+OK:   bash block 1 references 01_real_gguf_inspection.cpp
+OK:   bash block 2 references 02_llama_vs_qwen2_diff.cpp
+OK:   bash block 3 references 03_qwen2_transformer_block.cpp
+OK:   bash block 4 references 04_first_real_token.cpp
+OK:   found exactly 4 cpp code blocks
+OK:   code block 1 matches locked 01_real_gguf_inspection.cpp exactly
+OK:   code block 2 matches locked 02_llama_vs_qwen2_diff.cpp exactly
+OK:   code block 3 matches locked 03_qwen2_transformer_block.cpp exactly
+OK:   code block 4 matches locked 04_first_real_token.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_real_gguf_inspection.out.txt exactly
+OK:   locked output for section 1 contains its honest-exception real-file section (verified as data, not re-executed)
+OK:   output block 2 matches locked 02_llama_vs_qwen2_diff.out.txt exactly
+OK:   locked output for section 2 contains its honest-exception real-file section (verified as data, not re-executed)
+OK:   output block 3 matches locked 03_qwen2_transformer_block.out.txt exactly
+OK:   output block 4 matches locked 04_first_real_token.out.txt exactly
+OK:   locked output for section 4 contains its honest-exception real-file section (verified as data, not re-executed)
+OK:   compile of 01_real_gguf_inspection.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_real_gguf_inspection.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_real_gguf_inspection.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_llama_vs_qwen2_diff.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 02_llama_vs_qwen2_diff.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_llama_vs_qwen2_diff.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_qwen2_transformer_block.cpp succeeded (-std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_IMPL_PROPOSED_NAMESPACE=experimental -I_vendor_mdspan/include)
+OK:   fresh self-test rerun of 03_qwen2_transformer_block.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_qwen2_transformer_block.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_first_real_token.cpp succeeded (-std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_IMPL_PROPOSED_NAMESPACE=experimental -I_vendor_mdspan/include)
+OK:   fresh self-test rerun of 04_first_real_token.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_first_real_token.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

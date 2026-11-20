@@ -1,0 +1,39 @@
+OK:   H1 matches
+OK:   H2 sequence matches
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_bpe_merge_engine.cpp
+OK:   bash block 2 references 02_pretokenizer.cpp
+OK:   bash block 3 references 03_special_tokens_chat_template.cpp
+OK:   bash block 4 references 04_token_decoder.cpp
+OK:   bash block 5 references 05_gguf_tokenizer_pipeline.cpp
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_bpe_merge_engine.cpp exactly
+OK:   code block 2 matches locked 02_pretokenizer.cpp exactly
+OK:   code block 3 matches locked 03_special_tokens_chat_template.cpp exactly
+OK:   code block 4 matches locked 04_token_decoder.cpp exactly
+OK:   code block 5 matches locked 05_gguf_tokenizer_pipeline.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_bpe_merge_engine.out.txt exactly
+OK:   output block 2 matches locked 02_pretokenizer.out.txt exactly
+OK:   output block 3 matches locked 03_special_tokens_chat_template.out.txt exactly
+OK:   output block 4 matches locked 04_token_decoder.out.txt exactly
+OK:   output block 5 matches locked 05_gguf_tokenizer_pipeline.out.txt exactly
+OK:   compile of 01_bpe_merge_engine.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 01_bpe_merge_engine.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 01_bpe_merge_engine.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_pretokenizer.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 02_pretokenizer.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 02_pretokenizer.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_special_tokens_chat_template.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 03_special_tokens_chat_template.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 03_special_tokens_chat_template.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_token_decoder.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 04_token_decoder.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 04_token_decoder.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 05_gguf_tokenizer_pipeline.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 05_gguf_tokenizer_pipeline.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 05_gguf_tokenizer_pipeline.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

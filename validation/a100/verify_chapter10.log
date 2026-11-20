@@ -1,0 +1,44 @@
+OK:   H1 matches
+OK:   H2 sequence matches
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_latency_budget_and_amdahls_law.cpp
+OK:   bash block 1 correctly needs no -pthread (no threads created)
+OK:   bash block 2 references 02_atomics_mutexes_and_synchronization.cpp
+OK:   bash block 2 compiles with -pthread
+OK:   bash block 3 references 03_barrier_thread_pool_gemv.cpp
+OK:   bash block 3 compiles with -pthread
+OK:   bash block 4 references 04_false_sharing_and_cache_line_layout.cpp
+OK:   bash block 4 compiles with -pthread
+OK:   bash block 5 references 05_work_stealing_scheduler.cpp
+OK:   bash block 5 compiles with -pthread
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_latency_budget_and_amdahls_law.cpp exactly
+OK:   code block 2 matches locked 02_atomics_mutexes_and_synchronization.cpp exactly
+OK:   code block 3 matches locked 03_barrier_thread_pool_gemv.cpp exactly
+OK:   code block 4 matches locked 04_false_sharing_and_cache_line_layout.cpp exactly
+OK:   code block 5 matches locked 05_work_stealing_scheduler.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_latency_budget_and_amdahls_law.out.txt exactly
+OK:   output block 2 matches locked 02_atomics_mutexes_and_synchronization.out.txt exactly
+OK:   output block 3 matches locked 03_barrier_thread_pool_gemv.out.txt exactly
+OK:   output block 4 matches locked 04_false_sharing_and_cache_line_layout.out.txt exactly
+OK:   output block 5 matches locked 05_work_stealing_scheduler.out.txt exactly
+OK:   compile of 01_latency_budget_and_amdahls_law.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 01_latency_budget_and_amdahls_law.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 01_latency_budget_and_amdahls_law.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_atomics_mutexes_and_synchronization.cpp succeeded (g++ -std=c++23 -pthread)
+OK:   fresh rerun of 02_atomics_mutexes_and_synchronization.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 02_atomics_mutexes_and_synchronization.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_barrier_thread_pool_gemv.cpp succeeded (g++ -std=c++23 -pthread -mdspan-flags)
+OK:   fresh rerun of 03_barrier_thread_pool_gemv.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 03_barrier_thread_pool_gemv.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_false_sharing_and_cache_line_layout.cpp succeeded (g++ -std=c++23 -pthread)
+OK:   fresh rerun of 04_false_sharing_and_cache_line_layout.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 04_false_sharing_and_cache_line_layout.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 05_work_stealing_scheduler.cpp succeeded (g++ -std=c++23 -pthread)
+OK:   fresh rerun of 05_work_stealing_scheduler.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 05_work_stealing_scheduler.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

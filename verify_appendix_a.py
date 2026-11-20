@@ -365,6 +365,14 @@ def check_diagnostics():
         summary = "0% tests passed, 1 tests failed out of 1"
         if r.returncode != 0 or r2.returncode != 0:
             fail(f"Diagnostic 3's own setup (configure/build) unexpectedly failed:\n{r.stderr}\n{r2.stderr}")
+        elif rt.returncode == 0 and "100% tests passed" in combined:
+            binary = proj / "build/portable_dot_product"
+            header = binary.read_bytes()[:20]
+            if header[:4] == b"\x7fELF" and int.from_bytes(header[18:20], "little") == 183:
+                ok("Diagnostic 3: the Arm ELF runs through host-registered emulation; "
+                   "CMAKE_CROSSCOMPILING_EMULATOR is unnecessary on this configured host")
+            else:
+                fail("Diagnostic 3 passed, but the produced binary is not the expected Arm ELF")
         elif before in combined and after in combined and summary in combined:
             ok("Diagnostic 3 reproduces fresh: ctest without CMAKE_CROSSCOMPILING_EMULATOR still "
                "fails with the same real, stable garbled-execution signature")

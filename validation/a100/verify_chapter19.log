@@ -1,0 +1,39 @@
+OK:   H1 matches
+OK:   H2 sequence matches (5 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_planogram_and_system_prompt.cpp
+OK:   bash block 2 references 02_batch_shelf_photo_processor.cpp
+OK:   bash block 3 references 03_erp_wms_rest_integration.cpp
+OK:   bash block 4 references 04_multistore_aggregation_and_trends.cpp
+OK:   bash block 5 references 05_shrinkage_and_misplacement_detection.cpp
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_planogram_and_system_prompt.cpp exactly
+OK:   code block 2 matches locked 02_batch_shelf_photo_processor.cpp exactly
+OK:   code block 3 matches locked 03_erp_wms_rest_integration.cpp exactly
+OK:   code block 4 matches locked 04_multistore_aggregation_and_trends.cpp exactly
+OK:   code block 5 matches locked 05_shrinkage_and_misplacement_detection.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_planogram_and_system_prompt.out.txt exactly
+OK:   output block 2 matches locked 02_batch_shelf_photo_processor.out.txt exactly
+OK:   output block 3 matches locked 03_erp_wms_rest_integration.out.txt exactly
+OK:   output block 4 matches locked 04_multistore_aggregation_and_trends.out.txt exactly
+OK:   output block 5 matches locked 05_shrinkage_and_misplacement_detection.out.txt exactly
+OK:   compile of 01_planogram_and_system_prompt.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_planogram_and_system_prompt.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_planogram_and_system_prompt.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_batch_shelf_photo_processor.cpp succeeded (-std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_IMPL_PROPOSED_NAMESPACE=experimental -I_vendor_mdspan/include)
+OK:   fresh self-test rerun of 02_batch_shelf_photo_processor.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_batch_shelf_photo_processor.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_erp_wms_rest_integration.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 03_erp_wms_rest_integration.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_erp_wms_rest_integration.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_multistore_aggregation_and_trends.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 04_multistore_aggregation_and_trends.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_multistore_aggregation_and_trends.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 05_shrinkage_and_misplacement_detection.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 05_shrinkage_and_misplacement_detection.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 05_shrinkage_and_misplacement_detection.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

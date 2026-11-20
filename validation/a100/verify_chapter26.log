@@ -1,0 +1,33 @@
+OK:   H1 matches
+OK:   H2 sequence matches (4 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 bash compile/run blocks
+OK:   bash block 1 references 01_micr_checksum_and_signature_comparison.cpp
+OK:   bash block 2 references 02_invoice_duplicate_detection.cpp
+OK:   bash block 3 references 03_amount_in_words_cross_validation.cpp
+OK:   bash block 4 references 04_risk_scoring_and_escalation.cpp
+OK:   found exactly 4 cpp code blocks
+OK:   code block 1 matches locked 01_micr_checksum_and_signature_comparison.cpp exactly
+OK:   code block 2 matches locked 02_invoice_duplicate_detection.cpp exactly
+OK:   code block 3 matches locked 03_amount_in_words_cross_validation.cpp exactly
+OK:   code block 4 matches locked 04_risk_scoring_and_escalation.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_micr_checksum_and_signature_comparison.out.txt exactly
+OK:   output block 2 matches locked 02_invoice_duplicate_detection.out.txt exactly
+OK:   output block 3 matches locked 03_amount_in_words_cross_validation.out.txt exactly
+OK:   output block 4 matches locked 04_risk_scoring_and_escalation.out.txt exactly
+OK:   compile of 01_micr_checksum_and_signature_comparison.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_micr_checksum_and_signature_comparison.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_micr_checksum_and_signature_comparison.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_invoice_duplicate_detection.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 02_invoice_duplicate_detection.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_invoice_duplicate_detection.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_amount_in_words_cross_validation.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 03_amount_in_words_cross_validation.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_amount_in_words_cross_validation.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_risk_scoring_and_escalation.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 04_risk_scoring_and_escalation.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_risk_scoring_and_escalation.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

@@ -1,0 +1,33 @@
+OK:   H1 matches
+OK:   H2 sequence matches (4 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 bash compile/run blocks
+OK:   bash block 1 references 01_ocr_pipeline_vs_vlm_extraction.cpp
+OK:   bash block 2 references 02_document_router_and_handwriting_confidence.cpp
+OK:   bash block 3 references 03_vehicle_damage_assessment_and_claim_consistency.cpp
+OK:   bash block 4 references 04_camera_trap_deduplication_and_underwater_color_correction.cpp
+OK:   found exactly 4 cpp code blocks
+OK:   code block 1 matches locked 01_ocr_pipeline_vs_vlm_extraction.cpp exactly
+OK:   code block 2 matches locked 02_document_router_and_handwriting_confidence.cpp exactly
+OK:   code block 3 matches locked 03_vehicle_damage_assessment_and_claim_consistency.cpp exactly
+OK:   code block 4 matches locked 04_camera_trap_deduplication_and_underwater_color_correction.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_ocr_pipeline_vs_vlm_extraction.out.txt exactly
+OK:   output block 2 matches locked 02_document_router_and_handwriting_confidence.out.txt exactly
+OK:   output block 3 matches locked 03_vehicle_damage_assessment_and_claim_consistency.out.txt exactly
+OK:   output block 4 matches locked 04_camera_trap_deduplication_and_underwater_color_correction.out.txt exactly
+OK:   compile of 01_ocr_pipeline_vs_vlm_extraction.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_ocr_pipeline_vs_vlm_extraction.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_ocr_pipeline_vs_vlm_extraction.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_document_router_and_handwriting_confidence.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 02_document_router_and_handwriting_confidence.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_document_router_and_handwriting_confidence.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_vehicle_damage_assessment_and_claim_consistency.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 03_vehicle_damage_assessment_and_claim_consistency.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_vehicle_damage_assessment_and_claim_consistency.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_camera_trap_deduplication_and_underwater_color_correction.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 04_camera_trap_deduplication_and_underwater_color_correction.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_camera_trap_deduplication_and_underwater_color_correction.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

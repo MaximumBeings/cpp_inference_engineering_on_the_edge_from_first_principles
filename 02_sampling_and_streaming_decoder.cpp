@@ -35,6 +35,7 @@
 #include <span>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 static int g_tests = 0, g_passed = 0;
@@ -63,8 +64,10 @@ static int g_tests = 0, g_passed = 0;
 // intended for negative logits, which is why the two branches differ.
 void apply_repetition_penalty(std::span<float> logits, const std::vector<int>& history, float penalty) {
     if (penalty == 1.0f) return;
+    std::unordered_set<int> penalized;
     for (int id : history) {
         if (id < 0 || static_cast<size_t>(id) >= logits.size()) continue;
+        if (!penalized.insert(id).second) continue;
         float& l = logits[static_cast<size_t>(id)];
         l = (l > 0.0f) ? (l / penalty) : (l * penalty);
     }

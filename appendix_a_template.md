@@ -134,6 +134,8 @@ $ g++-11 -std=c++23 diag2_no_native_mdspan.cpp -o diag2_out
 
 The real fix is the same one this book has used since Chapter 2: the vendored, header-only reference `mdspan` implementation under `_vendor_mdspan/`, included as `<mdspan/mdspan.hpp>` with the `MDSPAN_IMPL_STANDARD_NAMESPACE`/`MDSPAN_IMPL_PROPOSED_NAMESPACE` defines shown throughout this book's own compile commands, rather than the native standard header.
 
+A host may register QEMU through Linux `binfmt_misc`. In that configuration, the operating system transparently invokes the emulator and CTest can succeed even without `CMAKE_CROSSCOMPILING_EMULATOR`. Setting the CMake property explicitly makes the intended emulator portable across development hosts. The following captured failure comes from a host without that registration.
+
 **Diagnostic 3 -- `ctest` failing with a garbled error when `CMAKE_CROSSCOMPILING_EMULATOR` is not set.** Configuring the aarch64 build without the `CMAKE_CROSSCOMPILING_EMULATOR` line from Section A.3 and running `ctest` produces a real, genuinely confusing failure: the host shell tries to interpret the cross-compiled binary's raw ELF bytes as a shell script, rather than reporting a clear "cannot execute" error:
 
 ```
@@ -142,7 +144,7 @@ $ ctest --test-dir build --output-on-failure
 
 @@DIAG3@@
 
-The exact garbled text in the middle of this output depends on the specific compiled binary's own raw bytes and will differ from build to build; what stays constant is the shell attempting to run those bytes as a script at all, the resulting `Syntax error: Unterminated quoted string`, and the `0% tests passed` summary. The real fix is the `find_program(QEMU_AARCH64_EXECUTABLE qemu-aarch64)` / `CMAKE_CROSSCOMPILING_EMULATOR` lines in Section A.3's own toolchain file, confirmed above to bring `ctest` to a real, clean pass under `qemu-aarch64`.
+The exact garbled text in the middle of this output depends on the specific compiled binary's own raw bytes and will differ from build to build; the precise shell diagnostic also depends on the host. On a host with registered emulation, the test can pass instead. The real fix is the `find_program(QEMU_AARCH64_EXECUTABLE qemu-aarch64)` / `CMAKE_CROSSCOMPILING_EMULATOR` lines in Section A.3's own toolchain file, confirmed above to bring `ctest` to a real, clean pass under `qemu-aarch64`.
 
 **Diagnostic 4 -- `qemu-aarch64` failing on a dynamically linked binary.** Building the identical source without `-static` and running the result directly under bare `qemu-aarch64` (with no sysroot configured) fails because the dynamic loader this machine's own aarch64 binary expects is not present at the path it looks for:
 

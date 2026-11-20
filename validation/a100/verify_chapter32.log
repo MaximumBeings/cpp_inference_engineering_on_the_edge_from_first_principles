@@ -1,0 +1,28 @@
+OK:   H1 matches
+OK:   H2 sequence matches (3 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 3 compile/run blocks
+OK:   compile/run block 1 references 01_memory_wall_and_online_softmax.cpp
+OK:   compile/run block 2 references 02_mdspan_flash_attention_implementation_and_benchmark.cpp
+OK:   compile/run block 3 references 03_cuda_kernel_and_validation_suite.cu
+OK:   compile/run block 3 shows the real nvcc -std=c++20 compile command
+OK:   found exactly 2 cpp code blocks
+OK:   code block 1 matches locked 01_memory_wall_and_online_softmax.cpp exactly
+OK:   code block 2 matches locked 02_mdspan_flash_attention_implementation_and_benchmark.cpp exactly
+OK:   cuda code block matches locked 03_cuda_kernel_and_validation_suite.cu exactly
+OK:   found exactly 3 text output blocks
+OK:   output block 1 matches locked 01_memory_wall_and_online_softmax.out.txt exactly
+OK:   output block 2 matches locked 02_mdspan_flash_attention_implementation_and_benchmark.out.txt exactly
+OK:   output block 3 matches locked 03_cuda_kernel_and_validation_suite.out.txt exactly
+OK:   compile of 01_memory_wall_and_online_softmax.cpp succeeded
+OK:   fresh self-test rerun of 01_memory_wall_and_online_softmax.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_memory_wall_and_online_softmax.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_mdspan_flash_attention_implementation_and_benchmark.cpp succeeded
+OK:   fresh self-test rerun of 02_mdspan_flash_attention_implementation_and_benchmark.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_mdspan_flash_attention_implementation_and_benchmark.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   nvcc compile of 03_cuda_kernel_and_validation_suite.cu succeeded for sm_80
+OK:   CUDA validation passed twice with identical output on this machine
+OK:   Device checks executed
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

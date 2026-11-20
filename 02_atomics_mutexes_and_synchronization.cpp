@@ -29,6 +29,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <mutex>
 #include <thread>

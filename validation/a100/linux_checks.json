@@ -1,0 +1,157 @@
+[
+  {
+    "script": "verify_appendix_a.py",
+    "exit": 1,
+    "seconds": 0.05
+  },
+  {
+    "script": "verify_appendix_b.py",
+    "exit": 0,
+    "seconds": 1.09
+  },
+  {
+    "script": "verify_appendix_c.py",
+    "exit": 0,
+    "seconds": 1.77
+  },
+  {
+    "script": "verify_appendix_d.py",
+    "exit": 0,
+    "seconds": 2.04
+  },
+  {
+    "script": "verify_appendix_e.py",
+    "exit": 0,
+    "seconds": 0.04
+  },
+  {
+    "script": "verify_chapter07.py",
+    "exit": 0,
+    "seconds": 20.95
+  },
+  {
+    "script": "verify_chapter08.py",
+    "exit": 0,
+    "seconds": 4.78
+  },
+  {
+    "script": "verify_chapter09.py",
+    "exit": 0,
+    "seconds": 4.85
+  },
+  {
+    "script": "verify_chapter10.py",
+    "exit": 0,
+    "seconds": 4.84
+  },
+  {
+    "script": "verify_chapter11.py",
+    "exit": 0,
+    "seconds": 8.67
+  },
+  {
+    "script": "verify_chapter12.py",
+    "exit": 0,
+    "seconds": 6.28
+  },
+  {
+    "script": "verify_chapter13.py",
+    "exit": 0,
+    "seconds": 5.69
+  },
+  {
+    "script": "verify_chapter14.py",
+    "exit": 0,
+    "seconds": 5.6
+  },
+  {
+    "script": "verify_chapter15.py",
+    "exit": 0,
+    "seconds": 9.21
+  },
+  {
+    "script": "verify_chapter16.py",
+    "exit": 0,
+    "seconds": 12.81
+  },
+  {
+    "script": "verify_chapter17.py",
+    "exit": 0,
+    "seconds": 9.17
+  },
+  {
+    "script": "verify_chapter18.py",
+    "exit": 0,
+    "seconds": 9.8
+  },
+  {
+    "script": "verify_chapter19.py",
+    "exit": 0,
+    "seconds": 11.26
+  },
+  {
+    "script": "verify_chapter20.py",
+    "exit": 0,
+    "seconds": 8.08
+  },
+  {
+    "script": "verify_chapter21.py",
+    "exit": 0,
+    "seconds": 5.9
+  },
+  {
+    "script": "verify_chapter22.py",
+    "exit": 0,
+    "seconds": 5.07
+  },
+  {
+    "script": "verify_chapter23.py",
+    "exit": 0,
+    "seconds": 5.2
+  },
+  {
+    "script": "verify_chapter24.py",
+    "exit": 0,
+    "seconds": 3.35
+  },
+  {
+    "script": "verify_chapter25.py",
+    "exit": 0,
+    "seconds": 4.55
+  },
+  {
+    "script": "verify_chapter26.py",
+    "exit": 0,
+    "seconds": 3.71
+  },
+  {
+    "script": "verify_chapter27.py",
+    "exit": 0,
+    "seconds": 3.53
+  },
+  {
+    "script": "verify_chapter28.py",
+    "exit": 0,
+    "seconds": 3.94
+  },
+  {
+    "script": "verify_chapter29.py",
+    "exit": 0,
+    "seconds": 5.42
+  },
+  {
+    "script": "verify_chapter30.py",
+    "exit": 0,
+    "seconds": 4.34
+  },
+  {
+    "script": "verify_chapter31.py",
+    "exit": 0,
+    "seconds": 4.65
+  },
+  {
+    "script": "inference_regressions.py",
+    "exit": 0,
+    "seconds": 14.54
+  }
+]

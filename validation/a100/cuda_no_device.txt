@@ -1,0 +1,20 @@
+========================================================
+Chapter 32.3: A CUDA Production Engine and Its Own Kernel-Validation Suite
+========================================================
+
+-- Test 1: the real CPU golden reference, restated here in float32 precision, reduces correctly on the identical zero-query-vector degenerate case Sections 32.1 and 32.2 both already verified by hand, confirming this section's own golden reference is itself correct before it is ever used as a comparison baseline --
+  the real float32 golden reference produces {4, 6}, matching the identical exact result Sections 32.1 and 32.2 both verified in double precision
+
+-- Test 2: CUDA device discovery --
+  available device: no; runtime: no CUDA-capable device is detected
+
+-- Test 3: the real comparison harness a kernel-validation suite depends on correctly accepts a matching real output and correctly REJECTS a deliberately corrupted one beyond the stated real tolerance -- proving this harness would genuinely catch a real GPU kernel bug, independent of whether a real device is ever available to produce one --
+  the real comparison harness accepts an exact copy and a copy differing only by real float32 rounding noise (1e-7), and correctly REJECTS a copy with a genuine 0.5-magnitude error at index 3 -- the harness's own pass/fail logic is proven correct independent of any real GPU ever running
+
+-- Test 4: device attention across full and partial tiles --
+  60 shapes checked; device comparisons skipped (no device)
+
+-- Test 5: invalid dimensions are rejected before a launch --
+
+71/71 checks passed
+ALL CHECKS PASSED

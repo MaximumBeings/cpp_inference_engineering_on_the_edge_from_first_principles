@@ -1,4 +1,7 @@
 site_name: C++ Inference Engineering on the Edge — Under Development
+site_url: https://maximumbeings.github.io/cpp_inference_engineering_on_the_edge_from_first_principles/
+repo_url: https://github.com/maximumbeings/cpp_inference_engineering_on_the_edge_from_first_principles
+edit_uri: edit/main/docs/
 site_description: Building LLM and Vision-Language Inference Systems in C++23, From First Principles
 site_author: Oluwaseyi Awoga
 copyright: Copyright &copy; 2026 Oluwaseyi Awoga

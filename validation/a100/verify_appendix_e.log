@@ -1,0 +1,46 @@
+OK:   H1 matches
+OK:   H2 sequence matches (E.1-E.5 + Summary + Where We Go Next)
+OK:   H3 sequence matches (Intuition + The Concept, In Detail for each of E.1-E.5)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 [COMMON TRAP] boxes
+OK:   found exactly 6 real external-source footnote citations
+OK:   found zero cpp/bash/text code blocks, as expected for a citation-only appendix
+OK:   citation confirmed: 02-the-tensor-engine.md contains '01_mdspan_views_and_extents.cpp'
+OK:   citation confirmed: 02-the-tensor-engine.md contains '02_submdspan_attention_slicing.cpp'
+OK:   citation confirmed: 02-the-tensor-engine.md contains '04_arena_allocator.cpp'
+OK:   citation confirmed: 02-the-tensor-engine.md contains '05_mixed_precision_bf16.cpp'
+OK:   citation confirmed: 05-model-file-formats.md contains '02_gguf_writer_reader.cpp'
+OK:   citation confirmed: 05-model-file-formats.md contains '03_zero_copy_weight_access.cpp'
+OK:   citation confirmed: 05-model-file-formats.md contains '04_safetensors_format.cpp'
+OK:   citation confirmed: 12-the-tokenizer.md contains '01_bpe_merge_engine.cpp'
+OK:   citation confirmed: 12-the-tokenizer.md contains '02_pretokenizer.cpp'
+OK:   citation confirmed: 12-the-tokenizer.md contains '03_special_tokens_chat_template.cpp'
+OK:   citation confirmed: 12-the-tokenizer.md contains '04_token_decoder.cpp'
+OK:   citation confirmed: 12-the-tokenizer.md contains '05_gguf_tokenizer_pipeline.cpp'
+OK:   citation confirmed: 12-the-tokenizer.md contains 'priority, not opportunity'
+OK:   citation confirmed: 12-the-tokenizer.md contains 'covers the same four-way structural idea those richer rules extend'
+OK:   citation confirmed: 13-the-kv-cache-manager.md contains '02_paged_attention_block_manager.cpp'
+OK:   citation confirmed: 13-the-kv-cache-manager.md contains '03_ring_buffer_sink_tokens.cpp'
+OK:   citation confirmed: 13-the-kv-cache-manager.md contains '04_h2o_eviction.cpp'
+OK:   citation confirmed: 13-the-kv-cache-manager.md contains 'PagedAttention (the technique vLLM popularized)'
+OK:   citation confirmed: 13-the-kv-cache-manager.md contains '16 is the size real systems like vLLM settle on'
+OK:   citation confirmed: 14-advanced-kv-cache-management.md contains '01_sliding_window_cache.cpp'
+OK:   citation confirmed: 14-advanced-kv-cache-management.md contains '02_streaming_requantization.cpp'
+OK:   citation confirmed: 14-advanced-kv-cache-management.md contains '03_prefix_caching.cpp'
+OK:   citation confirmed: 14-advanced-kv-cache-management.md contains 'simplified symmetric uniform quantizer at multiple'
+OK:   citation confirmed: 14-advanced-kv-cache-management.md contains 'rather than the full rotation-plus-codebook machinery of'
+OK:   citation confirmed: 14-advanced-kv-cache-management.md contains "This section's source material describes prefix caching only in prose"
+OK:   citation confirmed: 15-running-real-models.md contains '04_first_real_token.cpp'
+OK:   citation confirmed: 15-running-real-models.md contains '01_real_gguf_inspection.cpp'
+OK:   citation confirmed: 15-running-real-models.md contains 'GGUF_VERSION = 3'
+OK:   citation confirmed: 15-running-real-models.md contains "'G','U','G','F'"
+OK:   citation confirmed: 16-production-engine.md contains '04_production_engine.cpp'
+OK:   citation confirmed: 16-production-engine.md contains 'a flag that parses successfully is a promise, not a convenience'
+OK:   citation confirmed: 31-continuous-batching-and-production-serving.md contains '01_static_batching_problem_and_head_of_line_blocking.cpp'
+OK:   citation confirmed: 31-continuous-batching-and-production-serving.md contains '02_prefill_decode_conflict_and_chunked_prefill.cpp'
+OK:   citation confirmed: 31-continuous-batching-and-production-serving.md contains '03_continuous_batching_scheduler_from_scratch.cpp'
+OK:   citation confirmed: 31-continuous-batching-and-production-serving.md contains '04_nan_propagation_tracing_and_fp_drift_detection.cpp'
+OK:   confirmed absent as claimed: 31-continuous-batching-and-production-serving.md still never mentions 'vLLM'
+OK:   confirmed absent as claimed: 31-continuous-batching-and-production-serving.md still never mentions 'iteration-level scheduling'
+
+=== ALL CHECKS PASSED ===

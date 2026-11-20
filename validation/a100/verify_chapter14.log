@@ -1,0 +1,33 @@
+OK:   H1 matches
+OK:   H2 sequence matches (4 numbered sections, precedented by Chapters 03/04 deviating from 5)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 bash compile/run blocks
+OK:   bash block 1 references 01_sliding_window_cache.cpp
+OK:   bash block 2 references 02_streaming_requantization.cpp
+OK:   bash block 3 references 03_prefix_caching.cpp
+OK:   bash block 4 references 04_complete_cache_manager.cpp
+OK:   found exactly 4 cpp code blocks
+OK:   code block 1 matches locked 01_sliding_window_cache.cpp exactly
+OK:   code block 2 matches locked 02_streaming_requantization.cpp exactly
+OK:   code block 3 matches locked 03_prefix_caching.cpp exactly
+OK:   code block 4 matches locked 04_complete_cache_manager.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_sliding_window_cache.out.txt exactly
+OK:   output block 2 matches locked 02_streaming_requantization.out.txt exactly
+OK:   output block 3 matches locked 03_prefix_caching.out.txt exactly
+OK:   output block 4 matches locked 04_complete_cache_manager.out.txt exactly
+OK:   compile of 01_sliding_window_cache.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 01_sliding_window_cache.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 01_sliding_window_cache.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_streaming_requantization.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 02_streaming_requantization.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 02_streaming_requantization.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_prefix_caching.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 03_prefix_caching.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 03_prefix_caching.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_complete_cache_manager.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 04_complete_cache_manager.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 04_complete_cache_manager.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

@@ -1,0 +1,53 @@
+OK:   H1 matches
+OK:   H2 sequence matches
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_row_vs_column_parallel_matmul.cpp
+OK:   bash block 1 compiles with -pthread
+OK:   bash block 1 compiles with -ffp-contract=off
+OK:   bash block 1 compiles with mdspan flags
+OK:   bash block 2 references 02_persistent_pool_full_layer.cpp
+OK:   bash block 2 compiles with -pthread
+OK:   bash block 2 compiles with -ffp-contract=off
+OK:   bash block 2 compiles with mdspan flags
+OK:   bash block 3 references 03_head_parallel_attention.cpp
+OK:   bash block 3 compiles with -pthread
+OK:   bash block 3 compiles with -ffp-contract=off
+OK:   bash block 3 compiles with mdspan flags
+OK:   bash block 4 references 04_deterministic_reduction.cpp
+OK:   bash block 4 compiles with -pthread
+OK:   bash block 4 compiles with -ffp-contract=off
+OK:   bash block 5 references 05_full_decode_step_multithreaded.cpp
+OK:   bash block 5 compiles with -pthread
+OK:   bash block 5 compiles with -ffp-contract=off
+OK:   bash block 5 compiles with mdspan flags
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_row_vs_column_parallel_matmul.cpp exactly
+OK:   code block 2 matches locked 02_persistent_pool_full_layer.cpp exactly
+OK:   code block 3 matches locked 03_head_parallel_attention.cpp exactly
+OK:   code block 4 matches locked 04_deterministic_reduction.cpp exactly
+OK:   code block 5 matches locked 05_full_decode_step_multithreaded.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_row_vs_column_parallel_matmul.out.txt exactly
+OK:   output block 2 matches locked 02_persistent_pool_full_layer.out.txt exactly
+OK:   output block 3 matches locked 03_head_parallel_attention.out.txt exactly
+OK:   output block 4 matches locked 04_deterministic_reduction.out.txt exactly
+OK:   output block 5 matches locked 05_full_decode_step_multithreaded.out.txt exactly
+OK:   compile of 01_row_vs_column_parallel_matmul.cpp succeeded (g++ -std=c++23 -ffp-contract=off -pthread -mdspan-flags)
+OK:   fresh rerun of 01_row_vs_column_parallel_matmul.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 01_row_vs_column_parallel_matmul.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_persistent_pool_full_layer.cpp succeeded (g++ -std=c++23 -ffp-contract=off -pthread -mdspan-flags)
+OK:   fresh rerun of 02_persistent_pool_full_layer.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 02_persistent_pool_full_layer.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_head_parallel_attention.cpp succeeded (g++ -std=c++23 -ffp-contract=off -pthread -mdspan-flags)
+OK:   fresh rerun of 03_head_parallel_attention.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 03_head_parallel_attention.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_deterministic_reduction.cpp succeeded (g++ -std=c++23 -ffp-contract=off -pthread)
+OK:   fresh rerun of 04_deterministic_reduction.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 04_deterministic_reduction.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 05_full_decode_step_multithreaded.cpp succeeded (g++ -std=c++23 -ffp-contract=off -pthread -mdspan-flags)
+OK:   fresh rerun of 05_full_decode_step_multithreaded.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 05_full_decode_step_multithreaded.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

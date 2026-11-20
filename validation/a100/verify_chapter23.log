@@ -1,0 +1,33 @@
+OK:   H1 matches
+OK:   H2 sequence matches (4 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 bash compile/run blocks
+OK:   bash block 1 references 01_counterfeit_screening_and_seller_trust.cpp
+OK:   bash block 2 references 02_receipt_transaction_reconciliation.cpp
+OK:   bash block 3 references 03_expense_report_policy_enforcement.cpp
+OK:   bash block 4 references 04_luxury_goods_authentication_engine.cpp
+OK:   found exactly 4 cpp code blocks
+OK:   code block 1 matches locked 01_counterfeit_screening_and_seller_trust.cpp exactly
+OK:   code block 2 matches locked 02_receipt_transaction_reconciliation.cpp exactly
+OK:   code block 3 matches locked 03_expense_report_policy_enforcement.cpp exactly
+OK:   code block 4 matches locked 04_luxury_goods_authentication_engine.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_counterfeit_screening_and_seller_trust.out.txt exactly
+OK:   output block 2 matches locked 02_receipt_transaction_reconciliation.out.txt exactly
+OK:   output block 3 matches locked 03_expense_report_policy_enforcement.out.txt exactly
+OK:   output block 4 matches locked 04_luxury_goods_authentication_engine.out.txt exactly
+OK:   compile of 01_counterfeit_screening_and_seller_trust.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_counterfeit_screening_and_seller_trust.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_counterfeit_screening_and_seller_trust.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_receipt_transaction_reconciliation.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 02_receipt_transaction_reconciliation.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_receipt_transaction_reconciliation.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_expense_report_policy_enforcement.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 03_expense_report_policy_enforcement.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_expense_report_policy_enforcement.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_luxury_goods_authentication_engine.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 04_luxury_goods_authentication_engine.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_luxury_goods_authentication_engine.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

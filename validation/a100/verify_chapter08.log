@@ -1,0 +1,34 @@
+OK:   H1 matches
+OK:   H2 sequence matches
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_roofline_and_ridge_point.cpp
+OK:   bash block 2 references 02_kernel_arithmetic_intensity.cpp
+OK:   bash block 3 references 03_prefill_vs_decode.cpp
+OK:   bash block 4 references 04_continuous_batching.cpp
+OK:   bash block 5 references 05_full_layer_roofline_profile.cpp
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_roofline_and_ridge_point.cpp exactly
+OK:   code block 2 matches locked 02_kernel_arithmetic_intensity.cpp exactly
+OK:   code block 3 matches locked 03_prefill_vs_decode.cpp exactly
+OK:   code block 4 matches locked 04_continuous_batching.cpp exactly
+OK:   code block 5 matches locked 05_full_layer_roofline_profile.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_roofline_and_ridge_point.out.txt exactly
+OK:   output block 2 matches locked 02_kernel_arithmetic_intensity.out.txt exactly
+OK:   output block 3 matches locked 03_prefill_vs_decode.out.txt exactly
+OK:   output block 4 matches locked 04_continuous_batching.out.txt exactly
+OK:   output block 5 matches locked 05_full_layer_roofline_profile.out.txt exactly
+OK:   compile of 01_roofline_and_ridge_point.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 01_roofline_and_ridge_point.cpp matches locked output exactly (deterministic)
+OK:   compile of 02_kernel_arithmetic_intensity.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 02_kernel_arithmetic_intensity.cpp matches locked output exactly (deterministic)
+OK:   compile of 03_prefill_vs_decode.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 03_prefill_vs_decode.cpp matches locked output exactly (deterministic)
+OK:   compile of 04_continuous_batching.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 04_continuous_batching.cpp matches locked output exactly (deterministic)
+OK:   compile of 05_full_layer_roofline_profile.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 05_full_layer_roofline_profile.cpp matches locked output exactly (deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

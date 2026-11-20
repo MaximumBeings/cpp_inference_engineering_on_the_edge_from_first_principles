@@ -1,0 +1,32 @@
+OK:   H1 matches
+OK:   H2 sequence matches (4 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 bash compile/run blocks
+OK:   bash block 1 references 01_edit_interpretation_prompt_and_plan_parser.cpp
+OK:   bash block 2 references 02_opencv_edit_processing_engine.cpp
+OK:   bash block 3 references 03_request_to_operation_mapping_table.cpp
+OK:   bash block 4 references 04_iterative_refinement_conversation.cpp
+OK:   bash block 2 documents its own real OpenCV -isystem include path and link flags
+OK:   found exactly 4 cpp code blocks
+OK:   code block 1 matches locked 01_edit_interpretation_prompt_and_plan_parser.cpp exactly
+OK:   code block 2 matches locked 02_opencv_edit_processing_engine.cpp exactly
+OK:   code block 3 matches locked 03_request_to_operation_mapping_table.cpp exactly
+OK:   code block 4 matches locked 04_iterative_refinement_conversation.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_edit_interpretation_prompt_and_plan_parser.out.txt exactly
+OK:   output block 2 matches locked 02_opencv_edit_processing_engine.out.txt exactly
+OK:   output block 3 matches locked 03_request_to_operation_mapping_table.out.txt exactly
+OK:   output block 4 matches locked 04_iterative_refinement_conversation.out.txt exactly
+OK:   compile of 01_edit_interpretation_prompt_and_plan_parser.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_edit_interpretation_prompt_and_plan_parser.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_edit_interpretation_prompt_and_plan_parser.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_request_to_operation_mapping_table.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 03_request_to_operation_mapping_table.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_request_to_operation_mapping_table.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_iterative_refinement_conversation.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 04_iterative_refinement_conversation.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_iterative_refinement_conversation.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile/run of 02_opencv_edit_processing_engine.cpp SKIPPED on this machine (OpenCV not installed here -- see this chapter's own documented reduced-verification exception; this file was verified on 2 real compilers linking real, installed OpenCV 4.6.0 in the environment where this chapter was originally built)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

@@ -1,0 +1,26 @@
+OK:   H1 matches
+OK:   H2 sequence matches (B.1-B.4 + Summary + Where We Go Next)
+OK:   H3 sequence matches all 3 Challenges
+OK:   no disallowed non-ASCII characters
+OK:   14 conceptual questions, 14 answers -- counts match, both equal 14 (2 per Part across all 7 Parts)
+OK:   found exactly 3 compile/run blocks
+OK:   all 3 compile/run blocks reference their own source file and -std=c++23
+OK:   found exactly 3 cpp code blocks
+OK:   code block 1 matches locked challenge1_softmax_overflow.cpp exactly
+OK:   code block 2 matches locked challenge2_reduction_order.cpp exactly
+OK:   code block 3 matches locked challenge3_requant_nonassoc.cpp exactly
+OK:   found exactly 3 text output blocks
+OK:   output block 1 matches locked challenge1_softmax_overflow.out.txt exactly
+OK:   output block 2 matches locked challenge2_reduction_order.out.txt exactly
+OK:   output block 3 matches locked challenge3_requant_nonassoc.out.txt exactly
+OK:   compile of challenge1_softmax_overflow.cpp succeeded
+OK:   fresh rerun of challenge1_softmax_overflow.cpp matches locked output exactly
+OK:   second rerun of challenge1_softmax_overflow.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of challenge2_reduction_order.cpp succeeded
+OK:   fresh rerun of challenge2_reduction_order.cpp matches locked output exactly
+OK:   second rerun of challenge2_reduction_order.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of challenge3_requant_nonassoc.cpp succeeded
+OK:   fresh rerun of challenge3_requant_nonassoc.cpp matches locked output exactly
+OK:   second rerun of challenge3_requant_nonassoc.cpp matches the first rerun exactly (confirmed deterministic)
+
+=== ALL CHECKS PASSED ===

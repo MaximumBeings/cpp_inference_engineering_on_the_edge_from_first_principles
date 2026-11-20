@@ -1,0 +1,40 @@
+OK:   H1 matches
+OK:   H2 sequence matches (5 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_gige_frame_acquisition.cpp
+OK:   bash block 2 references 02_vision_encoder.cpp
+OK:   bash block 3 references 03_multimodal_fusion.cpp
+OK:   bash block 4 references 04_disposition_and_logging.cpp
+OK:   bash block 5 references 05_opcua_integration.cpp
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_gige_frame_acquisition.cpp exactly
+OK:   code block 2 matches locked 02_vision_encoder.cpp exactly
+OK:   code block 3 matches locked 03_multimodal_fusion.cpp exactly
+OK:   code block 4 matches locked 04_disposition_and_logging.cpp exactly
+OK:   code block 5 matches locked 05_opcua_integration.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_gige_frame_acquisition.out.txt exactly
+OK:   output block 2 matches locked 02_vision_encoder.out.txt exactly
+OK:   output block 3 matches locked 03_multimodal_fusion.out.txt exactly
+OK:   output block 4 matches locked 04_disposition_and_logging.out.txt exactly
+OK:   output block 5 matches locked 05_opcua_integration.out.txt exactly
+OK:   compile of 01_gige_frame_acquisition.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_gige_frame_acquisition.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_gige_frame_acquisition.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_vision_encoder.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 02_vision_encoder.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_vision_encoder.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_multimodal_fusion.cpp succeeded (-std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_IMPL_PROPOSED_NAMESPACE=experimental -I_vendor_mdspan/include)
+OK:   fresh self-test rerun of 03_multimodal_fusion.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_multimodal_fusion.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_disposition_and_logging.cpp succeeded (-std=c++23 -Wall -Wextra -O2 -l:libsqlite3.so.0)
+OK:   fresh self-test rerun of 04_disposition_and_logging.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_disposition_and_logging.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 05_opcua_integration.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 05_opcua_integration.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 05_opcua_integration.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   Section 18.4's own text honestly documents its cross-architecture verification gap
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

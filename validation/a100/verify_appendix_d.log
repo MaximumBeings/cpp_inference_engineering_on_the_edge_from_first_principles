@@ -1,0 +1,33 @@
+OK:   H1 matches
+OK:   H2 sequence matches (D.1-D.4 + Summary + Where We Go Next)
+OK:   H3 sequence matches (Intuition + The Concept, In Detail for each of D.1-D.4)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 2 [COMMON TRAP] boxes
+OK:   found exactly 3 footnote citations for the real hardware bandwidth figures
+OK:   found exactly 3 cpp code blocks
+OK:   code block 1 matches locked d1_peak_bandwidth_formula.cpp exactly
+OK:   code block 2 matches locked d2_bandwidth_microbenchmark.cpp exactly
+OK:   code block 3 matches locked d3_latency_budget_calculator.cpp exactly
+OK:   found exactly 7 text blocks (3 locked self-test outputs + 4 real diagnostic transcripts)
+OK:   output block for d1_peak_bandwidth_formula.out.txt matches its locked file exactly
+OK:   diagnostic block for diag3 matches its locked file exactly
+OK:   diagnostic block for diag4 matches its locked file exactly
+OK:   output block for d2_bandwidth_microbenchmark.out.txt matches its locked file exactly
+OK:   output block for d3_latency_budget_calculator.out.txt matches its locked file exactly
+OK:   diagnostic block for diag1 matches its locked file exactly
+OK:   diagnostic block for diag2 matches its locked file exactly
+OK:   found exactly 1 compile/run block referencing d1_peak_bandwidth_formula.cpp
+OK:   found exactly 1 compile/run block referencing d2_bandwidth_microbenchmark.cpp
+OK:   found exactly 1 compile/run block referencing d3_latency_budget_calculator.cpp
+OK:   found exactly 5 bash blocks (3 compile/run + D.4's 2 illustrative perf commands)
+OK:   compile of d1_peak_bandwidth_formula.cpp succeeded
+OK:   fresh rerun of d1_peak_bandwidth_formula.cpp matches locked output exactly
+OK:   second rerun of d1_peak_bandwidth_formula.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of d2_bandwidth_microbenchmark.cpp succeeded
+OK:   fresh rerun of d2_bandwidth_microbenchmark.cpp matches locked output exactly
+OK:   second rerun of d2_bandwidth_microbenchmark.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of d3_latency_budget_calculator.cpp succeeded
+OK:   fresh rerun of d3_latency_budget_calculator.cpp matches locked output exactly
+OK:   second rerun of d3_latency_budget_calculator.cpp matches the first rerun exactly (confirmed deterministic)
+
+=== ALL CHECKS PASSED ===

@@ -1,0 +1,26 @@
+OK:   H1 matches
+OK:   H2 sequence matches (C.1-C.3 + Summary + Where We Go Next)
+OK:   H3 sequence matches (Intuition + The Concept, In Detail for each of C.1-C.3)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 6 [COMMON TRAP] boxes (2 per section)
+OK:   found exactly 3 compile/run blocks
+OK:   all 3 compile/run blocks reference their own source file and -std=c++23
+OK:   found exactly 3 cpp code blocks
+OK:   code block 1 matches locked c1_quantization_format_advisor.cpp exactly
+OK:   code block 2 matches locked c2_threading_strategy_advisor.cpp exactly
+OK:   code block 3 matches locked c3_kv_cache_strategy_advisor.cpp exactly
+OK:   found exactly 3 text output blocks
+OK:   output block 1 matches locked c1_quantization_format_advisor.out.txt exactly
+OK:   output block 2 matches locked c2_threading_strategy_advisor.out.txt exactly
+OK:   output block 3 matches locked c3_kv_cache_strategy_advisor.out.txt exactly
+OK:   compile of c1_quantization_format_advisor.cpp succeeded
+OK:   fresh rerun of c1_quantization_format_advisor.cpp matches locked output exactly
+OK:   second rerun of c1_quantization_format_advisor.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of c2_threading_strategy_advisor.cpp succeeded
+OK:   fresh rerun of c2_threading_strategy_advisor.cpp matches locked output exactly
+OK:   second rerun of c2_threading_strategy_advisor.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of c3_kv_cache_strategy_advisor.cpp succeeded
+OK:   fresh rerun of c3_kv_cache_strategy_advisor.cpp matches locked output exactly
+OK:   second rerun of c3_kv_cache_strategy_advisor.cpp matches the first rerun exactly (confirmed deterministic)
+
+=== ALL CHECKS PASSED ===

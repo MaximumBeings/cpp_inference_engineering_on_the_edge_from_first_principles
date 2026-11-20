@@ -29,7 +29,10 @@
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 01_engine_config_and_cli.cpp -o 01_engine_config_and_cli
 // Run:     ./01_engine_config_and_cli
 
+#include <charconv>
+#include <cmath>
 #include <cstdlib>
+#include <type_traits>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -83,6 +86,20 @@ struct EngineConfig {
 // responsible for turning that into exit code 1, per this chapter's own
 // error-handling convention (Section 16.3).
 // ---------------------------------------------------------------------
+// Consume the complete numeric argument and reject overflow and non-finite values.
+template <typename T>
+bool parse_numeric_argument(const char* text, T& value) {
+    const char* end = text + std::char_traits<char>::length(text);
+    T parsed{};
+    const auto result = std::from_chars(text, end, parsed);
+    if (result.ec != std::errc{} || result.ptr != end) return false;
+    if constexpr (std::is_floating_point_v<T>) {
+        if (!std::isfinite(parsed)) return false;
+    }
+    value = parsed;
+    return true;
+}
+
 bool parse_args(int argc, const char* const* argv, EngineConfig& cfg, std::ostream& err) {
     if (argc < 2) {
         err << "Usage: " << argv[0] << " <model.gguf> -p \"prompt\" [options]\n\n"
@@ -119,31 +136,52 @@ bool parse_args(int argc, const char* const* argv, EngineConfig& cfg, std::ostre
         } else if (arg == "-n") {
             const char* v = next();
             if (!v) { err << "Error: -n requires a value\n"; return false; }
-            cfg.max_new_tokens = std::atoi(v);
+            if (!parse_numeric_argument(v, cfg.max_new_tokens)) {
+                err << "Error: invalid numeric value for " << arg << ": " << v << "\n";
+                return false;
+            }
         } else if (arg == "--temp") {
             const char* v = next();
             if (!v) { err << "Error: --temp requires a value\n"; return false; }
-            cfg.temperature = std::strtof(v, nullptr);
+            if (!parse_numeric_argument(v, cfg.temperature)) {
+                err << "Error: invalid numeric value for " << arg << ": " << v << "\n";
+                return false;
+            }
         } else if (arg == "--top-k") {
             const char* v = next();
             if (!v) { err << "Error: --top-k requires a value\n"; return false; }
-            cfg.top_k = std::atoi(v);
+            if (!parse_numeric_argument(v, cfg.top_k)) {
+                err << "Error: invalid numeric value for " << arg << ": " << v << "\n";
+                return false;
+            }
         } else if (arg == "--top-p") {
             const char* v = next();
             if (!v) { err << "Error: --top-p requires a value\n"; return false; }
-            cfg.top_p = std::strtof(v, nullptr);
+            if (!parse_numeric_argument(v, cfg.top_p)) {
+                err << "Error: invalid numeric value for " << arg << ": " << v << "\n";
+                return false;
+            }
         } else if (arg == "--repeat-pen") {
             const char* v = next();
             if (!v) { err << "Error: --repeat-pen requires a value\n"; return false; }
-            cfg.repeat_penalty = std::strtof(v, nullptr);
+            if (!parse_numeric_argument(v, cfg.repeat_penalty)) {
+                err << "Error: invalid numeric value for " << arg << ": " << v << "\n";
+                return false;
+            }
         } else if (arg == "--seed") {
             const char* v = next();
             if (!v) { err << "Error: --seed requires a value\n"; return false; }
-            cfg.seed = static_cast<unsigned>(std::atoi(v));
+            if (!parse_numeric_argument(v, cfg.seed)) {
+                err << "Error: invalid numeric value for " << arg << ": " << v << "\n";
+                return false;
+            }
         } else if (arg == "--kv-cap") {
             const char* v = next();
             if (!v) { err << "Error: --kv-cap requires a value\n"; return false; }
-            cfg.kv_capacity = std::atoi(v);
+            if (!parse_numeric_argument(v, cfg.kv_capacity)) {
+                err << "Error: invalid numeric value for " << arg << ": " << v << "\n";
+                return false;
+            }
         } else if (arg == "--verbose") {
             cfg.verbose = true;
         } else {

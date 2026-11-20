@@ -1502,8 +1502,8 @@ int main() {
         auto near_black_corrected = gray_world_correct(near_black);
         // A near-zero-mean red channel would compute an unbounded raw
         // scale factor without the stated clamp; with it, every R pixel
-        // is scaled by at most GRAY_WORLD_SCALE_MAX, never exploding.
-        CHECK(near_black_corrected.r[0] <= static_cast<uint8_t>(GRAY_WORLD_SCALE_MAX * 255));
+        // remains zero after bounded scaling and saturation.
+        CHECK(near_black_corrected.r[0] == 0);
 
         std::cout << "  a synthetic underwater-cast image (R mean 40, G mean 90, B mean 180) has its "
                      "per-channel spread shrink from " << before_spread << " to " << after_spread

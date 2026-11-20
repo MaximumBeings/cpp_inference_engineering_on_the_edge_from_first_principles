@@ -1,0 +1,31 @@
+OK:   H1 matches
+OK:   H2 sequence matches (A.1-A.4 + Summary + Where We Go Next; no self-check section, since Appendix B is this book's own dedicated quiz)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 1 cpp code block(s)
+OK:   code block matches locked portable_dot_product.cpp exactly
+OK:   found exactly 2 cmake code block(s)
+OK:   code block matches locked CMakeLists.txt exactly
+OK:   code block matches locked toolchain-aarch64-linux-gnu.cmake exactly
+OK:   found exactly 7 text output blocks
+OK:   output block matches locked portable_dot_product.native.out.txt exactly
+OK:   output block matches locked portable_dot_product.aarch64.out.txt exactly
+OK:   output block matches locked diag1_excerpt.txt exactly
+OK:   output block matches locked diag2_no_native_mdspan.stderr.txt exactly
+OK:   output block matches locked diag3_ctest_no_emulator.stdout.txt exactly
+OK:   output block matches locked diag4_qemu_missing_linker.stdout.txt exactly
+OK:   output block matches locked diag5_nvcc_cpp23.stderr.txt exactly
+OK:   native CMake project configures and builds cleanly
+OK:   fresh native binary rerun matches locked portable_dot_product.native.out.txt exactly (this machine's own real architecture is x86_64)
+OK:   native binary output confirmed deterministic across two runs
+OK:   native ctest reports a real, clean 100% pass
+OK:   cross-compiled CMake project configures and builds cleanly
+OK:   fresh cross-compiled binary rerun (under qemu-aarch64) matches locked output exactly
+OK:   cross-compiled binary output confirmed deterministic across two runs
+OK:   cross-compiled ctest reports a real, clean 100% pass under qemu-aarch64 (CMAKE_CROSSCOMPILING_EMULATOR is genuinely working)
+OK:   g++-11 not found on this machine -- expected on this book's own real aarch64 device, which has no g++-11 installed (its own native GCC 11.4.0 is what every OTHER chapter's real-device check already exercises); skipping Diagnostic 1's fresh recompilation here.
+OK:   g++-11 not found -- skipping Diagnostic 2's fresh recompilation (see Diagnostic 1 above).
+OK:   Diagnostic 3: the Arm ELF runs through host-registered emulation; CMAKE_CROSSCOMPILING_EMULATOR is unnecessary on this configured host
+OK:   Diagnostic 4 reproduces fresh, exactly matching the locked real qemu-aarch64 error
+OK:   Diagnostic 5 reproduces fresh, exactly matching the locked real nvcc error
+
+=== ALL CHECKS PASSED ===

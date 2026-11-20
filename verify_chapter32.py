@@ -1,25 +1,11 @@
 #!/usr/bin/env python3
-"""Verify docs/part6/32-flash-attention-and-cuda-kernels.md.
+"""Verify Chapter 32 sources, captured output and executable examples.
 
-Sections 1 and 2 depend on nothing but the C++ standard library (Section 2
-also needs the vendored mdspan headers already used throughout this book),
-so both get this book's usual, unconditional compile/run/determinism check
-with g++.
-
-Section 3 is a real, complete .cu CUDA file. This book's own pipeline has
-no NVIDIA GPU anywhere in it (neither the cloud sandbox nor this book's own
-real aarch64 hardware, an Apple Silicon Mac, which has never supported CUDA
-at all), so Section 3 gets a genuinely different, honestly weaker check:
-IF a real `nvcc` is present on the machine running this script (true in the
-cloud sandbox this book was built in, false on the real aarch64/macOS
-device), it is compiled for a real Jetson-class architecture and RUN (the
-compiled host program itself runs fine with zero real devices present --
-it is only the GPU kernel launch inside it that is honestly skipped, which
-the program's own self-test already accounts for and checks). If `nvcc` is
-not present at all, that leg is skipped with a clear, expected message
-rather than reported as a failure -- this is a documented, structural
-exception for this one file, not a gap being silently ignored.
+CUDA runs compare repeatability on the current machine and require the
+suite to succeed. GPU and no-device transcripts legitimately differ.
+Set CUDA_ARCH=sm_80 for A100 or CUDA_ARCH=sm_87 for Jetson Orin.
 """
+import os
 import re
 import shutil
 import subprocess
@@ -214,23 +200,25 @@ def main() -> int:
     else:
         src = BASE / CUDA_FILE
         binp = BASE / "_verify_ch28_03_bin"
-        cmd = ["nvcc", "-std=c++20", "-arch=sm_87", str(src), "-o", str(binp)]
+        architecture = os.environ.get("CUDA_ARCH", "native")
+        cmd = ["nvcc", "-std=c++20", f"-arch={architecture}", str(src), "-o", str(binp)]
         r = subprocess.run(cmd, capture_output=True, text=True)
         if r.returncode != 0:
             fail(f"nvcc compile of {CUDA_FILE} failed:\n{r.stderr}")
         else:
-            ok(f"real nvcc compile of {CUDA_FILE} succeeded for sm_87 (Jetson Orin)")
-            locked_expected = (BASE / OUT_FILES[3]).read_text().rstrip("\n")
+            ok(f"nvcc compile of {CUDA_FILE} succeeded for {architecture}")
             r2 = subprocess.run([str(binp)], capture_output=True, text=True)
-            fresh = r2.stdout.rstrip("\n")
-            if fresh != locked_expected:
-                fail("fresh rerun of the compiled CUDA host program does not match the locked self-test output")
+            r3 = subprocess.run([str(binp)], capture_output=True, text=True)
+            if r2.returncode != 0 or r3.returncode != 0:
+                fail(f"CUDA validation exited non-zero:\n{r2.stderr}\n{r2.stdout}")
+            elif "ALL CHECKS PASSED" not in r2.stdout:
+                fail("CUDA validation did not report successful checks")
+            elif r2.stdout != r3.stdout:
+                fail("CUDA validation output changed across two runs")
             else:
-                ok("fresh rerun of the compiled CUDA host program matches locked self-test output exactly "
-                   "(the host program runs fine with zero real devices present -- its own self-test "
-                   "honestly detects and reports that absence, which is exactly what is locked)")
-            if r2.returncode != 0:
-                fail(f"fresh rerun of the CUDA host program exited non-zero ({r2.returncode})")
+                ok("CUDA validation passed twice with identical output on this machine")
+                ok("Device checks executed" if "device comparisons executed" in r2.stdout
+                   else "No-device execution completed; device comparisons were explicitly skipped")
             tmp_bins.append(binp)
 
     for b in tmp_bins:

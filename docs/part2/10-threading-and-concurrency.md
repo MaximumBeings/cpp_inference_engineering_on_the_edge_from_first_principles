@@ -341,6 +341,7 @@ This book's first real `std::thread` immediately raises the question every later
 
 #include <atomic>
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <mutex>
 #include <thread>

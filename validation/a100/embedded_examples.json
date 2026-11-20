@@ -1,0 +1,164 @@
+[
+  {
+    "chapter": "02-the-tensor-engine",
+    "example": 1,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "02-the-tensor-engine",
+    "example": 2,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "02-the-tensor-engine",
+    "example": 3,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "02-the-tensor-engine",
+    "example": 4,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "02-the-tensor-engine",
+    "example": 5,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "03-the-computational-graph",
+    "example": 1,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "03-the-computational-graph",
+    "example": 2,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "03-the-computational-graph",
+    "example": 3,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "03-the-computational-graph",
+    "example": 4,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "03-the-computational-graph",
+    "example": 5,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "03-the-computational-graph",
+    "example": 6,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "04-quantization-strategies",
+    "example": 1,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "04-quantization-strategies",
+    "example": 2,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "04-quantization-strategies",
+    "example": 3,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "04-quantization-strategies",
+    "example": 4,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "04-quantization-strategies",
+    "example": 5,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "04-quantization-strategies",
+    "example": 6,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "05-model-file-formats",
+    "example": 1,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "05-model-file-formats",
+    "example": 2,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "05-model-file-formats",
+    "example": 3,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "05-model-file-formats",
+    "example": 4,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "05-model-file-formats",
+    "example": 5,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "06-hybrid-quantized-engine",
+    "example": 1,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "06-hybrid-quantized-engine",
+    "example": 2,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "06-hybrid-quantized-engine",
+    "example": 3,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "06-hybrid-quantized-engine",
+    "example": 4,
+    "compile": 0,
+    "run": 0
+  },
+  {
+    "chapter": "06-hybrid-quantized-engine",
+    "example": 5,
+    "compile": 0,
+    "run": 0
+  }
+]

@@ -1,0 +1,33 @@
+OK:   H1 matches
+OK:   H2 sequence matches (4 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 4 bash compile/run blocks
+OK:   bash block 1 references 01_static_batching_problem_and_head_of_line_blocking.cpp
+OK:   bash block 2 references 02_prefill_decode_conflict_and_chunked_prefill.cpp
+OK:   bash block 3 references 03_continuous_batching_scheduler_from_scratch.cpp
+OK:   bash block 4 references 04_nan_propagation_tracing_and_fp_drift_detection.cpp
+OK:   found exactly 4 cpp code blocks
+OK:   code block 1 matches locked 01_static_batching_problem_and_head_of_line_blocking.cpp exactly
+OK:   code block 2 matches locked 02_prefill_decode_conflict_and_chunked_prefill.cpp exactly
+OK:   code block 3 matches locked 03_continuous_batching_scheduler_from_scratch.cpp exactly
+OK:   code block 4 matches locked 04_nan_propagation_tracing_and_fp_drift_detection.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_static_batching_problem_and_head_of_line_blocking.out.txt exactly
+OK:   output block 2 matches locked 02_prefill_decode_conflict_and_chunked_prefill.out.txt exactly
+OK:   output block 3 matches locked 03_continuous_batching_scheduler_from_scratch.out.txt exactly
+OK:   output block 4 matches locked 04_nan_propagation_tracing_and_fp_drift_detection.out.txt exactly
+OK:   compile of 01_static_batching_problem_and_head_of_line_blocking.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_static_batching_problem_and_head_of_line_blocking.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_static_batching_problem_and_head_of_line_blocking.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_prefill_decode_conflict_and_chunked_prefill.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 02_prefill_decode_conflict_and_chunked_prefill.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_prefill_decode_conflict_and_chunked_prefill.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_continuous_batching_scheduler_from_scratch.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 03_continuous_batching_scheduler_from_scratch.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_continuous_batching_scheduler_from_scratch.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_nan_propagation_tracing_and_fp_drift_detection.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 04_nan_propagation_tracing_and_fp_drift_detection.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_nan_propagation_tracing_and_fp_drift_detection.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===
