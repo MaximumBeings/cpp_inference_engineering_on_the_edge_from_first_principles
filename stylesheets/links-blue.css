@@ -1,0 +1,17 @@
+/* Shared interaction colors for navigation, contents, links and focus rings. */
+[data-md-color-scheme="default"],
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0b2e63;
+  --md-primary-fg-color--light: #16457e;
+  --md-primary-fg-color--dark: #08234c;
+}
+[data-md-color-scheme="default"] {
+  --md-typeset-a-color: #164b8d;
+  --md-accent-fg-color: #145caa;
+  --md-accent-fg-color--transparent: #145caa1a;
+}
+[data-md-color-scheme="slate"] {
+  --md-typeset-a-color: #8bb9ff;
+  --md-accent-fg-color: #8bb9ff;
+  --md-accent-fg-color--transparent: #8bb9ff1a;
+}
