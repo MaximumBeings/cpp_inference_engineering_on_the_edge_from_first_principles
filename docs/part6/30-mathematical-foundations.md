@@ -16,7 +16,7 @@
 - The real trigonometric identity that explains, rather than merely implements, why RoPE's position-dependent rotation encodes relative position in a real dot product.
 - Why quantization is a real affine map whose only non-linear step is rounding, the real, provably tight error bound that follows from it, and the real non-associativity that makes re-quantization a genuinely different operation from quantizing once.
 - How a layer's real Hessian, computed directly from calibration data, gives GPTQ the real second-order information needed to compensate not-yet-quantized weights for the error already introduced by the ones that are -- proven, not merely asserted, to beat naive independent rounding.
-- How to combine every real formula in this chapter into a complete roofline analysis of an entire real transformer decoder layer, and to derive the real batch size at which the whole layer's own bound classification flips.
+- How to build an explicitly limited transformer projection/attention accounting model, and why aggregate arithmetic intensity cannot classify every kernel in a serial decoder layer.
 
 **What you need to know first:**
 
@@ -983,7 +983,7 @@ Quantizing every weight independently, as Section 30.4's own affine map does in 
 
 Test 1 and Test 2 build this section's own real, from-scratch linear-algebra foundation: `H = 2 * X^T * X`, computed directly from a tiny real calibration dataset, matches an exact hand computation, and a real, general Gauss-Jordan inverse of that Hessian is confirmed correct not by trusting the algorithm but by checking `H * H^-1` is genuinely the identity matrix directly.
 
-Test 3 confirms the real GPTQ compensation formula -- `delta_w_f = -(e_p / [H^-1]_pp) * [H^-1]_fp` -- against an exact hand computation for a single quantized weight's effect on the one remaining weight. Test 4 is this section's own central, real proof: running the full sequential GPTQ pipeline (quantize, compute the real error, compensate every remaining weight, repeat) on a fully hand-traceable two-weight example produces a genuinely different final quantized weight than naive independent rounding, and a strictly LOWER real total squared output error over the calibration data -- 0.14 for GPTQ's compensated result against 0.24 for naive rounding on the identical original weights. GPTQ's real benefit is not asserted here; it is computed and compared directly.
+Test 3 confirms the real GPTQ compensation formula -- `delta_w_f = -(e_p / [H^-1]_pp) * [H^-1]_fp` -- against an exact hand computation for a single quantized weight's effect on the one remaining weight. Test 4 is this section's own central, real proof: running a two-weight GPTQ-style illustration (quantize, compute the real error, compensate every remaining weight, repeat) on a fully hand-traceable two-weight example produces a genuinely different final quantized weight than naive independent rounding, and a strictly LOWER real total squared output error over the calibration data -- 0.14 for GPTQ's compensated result against 0.24 for naive rounding on the identical original weights. GPTQ's real benefit is not asserted here; it is computed and compared directly.
 
 ### Code and Verification
 
@@ -1090,7 +1090,9 @@ std::vector<double> matvec(const Matrix& m, const std::vector<double>& v) {
 double quantize_weight(double w, double scale) { return std::round(w / scale) * scale; }
 
 // =======================================================================
-// PART 3: the real GPTQ compensation formula. Having just quantized
+// PART 3: a single-step GPTQ-style compensation illustration.
+// h_inv must be the inverse for the current free-variable subproblem.
+// This two-weight lesson does not implement full GPTQ active-inverse updates. Having just quantized
 // weight index p, introducing a real error e_p = w_p - quantize(w_p),
 // the optimal real update to every NOT-yet-quantized weight index f is
 // delta_w_f = -(e_p / [H^-1]_pp) * [H^-1]_fp -- the real, second-order-
@@ -1100,8 +1102,7 @@ double quantize_weight(double w, double scale) { return std::round(w / scale) * 
 // =======================================================================
 void apply_gptq_compensation(std::vector<double>& w, const Matrix& h_inv, int quantized_index, double error) {
     double denom = h_inv.at(quantized_index, quantized_index);
-    for (size_t f = 0; f < w.size(); f++) {
-        if (static_cast<int>(f) == quantized_index) continue;
+    for (size_t f = static_cast<size_t>(quantized_index + 1); f < w.size(); f++) {
         double delta = -(error / denom) * h_inv.at(static_cast<int>(f), quantized_index);
         w[f] += delta;
     }
@@ -1192,7 +1193,7 @@ int main() {
                      "-(-0.2 / (1/3)) * (-1/6) = -0.1 exactly\n";
     }
 
-    std::cout << "\n-- Test 4: the full real GPTQ pipeline -- sequential per-weight quantization with "
+    std::cout << "\n-- Test 4: a two-weight GPTQ-style compensation illustration -- sequential per-weight quantization with "
                  "compensation -- produces a genuinely different final weight than naive, independent "
                  "rounding, and a strictly LOWER real output error over the calibration data, GPTQ's own "
                  "central real claim, verified end to end on a fully hand-traceable example --\n";
@@ -1236,6 +1237,20 @@ int main() {
                      "confirming GPTQ's own central claim on a fully hand-traceable example\n";
     }
 
+    // Regression: a later compensation must not modify an already fixed code.
+    {
+        Matrix current_inverse(3, 3);
+        for (int i = 0; i < 3; ++i) current_inverse.at(i, i) = 1.0;
+        current_inverse.at(0, 1) = current_inverse.at(1, 0) = 0.5;
+        current_inverse.at(2, 1) = current_inverse.at(1, 2) = 0.25;
+        std::vector<double> w{1.5, 0.5, 0.8};
+        apply_gptq_compensation(w, current_inverse, 1, 0.2);
+        CHECK(near(w[0], 1.5));
+        CHECK(near(w[1], 0.5));
+        CHECK(near(w[2], 0.75));
+        std::cout << "  active-step regression: fixed weights stay [1.5, 0.5]; remaining weight becomes 0.75\n";
+    }
+
     std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";
     std::cout << (g_passed == g_tests ? "ALL CHECKS PASSED\n" : "SOME CHECKS FAILED\n");
     return (g_passed == g_tests) ? 0 : 1;
@@ -1249,7 +1264,7 @@ g++ -std=c++23 -Wall -Wextra -O2 05_hessian_role_in_gptq.cpp -o 05_hessian_role_
 ./05_hessian_role_in_gptq
 ```
 
-**Sample input:** the real Hessian H = 2 * X^T * X checked against an exact hand computation over a tiny calibration dataset; a real, general Gauss-Jordan matrix inverse checked against an exact hand computation, with H * H^-1 checked directly against the identity matrix; the real GPTQ compensation formula checked against an exact hand computation for a single weight; and the full GPTQ pipeline checked end to end against naive independent rounding on a fully hand-traceable two-weight example, confirming a strictly lower real total squared output error.
+**Sample input:** the real Hessian H = 2 * X^T * X checked against an exact hand computation over a tiny calibration dataset; a real, general Gauss-Jordan matrix inverse checked against an exact hand computation, with H * H^-1 checked directly against the identity matrix; the real GPTQ compensation formula checked against an exact hand computation for a single weight; and the two-weight compensation illustration checked end to end against naive independent rounding on a fully hand-traceable two-weight example, confirming a strictly lower real total squared output error.
 
 ```text
 ========================================================
@@ -1265,15 +1280,18 @@ Chapter 30.5: The Hessian's Role in GPTQ
 -- Test 3: the real GPTQ compensation formula applied to a single quantized weight matches an exact hand computation for the resulting update to the remaining weight --
   quantizing w[0] = 1.3 at scale 0.5 yields q0 = 1.5, a real error of e0 = -0.2; applying the real GPTQ compensation formula to the not-yet-quantized w[1] = 0.8 shifts it to exactly 0.7 -- matching a direct hand computation of -(-0.2 / (1/3)) * (-1/6) = -0.1 exactly
 
--- Test 4: the full real GPTQ pipeline -- sequential per-weight quantization with compensation -- produces a genuinely different final weight than naive, independent rounding, and a strictly LOWER real output error over the calibration data, GPTQ's own central real claim, verified end to end on a fully hand-traceable example --
+-- Test 4: a two-weight GPTQ-style compensation illustration -- sequential per-weight quantization with compensation -- produces a genuinely different final weight than naive, independent rounding, and a strictly LOWER real output error over the calibration data, GPTQ's own central real claim, verified end to end on a fully hand-traceable example --
   naive independent rounding quantizes w to exactly [1.5, 1.0], with a real total squared output error over the calibration data of exactly 0.24; GPTQ's real Hessian-compensated pipeline quantizes the SAME original weights to exactly [1.5, 0.5] -- a genuinely different second weight -- with a real total squared output error of exactly 0.14, strictly lower than naive rounding's 0.24, confirming GPTQ's own central claim on a fully hand-traceable example
+  active-step regression: fixed weights stay [1.5, 0.5]; remaining weight becomes 0.75
 
-20/20 checks passed
+23/23 checks passed
 ALL CHECKS PASSED
 ```
 
 !!! warning "[COMMON TRAP] assuming Hessian-based compensation always helps a LATER weight, never a chain of them"
     It is easy to read GPTQ's own compensation formula and assume its benefit is limited to the single, immediately adjacent weight it updates. Test 4's own real pipeline shows the mechanism is genuinely sequential and cumulative: quantizing weight 0 changes the value weight 1 is compensated toward, and in a layer with more than 2 weights, quantizing weight 1 (now itself already nudged once) would go on to compensate weight 2, and so on. Each real compensation step uses the CURRENT state of the not-yet-quantized weights, not the original ones -- which is exactly why GPTQ processes weights in a specific real sequence rather than computing every compensation independently up front from the unquantized original values.
+
+This is a two-weight, single-compensation illustration, not a general GPTQ implementation. For more weights, each step must preserve already quantized coordinates and use the inverse/Cholesky factor for the current active subproblem. The helper accepts that current inverse from its caller; it does not update it.
 
 ## 30.6 A Full Roofline Analysis of a Transformer Layer
 
@@ -1289,243 +1307,86 @@ ALL CHECKS PASSED
 
 ### Intuition
 
-Every real formula this chapter derived -- arithmetic intensity, weight-dominated byte accounting, the roofline crossover -- was built on a single operation at a time. This capstone section applies all of them together to an entire real transformer decoder layer, to classify the WHOLE layer's own real bound and to derive the exact batch size where that classification flips.
+A layer's total FLOPs divided by a selected byte count is an aggregate accounting ratio, not an exact classification of its serial unfused kernels. A compute-limited projection and a bandwidth-limited operation can coexist in the same layer. This section explicitly models a dense MHA, prefill-shaped layer with a three-projection SwiGLU FFN.
 
 ### The Concept, In Detail
 
-Test 1 confirms every real FLOP sub-total (QKV projection, attention, output projection, FFN) and the real weight-byte total for a tiny, fully hand-traceable layer shape, matching a direct hand computation exactly: 576 total FLOPs, 512 total weight bytes, an arithmetic intensity of exactly 1.125. Test 2 confirms a real, general algebraic property this section's own crossover formula depends on: doubling batch size exactly doubles both total FLOPs and arithmetic intensity, while weight bytes -- which do not depend on batch at all -- stay exactly unchanged.
+For the tiny shape `hidden=4`, two heads of width 2, `ffn_dim=8`, sequence length 2 and batch 1, the modeled FLOPs are 192 (QKV), 64 (attention products), 64 (output projection) and **384** (gate, up and down FFN projections), totaling **704**. The corresponding projection weight payload is **640 bytes**, yielding **1.1 FLOPs per weight byte**. Norms, nonlinearities, softmax, KV/activation traffic, overhead and cache effects are omitted, so this is an optimistic accounting model, not a complete decoder measurement.
 
-Test 3 applies Section 30.1's own roofline classification to the WHOLE layer: against a stated real ridge point of 2.0, the identical layer classifies `MEMORY_BOUND` at batch 1 and `COMPUTE_BOUND` at batch 2. Test 4 confirms the real, closed-form crossover formula predicts precisely this observed transition rather than merely rationalizing it afterward, and Test 5 confirms the formula's own real algebraic correctness across several genuinely different stated ridge points at once.
+Doubling batch doubles the modeled work to 1408 FLOPs while those weight bytes stay fixed. The aggregate weight-only crossover at ridge 2 is therefore `2/1.1`, about 1.81818, but this does not prove that the entire implementation changes bottleneck there.
+
+For serial kernels, use `sum_i max(F_i/P, B_i/BW)` as a modeled time lower bound rather than `max(sum_i F_i/P, sum_i B_i/BW)`. The sample makes the difference visible with two illustrative costs `(F,B)=(100,1),(1,100)` and rates `P=BW=10`: the aggregate bound is 10.1 seconds while the sum of serial bounds is 20 seconds. Neither is a measured time, and omitted traffic and overhead can only make the idealized prediction less representative.
 
 ### Code and Verification
 
 ```cpp
-// Chapter 30.6 -- This chapter's own capstone: every real formula built
-// in Sections 30.1 through 30.5 -- FLOP counting, weight-dominated byte
-// accounting, arithmetic intensity, and the real roofline crossover --
-// applied together to a complete real transformer decoder layer (QKV
-// projection, attention, output projection, and the FFN), at a stated
-// real shape, to classify the WHOLE layer as memory-bound or
-// compute-bound at a given real batch size, and to derive the real
-// batch size at which that classification flips.
-//
+// Chapter 30.6 -- An optimistic weight-dominated dense-layer model.
+// This is a prefill-shaped MHA layer, not a complete decode cost model.
+// The FFN is SwiGLU: gate, up and down projections (three matrices).
+// Norms, nonlinearities, softmax, KV/activation traffic, launch overhead
+// and cache effects are excluded. Aggregate intensity is not a proof
+// that every serial unfused kernel has the same bottleneck.
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 06_full_transformer_layer_roofline_analysis.cpp -o 06_full_transformer_layer_roofline_analysis
-// Run:     ./06_full_transformer_layer_roofline_analysis
-
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <iomanip>
 #include <iostream>
-
-static int g_tests = 0, g_passed = 0;
-#define CHECK(...) do { \
-    g_tests++; \
-    if (__VA_ARGS__) { g_passed++; } \
-    else { std::cerr << "FAIL line " << __LINE__ << ": " << #__VA_ARGS__ << "\n"; } \
-} while (0)
-
-bool near(double a, double b, double eps = 1e-6) { return std::fabs(a - b) < eps; }
-
-constexpr double BYTES_PER_FLOAT32 = 4.0;
-
-// =======================================================================
-// PART 1: a real transformer decoder layer's own shape.
-// =======================================================================
-struct LayerShape {
-    int64_t hidden = 0, heads = 0, head_dim = 0, ffn_dim = 0, seq_len = 0;
-};
-
-struct FlopBreakdown {
-    double qkv = 0.0, attn = 0.0, out_proj = 0.0, ffn = 0.0, total = 0.0;
-};
-
-struct ByteBreakdown {
-    double qkv = 0.0, out_proj = 0.0, ffn = 0.0, total = 0.0;
-};
-
-// =======================================================================
-// PART 2: real FLOP counting for each real sub-block of the layer, at a
-// stated real batch size. M = batch * seq_len is the real number of
-// token-rows the QKV and output projections, and the FFN, each run as a
-// GEMM over.
-// =======================================================================
-FlopBreakdown layer_flops(const LayerShape& s, int64_t batch) {
-    double m = static_cast<double>(batch) * static_cast<double>(s.seq_len);
-    double hidden = static_cast<double>(s.hidden);
-    double ffn_dim = static_cast<double>(s.ffn_dim);
-    double seq_len = static_cast<double>(s.seq_len);
-    double b = static_cast<double>(batch);
-
-    FlopBreakdown f;
-    f.qkv = 3.0 * 2.0 * m * hidden * hidden;               // 3 separate hidden -> hidden projections
-    f.attn = 4.0 * b * seq_len * seq_len * hidden;          // real QK^T plus attn*V, summed over all heads
-    f.out_proj = 2.0 * m * hidden * hidden;                 // one hidden -> hidden projection
-    f.ffn = 4.0 * m * hidden * ffn_dim;                     // hidden->ffn_dim, then ffn_dim->hidden
-    f.total = f.qkv + f.attn + f.out_proj + f.ffn;
-    return f;
+#include <vector>
+static int g_tests=0,g_passed=0;
+#define CHECK(...) do { ++g_tests; if (__VA_ARGS__) ++g_passed; else std::cerr<<"FAIL line "<<__LINE__<<"\n"; } while(0)
+bool near(double a,double b,double eps=1e-9){return std::fabs(a-b)<eps;}
+struct LayerShape {int64_t hidden,heads,head_dim,ffn_dim,seq_len;};
+struct FlopBreakdown {double qkv=0,attn=0,out_proj=0,ffn=0,total=0;};
+struct ByteBreakdown {double qkv=0,out_proj=0,ffn=0,total=0;};
+FlopBreakdown layer_flops(const LayerShape&s,int64_t batch){
+ const double m=double(batch)*s.seq_len,h=double(s.hidden),f=double(s.ffn_dim),n=double(s.seq_len);
+ FlopBreakdown x;
+ x.qkv=6*m*h*h; x.attn=4*batch*n*n*h; x.out_proj=2*m*h*h;
+ x.ffn=6*m*h*f; // gate h->f, up h->f, down f->h
+ x.total=x.qkv+x.attn+x.out_proj+x.ffn;return x;
 }
-
-// =======================================================================
-// PART 3: real weight-byte accounting -- the same weight-dominated
-// approximation Section 30.1 derived and honestly bounded, applied here
-// to the layer's own 4 real weight tensors. Batch-independent by
-// construction: the weights themselves do not grow with batch size.
-// =======================================================================
-ByteBreakdown layer_weight_bytes(const LayerShape& s) {
-    double hidden = static_cast<double>(s.hidden);
-    double ffn_dim = static_cast<double>(s.ffn_dim);
-
-    ByteBreakdown b;
-    b.qkv = 3.0 * hidden * hidden * BYTES_PER_FLOAT32;
-    b.out_proj = hidden * hidden * BYTES_PER_FLOAT32;
-    b.ffn = 2.0 * hidden * ffn_dim * BYTES_PER_FLOAT32;
-    b.total = b.qkv + b.out_proj + b.ffn;
-    return b;
+ByteBreakdown layer_weight_bytes(const LayerShape&s){
+ const double h=double(s.hidden),f=double(s.ffn_dim);
+ ByteBreakdown x; x.qkv=3*h*h*4; x.out_proj=h*h*4;
+ x.ffn=3*h*f*4; x.total=x.qkv+x.out_proj+x.ffn;return x;
 }
-
-double arithmetic_intensity(double flops, double bytes) { return flops / bytes; }
-
-enum class BoundClass { MEMORY_BOUND, COMPUTE_BOUND };
-
-BoundClass classify_bound(double ai, double ridge_point) {
-    return (ai < ridge_point) ? BoundClass::MEMORY_BOUND : BoundClass::COMPUTE_BOUND;
+double aggregate_weight_intensity(const LayerShape&s,int64_t batch){return layer_flops(s,batch).total/layer_weight_bytes(s).total;}
+double aggregate_weight_crossover(const LayerShape&s,double ridge){return ridge/aggregate_weight_intensity(s,1);}
+// Each modeled serial kernel has time >= max(F_i/P, B_i/BW).
+// This is still only a lower bound; omitted traffic makes it optimistic.
+struct KernelCost {double flops,bytes;};
+double serial_kernel_time_bound(const std::vector<KernelCost>& costs,double peak_flops,double bandwidth){
+ double total=0;for(auto c:costs)total+=std::max(c.flops/peak_flops,c.bytes/bandwidth);return total;
 }
-
-// Because every term in layer_flops scales linearly with batch (M and
-// the explicit batch factor in the attention term both do), and
-// layer_weight_bytes does not depend on batch at all, this layer's own
-// real arithmetic intensity is EXACTLY linear in batch: AI(batch) =
-// AI(1) * batch. Solving AI(1) * batch = ridge_point gives the real
-// crossover batch size directly.
-double crossover_batch_size(const LayerShape& s, double ridge_point) {
-    FlopBreakdown f1 = layer_flops(s, 1);
-    ByteBreakdown bytes = layer_weight_bytes(s);
-    double ai_at_batch_1 = arithmetic_intensity(f1.total, bytes.total);
-    return ridge_point / ai_at_batch_1;
-}
-
-// =======================================================================
-// PART 4: self-tests.
-// =======================================================================
-int main() {
-    std::cout << "========================================================\n";
-    std::cout << "Chapter 30.6: A Full Roofline Analysis of a Transformer Layer\n";
-    std::cout << "========================================================\n";
-
-    // A tiny, fully hand-traceable real layer shape.
-    LayerShape shape{4, 2, 2, 8, 2};  // hidden=4, heads=2, head_dim=2, ffn_dim=8, seq_len=2
-
-    std::cout << "\n-- Test 1: at batch 1, every real FLOP sub-total, the real total, the real weight-"
-                 "byte total, and the resulting real arithmetic intensity all match an exact hand "
-                 "computation for this tiny, fully traceable layer shape --\n";
-    {
-        FlopBreakdown f = layer_flops(shape, 1);
-        CHECK(near(f.qkv, 192.0));
-        CHECK(near(f.attn, 64.0));
-        CHECK(near(f.out_proj, 64.0));
-        CHECK(near(f.ffn, 256.0));
-        CHECK(near(f.total, 576.0));
-
-        ByteBreakdown b = layer_weight_bytes(shape);
-        CHECK(near(b.qkv, 192.0));
-        CHECK(near(b.out_proj, 64.0));
-        CHECK(near(b.ffn, 256.0));
-        CHECK(near(b.total, 512.0));
-
-        double ai = arithmetic_intensity(f.total, b.total);
-        CHECK(near(ai, 1.125));
-        std::cout << "  at batch 1, this tiny layer's own real FLOPs are exactly 192 (QKV) + 64 "
-                     "(attention) + 64 (output projection) + 256 (FFN) = 576 total; its own real weight "
-                     "bytes are exactly 192 + 64 + 256 = 512; its own real arithmetic intensity is "
-                     "exactly 576 / 512 = 1.125 FLOPs/byte -- every sub-total matching a direct hand "
-                     "computation from this layer's own stated shape\n";
-    }
-
-    std::cout << "\n-- Test 2: doubling the real batch size exactly doubles the real total FLOPs and "
-                 "the real arithmetic intensity, while the real weight bytes stay exactly unchanged -- "
-                 "confirming the algebraic linear-in-batch property this section's own crossover formula "
-                 "depends on, checked directly rather than merely asserted --\n";
-    {
-        FlopBreakdown f1 = layer_flops(shape, 1);
-        FlopBreakdown f2 = layer_flops(shape, 2);
-        CHECK(near(f2.total, 2.0 * f1.total));
-        CHECK(near(f2.total, 1152.0));
-
-        ByteBreakdown b1 = layer_weight_bytes(shape);
-        ByteBreakdown b2 = layer_weight_bytes(shape);  // batch-independent -- recomputed, still identical
-        CHECK(near(b1.total, b2.total));
-
-        double ai1 = arithmetic_intensity(f1.total, b1.total);
-        double ai2 = arithmetic_intensity(f2.total, b2.total);
-        CHECK(near(ai2, 2.0 * ai1));
-        CHECK(near(ai2, 2.25));
-        std::cout << "  at batch 2, real total FLOPs are exactly 1152 -- precisely double batch 1's 576 "
-                     "-- while real weight bytes remain exactly 512, unchanged; the resulting real "
-                     "arithmetic intensity, 2.25, is precisely double batch 1's 1.125, confirming this "
-                     "layer's own real arithmetic intensity scales exactly linearly with batch size\n";
-    }
-
-    std::cout << "\n-- Test 3: against a stated real machine ridge point sitting between this layer's own "
-                 "batch-1 and batch-2 arithmetic intensities, the SAME layer classifies as memory-bound "
-                 "at batch 1 and compute-bound at batch 2 -- the real roofline model's own central "
-                 "prediction, applied to a whole real transformer layer rather than a single operation "
-                 "--\n";
-    {
-        double ridge = 2.0;
-        FlopBreakdown f1 = layer_flops(shape, 1);
-        FlopBreakdown f2 = layer_flops(shape, 2);
-        ByteBreakdown bytes = layer_weight_bytes(shape);
-
-        double ai1 = arithmetic_intensity(f1.total, bytes.total);
-        double ai2 = arithmetic_intensity(f2.total, bytes.total);
-
-        CHECK(classify_bound(ai1, ridge) == BoundClass::MEMORY_BOUND);
-        CHECK(classify_bound(ai2, ridge) == BoundClass::COMPUTE_BOUND);
-        std::cout << "  against a real stated machine ridge point of 2.0 FLOPs/byte, this layer's own "
-                     "batch-1 arithmetic intensity of 1.125 classifies MEMORY_BOUND, and the identical "
-                     "layer's own batch-2 arithmetic intensity of 2.25 classifies COMPUTE_BOUND -- the "
-                     "same real layer shape, genuinely different real classifications, purely as a "
-                     "function of real batch size\n";
-    }
-
-    std::cout << "\n-- Test 4: the real crossover batch size computed directly from this layer's own "
-                 "shape and a stated ridge point falls exactly between the two batch sizes Test 3 "
-                 "observed flipping classification, confirming the closed-form crossover formula "
-                 "predicts the identical real transition rather than merely rationalizing it after the "
-                 "fact --\n";
-    {
-        double ridge = 2.0;
-        double crossover = crossover_batch_size(shape, ridge);
-        CHECK(near(crossover, 2.0 / 1.125));
-        CHECK(crossover > 1.0);
-        CHECK(crossover < 2.0);
-        std::cout << "  the real crossover batch size for this layer's own shape against a ridge point "
-                     "of 2.0 is exactly " << crossover << " -- strictly between batch 1 (observed "
-                     "MEMORY_BOUND in Test 3) and batch 2 (observed COMPUTE_BOUND) -- confirming the "
-                     "closed-form crossover formula predicts precisely the transition this section "
-                     "already observed directly\n";
-    }
-
-    std::cout << "\n-- Test 5: the same crossover formula behaves consistently across several genuinely "
-                 "different real ridge points, always landing exactly where AI(1) * crossover = ridge, "
-                 "checked algebraically rather than against a single hand-picked example --\n";
-    {
-        for (double ridge : {0.5, 1.125, 5.0, 40.0}) {
-            double crossover = crossover_batch_size(shape, ridge);
-            FlopBreakdown f1 = layer_flops(shape, 1);
-            ByteBreakdown bytes = layer_weight_bytes(shape);
-            double ai1 = arithmetic_intensity(f1.total, bytes.total);
-            CHECK(near(ai1 * crossover, ridge, 1e-6));
-        }
-        std::cout << "  across 4 genuinely different real ridge points -- 0.5, 1.125 (the layer's own "
-                     "exact batch-1 arithmetic intensity), 5.0, and 40.0 -- the computed real crossover "
-                     "batch size always satisfies AI(1) * crossover = ridge_point exactly, confirming "
-                     "the formula's own real algebraic correctness rather than a single coincidental "
-                     "match\n";
-    }
-
-    std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";
-    std::cout << (g_passed == g_tests ? "ALL CHECKS PASSED\n" : "SOME CHECKS FAILED\n");
-    return (g_passed == g_tests) ? 0 : 1;
+int main(){
+ std::cout<<"Chapter 30.6: SwiGLU layer accounting and roofline bounds\n";
+ LayerShape s{4,2,2,8,2};
+ auto f=layer_flops(s,1);auto b=layer_weight_bytes(s);
+ CHECK(near(f.qkv,192));CHECK(near(f.attn,64));CHECK(near(f.out_proj,64));CHECK(near(f.ffn,384));CHECK(near(f.total,704));
+ CHECK(near(b.qkv,192));CHECK(near(b.out_proj,64));CHECK(near(b.ffn,384));CHECK(near(b.total,640));
+ CHECK(near(aggregate_weight_intensity(s,1),1.1));
+ std::cout<<"  tiny MHA prefill shape: hidden=4, heads=2, head_dim=2, FFN=8, sequence=2\n";
+ std::cout<<"  FLOPs: QKV=192, attention=64, output=64, SwiGLU projections=384; total=704\n";
+ std::cout<<"  weight bytes: QKV=192, output=64, SwiGLU=384; total=640\n";
+ std::cout<<"  aggregate FLOPs/weight-byte=704/640=1.1 (omitted traffic is not zero)\n";
+ CHECK(near(layer_flops(s,2).total,1408));CHECK(near(aggregate_weight_intensity(s,2),2.2));
+ const double crossover=aggregate_weight_crossover(s,2.0);
+ CHECK(near(crossover,20.0/11.0));
+ std::cout<<"  batch=2: modeled FLOPs=1408, weight bytes=640, aggregate intensity=2.2\n";
+ std::cout<<"  aggregate weight-only crossover at ridge 2: "<<std::setprecision(6)<<crossover<<"\n";
+ // Counterexample: serial kernels can be compute-limited and bandwidth-
+ // limited separately even when aggregate intensity equals the ridge.
+ std::vector<KernelCost> costs={{100,1},{1,100}};
+ const double p=10,bw=10;
+ const double aggregate=std::max(101.0/p,101.0/bw);
+ const double serial=serial_kernel_time_bound(costs,p,bw);
+ CHECK(near(aggregate,10.1));CHECK(near(serial,20));CHECK(serial>aggregate);
+ std::cout<<"  illustrative kernels (F,B)=(100,1),(1,100), P=BW=10 units/s:\n";
+ std::cout<<"    aggregate lower bound=10.1 s; sum of serial kernel bounds=20 s\n";
+ std::cout<<"  These are analytical examples, not measured execution times or a whole-layer bottleneck classifier.\n";
+ std::cout<<g_passed<<"/"<<g_tests<<" checks passed\n"<<(g_passed==g_tests?"ALL CHECKS PASSED\n":"SOME CHECKS FAILED\n");
+ return g_passed==g_tests?0:1;
 }
 ```
 
@@ -1536,34 +1397,25 @@ g++ -std=c++23 -Wall -Wextra -O2 06_full_transformer_layer_roofline_analysis.cpp
 ./06_full_transformer_layer_roofline_analysis
 ```
 
-**Sample input:** every real FLOP and weight-byte sub-total for a tiny, fully hand-traceable transformer layer shape, checked against an exact hand computation; batch-doubling checked to exactly double FLOPs and arithmetic intensity while leaving weight bytes unchanged; the whole layer's own bound classification checked to flip from memory-bound to compute-bound between batch 1 and batch 2 against a stated ridge point; the closed-form crossover batch size checked to fall exactly between those two batch sizes; and the crossover formula's own algebraic correctness checked across 4 different stated ridge points.
+**Sample input:** the tiny MHA/SwiGLU shape above, checked against explicit FLOP and weight-byte totals; batch doubling and the aggregate weight-only crossover; and a two-kernel counterexample separating an aggregate roofline bound from the sum of serial kernel bounds.
 
 ```text
-========================================================
-Chapter 30.6: A Full Roofline Analysis of a Transformer Layer
-========================================================
-
--- Test 1: at batch 1, every real FLOP sub-total, the real total, the real weight-byte total, and the resulting real arithmetic intensity all match an exact hand computation for this tiny, fully traceable layer shape --
-  at batch 1, this tiny layer's own real FLOPs are exactly 192 (QKV) + 64 (attention) + 64 (output projection) + 256 (FFN) = 576 total; its own real weight bytes are exactly 192 + 64 + 256 = 512; its own real arithmetic intensity is exactly 576 / 512 = 1.125 FLOPs/byte -- every sub-total matching a direct hand computation from this layer's own stated shape
-
--- Test 2: doubling the real batch size exactly doubles the real total FLOPs and the real arithmetic intensity, while the real weight bytes stay exactly unchanged -- confirming the algebraic linear-in-batch property this section's own crossover formula depends on, checked directly rather than merely asserted --
-  at batch 2, real total FLOPs are exactly 1152 -- precisely double batch 1's 576 -- while real weight bytes remain exactly 512, unchanged; the resulting real arithmetic intensity, 2.25, is precisely double batch 1's 1.125, confirming this layer's own real arithmetic intensity scales exactly linearly with batch size
-
--- Test 3: against a stated real machine ridge point sitting between this layer's own batch-1 and batch-2 arithmetic intensities, the SAME layer classifies as memory-bound at batch 1 and compute-bound at batch 2 -- the real roofline model's own central prediction, applied to a whole real transformer layer rather than a single operation --
-  against a real stated machine ridge point of 2.0 FLOPs/byte, this layer's own batch-1 arithmetic intensity of 1.125 classifies MEMORY_BOUND, and the identical layer's own batch-2 arithmetic intensity of 2.25 classifies COMPUTE_BOUND -- the same real layer shape, genuinely different real classifications, purely as a function of real batch size
-
--- Test 4: the real crossover batch size computed directly from this layer's own shape and a stated ridge point falls exactly between the two batch sizes Test 3 observed flipping classification, confirming the closed-form crossover formula predicts the identical real transition rather than merely rationalizing it after the fact --
-  the real crossover batch size for this layer's own shape against a ridge point of 2.0 is exactly 1.77778 -- strictly between batch 1 (observed MEMORY_BOUND in Test 3) and batch 2 (observed COMPUTE_BOUND) -- confirming the closed-form crossover formula predicts precisely the transition this section already observed directly
-
--- Test 5: the same crossover formula behaves consistently across several genuinely different real ridge points, always landing exactly where AI(1) * crossover = ridge, checked algebraically rather than against a single hand-picked example --
-  across 4 genuinely different real ridge points -- 0.5, 1.125 (the layer's own exact batch-1 arithmetic intensity), 5.0, and 40.0 -- the computed real crossover batch size always satisfies AI(1) * crossover = ridge_point exactly, confirming the formula's own real algebraic correctness rather than a single coincidental match
-
-24/24 checks passed
+Chapter 30.6: SwiGLU layer accounting and roofline bounds
+  tiny MHA prefill shape: hidden=4, heads=2, head_dim=2, FFN=8, sequence=2
+  FLOPs: QKV=192, attention=64, output=64, SwiGLU projections=384; total=704
+  weight bytes: QKV=192, output=64, SwiGLU=384; total=640
+  aggregate FLOPs/weight-byte=704/640=1.1 (omitted traffic is not zero)
+  batch=2: modeled FLOPs=1408, weight bytes=640, aggregate intensity=2.2
+  aggregate weight-only crossover at ridge 2: 1.81818
+  illustrative kernels (F,B)=(100,1),(1,100), P=BW=10 units/s:
+    aggregate lower bound=10.1 s; sum of serial kernel bounds=20 s
+  These are analytical examples, not measured execution times or a whole-layer bottleneck classifier.
+16/16 checks passed
 ALL CHECKS PASSED
 ```
 
-!!! warning "[COMMON TRAP] analyzing one operation's own roofline classification and assuming it tells you the whole layer's"
-    A transformer layer is not a single GEMM -- it is 4 real sub-blocks (QKV projection, attention, output projection, FFN), each with its own real FLOP and byte profile, and nothing guarantees they all cross the ridge point at the identical batch size. This section's own capstone works because every one of those 4 sub-blocks happens to scale identically with batch (linearly, since each one's own real formula has an explicit or implicit batch factor) while none of their weight bytes depend on batch at all -- which is what allows a SINGLE whole-layer arithmetic intensity, and a single whole-layer crossover batch size, to exist at all. A real architecture with a sub-block that scales differently (for instance, a mixture-of-experts layer whose active weight bytes themselves depend on which real experts a given batch routes to) would need its own, separately derived crossover analysis rather than reusing this section's own single-formula shortcut.
+!!! warning "Aggregate intensity does not classify every kernel"
+    Even kernels whose work scales linearly with batch can have different intensities and different bottlenecks. Include each kernel's relevant traffic and sum its modeled time bound when operations execute serially. Measure the real workload before claiming a whole-layer speedup or crossover.
 
 ## Chapter Summary
 
@@ -1579,7 +1431,7 @@ This chapter derived the real mathematics Parts 1 through 5 relied on without de
 6. Section 30.4's Test 4 shows re-quantization does not commute. Construct, in your own words, a concrete real scenario (outside this section's own hand-picked example) in a serving system where this specific non-associativity could silently degrade model quality over time.
 7. Section 30.5's GPTQ compensation formula divides by `[H^-1]_pp`. Explain, in terms of what the Hessian represents about a weight's own real sensitivity, what a very LARGE value of `[H^-1]_pp` would suggest about that weight, and how that would affect the resulting compensation.
 8. Section 30.5's Test 4 processes the 2 weights in a SPECIFIC order (index 0 before index 1). Explain why processing them in the opposite order could produce a genuinely different final result.
-9. Section 30.6's whole-layer crossover analysis depends on every sub-block scaling identically with batch size. Name one real architectural change to a transformer layer (not necessarily mixture-of-experts) that could break this assumption, and explain concretely why.
+9. Why can Section 30.6's aggregate weight-byte crossover not classify every kernel in a serial layer? How would mixture-of-experts routing further complicate the accounting?
 10. This chapter is titled "Mathematical Foundations for Kernel Authors." Choose any ONE of this chapter's 6 sections and explain concretely how the specific mathematical property it derives would change a real decision a kernel author makes when writing or optimizing an actual transformer inference kernel.
 
 ## Where We Go Next
@@ -1604,6 +1456,6 @@ This chapter derived the mathematics; the next two chapters put it to work at se
 
 **8.** The compensation formula updates the remaining, not-yet-quantized weights using the CURRENT values of `H^-1` restricted to those remaining indices, and each subsequent weight is quantized using its own value AFTER any prior compensation has already been applied to it. If weight 1 were processed before weight 0, weight 0 would instead be the one receiving compensation based on weight 1's own quantization error, and since the two weights' own real errors (`e_0` and `e_1`) are generally different, and the `H^-1` submatrix used to compensate differs depending on which index is being treated as "already quantized," the sequence of quantized values -- and therefore the final total output error -- would generally come out genuinely different.
 
-**9.** A mixture-of-experts FFN, where each real token is routed to only a small subset of a much larger set of expert weight matrices, breaks this assumption directly: the ACTIVE weight bytes a given batch actually touches depend on which real experts that batch's own tokens route to, not on a single fixed weight tensor size the way this section's own dense FFN does. A batch of tokens that happens to route to many different real experts touches far more total weight bytes than a batch that concentrates on a few, so the layer's own real arithmetic intensity for a mixture-of-experts FFN is not a clean function of batch size alone the way this section's dense capstone example is -- it also depends on the real routing decisions made at that specific batch, which this section's single whole-layer formula has no way to account for.
+**9.** Aggregate intensity hides kernel differences: one serial operation can be compute-bound while another is bandwidth-bound, so the per-kernel optimistic time bounds must be summed. The example's aggregate crossover is only a property of its simplified projection-weight model. Mixture-of-experts routing also makes active weight traffic depend on the experts selected by the current tokens; a fixed dense weight-byte denominator no longer describes every batch.
 
 **10.** Section 30.1's own real crossover batch size directly informs a genuinely practical decision: a kernel author building a serving system's own batching scheduler (this book's next chapter) can use the exact derived crossover point to decide how aggressively to batch requests together before dispatching a GEMM kernel -- below the crossover batch, the kernel is memory-bound and further optimizing its own compute (say, using a more arithmetically efficient but more complex kernel) buys little real speedup, since the bottleneck is bandwidth; above the crossover, the kernel is compute-bound and the opposite investment (a more compute-efficient kernel, even at some cost to memory access patterns) becomes the right real engineering trade-off. Without this section's own derived formula, a kernel author would be guessing at this trade-off rather than computing it directly from the machine's own stated peak compute and peak bandwidth figures.

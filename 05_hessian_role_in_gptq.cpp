@@ -100,7 +100,9 @@ std::vector<double> matvec(const Matrix& m, const std::vector<double>& v) {
 double quantize_weight(double w, double scale) { return std::round(w / scale) * scale; }
 
 // =======================================================================
-// PART 3: the real GPTQ compensation formula. Having just quantized
+// PART 3: a single-step GPTQ-style compensation illustration.
+// h_inv must be the inverse for the current free-variable subproblem.
+// This two-weight lesson does not implement full GPTQ active-inverse updates. Having just quantized
 // weight index p, introducing a real error e_p = w_p - quantize(w_p),
 // the optimal real update to every NOT-yet-quantized weight index f is
 // delta_w_f = -(e_p / [H^-1]_pp) * [H^-1]_fp -- the real, second-order-
@@ -110,8 +112,7 @@ double quantize_weight(double w, double scale) { return std::round(w / scale) * 
 // =======================================================================
 void apply_gptq_compensation(std::vector<double>& w, const Matrix& h_inv, int quantized_index, double error) {
     double denom = h_inv.at(quantized_index, quantized_index);
-    for (size_t f = 0; f < w.size(); f++) {
-        if (static_cast<int>(f) == quantized_index) continue;
+    for (size_t f = static_cast<size_t>(quantized_index + 1); f < w.size(); f++) {
         double delta = -(error / denom) * h_inv.at(static_cast<int>(f), quantized_index);
         w[f] += delta;
     }
@@ -202,7 +203,7 @@ int main() {
                      "-(-0.2 / (1/3)) * (-1/6) = -0.1 exactly\n";
     }
 
-    std::cout << "\n-- Test 4: the full real GPTQ pipeline -- sequential per-weight quantization with "
+    std::cout << "\n-- Test 4: a two-weight GPTQ-style compensation illustration -- sequential per-weight quantization with "
                  "compensation -- produces a genuinely different final weight than naive, independent "
                  "rounding, and a strictly LOWER real output error over the calibration data, GPTQ's own "
                  "central real claim, verified end to end on a fully hand-traceable example --\n";
@@ -244,6 +245,20 @@ int main() {
                      "[1.5, 0.5] -- a genuinely different second weight -- with a real total squared "
                      "output error of exactly 0.14, strictly lower than naive rounding's 0.24, "
                      "confirming GPTQ's own central claim on a fully hand-traceable example\n";
+    }
+
+    // Regression: a later compensation must not modify an already fixed code.
+    {
+        Matrix current_inverse(3, 3);
+        for (int i = 0; i < 3; ++i) current_inverse.at(i, i) = 1.0;
+        current_inverse.at(0, 1) = current_inverse.at(1, 0) = 0.5;
+        current_inverse.at(2, 1) = current_inverse.at(1, 2) = 0.25;
+        std::vector<double> w{1.5, 0.5, 0.8};
+        apply_gptq_compensation(w, current_inverse, 1, 0.2);
+        CHECK(near(w[0], 1.5));
+        CHECK(near(w[1], 0.5));
+        CHECK(near(w[2], 0.75));
+        std::cout << "  active-step regression: fixed weights stay [1.5, 0.5]; remaining weight becomes 0.75\n";
     }
 
     std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";

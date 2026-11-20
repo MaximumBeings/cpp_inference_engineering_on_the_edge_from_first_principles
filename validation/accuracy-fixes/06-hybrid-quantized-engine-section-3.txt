@@ -1,0 +1,32 @@
+================================================
+The Memory Budget: Uniform vs. Hybrid Quantization
+================================================
+
+-- Test 1: Tensor count (Chapter 5.3's formula, re-verified) --
+  3 global + 32 layers x 9 per-layer = 291 tensors
+
+-- Test 2: Element counts by role --
+  dimensions: DIM=4096 N_LAYERS=32 D_FF=16384 VOCAB=128000
+  EMBEDDING elements (token_embd + output): 1048576000
+  NORM elements (attn_norm + ffn_norm + output_norm): 266240
+  ATTENTION elements (Q+K+V+O, all layers): 2147483648
+  FFN elements (gate+up+down, all layers): 6442450944
+  total: 9638776832 (9.64 billion parameters)
+
+-- Test 3: Total weight bytes -- naive vs. corrected hybrid policy --
+  uniform TeachingQ4 everywhere:            5.422 GB
+  uniform Q8_0 everywhere:             10.241 GB
+  hybrid, naive (F32 norm+embedding):  10.101 GB
+  hybrid, corrected (F32 norm only):   7.021 GB
+  naive hybrid costs 86.3% more than uniform TeachingQ4
+  corrected hybrid costs 29.5% more than uniform TeachingQ4
+  corrected hybrid saves 31.4% versus uniform Q8_0
+
+-- Test 4: The naive policy's overhead, broken down by role --
+  norm weights:     F32 costs 0.001 GB vs. TeachingQ4's 0.000 GB -- delta 0.001 GB (genuinely negligible)
+  embedding table:  F32 costs 4.194 GB vs. Q8_0's 1.114 GB -- delta 3.080 GB (the actual cost of the naive policy)
+  embedding's share of the naive policy's total overhead vs. corrected: 100.0%
+
+================================================
+11/11 checks passed ALL PASS
+================================================

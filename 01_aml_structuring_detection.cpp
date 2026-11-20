@@ -1,29 +1,6 @@
-// Chapter 29.1 -- Every prior finance chapter in this book evaluated ONE
-// document, ONE order-book snapshot, or ONE claim at a time. This
-// chapter's own real constraint is different: catching a real, well-
-// documented anti-money-laundering pattern requires looking at a
-// SEQUENCE of transactions together, since no single transaction in the
-// pattern looks suspicious on its own.
-//
-// "Structuring" (sometimes called "smurfing") is a real, specifically
-// named federal offense under the US Bank Secrecy Act: deliberately
-// breaking a large cash transaction into several smaller ones, each kept
-// under the real $10,000 Currency Transaction Report (CTR) threshold
-// (31 CFR 1010.311), specifically to avoid the reporting the full amount
-// would trigger. No individual transaction in the pattern is suspicious
-// by itself -- $4,000 is an ordinary cash transaction -- the pattern is
-// only visible across several transactions from the SAME account within
-// a real, short window of time.
-//
-// A note on this section's own honest scope, precise about the real
-// regulation it models: the real CTR threshold applies to a cash
-// transaction "in excess of" $10,000 -- STRICTLY more than $10,000, not
-// $10,000 exactly -- and this section's own boundary tests confirm that
-// precise real legal distinction directly, the same care this book has
-// given every other real, published threshold since Chapter 26.1's ABA
-// checksum. This section's own COMMON TRAP box returns to a related
-// scope limitation.
-//
+// Educational scope: this is a configurable alert heuristic, not a legal
+// definition. Structuring depends on evasion purpose and may involve any
+// amount, several institutions or days. Negative results do not prove legitimacy.
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 01_aml_structuring_detection.cpp -o 01_aml_structuring_detection
 // Run:     ./01_aml_structuring_detection
 
@@ -132,7 +109,8 @@ int main() {
     }
 
     // -- Test 3: three $2,000 transactions within the same window --
-    // genuinely small, legitimate transactions that never approach the
+    // smaller transactions that do not trigger this heuristic
+    // (no conclusion about legitimacy follows from that result); below the
     // threshold at all. --
     {
         std::vector<Transaction> history = {{"ACC-3", 1, 2000.0}, {"ACC-3", 2, 2000.0}, {"ACC-3", 3, 2000.0}};
@@ -155,14 +133,13 @@ int main() {
         CHECK(!r.flagged);
     }
 
-    // -- Test 5: the real regulatory boundary itself -- two transactions
-    // summing to EXACTLY $10,000.00 are NOT flagged, matching the real
-    // legal threshold of "in excess of" $10,000, not "at or above" it. --
+    // -- Test 5: this heuristic uses a strictly-greater-than threshold.
+    // This is not the legal boundary of structuring. --
     {
         std::vector<Transaction> history = {{"ACC-5", 1, 5000.0}, {"ACC-5", 2, 5000.0}};
         auto r = detect_structuring(history, WINDOW_DAYS, CTR_THRESHOLD);
         std::cout << "-- Test 5: two transactions summing to exactly $10,000.00 -- flagged="
-                  << (r.flagged ? "YES" : "NO") << " (matches the real 'in excess of' legal standard) --\n";
+                  << (r.flagged ? "YES" : "NO") << " (matches this heuristic's strict aggregate threshold) --\n";
         CHECK(!r.flagged);
     }
 

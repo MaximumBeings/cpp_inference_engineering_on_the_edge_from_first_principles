@@ -25,6 +25,10 @@
 
 ---
 
+!!! warning "Trusted instructional model inputs"
+    The copied GGUF reader is not a hardened arbitrary-file parser. Use only the documented trusted fixtures/checkpoint. Read success, sizes, arithmetic overflow, alignment and every tensor range require additional validation before loading untrusted files in production.
+
+
 Every earlier chapter's real file was already sitting on disk before this book's own code ever touched it -- a GGUF checkpoint, a conversation's own text. A manufacturing line is a different kind of deployment target entirely: its camera produces frames over a network in real time, its inspection model has to fuse what it sees with what it is told, its verdict has to become an action a conveyor's gate can act on within milliseconds, and its every decision has to be durably logged and reported upward to the SCADA system that runs the rest of the plant. This chapter builds all five of those pieces from scratch, in order -- frame acquisition, vision encoding, multimodal fusion, disposition and logging, and SCADA integration -- stating exactly where each one is a real, verifiable implementation and where it is an honest, clearly labeled simplification of a real industrial protocol this environment has no hardware to check byte-for-byte.
 
 <!-- chapter-figure -->

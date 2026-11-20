@@ -1,0 +1,1 @@
+Inspected 162 captured text blocks; no pass-only samples remain. Sections 2.1 and 2.2 match actual stdout.

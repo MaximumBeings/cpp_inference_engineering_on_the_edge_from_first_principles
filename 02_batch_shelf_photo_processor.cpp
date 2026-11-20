@@ -43,6 +43,7 @@
 #include <charconv>
 #include <chrono>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -124,6 +125,9 @@ struct TensorInfo {
     uint64_t n_elements = 0;
 };
 using MetaValue = std::variant<std::string, uint32_t, float, bool, std::vector<std::string>>;
+// INPUT SCOPE: this instructional GGUF reader assumes trusted compatible
+// fixtures/checkpoints, not arbitrary model files. Read/size/alignment and
+// tensor-range validation is incomplete; production loading must harden it.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }
@@ -217,36 +221,51 @@ public:
 // =======================================================================
 // PART 2: Chapter 4.2's fp16_t/BlockQ8 (Section 15.4's own copy).
 // =======================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -254,11 +273,13 @@ struct BlockQ8 { fp16_t scale; int8_t weights[32]; };
 #pragma pack(pop)
 static_assert(sizeof(BlockQ8) == 34);
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));

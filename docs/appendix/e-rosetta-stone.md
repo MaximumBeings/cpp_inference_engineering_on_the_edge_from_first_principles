@@ -190,7 +190,7 @@ Nothing in this appendix changed a single line of this book's own C++ -- every n
 
 ## Where We Go Next
 
-Appendix F closes this book by turning from what each piece is supposed to do to what happens when it quietly doesn't: NaN propagation that surfaces symptoms layers away from its real origin, false sharing between threads that never shows up as a correctness bug at all, floating-point drift from nothing more than a changed reduction order, and alignment bugs that a lucky memory layout can hide for a long time before a real deployment finally exposes them.
+This appendix closes the Python-to-C++ reference. For failure analysis, return to the diagnostics in Appendix A.4, concurrency in Chapter 10, and serving checks in Chapter 31.4.
 
 [^gguf]: ggml-org / llama.cpp, "GGUF File Format" concepts documentation (magic bytes, header layout, string and tensor-metadata encoding): <https://ggml-org-llama-cpp.mintlify.app/concepts/gguf-format>
 [^pagedattn]: Kwon et al., "Efficient Memory Management for Large Language Model Serving with PagedAttention" (block size 16, block tables, fragmentation figures), arXiv:2309.06180: <https://arxiv.org/pdf/2309.06180>

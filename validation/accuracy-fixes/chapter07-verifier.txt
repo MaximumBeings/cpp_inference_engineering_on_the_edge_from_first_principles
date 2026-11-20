@@ -1,0 +1,34 @@
+OK:   H1 matches
+OK:   H2 sequence matches
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_rotation_and_beta_distribution.cpp
+OK:   bash block 2 references 02_lloyd_max_mse_quantizer.cpp
+OK:   bash block 3 references 03_qjl_unbiased_inner_product.cpp
+OK:   bash block 4 references 04_kv_cache_quantization.cpp
+OK:   bash block 5 references 05_turboquant_vs_blockwise.cpp
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_rotation_and_beta_distribution.cpp exactly
+OK:   code block 2 matches locked 02_lloyd_max_mse_quantizer.cpp exactly
+OK:   code block 3 matches locked 03_qjl_unbiased_inner_product.cpp exactly
+OK:   code block 4 matches locked 04_kv_cache_quantization.cpp exactly
+OK:   code block 5 matches locked 05_turboquant_vs_blockwise.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_rotation_and_beta_distribution.out.txt exactly
+OK:   output block 2 matches locked 02_lloyd_max_mse_quantizer.out.txt exactly
+OK:   output block 3 matches locked 03_qjl_unbiased_inner_product.out.txt exactly
+OK:   output block 4 matches locked 04_kv_cache_quantization.out.txt exactly
+OK:   output block 5 matches locked 05_turboquant_vs_blockwise.out.txt exactly
+OK:   compile of 01_rotation_and_beta_distribution.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 01_rotation_and_beta_distribution.cpp matches locked output exactly (deterministic)
+OK:   compile of 02_lloyd_max_mse_quantizer.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 02_lloyd_max_mse_quantizer.cpp matches locked output exactly (deterministic)
+OK:   compile of 03_qjl_unbiased_inner_product.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 03_qjl_unbiased_inner_product.cpp matches locked output exactly (deterministic)
+OK:   compile of 04_kv_cache_quantization.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 04_kv_cache_quantization.cpp matches locked output exactly (deterministic)
+OK:   compile of 05_turboquant_vs_blockwise.cpp succeeded (g++ -std=c++23)
+OK:   fresh rerun of 05_turboquant_vs_blockwise.cpp matches locked output exactly (deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

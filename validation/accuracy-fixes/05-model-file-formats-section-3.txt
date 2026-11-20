@@ -1,0 +1,29 @@
+================================================
+Tensor Descriptor Tables and Zero-Copy Weight Access
+================================================
+
+-- Test 1: Tensor count from the naming convention --
+  3 global + 32 layers x 9 per-layer = 291 tensors
+
+-- Test 2: mmap the file --
+  file size: 74752 bytes, tensors: 3
+
+-- Test 3: Zero-copy F32 embedding lookup --
+  embedding table: 16384 floats
+  matches the data written (bit-for-bit, zero-copy view): yes
+
+-- Test 4: Zero-copy Q8/Q4 fused dot products vs FP32 reference --
+  Q8 (mmap'd):  -0.015789
+  FP32 reference: -0.015790
+  Q4 (mmap'd):  0.012404
+  FP32 reference: 0.011146
+
+-- Test 5: Every view points inside the mmap'd region --
+  embedding view inside mapped region: yes
+  Q8 view inside mapped region: yes
+  Q4 view inside mapped region: yes
+  heap bytes allocated for tensor data: 0
+
+================================================
+12/12 checks passed ALL PASS
+================================================

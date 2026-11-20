@@ -10,21 +10,11 @@ Chapter 9.5: Runtime CPU Feature Detection and Dispatch
   __builtin_cpu_supports("avx2") && ("fma") on this machine: true
   avx2_dot matches scalar_dot at every tested size
 
--- Test 3 [COMMON TRAP]: -march=native bypasses runtime dispatch entirely --
-  A binary built with '-march=native' does not call __builtin_cpu_supports at
-  runtime to decide whether to use AVX2 -- the compiler is TOLD, at compile
-  time, that the build machine's full instruction set is always available, so
-  it may emit AVX2/FMA instructions anywhere, including inside ordinary loops
-  the auto-vectorizer decides to widen, with no runtime feature check at all.
-  This function's own dispatch table, by contrast, calls __builtin_cpu_init()
-  and __builtin_cpu_supports("avx2") -- a real CPUID query, performed once, on
-  the machine the binary is ACTUALLY running on -- before ever calling avx2_dot.
-  The scalar fallback exists specifically so this program still runs correctly,
-  just slower, on a CPU where that query comes back false.
-  Shipping a '-march=native' build to a customer fleet with mixed CPU
-  generations trades this section's slower-but-safe fallback for a binary that
-  works on the build machine and SIGILLs on any older one -- a correctness bug
-  that a test suite run only on the build machine can never observe.
+-- Test 3: baseline compilation and specialized dispatch --
+  Compile the baseline translation unit without -mavx2/-mfma or -march=native.
+  Only avx2_dot has target("avx2,fma"); dispatch checks both features.
+  Global ISA flags may introduce unsupported instructions outside that function.
+  A forced scalar arithmetic check is not proof of execution on a non-AVX2 CPU.
 
 ========================================================
 3/3 checks passed  ALL PASS

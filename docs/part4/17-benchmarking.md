@@ -11,11 +11,11 @@
 
 **What you will understand by the end of this chapter:**
 
-- Why "how fast is it" is not one number but at least three genuinely different ones -- time-to-first-token, tokens-per-second, and time-per-output-token -- and why this book reports the MEDIAN of a run's per-step latencies rather than the mean.
+- Why "how fast is it" is not one number but at least three genuinely different ones -- time-to-first-token, tokens-per-second, and time-per-output-token -- and why elapsed throughput must be distinguished from median latency.
 - How to measure a process's own real peak memory use directly from the kernel (`/proc/self/status`'s `VmHWM`), rather than estimating it from a model's file size or parameter count.
 - How to build a benchmarking harness that times this book's own REAL forward pass -- Chapter 16's own `decode_step` and `prefill`, unchanged -- rather than a simulated bandwidth model, including a warm-up window that excludes a memory-mapped file's real, one-time page-fault cost from steady-state statistics, and a KV-capacity guard that refuses to silently report statistics computed past a cache's own capacity.
 - Why a synthetic model's own metadata can corrupt a correct forward pass in a way that has nothing to do with tensor bytes at all: a missing `rope.freq_base` key, defaulting to 0.0, drives this book's own RoPE formula straight into a `0 * infinity` NaN before a single real weight is even read.
-- How to rebuild `llama.cpp` from source and run an honest, apples-to-apples comparison against it on identical hardware, an identical file, and an identical batch size and thread count -- and why this book's own from-scratch engine's real, measured shortfall against it is not a bug to go hunt down.
+- How to define a matching comparison protocol against llama.cpp, and why historical reference rates cannot support a current-machine speed ratio.
 
 **What you need to know first:**
 
@@ -25,7 +25,11 @@
 
 ---
 
-Chapter 16 produced a complete, working, self-contained production engine -- a real command line, a real sampling pipeline, a real multi-turn conversation, and a real two-turn exchange against the actual downloaded Qwen2.5-0.5B-Instruct checkpoint. It never once asked whether that engine was any GOOD, compared to anything else. This chapter asks exactly that question, against the reference every CPU inference engine in the world is measured against: `llama.cpp`. Answering it honestly takes three steps in order. First, agreeing on WHAT to measure, because a single "tokens per second" number quietly conflates at least three different phases of generation with different costs and different bottlenecks. Second, building a harness that measures those real numbers against this book's own REAL forward pass, not a simulation of one. Third, and only once both of those are trustworthy, actually running the comparison -- on identical hardware, an identical file, and a stated, narrow methodology -- and reporting whatever number comes out, including a number that is not flattering.
+!!! warning "Trusted instructional inputs only"
+    The GGUF readers copied into this chapter assume the documented trusted fixtures and compatible checkpoints. They are not hardened arbitrary-file parsers: read success, metadata allocation limits, dimension products, alignment and every tensor byte range are not comprehensively validated. A successful `open()` does not establish that an arbitrary file is safe. Validate those properties before exposing mapped views in production, and do not use these examples on untrusted model files.
+
+
+Chapter 16 integrated a forward pass, token selection and streaming. This chapter separates the questions a benchmark must answer: how much work was timed, how elapsed throughput differs from latency quantiles, and whether a reference run actually matches the current host and workload. The current program measures the local forward pass only. Historical real-model captures are preserved below with explicit limitations; they are not a live comparison service.
 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
@@ -54,9 +58,9 @@ Chapter 16 produced a complete, working, self-contained production engine -- a r
 
 ### The Concept, In Detail
 
-Time-to-first-token (TTFT) is everything a user waits through before ANY output appears: the full prefill pass over the entire prompt, plus the one sampling step that turns prefill's final hidden state into the first generated token. Tokens-per-second (TPS) in steady-state decode is the reciprocal of the MEDIAN per-step latency, and time-per-output-token (TPOT) is that same median latency stated directly in milliseconds -- TPS and TPOT are the identical measurement stated two ways, one easier to compare against a target throughput, one easier for a human to reason about directly, and multiplying them back together must recover exactly 1000 (milliseconds per second).
+Time-to-first-token (TTFT) covers the request path until the first output becomes available. A simplified in-process model can sum prefill and first-token selection, but queueing, tokenization, decoding and transport must be included when measuring a user-visible service. **Elapsed decode throughput** is measured tokens divided by their total elapsed decode time, equivalently `1000 / mean(step_ms)` for sequential one-token steps. **Mean TPOT** is that mean step time. Median/P95/P99 latencies are separate distribution summaries; reciprocal median latency is not elapsed throughput.
 
-The choice to report the median rather than the mean is a stated methodology decision, not an afterthought: a small number of unusually slow steps -- a thermal throttling event, an OS scheduling hiccup -- pulls a mean upward in a way that misrepresents steady-state performance, while the median is unmoved by a minority of outliers. This is exactly the reasoning Chapter 13's own eviction-policy discussions already applied to choosing a robust statistic over a sensitive one, applied here to latency instead of cache behavior. `Stats::compute` reports the full picture regardless -- mean, median, P95, P99, min, and max -- so a reader can see exactly how far a real run's tail departs from its typical case, rather than trusting one number to summarize a whole distribution.
+The median describes a typical step, while mean TPOT and elapsed throughput retain the effect of slow measured steps. For `[1,1,100]` milliseconds, median latency is 1 ms but elapsed throughput is `3/0.102`, about 29.41 tokens/s, not 1000 tokens/s. The statistics helper reports mean, median, P95, P99, min and max. For even-size samples, median is the average of the two central values.
 
 A specific, real effect motivates one more definition: `is_warmup_step` marks the first several decode steps as excluded from every statistic above. This book's real forward pass has no JIT and no bytecode cache to warm up -- but the memory-mapped weight file genuinely does have a cold-start cost. The OS has not yet paged in every tensor's bytes on the very first few accesses to a freshly `mmap`ed file, so the first several real decode steps pay a real, one-time page-fault cost that a steady-state throughput claim should not be charged for. Excluding a warm-up window is not throwing away inconvenient data; it is separating a one-time cost from the recurring one the statistic is actually trying to characterize.
 
@@ -81,7 +85,7 @@ The one measurement this chapter needs that no earlier chapter did is memory. `p
 // and 16 never had reason to measure at all.
 //
 // A stated methodology choice, carried forward into Section 17.2: this
-// book reports the MEDIAN of a run's per-step latencies, not the mean,
+// book reports median latency alongside elapsed-throughput and mean TPOT,
 // because a small number of unusually slow steps (thermal throttling, an
 // OS scheduling hiccup) pulls a mean upward in a way that misrepresents
 // steady-state performance, while the median is unmoved by a minority of
@@ -132,7 +136,7 @@ struct Stats {
         double sq_sum = 0.0;
         for (double v : vals) sq_sum += (v - s.mean) * (v - s.mean);
         s.stddev = std::sqrt(sq_sum / static_cast<double>(s.n));
-        s.median = vals[s.n / 2];
+        s.median = s.n % 2 ? vals[s.n / 2] : (vals[s.n / 2 - 1] + vals[s.n / 2]) / 2.0;
         s.p95 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.95)];
         s.p99 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.99)];
         s.min_val = vals.front();
@@ -161,20 +165,19 @@ double time_to_first_token_ms(double prefill_ms, double first_sample_ms) {
     return prefill_ms + first_sample_ms;
 }
 
-// Tokens-per-second in steady-state decode: the reciprocal of the
-// MEDIAN per-step latency, not the mean, for the robustness reason
-// this file's own header comment states.
+// Elapsed throughput over the measured decode interval: count/sum(ms),
+// equivalently 1000/mean(ms). Median latency is reported separately.
 double tokens_per_second(const Stats& decode_stats) {
-    return decode_stats.median > 0.0 ? 1000.0 / decode_stats.median : 0.0;
+    return decode_stats.mean > 0.0 ? 1000.0 / decode_stats.mean : 0.0;
 }
 
-// Time-per-output-token: the median decode-step latency itself, in
+// Mean time-per-output-token: the mean measured decode-step latency, in
 // milliseconds. This is the exact same number as 1000/tokens_per_second
 // -- TPOT and TPS are the same measurement stated two ways, one easier
 // for a human to reason about ("14 ms per token") and one easier to
 // compare against a target throughput ("70 tokens/sec").
 double time_per_output_token_ms(const Stats& decode_stats) {
-    return decode_stats.median;
+    return decode_stats.mean;
 }
 
 // A step at or before this index is warm-up: excluded from every
@@ -224,7 +227,7 @@ int main() {
     // =====================================================================
     // TEST 1: Stats::compute against a known, hand-computable array --
     // the same shape of check this book has used for every statistics
-    // helper since Chapter 1.
+    // helper since the early foundations.
     // =====================================================================
     std::cout << "\n-- Test 1: Stats::compute correctness --\n";
     {
@@ -261,11 +264,18 @@ int main() {
         double tpot = time_per_output_token_ms(decode_stats);
         CHECK(tpot == 14.0);
         CHECK(std::fabs(tps - (1000.0 / 14.0)) < 1e-9);
-        // TPS and TPOT are the SAME measurement, stated two ways --
+        // Elapsed TPS and mean TPOT are reciprocal summaries of the same interval --
         // multiplying them back together must recover 1000 (ms/sec).
         CHECK(std::fabs(tps * tpot - 1000.0) < 1e-9);
         std::cout << "  steady 14ms/token decode: TPOT=" << tpot << "ms/token, TPS=" << tps
                    << " tok/s, TPS*TPOT==1000: " << (std::fabs(tps * tpot - 1000.0) < 1e-9 ? "yes" : "no") << "\n";
+
+        auto uneven = Stats::compute({1.0, 1.0, 100.0});
+        CHECK(std::fabs(tokens_per_second(uneven) - 3000.0 / 102.0) < 1e-9);
+        CHECK(uneven.median == 1.0);
+        std::cout << "  [1,1,100] ms: elapsed throughput=" << tokens_per_second(uneven)
+                  << " tok/s; median latency=" << uneven.median
+                  << " ms (reciprocal median would incorrectly report 1000 tok/s)\n";
 
         double ttft = time_to_first_token_ms(/*prefill_ms=*/230.0, /*first_sample_ms=*/0.4);
         CHECK(ttft == 230.4);
@@ -288,7 +298,11 @@ int main() {
     {
         long before = peak_rss_kb();
         bool measurement_available = (before >= 0);
+#if defined(__linux__)
         CHECK(measurement_available);
+#else
+        CHECK(!measurement_available);
+#endif
 
         if (measurement_available) {
             // Allocate and TOUCH every page of a sizable buffer -- a
@@ -304,11 +318,12 @@ int main() {
             CHECK(grew);
             std::cerr << "  (informational, machine-specific) peak RSS before: " << before
                        << " KB, after touching ~200MB: " << after << " KB\n";
-            std::cout << "  peak RSS measurably increased after touching a ~200MB buffer: " << (grew ? "yes" : "no") << "\n";
+
         } else {
-            std::cout << "  /proc/self/status unavailable on this platform -- peak_rss_kb() correctly reports -1"
-                          " rather than a fabricated number\n";
+            CHECK(before == -1);
+            std::cerr << "  /proc/self/status unavailable: growth measurement skipped; explicit -1 checked\n";
         }
+        std::cout << "  Peak RSS contract checked: Linux measures growth; other platforms report unavailable (-1).\n";
     }
 
     std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";
@@ -324,7 +339,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_benchmark_stats_and_definitions.cpp -o 01_be
 ./01_benchmark_stats_and_definitions
 ```
 
-**Sample input:** `Stats::compute` checked against a known, hand-computable array (an outlier confirmed to pull the mean above the median, and an empty input confirmed handled without dividing by zero); TTFT, TPS, and TPOT checked for algebraic self-consistency (TPS times TPOT recovers exactly 1000) rather than against any specific measured millisecond value, so the check is fully deterministic on every architecture; and `peak_rss_kb` checked against a REAL measurement, by deliberately allocating and touching every page of a ~200MB buffer and confirming the same function reports real growth -- with the raw, machine-specific KB values sent to `stderr` and only the qualitative "did it grow" verdict on the locked, cross-architecture-compared `stdout`.
+**Sample input:** known hand-computable latency arrays, including an uneven `[1,1,100]` ms example distinguishing elapsed throughput from reciprocal-median rate; empty input; a conceptual TTFT sum; a warm-up window; and a platform-specific check that Linux peak RSS increases after allocating and touching memory. Timing values measured on the host are informational rather than locked benchmark claims.
 
 ```text
 ========================================================
@@ -332,18 +347,19 @@ Chapter 17.1: What to Measure and Why
 ========================================================
 
 -- Test 1: Stats::compute correctness --
-  n=6 median=20 mean=29.1667 (mean pulled above median by the outlier: yes)
+  n=6 median=17.5 mean=29.1667 (mean pulled above median by the outlier: yes)
   empty input handled without dividing by zero: yes
 
 -- Test 2: TTFT/TPS/TPOT definitions are internally consistent --
   steady 14ms/token decode: TPOT=14ms/token, TPS=71.4286 tok/s, TPS*TPOT==1000: yes
+  [1,1,100] ms: elapsed throughput=29.4118 tok/s; median latency=1 ms (reciprocal median would incorrectly report 1000 tok/s)
   TTFT = prefill_ms + first_sample_ms = 230.0 + 0.4 = 230.4ms
   warm-up window [0,5) correctly excludes step 5 onward
 
 -- Test 3: peak_rss_kb() reflects real process memory, not a guess --
-  peak RSS measurably increased after touching a ~200MB buffer: yes
+  Peak RSS contract checked: Linux measures growth; other platforms report unavailable (-1).
 
-15/15 checks passed
+17/17 checks passed
 ALL CHECKS PASSED
 ```
 
@@ -370,7 +386,7 @@ Section 17.1 defined what to measure. This section wires those definitions into 
 
 This section's own tokenizer needs are minimal, almost to the point of having none: a benchmarking harness measures how fast a fixed number of forward-pass POSITIONS run, and does not need real text at all -- arbitrary token IDs within the model's own vocabulary range exercise the identical `decode_step` code path a real generated token would. This file therefore omits the GPT-2 byte codec, the BPE engine, and the entire sampling pipeline: none of them are on the path being measured, and including them would only give the timing loop more to account for without changing what it is actually trying to isolate.
 
-`run_benchmark` prefills a prompt, times it for TTFT, then runs a further, caller-specified number of real decode steps -- the first several of which are timed but excluded from the reported `Stats`, exactly as `is_warmup_step` defines. Every timed step calls Chapter 16's real, already cross-architecture-verified `decode_step` against whatever model it is handed, real or synthetic; nothing in the timing loop itself is simulated. A KV-capacity guard breaks the decode loop the moment the next position would exceed the cache's own allocated capacity, and reports however many steps were actually measured rather than fabricating statistics for positions that were never computed -- a benchmarking harness that silently produced a truncated, mislabeled report on capacity exhaustion would be actively misleading about the throughput it claims to have measured.
+`run_benchmark` is explicitly a **forward-pass microbenchmark**. It measures prefill-only latency and subsequent decode-step latency, not full-generation TTFT. The workload feeds random in-range token IDs into the forward pass. A random integer draw does not perform argmax or scan a vocabulary-sized probability distribution. Token selection, text decoding, streaming, request queueing and transport are excluded. Warm-up decode steps are excluded from the reported interval, and the capacity guard reports the actual number of measured steps.
 
 `detect_slowdown` is this section's own thermal-throttle-style detection algorithm: it compares the median of a run's first quarter of per-step latencies against the median of its last quarter, and flags a slowdown when the back half is more than 15% slower than the front half. This section's own self-test checks this algorithm against a HAND-CONSTRUCTED, not measured, latency sequence -- fully deterministic and reproducible on every architecture, because the test is checking the DETECTION ALGORITHM's own logic, not real hardware behavior, and a synthetic sequence with a known, exact 40% back-half slowdown is a far more precise way to confirm that logic than waiting for a real machine to happen to throttle during a test run.
 
@@ -404,6 +420,7 @@ Building this harness surfaced a real bug, and it is worth tracing exactly, beca
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -485,6 +502,11 @@ struct TensorInfo {
     uint64_t n_elements = 0;
 };
 using MetaValue = std::variant<std::string, uint32_t, float, bool, std::vector<std::string>>;
+// INPUT SCOPE: this instructional GGUF reader assumes trusted, compatible
+// fixtures/checkpoints. It is not a hardened parser: it does not fully
+// validate all reads, allocation sizes, dimension products, alignment or
+// tensor/file bounds. Do not pass untrusted or arbitrary model files.
+// Production loading needs those checks before exposing any tensor view.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }
@@ -578,36 +600,51 @@ public:
 // =======================================================================
 // PART 2: Chapter 4.2's fp16_t/BlockQ8 (Section 15.4's own copy).
 // =======================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -615,11 +652,13 @@ struct BlockQ8 { fp16_t scale; int8_t weights[32]; };
 #pragma pack(pop)
 static_assert(sizeof(BlockQ8) == 34);
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
@@ -916,7 +955,7 @@ struct Stats {
         double sq_sum = 0.0;
         for (double v : vals) sq_sum += (v - s.mean) * (v - s.mean);
         s.stddev = std::sqrt(sq_sum / static_cast<double>(s.n));
-        s.median = vals[s.n / 2];
+        s.median = s.n % 2 ? vals[s.n / 2] : (vals[s.n / 2 - 1] + vals[s.n / 2]) / 2.0;
         s.p95 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.95)];
         s.p99 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.99)];
         s.min_val = vals.front();
@@ -924,7 +963,7 @@ struct Stats {
         return s;
     }
 };
-double tokens_per_second(const Stats& decode_stats) { return decode_stats.median > 0.0 ? 1000.0 / decode_stats.median : 0.0; }
+double tokens_per_second(const Stats& decode_stats) { return decode_stats.mean > 0.0 ? 1000.0 / decode_stats.mean : 0.0; }
 long peak_rss_kb() {
     std::ifstream in("/proc/self/status");
     if (!in.is_open()) return -1;
@@ -942,7 +981,7 @@ long peak_rss_kb() {
 
 // =======================================================================
 // PART 7 (new): the harness itself. `run_benchmark` prefills a prompt,
-// times it for TTFT, then runs `decode_steps` further real decode steps
+// times prefill only, then runs `decode_steps` further real decode steps
 // -- the first `warmup_steps` of which are timed but EXCLUDED from the
 // reported Stats, exactly as Section 17.1's `is_warmup_step` defines.
 // Every timed step calls Section 16.3's real `decode_step` against
@@ -952,7 +991,7 @@ struct BenchResult {
     bool ok = false;
     double prefill_ms = 0.0;
     int prefill_tokens = 0;
-    double ttft_ms = 0.0;
+    double prefill_only_ms = 0.0;
     Stats decode_stats;
     int decode_steps_measured = 0;
     long peak_rss_kb_after = -1;
@@ -973,16 +1012,13 @@ BenchResult run_benchmark(const QwenModel& model, const std::vector<QwenBlockWei
     res.prefill_tokens = static_cast<int>(prompt_ids.size());
     if (pf.exceeded_capacity || pf.nan_at_layer >= 0) return res;
 
-    // The one sampling step TTFT includes: this harness benchmarks the
-    // FORWARD pass, so it stands in for Section 16.2's real sampling
-    // pipeline with an argmax over a uniform distribution of the same
-    // vocabulary size -- cheap, deterministic, and the same order of
-    // work Section 16.2's own pipeline does for one token.
+    // This is a forward-pass microbenchmark, not a full generation TTFT.
+    // Token IDs are random workload inputs; drawing an integer neither
+    // scans logits nor runs a vocabulary-sized sampler. Selection, text
+    // decoding, streaming, queueing and transport are outside the timer.
     std::uniform_int_distribution<int> pick(0, vocab_size - 1);
-    auto s0 = Clock::now();
     int first_token = pick(token_rng);
-    double first_sample_ms = elapsed_ms(s0);
-    res.ttft_ms = res.prefill_ms + first_sample_ms;
+    res.prefill_only_ms = res.prefill_ms;
 
     std::vector<double> decode_ms_all;
     int pos = static_cast<int>(prompt_ids.size()) - 1;
@@ -1106,7 +1142,7 @@ int main() {
     // =====================================================================
     // TEST 1: run_benchmark against the synthetic model produces a
     // structurally sane report -- correct token counts, min <= median <=
-    // p95 <= p99 <= max, and a positive TTFT -- checked as INVARIANTS
+    // p95 <= p99 <= max, and a positive prefill-only time -- checked as INVARIANTS
     // that must hold regardless of how fast this specific machine
     // happens to run, rather than against any specific millisecond value.
     // =====================================================================
@@ -1126,15 +1162,19 @@ int main() {
         CHECK(result.ok);
         CHECK(result.prefill_tokens == static_cast<int>(prompt_ids.size()));
         CHECK(result.decode_steps_measured == DECODE_STEPS - WARMUP);
-        CHECK(result.ttft_ms >= result.prefill_ms);
+        CHECK(result.prefill_only_ms >= result.prefill_ms);
         CHECK(result.decode_stats.min_val <= result.decode_stats.median);
         CHECK(result.decode_stats.median <= result.decode_stats.p95);
         CHECK(result.decode_stats.p95 <= result.decode_stats.p99);
         CHECK(result.decode_stats.p99 <= result.decode_stats.max_val);
         CHECK(tokens_per_second(result.decode_stats) > 0.0);
+#if defined(__linux__)
         CHECK(result.peak_rss_kb_after > 0);
+#else
+        CHECK(result.peak_rss_kb_after == -1); // explicit unavailable sentinel
+#endif
 
-        std::cerr << "  (informational, machine-specific) TTFT=" << result.ttft_ms << "ms, decode median="
+        std::cerr << "  (informational, machine-specific) prefill-only=" << result.prefill_only_ms << "ms, decode median="
                    << result.decode_stats.median << "ms, TPS=" << tokens_per_second(result.decode_stats)
                    << ", peak RSS=" << result.peak_rss_kb_after << "KB\n";
         std::cout << "  benchmark completed: " << (result.ok ? "yes" : "no")
@@ -1247,7 +1287,7 @@ Sections 17.1 and 17.2 built this book's own honest measuring stick: precise def
 
 ### The Concept, In Detail
 
-"Honest" here means a specific, narrow, stated methodology, so the number at the end of this section means exactly what it claims and nothing more. Same model file -- the identical `qwen2.5-0.5b-instruct-q8_0.gguf` checkpoint used throughout Chapters 15 through 17. Same quantization, since it is the only format this book's own engine has ever supported. Same machine. Same `batch_size=1`. And the same thread count: ONE thread, matching this book's own engine exactly, because this book has never built a thread pool into its real forward pass -- Section 16.1's own CLI contract explicitly declined to offer a `-t <threads>` flag for precisely this reason. `llama.cpp` is also run a second way, at this machine's full core count, because that is how nearly every real user actually runs it in practice; that second number is reported honestly labeled as what it is -- more threads, not a better algorithm -- and is never blended into the single-threaded comparison that is this section's real methodological claim.
+A valid engine comparison must align the host, model file/hash, precision, prompt/generation lengths, context, thread counts, batch settings, warm-up and timing boundaries. The current example measures this book's integrated single-threaded forward pass, but **does not measure llama.cpp**. It therefore prints no current relative-speed ratio. To compare, run both implementations under an explicitly matching protocol and use elapsed-throughput statistics for both.
 
 Producing a real `llama.cpp` binary to compare against required rebuilding it from source, since Chapter 15's own cleanup deleted the copy that chapter had used. `llama-bench` -- `llama.cpp`'s own standardized throughput-measurement tool -- reports exactly the two numbers this chapter's own definitions need, `pp<N>` and `tg<N>`, at a stated batch size and thread count, formatted precisely enough to quote directly rather than parse out of a differently-shaped tool's output.
 
@@ -1266,17 +1306,9 @@ Running that comparison surfaced a second real, honest finding, and -- following
 // every CPU inference engine is measured against -- how good is the
 // engine this book has built from scratch since Chapter 15?
 //
-// "Honest" here means a specific, narrow methodology, stated up front so
-// the number at the end of this section means exactly what it claims:
-// same model file (the identical Qwen2.5-0.5B-Instruct Q8_0 GGUF used
-// throughout this book), same quantization, same machine, same
-// batch_size=1, and the SAME thread count -- one thread, matching this
-// book's own engine, which (like every engine built in this book) has no
-// thread pool at all. llama.cpp is also run a second way, at this
-// machine's full core count, because that is how almost every real user
-// actually runs it; that second number is reported honestly labeled as
-// what it is, a DIFFERENT comparison (more threads, not a better
-// algorithm), never blended into the single-threaded one.
+// Real-file mode measures the current engine on this host. It does not
+// remeasure llama.cpp, and therefore reports no current relative-speed
+// ratio. Previously captured reference rates are historical data only.
 //
 // This section's own contribution mirrors Section 17.2's own harness
 // almost exactly -- same GGUF reader, same transformer block, same
@@ -1302,6 +1334,7 @@ Running that comparison surfaced a second real, honest finding, and -- following
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -1383,6 +1416,11 @@ struct TensorInfo {
     uint64_t n_elements = 0;
 };
 using MetaValue = std::variant<std::string, uint32_t, float, bool, std::vector<std::string>>;
+// INPUT SCOPE: this instructional GGUF reader assumes trusted, compatible
+// fixtures/checkpoints. It is not a hardened parser: it does not fully
+// validate all reads, allocation sizes, dimension products, alignment or
+// tensor/file bounds. Do not pass untrusted or arbitrary model files.
+// Production loading needs those checks before exposing any tensor view.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }
@@ -1476,36 +1514,51 @@ public:
 // =======================================================================
 // PART 2: Chapter 4.2's fp16_t/BlockQ8 (Section 15.4's own copy).
 // =======================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -1513,11 +1566,13 @@ struct BlockQ8 { fp16_t scale; int8_t weights[32]; };
 #pragma pack(pop)
 static_assert(sizeof(BlockQ8) == 34);
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
@@ -1814,7 +1869,7 @@ struct Stats {
         double sq_sum = 0.0;
         for (double v : vals) sq_sum += (v - s.mean) * (v - s.mean);
         s.stddev = std::sqrt(sq_sum / static_cast<double>(s.n));
-        s.median = vals[s.n / 2];
+        s.median = s.n % 2 ? vals[s.n / 2] : (vals[s.n / 2 - 1] + vals[s.n / 2]) / 2.0;
         s.p95 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.95)];
         s.p99 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.99)];
         s.min_val = vals.front();
@@ -1822,7 +1877,7 @@ struct Stats {
         return s;
     }
 };
-double tokens_per_second(const Stats& decode_stats) { return decode_stats.median > 0.0 ? 1000.0 / decode_stats.median : 0.0; }
+double tokens_per_second(const Stats& decode_stats) { return decode_stats.mean > 0.0 ? 1000.0 / decode_stats.mean : 0.0; }
 long peak_rss_kb() {
     std::ifstream in("/proc/self/status");
     if (!in.is_open()) return -1;
@@ -1840,7 +1895,7 @@ long peak_rss_kb() {
 
 // =======================================================================
 // PART 7 (new): the harness itself. `run_benchmark` prefills a prompt,
-// times it for TTFT, then runs `decode_steps` further real decode steps
+// times prefill only, then runs `decode_steps` further real decode steps
 // -- the first `warmup_steps` of which are timed but EXCLUDED from the
 // reported Stats, exactly as Section 17.1's `is_warmup_step` defines.
 // Every timed step calls Section 16.3's real `decode_step` against
@@ -1850,7 +1905,7 @@ struct BenchResult {
     bool ok = false;
     double prefill_ms = 0.0;
     int prefill_tokens = 0;
-    double ttft_ms = 0.0;
+    double prefill_only_ms = 0.0;
     Stats decode_stats;
     int decode_steps_measured = 0;
     long peak_rss_kb_after = -1;
@@ -1871,16 +1926,13 @@ BenchResult run_benchmark(const QwenModel& model, const std::vector<QwenBlockWei
     res.prefill_tokens = static_cast<int>(prompt_ids.size());
     if (pf.exceeded_capacity || pf.nan_at_layer >= 0) return res;
 
-    // The one sampling step TTFT includes: this harness benchmarks the
-    // FORWARD pass, so it stands in for Section 16.2's real sampling
-    // pipeline with an argmax over a uniform distribution of the same
-    // vocabulary size -- cheap, deterministic, and the same order of
-    // work Section 16.2's own pipeline does for one token.
+    // This is a forward-pass microbenchmark, not a full generation TTFT.
+    // Token IDs are random workload inputs; drawing an integer neither
+    // scans logits nor runs a vocabulary-sized sampler. Selection, text
+    // decoding, streaming, queueing and transport are outside the timer.
     std::uniform_int_distribution<int> pick(0, vocab_size - 1);
-    auto s0 = Clock::now();
     int first_token = pick(token_rng);
-    double first_sample_ms = elapsed_ms(s0);
-    res.ttft_ms = res.prefill_ms + first_sample_ms;
+    res.prefill_only_ms = res.prefill_ms;
 
     std::vector<double> decode_ms_all;
     int pos = static_cast<int>(prompt_ids.size()) - 1;
@@ -2005,7 +2057,7 @@ int run_self_tests() {
     // =====================================================================
     // TEST 1: run_benchmark against the synthetic model produces a
     // structurally sane report -- correct token counts, min <= median <=
-    // p95 <= p99 <= max, and a positive TTFT -- checked as INVARIANTS
+    // p95 <= p99 <= max, and a positive prefill-only time -- checked as INVARIANTS
     // that must hold regardless of how fast this specific machine
     // happens to run, rather than against any specific millisecond value.
     // =====================================================================
@@ -2025,15 +2077,19 @@ int run_self_tests() {
         CHECK(result.ok);
         CHECK(result.prefill_tokens == static_cast<int>(prompt_ids.size()));
         CHECK(result.decode_steps_measured == DECODE_STEPS - WARMUP);
-        CHECK(result.ttft_ms >= result.prefill_ms);
+        CHECK(result.prefill_only_ms >= result.prefill_ms);
         CHECK(result.decode_stats.min_val <= result.decode_stats.median);
         CHECK(result.decode_stats.median <= result.decode_stats.p95);
         CHECK(result.decode_stats.p95 <= result.decode_stats.p99);
         CHECK(result.decode_stats.p99 <= result.decode_stats.max_val);
         CHECK(tokens_per_second(result.decode_stats) > 0.0);
+#if defined(__linux__)
         CHECK(result.peak_rss_kb_after > 0);
+#else
+        CHECK(result.peak_rss_kb_after == -1); // explicit unavailable sentinel
+#endif
 
-        std::cerr << "  (informational, machine-specific) TTFT=" << result.ttft_ms << "ms, decode median="
+        std::cerr << "  (informational, machine-specific) prefill-only=" << result.prefill_only_ms << "ms, decode median="
                    << result.decode_stats.median << "ms, TPS=" << tokens_per_second(result.decode_stats)
                    << ", peak RSS=" << result.peak_rss_kb_after << "KB\n";
         std::cout << "  benchmark completed: " << (result.ok ? "yes" : "no")
@@ -2122,28 +2178,9 @@ bool parse_compare_args(int argc, char** argv, CompareConfig& cfg, std::ostream&
     return true;
 }
 
-// Reference numbers from a real `llama-bench` run against the IDENTICAL
-// GGUF file this function is about to benchmark, captured once on this
-// book's own real device and never re-executed by this function itself
-// -- this program has no llama.cpp source or binary to link against or
-// shell out to, and shelling out to a binary this book did not build
-// would not be measuring anything this book could stand behind. What
-// this function DOES do honestly is print this book's own freshly
-// measured numbers for the identical file, immediately alongside those
-// documented reference numbers, at the identical pp/tg lengths, so no
-// unit conversion or protocol mismatch is hiding in the comparison.
-struct LlamaCppReference {
-    int threads;
-    double pp_tps, pp_stddev, tg_tps, tg_stddev;
-};
-void print_llamacpp_reference(std::ostream& os, const LlamaCppReference& r, int pp, int tg) {
-    os << "  llama.cpp (build 7ceed87, CPU/NEON backend), " << r.threads << " thread"
-       << (r.threads == 1 ? "" : "s") << ", batch=1, same file:\n";
-    os << "    pp" << pp << ": " << std::fixed << std::setprecision(2) << r.pp_tps
-       << " tok/s (+/- " << r.pp_stddev << ")\n";
-    os << "    tg" << tg << ": " << r.tg_tps << " tok/s (+/- " << r.tg_stddev << ")\n";
-}
-
+// This invocation measures only the current engine. Historical llama.cpp
+// captures belong to their original hardware/workload and must never be
+// relabeled with this invocation's model, token counts or host.
 int run_real_comparison(const CompareConfig& cfg) {
     std::cout << "========================================================\n";
     std::cout << "Chapter 17.3: An Honest Comparison Against llama.cpp\n";
@@ -2189,35 +2226,19 @@ int run_real_comparison(const CompareConfig& cfg) {
                << ", dim=" << model.shape.dim << "\n";
 
     std::cout << "\n-- This book's own engine (Chapters 15-17's from-scratch C++), this machine --\n";
-    std::cout << "  single-threaded (this book has never built a thread pool), batch=1, same file:\n";
+    std::cout << "  single-threaded integrated forward pass, batch=1:\n";
     std::cout << "    pp" << cfg.pp << ": " << std::fixed << std::setprecision(2) << pp_tps
                << " tok/s (prefill " << std::setprecision(1) << result.prefill_ms << " ms total)\n";
     std::cout << "    tg" << cfg.tg << ": " << std::setprecision(2) << tg_tps << " tok/s ("
                << result.decode_steps_measured << " steps measured after " << warmup << " warm-up, median "
-               << std::setprecision(3) << result.decode_stats.median << " ms/token)\n";
+               << std::setprecision(3) << result.decode_stats.median << " ms median/token)\n";
     std::cout << "    peak RSS: " << result.peak_rss_kb_after << " KB\n";
 
-    // Documented, not measured by this invocation -- captured once via a
-    // real `llama-bench -m <this file> -p <pp> -n <tg> -b 1 -ub 1 -t N`
-    // run on this book's own real device, against the identical GGUF.
-    std::cout << "\n";
-    LlamaCppReference ref_1t{1, 26.08, 2.53, 30.02, 0.81};
-    LlamaCppReference ref_3t{3, 49.06, 2.47, 44.04, 1.78};
-    print_llamacpp_reference(std::cout, ref_1t, cfg.pp, cfg.tg);
-    std::cout << "\n";
-    print_llamacpp_reference(std::cout, ref_3t, cfg.pp, cfg.tg);
-
-    double ratio_1t = (ref_1t.tg_tps > 0.0) ? (tg_tps / ref_1t.tg_tps) : 0.0;
-    std::cout << "\nHonest comparison, same file and thread count (1): this book's own from-scratch\n";
-    std::cout << "engine generates tokens at " << std::setprecision(1) << (ratio_1t * 100.0)
-               << "% of llama.cpp's single-threaded speed on this machine.\n";
-    std::cout << "The gap is not a bug to hunt down -- it is the honest, expected cost of a\n";
-    std::cout << "from-scratch, unvectorized reference implementation next to a project with\n";
-    std::cout << "years of hand-tuned SIMD (NEON/AVX) matmul kernels for every quantization\n";
-    std::cout << "format it supports. This book's own goal was never to out-optimize llama.cpp\n";
-    std::cout << "-- it was to build, and be able to explain, every layer between a GGUF file\n";
-    std::cout << "and a generated token, which Chapters 15 and 16 already did and Section\n";
-    std::cout << "15.4's numerical cross-check already confirmed produces the SAME numbers.\n";
+    std::cout << "\nNo llama.cpp reference was measured by this invocation.\n";
+    std::cout << "No relative-speed ratio is reported. Run both engines on the same host,\n";
+    std::cout << "model, prompt/generation lengths, context, threads, batch and timing scope\n";
+    std::cout << "before comparing elapsed token throughput. Historical rates are not a substitute.\n";
+    std::cout << "Token selection, text decoding and request transport are excluded here.\n";
 
     return 0;
 }
@@ -2295,42 +2316,42 @@ and a generated token, which Chapters 15 and 16 already did and Section
 15.4's numerical cross-check already confirmed produces the SAME numbers.
 ```
 
-!!! warning "[COMMON TRAP] mixing thread counts turns an algorithmic comparison into a hardware one"
-    It is tempting to compare this book's own single-threaded engine against whatever `llama.cpp` command is fastest to run -- which, by default, uses every core the machine has. Doing that would silently change TWO variables at once (the implementation AND the thread count) while reporting the result as if only one had changed, making a multi-threaded `llama.cpp` look even further ahead than its own ALGORITHM actually is, for reasons that have nothing to do with either engine's design. The fix this section applies is running `llama.cpp` at the SAME thread count as this book's own engine (one) as the primary, stated comparison, and reporting the multi-threaded number as a clearly separate, honestly labeled second data point -- never averaged, blended, or presented as if it answered the same question.
+!!! warning "Historical captures are not current benchmark references"
+    The real-run text below is retained as a historical capture of an earlier program. Its fixed NEON reference rates and reciprocal-median rate are not a validated current comparison. Do not relabel those rates for a different host or token count, and do not use its quoted speed ratio as current evidence. The corrected program reports only its fresh local forward-pass measurements and requires separately measured matching reference results before any ratio is meaningful.
 
 ## Chapter Summary
 
-This chapter turned Chapter 16's complete, working production engine into a measured one. Section 17.1 defined precisely what "how fast" and "how much memory" mean for this book's own engine -- time-to-first-token, tokens-per-second and time-per-output-token (the same measurement stated two ways), and a real, kernel-reported peak memory figure -- stating and justifying the choice to report median latency over mean. Section 17.2 built a benchmarking harness that times Chapter 16's own real, unchanged `decode_step` and `prefill`, with a warm-up window that excludes a memory-mapped file's real one-time page-fault cost and a KV-capacity guard that refuses to fabricate statistics past a cache's own limits, and along the way found and fixed a real bug in its own synthetic fixture: an omitted `rope.freq_base` metadata key whose documented zero default drove this book's own RoPE formula into a `0 * infinity` NaN before a single real weight was ever read. Section 17.3, the capstone, rebuilt `llama.cpp` from source, ran an honest, same-file, same-thread-count comparison against it, and reported both the real (and real, honest) throughput ratio -- unfavorable to this book's own from-scratch engine, exactly as expected next to years of hand-tuned SIMD kernels -- and a second, genuinely interesting real-hardware finding along the way: prefill measuring consistently slower per token than decode, most plausibly a CPU frequency-governor ramp-up effect rather than anything in this book's own code.
+This chapter separates elapsed throughput from latency quantiles, demonstrates a forward-pass timing harness with an explicit scope, and explains the controls required for a comparison against another runtime. The current harness excludes sampling, decoding and transport, so its prefill-only latency is not service TTFT. Historical real-model captures remain labeled as historical data; their rates are never substituted for a fresh matching reference run.
 
 ## Self-Check Questions
 
-1. Section 17.1 chooses to report the MEDIAN of a run's per-step latencies rather than the mean, both for `tokens_per_second` and for `time_per_output_token_ms`. Explain the specific failure mode of the mean that this choice avoids.
-2. Section 17.1's Test 3 allocates a `std::vector<uint8_t>` of about 200MB and then explicitly writes to every one of its pages before checking `peak_rss_kb()` again. What would go wrong with this test if it only allocated the vector and never wrote to it?
-3. Section 17.2's `run_benchmark` excludes a warm-up window from its reported `Stats`. What SPECIFIC, real cost does this warm-up window exist to exclude, and why does that cost only affect the first several decode steps rather than all of them equally?
-4. Section 17.2's synthetic model writer originally omitted the `qwen2.rope.freq_base` metadata key, reasoning that `get_f32`'s documented zero default would be harmless. Trace precisely how `RoPETables`'s own formula turns that default into a NaN, starting from `pow(0.0, exponent)`.
-5. Section 17.2's `detect_slowdown` is tested against a HAND-CONSTRUCTED latency sequence rather than a sequence measured on real hardware. Why is this the more rigorous test, not a weaker stand-in for a real measurement?
-6. Section 17.3's own harness never shells out to a real `llama-bench` binary at runtime, even though rebuilding `llama.cpp` from source was part of producing this section's comparison. Give the two independent reasons this section's own text gives for that design choice.
-7. Section 17.3 reports `llama.cpp`'s single-threaded numbers as its primary, stated comparison, and its multi-threaded numbers as a separate, clearly labeled second data point. Explain what specifically would go wrong if these two were averaged together into one "llama.cpp's speed" figure instead.
-8. Section 17.3's real run measured prompt processing as consistently SLOWER per token than token generation, even though decode positions sit later in the sequence (and therefore have a longer attention history) than prefill positions. What is this section's own most likely explanation, and why does it point to hardware rather than to a bug in this book's own code?
+1. What different information do median latency, mean TPOT and elapsed tokens/second provide?
+2. For step times `[1,1,100]` milliseconds, calculate elapsed throughput and explain why reciprocal-median rate is misleading.
+3. Why must a benchmark declare its warm-up policy instead of assuming a few excluded steps remove every cold-start effect?
+4. Why does a missing RoPE base of zero generate non-finite values for positive frequency exponents?
+5. Why must a benchmark report the number of steps actually executed when the KV-capacity guard stops it early?
+6. Why does the corrected program omit a ratio against its previously hardcoded llama.cpp reference rates?
+7. Which conditions should match before comparing the book engine with llama.cpp, and why should different thread counts stay separate?
+8. Why is the random-ID forward-pass harness not a measurement of full-generation TTFT?
 
 ## Where We Go Next
 
-This chapter gave Chapter 16's complete engine an honest report card: a precise vocabulary for what "fast" means, a harness that measures this book's own real forward pass rather than a simulation of one, and a real, stated-methodology comparison against `llama.cpp` that reports a real shortfall without flinching from it, alongside a genuinely interesting real-hardware finding about prefill-versus-decode timing that this chapter's own methodology was careful enough to notice rather than average away. Every chapter through this one has run entirely on CPU, on one thread, on real but modest hardware -- and every honest engineering account of a from-scratch inference engine eventually has to ask what happens when that constraint is lifted, or when the workload changes from "one text prompt" to something a CPU-only, unbatched, single-modality engine was never built to handle at all. Part 5 takes up exactly that question, extending this book's own from-scratch discipline from text into vision-language models.
+This chapter gives the integrated engine a scoped measurement path and defines what evidence is required before comparing implementations. Kernel-only timing, full generation latency and end-to-end service latency are different measurements. Part 5 uses these distinctions when discussing vision-language integration examples.
 
 ## Worked Solutions
 
-**1.** A mean is pulled toward any outlier in the data, in proportion to how extreme that outlier is -- a single unusually slow step (a thermal throttling event, an OS scheduling hiccup, a page fault this book's own warm-up window failed to exclude) raises the mean by an amount that has nothing to do with how the engine performs the OTHER 99% of the time. The median is the middle value of a sorted sequence, unmoved by how far an outlier sits above or below it, so it continues to represent the run's typical, steady-state cost even when a small minority of steps were unusually slow for reasons unrelated to the engine's own real performance.
+**1.** Median describes a typical individual step; mean TPOT includes all measured step times; elapsed throughput is completed tokens divided by their total measured duration. A low median can coexist with poor elapsed throughput when a minority of steps are slow.
 
-**2.** On a system with lazy page allocation, the kernel can satisfy a bare `.resize()` or a default-constructed `std::vector` of a given size by reserving address space without immediately backing every page with real physical memory -- pages are only actually allocated when something writes to them. A test that allocated the buffer but never wrote to any of its bytes could see `VmHWM` stay completely unchanged, not because `peak_rss_kb()` failed to measure correctly, but because the buffer never actually consumed the memory the test assumed it had. Writing to every page (`grow[i] = ...` at a stride covering every page) forces the kernel to genuinely back each page with physical memory, which is the only way `VmHWM` has real growth to report.
+**2.** Total time is 102 ms for three tokens, so throughput is `3000/102`, about 29.41 tokens/s. Median latency is 1 ms; its reciprocal would suggest 1000 tokens/s and ignore the slow step.
 
-**3.** The warm-up window excludes the real, one-time cost of the operating system paging in a memory-mapped weight file's bytes for the first time. `MappedFile` opens the model with `mmap`, which reserves address space lazily -- the actual tensor bytes are not read from disk into memory until something touches that specific page for the first time. The first several decode steps are the first code in the entire program to actually read most of each layer's weight tensors, so they pay a real page-fault cost that steady-state decode, running against pages the OS has already paged in, does not pay again. Excluding only the first several steps (not all of them) works because once a page has been faulted in once, every SUBSEQUENT access to that same page is served from memory with no repeated fault -- the cost is genuinely one-time, not recurring.
+**3.** Page residency, frequency scaling, cache state and other initialization effects depend on the workload and system. Excluding declared warm-up work defines a measurement interval; it does not prove every transient effect disappeared.
 
-**4.** `RoPETables`'s constructor computes, for each dimension pair `k`, `theta = 1.0f / std::pow(base, (2.0f * k) / head_dim)`. With `base = 0.0f` (the default `get_f32` returns for the missing key) and any `k > 0`, the exponent `(2k)/head_dim` is a positive number, so `std::pow(0.0f, positive) = 0.0f`, making `theta = 1.0f / 0.0f`, which IEEE 754 floating point defines as positive infinity rather than an error. The very next line computes `angle = pos * theta` for `pos = 0` (the first position in any sequence) -- and `0 * infinity` is one of the specific operations IEEE 754 defines as producing NaN, not zero, regardless of which operand is "supposed to" dominate. `std::cos` and `std::sin` of that NaN angle are themselves NaN, and every subsequent query and key vector computed using this table's cosine and sine values inherits it.
+**4.** With a positive exponent, `pow(0, exponent)` is zero, so its reciprocal is infinity. At position zero the angle becomes `0 * infinity`, which is NaN. Metadata validation should reject an invalid base before creating RoPE tables.
 
-**5.** A hand-constructed sequence lets the test assert the EXACT expected outcome with certainty -- an array built as 40 values of 10.0 followed by 40 values of 14.0 is, by construction, exactly a 40% back-half slowdown, so the test can assert `detect_slowdown` returns true with complete confidence about what the "correct" answer actually is. A sequence measured on real hardware might or might not contain a real slowdown on any given run, depending on conditions the test has no control over (thermal state, other processes, power management) -- a test built around such a sequence could only ever check "did the algorithm agree with whatever this one run happened to do," which is not a check against a known-correct answer at all, and would make the test's own pass/fail outcome as unpredictable as the hardware conditions it depends on.
+**5.** A rate must use the actual completed work and its corresponding duration. Reporting the requested count after early termination fabricates work that did not run.
 
-**6.** First, this book has no `llama.cpp` source tree or built binary bundled with it, so a self-test suite that shelled out to `llama-bench` would only pass on a machine where a reader had separately, manually rebuilt an entire second project -- breaking the self-contained property every other file in this book has maintained, where `g++ file.cpp -o file && ./file` is the complete, sufficient instruction. Second, and more fundamentally, invoking a binary this book did not build and did not independently verify would not be measuring anything this book's own build-verify-lock discipline could stand behind the way it stands behind every number produced by code this book actually wrote and tested itself -- the honest design is measuring this book's own engine freshly and comparing it against `llama-bench` numbers captured and documented as external reference data, never asking this section's own code to also vouch for a program it did not write.
+**6.** Those rates belong to a historical device, model, workload and statistic. A new local measurement cannot inherit their provenance; changing token-count labels does not remeasure the reference. A current ratio needs fresh matching reference evidence.
 
-**7.** Averaging `llama.cpp`'s single-threaded and multi-threaded numbers together would produce a single figure that changed TWO variables relative to this book's own engine at once -- both the algorithm/implementation AND the thread count -- while presenting it as if it isolated only one. A multi-threaded `llama.cpp` genuinely IS faster than a single-threaded one, for reasons that have nothing to do with which implementation has better per-thread code; blending that speedup into "how much faster is llama.cpp's ALGORITHM" would overstate the algorithmic gap by an amount attributable purely to parallelism this book's own engine was never built to use. Reporting both numbers separately, with the single-threaded one stated as the primary, same-thread-count comparison, keeps those two genuinely different questions -- "same thread count, whose implementation is faster" versus "how fast does a typical llama.cpp invocation run" -- answerable independently rather than blurred into one.
+**7.** Match hardware, model/hash and precision, token/context lengths, thread counts, batch settings, warm-up and timing scope. Different thread counts change parallel resources as well as implementation, so their rates answer a different question.
 
-**8.** This section's own most likely explanation is CPU frequency governor ramp-up: a `schedutil`-style governor increases clock speed gradually in response to sustained load, and prefill is this program's very first sustained burst of heavy computation in the whole run, executing at whatever (likely lower) clock speed the governor had settled on beforehand, while decode continues immediately afterward at whatever higher clock speed the governor had ramped up to during prefill's own execution. This points to hardware rather than to a bug in this book's own code because the code path is identical either way -- `prefill` calls the exact same `decode_step` function, in the exact same loop shape, that decode itself calls afterward -- and the only per-token cost that should legitimately GROW with position (attention's own cost, which scans a longer cached history at later positions) would, if anything, make decode slower than prefill, not faster. A measured pattern running in the opposite direction of what the code's own algorithmic cost predicts, with no algorithmic explanation available, is exactly the situation where a hardware-level cause is the honest one to report.
+**8.** Drawing a random integer does not scan logits, run the sampler or decode and stream text. The harness isolates prefill and decode forward passes. Full-generation or service TTFT requires timing the corresponding additional stages.

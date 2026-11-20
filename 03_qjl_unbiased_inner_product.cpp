@@ -132,7 +132,7 @@ float dot(std::span<const float> a, std::span<const float> b) {
 // =========================================================================
 // Q(x) = sign(S x), for a random Gaussian S. Storing only the sign of a
 // random projection loses almost all magnitude information -- but the
-// specific rescaling sqrt(pi/2)/d makes the ESTIMATOR unbiased even
+// specific rescaling ||r|| * sqrt(pi/2)/m (m=d here) makes the ESTIMATOR unbiased even
 // though any single reconstructed vector looks nothing like the input.
 struct QJL {
     int d;
@@ -376,6 +376,7 @@ int main() {
         float true_dot = dot(x, y);
 
         float sum_correct = 0.0f, sum_buggy = 0.0f;
+        double exact_same_error = 0.0, exact_mixed_error = 0.0;
         for (int t = 0; t < TRIALS; ++t) {
             unsigned seed = static_cast<unsigned>(t + 4000);
             RotationMatrix Pi(D, seed);
@@ -410,6 +411,11 @@ int main() {
             std::vector<float> residual_rotated(D);
             for (int i = 0; i < D; ++i) residual_rotated[i] = rot_x[i] - y_tilde[i];
             float rnorm_buggy = l2_norm(residual_rotated);
+            // Test the coordinate identity directly, without Monte Carlo noise.
+            double same_error = mse_dot + dot(y, residual_correct) * x_norm - true_dot;
+            double mixed_error = mse_dot + dot(y, residual_rotated) * x_norm - true_dot;
+            exact_same_error += same_error * same_error;
+            exact_mixed_error += mixed_error * mixed_error;
             auto signs_buggy = qjl.quantize_signs(residual_rotated);
             float qjl_dot_buggy = qjl.dot_estimate(y, signs_buggy, rnorm_buggy) * x_norm;
             sum_buggy += mse_dot + qjl_dot_buggy;
@@ -425,7 +431,9 @@ int main() {
         std::cout << "  Subtracting in rotated space but combining in original space breaks\n";
         std::cout << "  unbiasedness -- the residual and the MSE term must share a coordinate system.\n";
         CHECK(bias_correct < std::fabs(true_dot) * 0.2f);
-        CHECK(bias_buggy > 2.0f * bias_correct);
+        CHECK(exact_same_error / TRIALS < 1e-8);
+        CHECK(exact_mixed_error / TRIALS > 1e-4);
+        std::cout << "  exact coordinate identity: same-space PASS; mixed-space residual changes the target\n";
     }
 
     // -- Summary --------------------------------------------------------

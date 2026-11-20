@@ -18,7 +18,7 @@ EXPECTED_H1 = "# Chapter 32: Flash Attention and CUDA Kernels: Taking the Engine
 EXPECTED_H2 = [
     "## 32.1 The O(N^2) Memory Wall and the Online-Softmax Fix",
     "## 32.2 A std::mdspan-Based Flash Attention Implementation and Benchmark",
-    "## 32.3 A CUDA Production Engine and Its Own Kernel-Validation Suite",
+    "## 32.3 An Educational CUDA Attention Kernel and Validation Suite",
     "## Chapter Summary",
     "## Self-Check Questions",
     "## Where We Go Next",

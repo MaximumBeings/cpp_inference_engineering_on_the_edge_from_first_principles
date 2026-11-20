@@ -9,13 +9,17 @@
 </figure>
 <!-- edge:opener:end -->
 
+!!! note "Teaching encoding and compatibility boundary"
+    `TeachingQ4` is this book's adjacent-pair, positive `alpha/7` four-bit encoding. It is **not GGUF Q4_0**. Upstream Q4_0 uses a signed extremum divided by -8 and pairs coordinates j and j+16. Matching its 18-byte block size does not make these bytes interchangeable. Synthetic containers here use private type tag `0x80000000` for TeachingQ4; they are GGUF-like teaching fixtures, not files for upstream loaders. F32 and Q8_0 use standard type identifiers 0 and 8. The reader covers trusted little-endian instructional inputs with default alignment, not every valid GGUF file.
+
+
 **What you will understand by the end of this chapter:**
 
 - The exact byte-level layout of a GGUF file — header, typed key-value metadata store, tensor descriptor table, and a 32-byte-aligned data section — and why that layout, not a JSON schema or a serialization library, is what makes zero-copy loading possible at all.
 - How to write a genuine GGUF file from scratch and read it back, verifying every field the reader recovers against exactly what the writer wrote.
 - How the naming convention that indexes a GGUF file's tensors doubles as the interface between the file and the inference engine, and how a tensor descriptor's byte offset becomes a `std::span` view directly into memory-mapped pages, with zero heap allocation for tensor data.
 - Why SafeTensors — the format nearly every model ships in on HuggingFace — uses a JSON header instead of GGUF's binary one, and how to parse that header with a hand-rolled extractor rather than a general JSON library.
-- Why production GGUF files mostly use hierarchical "K-quant" super-blocks rather than the flat Q4_0/Q8_0 blocks built in Chapter 4, and that the difference is how a fixed bit budget gets allocated, not how large it is.
+- Why production GGUF files mostly use hierarchical "K-quant" super-blocks rather than the flat TeachingQ4/Q8_0 blocks built in Chapter 4, and that the difference is how a fixed bit budget gets allocated, not how large it is.
 
 **What you need to know first:**
 
@@ -53,7 +57,7 @@ A model file format is a binary container that stores everything an inference en
 
 ### The Concept, In Detail
 
-Every multi-byte value in GGUF is little-endian. Strings are length-prefixed — a `uint64_t` byte count followed by raw characters, no null terminator — which avoids scanning for a terminator and makes a string's length available without a linear search. The 24-byte header holds a magic number (`0x46475547`, "GGUF" in little-endian ASCII), a version, a tensor count, and a metadata-pair count. Each metadata key-value pair is a length-prefixed key, a `uint32_t` type tag, and a value in the format that tag specifies. Each tensor descriptor is a length-prefixed name, a dimension count and the dimensions themselves, a quantization-type enum, and a byte offset relative to the start of the data section — and that data section begins at the first 32-byte-aligned position after the last descriptor, so that SIMD loads against the tensor data never straddle an unaligned boundary. Getting this exactly right by tracing a hex dump on paper is exactly the kind of arithmetic that is easy to get subtly wrong — a byte miscounted here or there compounds through every field that follows it — which is why the worked example below computes every offset in code and checks it, rather than trusting a number written down in a table.
+Every multi-byte value in GGUF is little-endian. Strings are length-prefixed — a `uint64_t` byte count followed by raw characters, no null terminator — which avoids scanning for a terminator and makes a string's length available without a linear search. The 24-byte header holds a magic number (`0x46554747`, "GGUF" in little-endian ASCII), a version, a tensor count, and a metadata-pair count. Each metadata key-value pair is a length-prefixed key, a `uint32_t` type tag, and a value in the format that tag specifies. Each tensor descriptor is a length-prefixed name, a dimension count and the dimensions themselves, a quantization-type enum, and a byte offset relative to the start of the data section — and that data section begins at the first 32-byte-aligned position after the last descriptor, so that SIMD loads against the tensor data never straddle an unaligned boundary. Getting this exactly right by tracing a hex dump on paper is exactly the kind of arithmetic that is easy to get subtly wrong — a byte miscounted here or there compounds through every field that follows it — which is why the worked example below computes every offset in code and checks it, rather than trusting a number written down in a table.
 
 ### Code and Verification
 
@@ -99,7 +103,7 @@ static int g_tests = 0, g_passed = 0;
     else { std::cerr << "FAIL line " << __LINE__ << ": " << #__VA_ARGS__ << "\n"; } \
 } while (0)
 
-static constexpr uint32_t GGUF_MAGIC = 0x46475547;   // "GGUF" in little-endian ASCII
+static constexpr uint32_t GGUF_MAGIC = 0x46554747;   // "GGUF" in little-endian ASCII
 static constexpr uint32_t GGUF_VERSION = 3;
 static constexpr uint32_t GGUF_TYPE_STRING = 8;
 static constexpr uint32_t GGML_TYPE_F32 = 0;
@@ -283,7 +287,7 @@ The GGUF Binary Format, Byte by Byte
   metadata KV pair: 45 bytes
   tensor descriptor: 57 bytes
   total before alignment: 126 bytes
-  header hex: 47 55 47 46 03 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 
+  header hex: 47 47 55 46 03 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00
 
 -- Test 2: Alignment to the data section --
   size before padding: 126 bytes
@@ -291,7 +295,7 @@ The GGUF Binary Format, Byte by Byte
   data section starts at: 128 bytes
 
 -- Test 3: Parsing the file back --
-  magic: 0x46475547 ("GGUF" == 0x46475547)
+  magic: 0x46554747 ("GGUF" == 0x46554747)
   version=3 n_tensors=1 n_kv=1
   metadata: "general.architecture" = "llama" (type=8)
   tensor: "token_embd.weight" dims=[4096,32768] type=0 offset=0
@@ -340,7 +344,7 @@ The writer accumulates a file's bytes through a small set of primitive appenders
 // The tensor data itself uses Chapter 4's actual block layouts --
 // BlockQ8 with a 2-byte fp16 scale (34 bytes) and BlockQ4 with the
 // same (18 bytes) -- not a simplified 4-byte-float-scale stand-in.
-// Real GGUF Q4_0/Q8_0 blocks store their scale as float16 for exactly
+// Real GGUF-like TeachingQ4/Q8_0 blocks store their scale as float16 for exactly
 // the reason Chapter 4.2 built fp16_t: it is the difference between
 // this reader's byte-size arithmetic matching what real llama.cpp
 // GGUF files actually contain, and merely approximating it.
@@ -355,6 +359,7 @@ The writer accumulates a file's bytes through a small set of primitive appenders
 #include <unordered_map>
 #include <variant>
 #include <cmath>
+#include <stdexcept>
 #include <algorithm>
 #include <random>
 #include <cassert>
@@ -367,36 +372,51 @@ static int g_tests = 0, g_passed = 0;
 } while (0)
 
 // -- Chapter 4.2's fp16_t (repeated per this book's one-file-per-section convention). --
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 
@@ -406,11 +426,13 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };  // 18 bytes -- Chapter 4
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
@@ -418,11 +440,13 @@ BlockQ8 quantize_q8(const float* data) {
 }
 
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2*i] * inv), -8.0f, 7.0f));
@@ -432,13 +456,16 @@ BlockQ4 quantize_q4(const float* data) {
     return b;
 }
 
-static constexpr uint32_t GGUF_MAGIC = 0x46475547;
+static constexpr uint32_t GGUF_MAGIC = 0x46554747;
 static constexpr uint32_t GGUF_VERSION = 3;
 enum GGUFType : uint32_t { T_STRING = 8, T_UINT32 = 4, T_FLOAT32 = 6 };
-enum GGMLType : uint32_t { GGML_F32 = 0, GGML_Q4_0 = 2, GGML_Q8_0 = 7 };
+enum GGMLType : uint32_t { GGML_F32 = 0, GGML_TeachingQ4 = 0x80000000u, GGML_Q8_0 = 8 };
+static_assert(GGML_Q8_0 == 8);
+static_assert((GGUF_MAGIC & 255u) == 'G' && ((GGUF_MAGIC >> 8) & 255u) == 'G' &&
+              ((GGUF_MAGIC >> 16) & 255u) == 'U' && ((GGUF_MAGIC >> 24) & 255u) == 'F');
 
 static const char* ggml_type_name(uint32_t t) {
-    switch (t) { case 0: return "F32"; case 2: return "Q4_0"; case 7: return "Q8_0"; default: return "???"; }
+    switch (t) { case 0: return "F32"; case 0x80000000u: return "TeachingQ4"; case 8: return "Q8_0"; default: return "???"; }
 }
 
 // -- Writer: appends every field's little-endian wire format to a file. --
@@ -483,7 +510,7 @@ struct TensorInfo {
         switch (type) {
             case GGML_F32:  return n_elements * 4;
             case GGML_Q8_0: return (n_elements / 32) * sizeof(BlockQ8);   // 34 bytes/block
-            case GGML_Q4_0: return (n_elements / 32) * sizeof(BlockQ4);   // 18 bytes/block
+            case GGML_TeachingQ4: return (n_elements / 32) * sizeof(BlockQ4);   // 18 bytes/block
             default: return 0;
         }
     }
@@ -570,7 +597,7 @@ int main() {
 
     // =====================================================================
     // TEST 1: Write a synthetic model -- one F32 embedding, one Q8_0
-    // attention weight, one Q4_0 FFN gate weight -- using Chapter 4's
+    // attention weight, one TeachingQ4 FFN gate weight -- using Chapter 4's
     // real (fp16-scaled) block layouts.
     // =====================================================================
     std::cout << "-- Test 1: Writing the file --\n";
@@ -614,7 +641,7 @@ int main() {
         uint64_t wq_dims[] = {DIM, DIM};
         writer.write_tensor_info("blk.0.attn_q.weight", 2, wq_dims, GGML_Q8_0, offset_wq);
         uint64_t wg_dims[] = {DIM, D_FF};
-        writer.write_tensor_info("blk.0.ffn_gate.weight", 2, wg_dims, GGML_Q4_0, offset_wg);
+        writer.write_tensor_info("blk.0.ffn_gate.weight", 2, wg_dims, GGML_TeachingQ4, offset_wg);
 
         writer.align(32);
         size_t data_start = writer.tell();
@@ -625,7 +652,7 @@ int main() {
         std::cout << "  header+metadata+descriptors: " << data_start << " bytes\n";
         std::cout << "  token_embd.weight  F32  " << emb_bytes << " bytes, offset=" << offset_emb << "\n";
         std::cout << "  blk.0.attn_q       Q8_0 " << wq_bytes << " bytes, offset=" << offset_wq << "\n";
-        std::cout << "  blk.0.ffn_gate     Q4_0 " << wg_bytes << " bytes, offset=" << offset_wg << "\n";
+        std::cout << "  blk.0.ffn_gate     TeachingQ4 " << wg_bytes << " bytes, offset=" << offset_wg << "\n";
         std::cout << "  total file size: " << data_start + emb_bytes + wq_bytes + wg_bytes << " bytes\n";
         CHECK(writer.good());
     }
@@ -687,7 +714,7 @@ int main() {
 
         auto* wg = reader.find_tensor("blk.0.ffn_gate.weight");
         CHECK(wg != nullptr);
-        CHECK(wg->type == GGML_Q4_0);
+        CHECK(wg->type == GGML_TeachingQ4);
         CHECK(wg->data_size == (wg->n_elements / 32) * 18);   // fp16-scaled BlockQ4
     }
 
@@ -706,7 +733,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_gguf_writer_reader.cpp -o 02_gguf_writer_rea
 ./02_gguf_writer_reader
 ```
 
-**Sample input:** a synthetic model (a float32 embedding table, a Q8_0 attention weight, and a Q4_0 FFN gate weight, matching Chapter 4's block sizes) written to a real file on disk, then reopened fresh and parsed back field by field.
+**Sample input:** a synthetic model (a float32 embedding table, a Q8_0 attention weight, and a TeachingQ4 FFN gate weight, matching Chapter 4's block sizes) written to a real file on disk, then reopened fresh and parsed back field by field.
 
 ```text
 ================================================
@@ -717,11 +744,11 @@ A GGUF Writer and Reader: A Full Round Trip
   header+metadata+descriptors: 416 bytes
   token_embd.weight  F32  65536 bytes, offset=0
   blk.0.attn_q       Q8_0 4352 bytes, offset=65536
-  blk.0.ffn_gate     Q4_0 4608 bytes, offset=69888
+  blk.0.ffn_gate     TeachingQ4 4608 bytes, offset=69888
   total file size: 74912 bytes
 
 -- Test 2: Parsing the header back --
-  magic=0x46475547 version=3 tensors=3 kv=5
+  magic=0x46554747 version=3 tensors=3 kv=5
 
 -- Test 3: Metadata --
   architecture="llama"
@@ -731,7 +758,7 @@ A GGUF Writer and Reader: A Full Round Trip
   data section starts at byte 416
     token_embd.weight     F32  n_elements=16384  data_size=65536 bytes
     blk.0.attn_q.weight   Q8_0  n_elements=4096  data_size=4352 bytes
-    blk.0.ffn_gate.weight Q4_0  n_elements=8192  data_size=4608 bytes
+    blk.0.ffn_gate.weight TeachingQ4  n_elements=8192  data_size=4608 bytes
 
 ================================================
 21/21 checks passed ALL PASS
@@ -759,7 +786,7 @@ Every GGUF model follows a naming convention: global tensors (the embedding tabl
 
 ### The Concept, In Detail
 
-A Llama-architecture model with 32 layers has exactly `1 + 1 + 1 + 32 * 9 = 291` tensors: one embedding table, one final norm, one output projection, and nine tensors per layer (four attention weights, one attention norm, three FFN weights, one FFN norm). Given a tensor's descriptor — its type, offset, and element count — building a zero-copy view is a single `reinterpret_cast` plus a `std::span` construction: an F32 tensor's bytes are cast to `const float*`, a Q8_0 tensor's bytes to `const BlockQ8*`, a Q4_0 tensor's bytes to `const BlockQ4*`, in every case wrapped in a span pointing directly into the pages `mmap` mapped from Chapter 3.6's technique. This works because `#pragma pack(push, 1)` guarantees the compiler inserts no padding into these block structs, so their in-memory layout matches the file's on-disk layout byte for byte — the file format was designed around the block types, not the other way around. Verifying that this is genuinely zero-copy means checking two different things: that the values recovered through a span are numerically correct (compared against a real FP32 reference, not merely "non-zero"), and that every span's data pointer falls within the mapped region's address range — checked as a boolean, since a raw address is relocated by ASLR on every run and printing one would make this section's own output non-reproducible.
+A Llama-architecture model with 32 layers has exactly `1 + 1 + 1 + 32 * 9 = 291` tensors: one embedding table, one final norm, one output projection, and nine tensors per layer (four attention weights, one attention norm, three FFN weights, one FFN norm). Given a tensor's descriptor — its type, offset, and element count — building a zero-copy view is a single `reinterpret_cast` plus a `std::span` construction: an F32 tensor's bytes are cast to `const float*`, a Q8_0 tensor's bytes to `const BlockQ8*`, a TeachingQ4 tensor's bytes to `const BlockQ4*`, in every case wrapped in a span pointing directly into the pages `mmap` mapped from Chapter 3.6's technique. This works because `#pragma pack(push, 1)` guarantees the compiler inserts no padding into these block structs, so their in-memory layout matches the file's on-disk layout byte for byte — the file format was designed around the block types, not the other way around. Verifying that this is genuinely zero-copy means checking two different things: that the values recovered through a span are numerically correct (compared against a real FP32 reference, not merely "non-zero"), and that every span's data pointer falls within the mapped region's address range — checked as a boolean, since a raw address is relocated by ASLR on every run and printing one would make this section's own output non-reproducible.
 
 ### Code and Verification
 
@@ -789,6 +816,7 @@ A Llama-architecture model with 32 layers has exactly `1 + 1 + 1 + 32 * 9 = 291`
 #include <cstdint>
 #include <cstring>
 #include <cmath>
+#include <stdexcept>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -815,36 +843,51 @@ static int g_tests = 0, g_passed = 0;
 
 // -- Chapter 4.2/4.3's fp16_t and block layouts (repeated per this book's
 // one-file-per-section convention). --
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 
@@ -854,22 +897,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2*i] * inv), -8.0f, 7.0f));
@@ -908,8 +955,11 @@ float dot_fp32(const float* w, const float* x, int n) {
     return sum;
 }
 
-static constexpr uint32_t GGUF_MAGIC = 0x46475547;
-enum GGMLType : uint32_t { GGML_F32 = 0, GGML_Q4_0 = 2, GGML_Q8_0 = 7 };
+static constexpr uint32_t GGUF_MAGIC = 0x46554747;
+enum GGMLType : uint32_t { GGML_F32 = 0, GGML_TeachingQ4 = 0x80000000u, GGML_Q8_0 = 8 };
+static_assert(GGML_Q8_0 == 8);
+static_assert((GGUF_MAGIC & 255u) == 'G' && ((GGUF_MAGIC >> 8) & 255u) == 'G' &&
+              ((GGUF_MAGIC >> 16) & 255u) == 'U' && ((GGUF_MAGIC >> 24) & 255u) == 'F');
 
 // -- A minimal writer (identical to Section 5.2's), just enough to
 // produce a file for this section's mmap reader to open. --
@@ -936,7 +986,7 @@ void write_test_gguf(const std::string& path, int vocab, int dim, int d_ff,
     w_str("general.architecture"); w_u32(8); w_str("llama");
     w_tensor("token_embd.weight", static_cast<uint64_t>(dim), static_cast<uint64_t>(vocab), GGML_F32, 0);
     w_tensor("blk.0.attn_q.weight", static_cast<uint64_t>(dim), static_cast<uint64_t>(dim), GGML_Q8_0, emb_bytes);
-    w_tensor("blk.0.ffn_gate.weight", static_cast<uint64_t>(dim), static_cast<uint64_t>(d_ff), GGML_Q4_0, emb_bytes + wq_bytes);
+    w_tensor("blk.0.ffn_gate.weight", static_cast<uint64_t>(dim), static_cast<uint64_t>(d_ff), GGML_TeachingQ4, emb_bytes + wq_bytes);
 
     size_t pos = static_cast<size_t>(out.tellp());
     size_t rem = pos % 32;
@@ -1241,11 +1291,10 @@ A SafeTensors file is an 8-byte little-endian header length, that many bytes of 
 // PyTorch's pickle-based .pt files, which can execute arbitrary code
 // on load. SafeTensors is strictly data -- a tiny binary prefix
 // followed by a JSON metadata header, followed by raw tensor bytes.
-// There is no quantization support (weights are stored as plain
-// F32/F16/BF16), which is exactly why models are typically converted
-// FROM SafeTensors INTO GGUF as the last step before local inference:
-// SafeTensors is the training/distribution format, GGUF is the
-// inference format.
+// This example supports only floating weights (stored as plain
+// F32/F16/BF16). The container also supports integers and other dtypes;
+// producers can store quantized representations plus their scale tensors.
+// This restricted reader does not implement those framework conventions.
 //
 // The layout is simple: an 8-byte little-endian header LENGTH, that
 // many bytes of JSON, then the tensor data (all tensors concatenated,
@@ -1265,6 +1314,7 @@ A SafeTensors file is an 8-byte little-endian header length, that many bytes of 
 #include <cstdint>
 #include <cstring>
 #include <cmath>
+#include <stdexcept>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -1512,25 +1562,25 @@ int main() {
 
     // =====================================================================
     // TEST 4: A genuinely computed size comparison for storing the same
-    // 8-billion-parameter model as SafeTensors BF16 versus GGUF Q4_0 --
+    // 8-billion-parameter model as SafeTensors BF16 versus GGUF-like TeachingQ4 --
     // using the same effective-bytes-per-parameter model Chapter 4.1
     // built, not a copied reference-table figure.
     // =====================================================================
-    std::cout << "\n-- Test 4: SafeTensors (BF16) vs GGUF (Q4_0) for an 8B-parameter model --\n";
+    std::cout << "\n-- Test 4: SafeTensors (BF16) vs GGUF (TeachingQ4) for an 8B-parameter model --\n";
     {
         constexpr double PARAMS = 8.0e9;
         constexpr double BF16_BYTES_PER_PARAM = 2.0;
-        constexpr double Q4_0_BYTES_PER_PARAM = (16.0 + 2.0) / 32.0;   // Chapter 4.3's 18-byte block of 32
+        constexpr double TeachingQ4_BYTES_PER_PARAM = (16.0 + 2.0) / 32.0;   // Chapter 4.3's 18-byte block of 32
 
         double safetensors_gb = PARAMS * BF16_BYTES_PER_PARAM / 1e9;
-        double gguf_gb = PARAMS * Q4_0_BYTES_PER_PARAM / 1e9;
+        double gguf_gb = PARAMS * TeachingQ4_BYTES_PER_PARAM / 1e9;
 
         std::cout << "  SafeTensors (BF16, training/distribution format): "
                    << std::fixed << std::setprecision(1) << safetensors_gb << " GB\n";
-        std::cout << "  GGUF (Q4_0, inference format):                    " << gguf_gb << " GB\n";
-        std::cout << "  SafeTensors has no quantization support (F32/F16/BF16 only); GGUF does.\n";
+        std::cout << "  GGUF (TeachingQ4, inference format):                    " << gguf_gb << " GB\n";
+        std::cout << "  SafeTensors can store quantized tensors; this example implements F32/F16/BF16 only.\n";
         std::cout << "  Both are safe formats (no code execution); GGUF's metadata is binary, SafeTensors' is JSON.\n";
-        CHECK(safetensors_gb > gguf_gb * 3.0);   // BF16 is roughly 3.5x the bytes/param of Q4_0
+        CHECK(safetensors_gb > gguf_gb * 3.0);   // BF16 is roughly 3.5x the bytes/param of TeachingQ4
     }
 
     std::cout << "\n================================================\n";
@@ -1568,10 +1618,10 @@ The SafeTensors Format: JSON Header + mmap
   "weight": dtype=F32 shape=[4,4], values match: yes
   "bias": shape=[4], values match: yes
 
--- Test 4: SafeTensors (BF16) vs GGUF (Q4_0) for an 8B-parameter model --
+-- Test 4: SafeTensors (BF16) vs GGUF (TeachingQ4) for an 8B-parameter model --
   SafeTensors (BF16, training/distribution format): 16.0 GB
-  GGUF (Q4_0, inference format):                    4.5 GB
-  SafeTensors has no quantization support (F32/F16/BF16 only); GGUF does.
+  GGUF (TeachingQ4, inference format):                    4.5 GB
+  SafeTensors can store quantized tensors; this example implements F32/F16/BF16 only.
   Both are safe formats (no code execution); GGUF's metadata is binary, SafeTensors' is JSON.
 
 ================================================
@@ -1596,11 +1646,11 @@ The SafeTensors Format: JSON Header + mmap
 
 ### Intuition
 
-This chapter's two formats serve different stages of a model's life: SafeTensors for training and distribution (unquantized, JSON metadata, easy to inspect), GGUF for local inference (quantized, binary metadata, optimized for the exact moment weights need to reach a running engine). Real GGUF files for well-known models, though, mostly do not use the flat Q4_0/Q8_0 blocks Chapter 4 built — they use "K-quants," which spend the same bit budget more cleverly by adding a second level of scales.
+This chapter's two formats serve different stages of a model's life: SafeTensors for tensor storage and distribution (including integer/quantized representations, with JSON metadata), GGUF for local inference (quantized, binary metadata, optimized for the exact moment weights need to reach a running engine). Real GGUF files for well-known models, though, mostly do not use the flat TeachingQ4/Q8_0 blocks Chapter 4 built — they use "K-quants," which spend the same bit budget more cleverly by adding a second level of scales.
 
 ### The Concept, In Detail
 
-A Q4_K super-block covers 256 weights (eight of Chapter 4.3's 32-weight sub-blocks) and stores a super-block-level scale and minimum (2 bytes each, fp16), a packed set of eight 6-bit sub-block scales, and eight more 6-bit sub-block minimums — 12 bytes total for both sets — plus 128 bytes of packed 4-bit weight nibbles. The correct total is `2 + 2 + 12 + 128 = 144` bytes for 256 weights, which is `144 * 8 / 256 = 4.5` bits per weight — the identical nominal bit rate as Chapter 4.3's plain Q4_0 (`18 * 8 / 32 = 4.5` bits per weight, exactly). This is the section's central point: K-quants do not compress further than Q4_0 in the nominal sense, they allocate the SAME bits differently, trading one coarse scale per 32 weights for a hierarchical scale that adapts within each 256-weight super-block — capturing fine-grained variance a single flat scale cannot, at no extra bit cost. The 8 sub-block scales (and 8 sub-block minimums) packing into exactly 12 bytes relies on 6-bit values crossing byte boundaries — 8 values times 6 bits is 48 bits, exactly 6 bytes, with no wasted padding — which this section implements and round-trips directly, the same kind of bit-level packing exercise as Chapter 4.3's 4-bit nibbles, one level more intricate.
+A Q4_K super-block covers 256 weights (eight of Chapter 4.3's 32-weight sub-blocks) and stores a super-block-level scale and minimum (2 bytes each, fp16), a packed set of eight 6-bit sub-block scales, and eight more 6-bit sub-block minimums — 12 bytes total for both sets — plus 128 bytes of packed 4-bit weight nibbles. The correct total is `2 + 2 + 12 + 128 = 144` bytes for 256 weights, which is `144 * 8 / 256 = 4.5` bits per weight — the identical nominal bit rate as Chapter 4.3's plain TeachingQ4 (`18 * 8 / 32 = 4.5` bits per weight, exactly). This is the section's central point: K-quants do not compress further than TeachingQ4 in the nominal sense, they allocate the SAME bits differently, trading one coarse scale per 32 weights for a hierarchical scale that adapts within each 256-weight super-block — capturing fine-grained variance a single flat scale cannot, at no extra bit cost. The 8 sub-block scales (and 8 sub-block minimums) packing into exactly 12 bytes relies on 6-bit values crossing byte boundaries — 8 values times 6 bits is 48 bits, exactly 6 bytes, with no wasted padding — which this section implements and round-trips directly, the same kind of bit-level packing exercise as Chapter 4.3's 4-bit nibbles, one level more intricate.
 
 ### Code and Verification
 
@@ -1608,9 +1658,9 @@ A Q4_K super-block covers 256 weights (eight of Chapter 4.3's 32-weight sub-bloc
 // Chapter 5.5 -- this chapter has built exactly the two formats real
 // LLM tooling actually uses: SafeTensors (Section 5.4) for training
 // and distribution, GGUF (Sections 5.1-5.3) for local inference, with
-// Chapter 4's Q4_0/Q8_0 blocks as GGUF's simplest quantized tensor
+// Chapter 4's TeachingQ4/Q8_0 blocks as GGUF's simplest quantized tensor
 // types. Production GGUF files for well-known models rarely use plain
-// Q4_0 today, though -- they use "K-quants" (Q4_K_M being the most
+// TeachingQ4 today, though -- they use "K-quants" (Q4_K being the most
 // common), which replace one scale per 32-weight block with a
 // two-level hierarchy: a super-block of 256 weights carries its own
 // scale and minimum, and each of the super-block's 8 sub-blocks of 32
@@ -1645,7 +1695,7 @@ static int g_tests = 0, g_passed = 0;
     else { std::cerr << "FAIL line " << __LINE__ << ": " << #__VA_ARGS__ << "\n"; } \
 } while (0)
 
-// -- Q4_K_M's packed 6-bit sub-block scales: 8 values, each in [0,63],
+// -- Q4_K's packed 6-bit sub-block scales: 8 values, each in [0,63],
 // packed into 6 bytes (8 * 6 = 48 bits = 6 bytes exactly, with no
 // padding). Bits are packed sequentially, least-significant-bit
 // first, spanning byte boundaries wherever 6 does not divide 8. --
@@ -1690,10 +1740,10 @@ int main() {
     std::cout << "================================================\n\n";
 
     // =====================================================================
-    // TEST 1: The Q4_K_M super-block byte layout, computed field by
+    // TEST 1: The Q4_K super-block byte layout, computed field by
     // field, correcting the 140-vs-144 discrepancy noted above.
     // =====================================================================
-    std::cout << "-- Test 1: Q4_K_M super-block byte layout --\n";
+    std::cout << "-- Test 1: Q4_K super-block byte layout --\n";
     {
         constexpr size_t D_BYTES = 2;         // fp16 super-block scale
         constexpr size_t DMIN_BYTES = 2;      // fp16 super-block minimum
@@ -1715,29 +1765,29 @@ int main() {
     }
 
     // =====================================================================
-    // TEST 2: Q4_K_M vs Q4_0's nominal bits/weight -- both land at
-    // exactly 4.5, using Chapter 4.3's real 18-byte Q4_0 block. The
+    // TEST 2: Q4_K vs TeachingQ4's nominal bits/weight -- both land at
+    // exactly 4.5, using Chapter 4.3's real 18-byte TeachingQ4 block. The
     // difference between the two formats is not the bit budget; it is
     // how that budget is spent (one scale per 32 weights vs. a
     // hierarchical scale that adapts within a 256-weight super-block).
     // =====================================================================
     std::cout << "\n-- Test 2: Same nominal bit budget, different allocation --\n";
     {
-        constexpr size_t Q4_0_BLOCK_BYTES = 18;   // Chapter 4.3: 2 (fp16 scale) + 16 (nibbles)
-        constexpr size_t Q4_0_BLOCK_WEIGHTS = 32;
-        double q4_0_bits = static_cast<double>(Q4_0_BLOCK_BYTES) * 8.0 / static_cast<double>(Q4_0_BLOCK_WEIGHTS);
+        constexpr size_t TeachingQ4_BLOCK_BYTES = 18;   // Chapter 4.3: 2 (fp16 scale) + 16 (nibbles)
+        constexpr size_t TeachingQ4_BLOCK_WEIGHTS = 32;
+        double q4_0_bits = static_cast<double>(TeachingQ4_BLOCK_BYTES) * 8.0 / static_cast<double>(TeachingQ4_BLOCK_WEIGHTS);
 
         constexpr size_t Q4_K_SUPERBLOCK_BYTES = 144;
         constexpr size_t Q4_K_SUPERBLOCK_WEIGHTS = 256;
         double q4_k_bits = static_cast<double>(Q4_K_SUPERBLOCK_BYTES) * 8.0 / static_cast<double>(Q4_K_SUPERBLOCK_WEIGHTS);
 
-        std::cout << "  Q4_0:   " << Q4_0_BLOCK_BYTES << " bytes / " << Q4_0_BLOCK_WEIGHTS
+        std::cout << "  TeachingQ4:   " << TeachingQ4_BLOCK_BYTES << " bytes / " << TeachingQ4_BLOCK_WEIGHTS
                    << " weights = " << q4_0_bits << " bits/weight (ONE scale for the whole block)\n";
-        std::cout << "  Q4_K_M: " << Q4_K_SUPERBLOCK_BYTES << " bytes / " << Q4_K_SUPERBLOCK_WEIGHTS
+        std::cout << "  Q4_K: " << Q4_K_SUPERBLOCK_BYTES << " bytes / " << Q4_K_SUPERBLOCK_WEIGHTS
                    << " weights = " << q4_k_bits << " bits/weight (a scale PER SUB-BLOCK of 32, within the super-block)\n";
         CHECK(q4_0_bits == q4_k_bits);
         std::cout << "  same nominal bit budget: " << (q4_0_bits == q4_k_bits ? "yes" : "no")
-                   << " -- Q4_K_M spends it on finer-grained scales, not more of them\n";
+                   << " -- Q4_K spends it on finer-grained scales, not more of them\n";
     }
 
     // =====================================================================
@@ -1793,8 +1843,8 @@ int main() {
             {"SafeTensors F32",  4.0,          "training, full precision"},
             {"SafeTensors BF16", 2.0,          "training/distribution, common default"},
             {"GGUF Q8_0",        34.0 / 32.0,  "inference, Chapter 4.2's block"},
-            {"GGUF Q4_0",        18.0 / 32.0,  "inference, Chapter 4.3's block"},
-            {"GGUF Q4_K_M",      144.0 / 256.0,"inference, this section's super-block"},
+            {"GGUF-like TeachingQ4",        18.0 / 32.0,  "inference, Chapter 4.3's block"},
+            {"GGUF Q4_K",      144.0 / 256.0,"inference, this section's super-block"},
         };
         for (const auto& f : formats) {
             double gb = PARAMS * f.bytes_per_param / 1e9;
@@ -1802,7 +1852,7 @@ int main() {
                        << std::fixed << std::setprecision(2) << std::setw(7) << gb
                        << " GB  (" << f.note << ")\n";
         }
-        // Q4_0 and Q4_K_M land at the same size in this model (both 4.5
+        // TeachingQ4 and Q4_K land at the same size in this model (both 4.5
         // bits/weight nominally) -- the quality difference between them
         // is not visible in a byte count, only in how each allocates
         // its scales, which Test 2 already demonstrated directly.
@@ -1826,14 +1876,14 @@ g++ -std=c++23 -Wall -Wextra -O2 05_gguf_vs_safetensors_kquants.cpp -o 05_gguf_v
 ./05_gguf_vs_safetensors_kquants
 ```
 
-**Sample input:** the Q4_K_M super-block's byte layout computed field by field, a direct bits-per-weight comparison against Chapter 4.3's Q4_0, an exhaustive round trip of the packed 6-bit sub-block scale scheme (2000 random 8-tuples plus edge cases), and a genuinely computed file-size comparison across every format this chapter covered for an 8-billion-parameter model.
+**Sample input:** the Q4_K super-block's byte layout computed field by field, a direct bits-per-weight comparison against Chapter 4.3's TeachingQ4, an exhaustive round trip of the packed 6-bit sub-block scale scheme (2000 random 8-tuples plus edge cases), and a genuinely computed file-size comparison across every format this chapter covered for an 8-billion-parameter model.
 
 ```text
 ================================================
 GGUF vs SafeTensors, and a Peek at Production K-Quants
 ================================================
 
--- Test 1: Q4_K_M super-block byte layout --
+-- Test 1: Q4_K super-block byte layout --
   d (fp16 scale): 2 bytes
   dmin (fp16 min): 2 bytes
   packed sub-block scales+mins: 12 bytes
@@ -1842,9 +1892,9 @@ GGUF vs SafeTensors, and a Peek at Production K-Quants
   effective bits/weight: 4.5
 
 -- Test 2: Same nominal bit budget, different allocation --
-  Q4_0:   18 bytes / 32 weights = 4.5 bits/weight (ONE scale for the whole block)
-  Q4_K_M: 144 bytes / 256 weights = 4.5 bits/weight (a scale PER SUB-BLOCK of 32, within the super-block)
-  same nominal bit budget: yes -- Q4_K_M spends it on finer-grained scales, not more of them
+  TeachingQ4:   18 bytes / 32 weights = 4.5 bits/weight (ONE scale for the whole block)
+  Q4_K: 144 bytes / 256 weights = 4.5 bits/weight (a scale PER SUB-BLOCK of 32, within the super-block)
+  same nominal bit budget: yes -- Q4_K spends it on finer-grained scales, not more of them
 
 -- Test 3: Packed 6-bit sub-block scales, round-tripped --
   edge cases (all-zero, all-max, alternating) round-trip: yes
@@ -1855,8 +1905,8 @@ GGUF vs SafeTensors, and a Peek at Production K-Quants
   SafeTensors F32     32.00 GB  (training, full precision)
   SafeTensors BF16    16.00 GB  (training/distribution, common default)
   GGUF Q8_0            8.50 GB  (inference, Chapter 4.2's block)
-  GGUF Q4_0            4.50 GB  (inference, Chapter 4.3's block)
-  GGUF Q4_K_M          4.50 GB  (inference, this section's super-block)
+  GGUF-like TeachingQ4   4.50 GB  (inference, Chapter 4.3's block)
+  GGUF Q4_K            4.50 GB  (inference, this section's super-block)
 
 ================================================
 9/9 checks passed ALL PASS
@@ -1866,9 +1916,12 @@ GGUF vs SafeTensors, and a Peek at Production K-Quants
 !!! warning "[COMMON TRAP] a header field list that does not add up to its own stated total"
     Reference material describing Q4_K's super-block layout lists a 2-byte scale, a 2-byte minimum, and 12 bytes of packed sub-block scales as a group, then labels that group "12 bytes" and computes a 140-byte super-block total (`12 + 128`) — silently dropping the scale and minimum's combined 4 bytes from the sum, even though they are right there in the same field list. The correct group size is `2 + 2 + 12 = 16` bytes, and the correct super-block total is 144 bytes, matching this chapter's own quantization-type table. The lesson generalizes past this one instance: when a written total and a field-by-field sum disagree, computing the sum in code (as Test 1 above does) settles the question in a way that re-reading the same table a second time never will.
 
+
+Q4_K is a tensor block encoding; **Q4_K_M is a mixed model-level recipe**, which can assign other precisions to selected tensors. The 4.5-bits-per-weight and 4.50-GB calculations below are homogeneous payload estimates, excluding metadata and padding; they are not the size of a real Q4_K_M model. SafeTensors supplies storage dtypes, including integers; quantization interpretation and scale conventions belong to the producer/framework, rather than a universal GGUF-style block scheme.
+
 ## Chapter Summary
 
-This chapter took the quantized blocks Chapter 4 built and gave them a real home on disk: GGUF's binary header, typed metadata, and tensor descriptor table, built and parsed byte by byte and then verified with a full writer-reader round trip; the naming convention that lets an engine find any of a model's hundreds of tensors by name; the zero-copy `std::span` views that turn a `mmap`'d file directly into usable Q8/Q4 block arrays with no heap allocation for tensor data; SafeTensors' JSON-header alternative, parsed with a hand-rolled extractor rather than a general library; and a corrected look at production K-quant super-blocks, which improve on Q4_0 not by using fewer bits but by spending the same bits more intelligently across a two-level scale hierarchy. Two separate arithmetic slips surfaced along the way — a byte offset that only running the code (not tracing it by hand) gets right, and a documented K-quant super-block size that omits 4 bytes from its own stated total — which is the same discipline this book has followed since Chapter 2: a claim about bytes, offsets, or bits is verified by computing it, not by re-reading the paragraph that stated it.
+This chapter took the quantized blocks Chapter 4 built and gave them a real home on disk: GGUF's binary header, typed metadata, and tensor descriptor table, built and parsed byte by byte and then verified with a full writer-reader round trip; the naming convention that lets an engine find any of a model's hundreds of tensors by name; the zero-copy `std::span` views that turn a `mmap`'d file directly into usable Q8/Q4 block arrays with no heap allocation for tensor data; SafeTensors' JSON-header alternative, parsed with a hand-rolled extractor rather than a general library; and a corrected look at production K-quant super-blocks, which improve on TeachingQ4 not by using fewer bits but by spending the same bits more intelligently across a two-level scale hierarchy. Two separate arithmetic slips surfaced along the way — a byte offset that only running the code (not tracing it by hand) gets right, and a documented K-quant super-block size that omits 4 bytes from its own stated total — which is the same discipline this book has followed since Chapter 2: a claim about bytes, offsets, or bits is verified by computing it, not by re-reading the paragraph that stated it.
 
 ## Self-Check Questions
 
@@ -1880,12 +1933,12 @@ This chapter took the quantized blocks Chapter 4 built and gave them a real home
 6. Why does Section 5.3 check that a span's data pointer falls "within the mapped region" as a boolean, rather than printing the actual pointer value for a human to inspect?
 7. Describe the bug that produced `nan` in Section 5.3's first version, and why passing an entire tensor's span (rather than one row's worth) to a dot product is exactly the kind of error that would NOT be caught by a compiler.
 8. Why are SafeTensors' `data_offsets` measured from the start of the tensor data rather than the start of the file, and what value has to be added to `data_offsets[0]` to get a real position inside the file?
-9. In what sense do Q4_0 and Q4_K_M use "the same number of bits per weight," and in what sense are they still meaningfully different formats?
+9. In what sense do TeachingQ4 and Q4_K use "the same number of bits per weight," and in what sense are they still meaningfully different formats?
 10. Why does packing eight 6-bit values take exactly 6 bytes with no wasted padding, and what would change if the values were 5 bits each instead?
 
 ## Where We Go Next
 
-This chapter can load a real GGUF or SafeTensors file with zero copies, but every weight it reads is still fed to the forward pass exactly as it comes off disk: pure Q8_0, pure Q4_0, one format at a time. Chapter 6 builds the Hybrid Quantized Engine that Section 5's own source material previewed but this chapter deliberately left out: an inference engine that mixes quantization strategies within a single forward pass — coarser formats for weights that tolerate it, finer ones where they do not — and integrates a TurboQuant-compressed KV cache alongside the blockwise-quantized weights this book has built since Chapter 4.
+This chapter demonstrates mapped tensor views over trusted instructional GGUF-like and SafeTensors fixtures, but every weight it reads is still fed to the forward pass exactly as it comes off disk: pure Q8_0, pure TeachingQ4, one format at a time. Chapter 6 builds the Hybrid Quantized Engine that Section 5's own source material previewed but this chapter deliberately left out: an inference engine that mixes quantization strategies within a single forward pass — coarser formats for weights that tolerate it, finer ones where they do not — and integrates a TurboQuant-compressed KV cache alongside the blockwise-quantized weights this book has built since Chapter 4.
 
 ## Worked Solutions
 
@@ -1905,6 +1958,6 @@ This chapter can load a real GGUF or SafeTensors file with zero copies, but ever
 
 **8.** They are measured from the start of the tensor data (immediately after the 8-byte header-length field and the JSON header itself) rather than from byte 0 of the file, because the JSON header's own length varies from file to file depending on how many tensors and metadata fields it describes — storing offsets relative to a variable-length prefix would mean every offset changes if even one more character were added to the header. The value that must be added is `8 + header_length` (the header-length field's own 8 bytes, plus the JSON header's length in bytes), giving `tensor_data_base + data_offsets[0]` as the real file position.
 
-**9.** They use the same number of bits per weight in the sense that both this chapter's Q4_0 (18 bytes for 32 weights) and Q4_K_M (144 bytes for 256 weights) compute to exactly 4.5 bits per weight — neither format is nominally "more compressed" than the other. They remain meaningfully different because Q4_0 spends that budget on one flat scale for an entire 32-weight block, while Q4_K_M spends the identical budget on a two-level hierarchy (one super-block scale plus eight finer sub-block scales), which can represent variance WITHIN a 256-weight region that a single flat scale cannot — the same bit cost buying meaningfully better fidelity to the original weights.
+**9.** They use the same number of bits per weight in the sense that both this chapter's TeachingQ4 (18 bytes for 32 weights) and Q4_K (144 bytes for 256 weights) compute to exactly 4.5 bits per weight — neither format is nominally "more compressed" than the other. They remain meaningfully different because TeachingQ4 spends that budget on one flat scale for an entire 32-weight block, while Q4_K spends the identical budget on a two-level hierarchy (one super-block scale plus eight finer sub-block scales), which can represent variance WITHIN a 256-weight region that a single flat scale cannot — the same bit cost buying meaningfully better fidelity to the original weights.
 
 **10.** Eight values at 6 bits each is exactly `8 * 6 = 48` bits, and 48 is evenly divisible by 8, so the packed result is exactly 6 bytes with nothing left over — no value ever needs to be split unevenly across a byte boundary in a way that leaves a fractional bit unaccounted for at the end. If the values were 5 bits each instead, 8 of them would be `8 * 5 = 40` bits, which is also evenly divisible by 8 (5 bytes) — but a group of, say, 5 values at 6 bits each would be 30 bits, which is NOT evenly divisible by 8, and would either need padding to the next whole byte (wasting bits) or a scheme where a byte boundary sometimes falls in the middle of a value, which is exactly what this section's `pack_6bit`/`unpack_6bit` functions already handle correctly for the 8-value case, since 6 does not evenly divide 8 either.

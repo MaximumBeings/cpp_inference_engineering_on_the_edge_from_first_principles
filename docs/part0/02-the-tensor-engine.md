@@ -17,12 +17,12 @@
 
 **What you need to know first:**
 
-- Ordinary C++ templates, `std::vector`, and RAII (Chapter 1 assumed no more than this, and this chapter assumes nothing beyond it).
+- Ordinary C++ templates, `std::vector`, and RAII (this chapter assumes nothing beyond these foundations).
 - What a transformer's forward pass needs at a conceptual level — token embeddings, attention heads, a hidden dimension — since this chapter's examples are drawn directly from that domain rather than from abstract matrices.
 
 ---
 
-Chapter 1 argued that edge inference is a different engineering problem from cloud inference: memory is scarce, allocation has to be predictable, and the difference between a contiguous buffer and one three cache lines away can decide whether a token generation loop hits its latency budget. This chapter builds the concrete C++23 tools this book uses everywhere from here forward to act on that argument. `std::mdspan` gives every later chapter a single, standard way to describe a tensor's shape without owning its memory. `std::submdspan` gives multi-head attention a way to slice that tensor per head without copying. The arena allocator gives the token generation loop a scratch-memory strategy with no per-token syscall and no fragmentation. And `std::variant`-based mixed precision gives every later chapter a type-safe way to store the same logical tensor as FP32 or BF16 without duplicating kernel code. Every other chapter in Part 0 through Part 5 assumes all four of these are already comfortable tools by the time they are needed again.
+Edge inference presents different engineering constraints from cloud inference: memory is scarce, allocation has to be predictable, and the difference between a contiguous buffer and one three cache lines away can decide whether a token generation loop hits its latency budget. This chapter builds the concrete C++23 tools this book uses everywhere from here forward to act on that argument. `std::mdspan` gives every later chapter a single, standard way to describe a tensor's shape without owning its memory. `std::submdspan` gives multi-head attention a way to slice that tensor per head without copying. The arena allocator gives the token generation loop a scratch-memory strategy with no per-token syscall and no fragmentation. And `std::variant`-based mixed precision gives every later chapter a type-safe way to store the same logical tensor as FP32 or BF16 without duplicating kernel code. Every other chapter in Part 0 through Part 5 assumes all four of these are already comfortable tools by the time they are needed again.
 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">

@@ -365,7 +365,7 @@ An accessibility audit is one of the few domains this book has reached where the
 
 `relative_luminance` and `contrast_ratio` implement the exact WCAG 2.x formulas precisely as the specification defines them -- Test 1 confirms pure black text on a pure white background computes to a contrast ratio of exactly 21:1, WCAG's own famous exact reference value, and white on white computes to exactly 1:1. `contrast_ratio` computes its own lighter/darker ordering internally rather than trusting a caller to pass colors in the correct order, and Test 2 confirms this directly: `contrast_ratio(light, dark)` and `contrast_ratio(dark, light)` both compute to the identical value, guarding against a real, common implementation bug that silently produces a ratio below 1.0 for exactly half of all real color pairs.
 
-`audit_element` runs three real, independently named checks -- 1.4.3 Contrast Minimum, 2.5.5 Target Size, and 1.1.1 Non-text Content -- against a single UI element, and Test 4 confirms a fully compliant element produces zero violations while a non-compliant element is flagged with all three real, specific criteria named at once, never a single vague "accessibility issue" covering all three failures. Test 5's own full multi-element audit report confirms every violation is attributed to its own specific element by id, with zero false positives contributed by the genuinely compliant elements sharing the same report.
+`audit_element` demonstrates AA contrast, an optional 44 x 44 CSS-pixel target-size advisory inspired by WCAG 2.2 SC 2.5.5 (AAA), and an empty-alt heuristic. Target exceptions and AA SC 2.5.8 spacing are not implemented. The supplied targets are assumed non-exempt. An empty alternative is appropriate for some decorative images; this heuristic assumes the supplied images are informative. These checks do not establish conformance.
 
 ### Code and Verification
 
@@ -475,11 +475,10 @@ struct UiElement {
     std::string alt_text;
 };
 
-// A real, stated policy choice: this section's own audit enforces the
-// AA bar (the level most real accessibility regulations, including the
-// ADA and Section 508, actually cite as their own minimum), not the
-// stricter, optional AAA bar -- an element failing AAA but passing AA is
-// not reported as a violation at all.
+// Limited educational policy: AA contrast plus an optional 44 CSS-pixel
+// target-size advisory inspired by WCAG 2.2 SC 2.5.5 (AAA). The example
+// assumes non-exempt targets; it does not implement WCAG exceptions,
+// AA SC 2.5.8 spacing, or establish full accessibility conformance.
 constexpr int MIN_TOUCH_TARGET_PX = 44;
 
 std::vector<std::string> audit_element(const UiElement& e) {
@@ -488,11 +487,11 @@ std::vector<std::string> audit_element(const UiElement& e) {
     auto classification = classify_contrast(ratio, e.text_size);
     if (!classification.meets_aa) {
         violations.push_back(e.id + ": 1.4.3 Contrast (Minimum) -- measured ratio " + std::to_string(ratio) +
-                              ":1 is below the required AA threshold");
+                              ":1 is below the required AA contrast threshold");
     }
     if (e.is_interactive && (e.width < MIN_TOUCH_TARGET_PX || e.height < MIN_TOUCH_TARGET_PX)) {
-        violations.push_back(e.id + ": 2.5.5 Target Size -- " + std::to_string(e.width) + "x" +
-                              std::to_string(e.height) + "px is below the required " +
+        violations.push_back(e.id + ": Advisory 2.5.5 Target Size (AAA, non-exempt policy) -- " + std::to_string(e.width) + "x" +
+                              std::to_string(e.height) + "px is below the advisory " +
                               std::to_string(MIN_TOUCH_TARGET_PX) + "x" + std::to_string(MIN_TOUCH_TARGET_PX) + "px minimum");
     }
     if (e.is_image && e.alt_text.empty()) {
@@ -560,7 +559,7 @@ int main() {
                      "at exactly 4.5:1 -- every stated threshold is exact, not approximate\n";
     }
 
-    std::cout << "\n-- Test 4: a fully compliant element produces zero violations, and a non-compliant "
+    std::cout << "\n-- Test 4: a passing the limited example policy element produces zero violations, and an example failing the policy "
                  "element is flagged with all 3 real, specific, named criteria --\n";
     {
         UiElement compliant{"btn-save", RgbColor{0, 0, 0}, RgbColor{255, 255, 255}, TextSize::NORMAL,
@@ -579,7 +578,7 @@ int main() {
             if (v.find("1.1.1") != std::string::npos) has_alt = true;
         }
         CHECK(has_contrast && has_target && has_alt);
-        std::cout << "  a fully compliant 48x48 black-on-white button produces zero violations; a "
+        std::cout << "  a passing the limited example policy 48x48 black-on-white button produces zero violations; a "
                      "30x30 low-contrast icon with no alt text is flagged with all 3 real, specific "
                      "criteria at once: 1.4.3 Contrast, 2.5.5 Target Size, and 1.1.1 Non-text Content\n";
     }
@@ -599,8 +598,8 @@ int main() {
             CHECK(v.find("icon-delete") != std::string::npos);
         }
         std::cout << "  a 3-element report (a compliant label, a compliant large button, and the "
-                     "non-compliant icon from Test 4) produces exactly 3 violations, all attributed to "
-                     "icon-delete -- the two genuinely compliant elements contribute zero false "
+                     "policy-failing icon from Test 4) produces exactly 3 violations, all attributed to "
+                     "icon-delete -- the two passing the limited example policy elements contribute zero false "
                      "positives\n";
     }
 
@@ -633,18 +632,18 @@ Chapter 22.2: An Accessibility-Compliance Auditing Engine
 -- Test 3: AA and AAA classification thresholds are exact at their own stated boundary values, for both text sizes --
   normal text passes AA at exactly 4.5:1 and fails just below it; large text passes AA at exactly 3.0:1; normal text passes AAA at exactly 7.0:1; large text passes AAA at exactly 4.5:1 -- every stated threshold is exact, not approximate
 
--- Test 4: a fully compliant element produces zero violations, and a non-compliant element is flagged with all 3 real, specific, named criteria --
-  a fully compliant 48x48 black-on-white button produces zero violations; a 30x30 low-contrast icon with no alt text is flagged with all 3 real, specific criteria at once: 1.4.3 Contrast, 2.5.5 Target Size, and 1.1.1 Non-text Content
+-- Test 4: a passing the limited example policy element produces zero violations, and an example failing the policy element is flagged with all 3 real, specific, named criteria --
+  a passing the limited example policy 48x48 black-on-white button produces zero violations; a 30x30 low-contrast icon with no alt text is flagged with all 3 real, specific criteria at once: 1.4.3 Contrast, 2.5.5 Target Size, and 1.1.1 Non-text Content
 
 -- Test 5: a full multi-element audit report attributes every violation to its own specific element, with no false positives on the compliant elements sharing the report --
-  a 3-element report (a compliant label, a compliant large button, and the non-compliant icon from Test 4) produces exactly 3 violations, all attributed to icon-delete -- the two genuinely compliant elements contribute zero false positives
+  a 3-element report (a compliant label, a compliant large button, and the policy-failing icon from Test 4) produces exactly 3 violations, all attributed to icon-delete -- the two passing the limited example policy elements contribute zero false positives
 
 19/19 checks passed
 ALL CHECKS PASSED
 ```
 
-!!! warning "[COMMON TRAP] treating an AAA-level failure as an equally urgent violation as an AA-level one"
-    WCAG defines two real, separately useful conformance levels -- AA, the level most real accessibility regulations (including the ADA and Section 508) actually cite as their own required minimum, and the considerably stricter, optional AAA. It is tempting to have an audit engine flag any element failing EITHER level as a violation, on the theory that more strictness can only help -- but this section's own `audit_element` deliberately enforces only the AA bar, exactly as regulatory practice actually requires, and an element that fails AAA while still passing AA is not reported as a violation at all. Flagging every AAA shortfall as an urgent violation would flood a real report with a volume of noise that would make the genuinely required AA failures -- the ones with real regulatory and human-usability consequences -- harder, not easier, for a reviewer to find and act on.
+!!! warning "[COMMON TRAP] confusing an optional target-size advisory with AA conformance"
+    WCAG has A, AA and AAA conformance levels. [SC 2.5.5](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) is AAA and uses 44 x 44 CSS pixels with exceptions; [SC 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) is AA in WCAG 2.2 and uses 24 x 24 or sufficient spacing, with exceptions. This example retains 44 pixels as an optional non-exempt-target advisory, not an AA violation or legal compliance determination. Applicable legal standards depend on jurisdiction and entity.
 
 ## 22.3 An Art-Condition Assessment and Provenance-Verification Engine
 
@@ -1040,7 +1039,7 @@ This chapter's three domains showed the same recurring discipline -- honest ambi
 
 **3.** The specific bug this design prevents is a contrast-ratio function that assumes its own caller will always pass the lighter color first (or the darker color first) and computes `(a + 0.05) / (b + 0.05)` directly on whichever order it receives -- for any color pair where the caller happens to pass the darker color first, this produces a ratio BELOW 1.0, which is not merely an inverted number but a value WCAG's own formula never produces for any real color pair, silently corrupting exactly half of all real contrast computations depending entirely on argument order rather than the colors' own real relationship.
 
-**4.** AA is described as a deliberate policy choice because it is the level real accessibility regulations -- the ADA and Section 508 are both named directly -- actually cite as their own required legal minimum, meaning an audit enforcing AA reports exactly the violations that carry real regulatory and legal consequences. AAA is a real, valid, stricter bar that WCAG itself defines, but treating an AAA shortfall as an equally urgent violation would report a large volume of real but non-mandatory issues alongside the mandatory ones, with no way for a report reader to distinguish "you are out of legal compliance" from "you have room to be more accessible than the law strictly requires" -- the underlying contrast math is identical either way; only the threshold applied to it differs.
+**4.** AA contrast and the optional AAA target-size advisory must be reported separately. The 44-pixel advisory assumes non-exempt targets and does not establish AA or legal compliance. WCAG version, exceptions, image purpose and applicable jurisdiction require separate review.
 
 **5.** A single combined message like "3 issues found" (or worse, "accessibility issues found") gives a report reader no way to know, without opening the underlying code or re-running the audit with more verbose logging, WHICH of potentially many possible criteria actually failed -- a developer fixing the element would have to independently re-derive whether the problem is contrast, target size, or a missing text alternative. Three separately named violations let that same developer go directly to the specific, real fix each one requires -- adjusting a color, enlarging a touch target, or adding alt text -- without first having to rediagnose which of several real, unrelated problems is actually present.
 

@@ -1,0 +1,29 @@
+================================================
+A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File
+================================================
+
+-- Test 1: Writing the hybrid layer --
+  wrote 10 tensors (1 embedding + 2 norm + 4 attention + 3 FFN), 59296 bytes
+  W_k/W_v rows: 32 (GQA-narrowed), W_q/W_o rows: 64
+
+-- Test 2: mmap and verify the policy round-tripped --
+  file size: 59296 bytes, mmap'd, tensors: 10
+  token_embd.weight recorded as: Q8_0
+
+-- Test 3: [COMMON TRAP] get_f32 on a Q8_0 tensor is silently wrong --
+  true embedding[token=65][0..3]:      -0.0451334, -0.000460914, 0.00947825, -0.00238367
+  get_f32 misread [0..3]:              -1.28473e+31, 1.89419e-29, 1.46053e-30, -123.935 (garbage -- wrong format)
+  type-checked get_q8 + dequant [0..3]: -0.0450885, -0.000413656, 0.00951409, -0.00248194
+  correct lookup's relative L2 error (quantization only): 0.00601539
+
+-- Test 4: Full single-layer forward pass, 8 tokens --
+  token 0 ('H'): ||output|| = 0.3007 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
+  token 1 ('e'): ||output|| = 0.2209 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
+  token 2 ('l'): ||output|| = 0.2382 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
+  ...
+  token 7 ('!'): ||output|| = 0.1763 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
+  heap bytes allocated for weight data: 0 (every weight span aliases the mmap'd file)
+
+================================================
+27/27 checks passed ALL PASS
+================================================

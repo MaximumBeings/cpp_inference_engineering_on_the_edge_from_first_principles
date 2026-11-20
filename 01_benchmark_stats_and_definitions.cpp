@@ -14,7 +14,7 @@
 // and 16 never had reason to measure at all.
 //
 // A stated methodology choice, carried forward into Section 17.2: this
-// book reports the MEDIAN of a run's per-step latencies, not the mean,
+// book reports median latency alongside elapsed-throughput and mean TPOT,
 // because a small number of unusually slow steps (thermal throttling, an
 // OS scheduling hiccup) pulls a mean upward in a way that misrepresents
 // steady-state performance, while the median is unmoved by a minority of
@@ -65,7 +65,7 @@ struct Stats {
         double sq_sum = 0.0;
         for (double v : vals) sq_sum += (v - s.mean) * (v - s.mean);
         s.stddev = std::sqrt(sq_sum / static_cast<double>(s.n));
-        s.median = vals[s.n / 2];
+        s.median = s.n % 2 ? vals[s.n / 2] : (vals[s.n / 2 - 1] + vals[s.n / 2]) / 2.0;
         s.p95 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.95)];
         s.p99 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.99)];
         s.min_val = vals.front();
@@ -94,20 +94,19 @@ double time_to_first_token_ms(double prefill_ms, double first_sample_ms) {
     return prefill_ms + first_sample_ms;
 }
 
-// Tokens-per-second in steady-state decode: the reciprocal of the
-// MEDIAN per-step latency, not the mean, for the robustness reason
-// this file's own header comment states.
+// Elapsed throughput over the measured decode interval: count/sum(ms),
+// equivalently 1000/mean(ms). Median latency is reported separately.
 double tokens_per_second(const Stats& decode_stats) {
-    return decode_stats.median > 0.0 ? 1000.0 / decode_stats.median : 0.0;
+    return decode_stats.mean > 0.0 ? 1000.0 / decode_stats.mean : 0.0;
 }
 
-// Time-per-output-token: the median decode-step latency itself, in
+// Mean time-per-output-token: the mean measured decode-step latency, in
 // milliseconds. This is the exact same number as 1000/tokens_per_second
 // -- TPOT and TPS are the same measurement stated two ways, one easier
 // for a human to reason about ("14 ms per token") and one easier to
 // compare against a target throughput ("70 tokens/sec").
 double time_per_output_token_ms(const Stats& decode_stats) {
-    return decode_stats.median;
+    return decode_stats.mean;
 }
 
 // A step at or before this index is warm-up: excluded from every
@@ -157,7 +156,7 @@ int main() {
     // =====================================================================
     // TEST 1: Stats::compute against a known, hand-computable array --
     // the same shape of check this book has used for every statistics
-    // helper since Chapter 1.
+    // helper since the early foundations.
     // =====================================================================
     std::cout << "\n-- Test 1: Stats::compute correctness --\n";
     {
@@ -194,11 +193,18 @@ int main() {
         double tpot = time_per_output_token_ms(decode_stats);
         CHECK(tpot == 14.0);
         CHECK(std::fabs(tps - (1000.0 / 14.0)) < 1e-9);
-        // TPS and TPOT are the SAME measurement, stated two ways --
+        // Elapsed TPS and mean TPOT are reciprocal summaries of the same interval --
         // multiplying them back together must recover 1000 (ms/sec).
         CHECK(std::fabs(tps * tpot - 1000.0) < 1e-9);
         std::cout << "  steady 14ms/token decode: TPOT=" << tpot << "ms/token, TPS=" << tps
                    << " tok/s, TPS*TPOT==1000: " << (std::fabs(tps * tpot - 1000.0) < 1e-9 ? "yes" : "no") << "\n";
+
+        auto uneven = Stats::compute({1.0, 1.0, 100.0});
+        CHECK(std::fabs(tokens_per_second(uneven) - 3000.0 / 102.0) < 1e-9);
+        CHECK(uneven.median == 1.0);
+        std::cout << "  [1,1,100] ms: elapsed throughput=" << tokens_per_second(uneven)
+                  << " tok/s; median latency=" << uneven.median
+                  << " ms (reciprocal median would incorrectly report 1000 tok/s)\n";
 
         double ttft = time_to_first_token_ms(/*prefill_ms=*/230.0, /*first_sample_ms=*/0.4);
         CHECK(ttft == 230.4);
@@ -221,7 +227,11 @@ int main() {
     {
         long before = peak_rss_kb();
         bool measurement_available = (before >= 0);
+#if defined(__linux__)
         CHECK(measurement_available);
+#else
+        CHECK(!measurement_available);
+#endif
 
         if (measurement_available) {
             // Allocate and TOUCH every page of a sizable buffer -- a
@@ -237,11 +247,12 @@ int main() {
             CHECK(grew);
             std::cerr << "  (informational, machine-specific) peak RSS before: " << before
                        << " KB, after touching ~200MB: " << after << " KB\n";
-            std::cout << "  peak RSS measurably increased after touching a ~200MB buffer: " << (grew ? "yes" : "no") << "\n";
+
         } else {
-            std::cout << "  /proc/self/status unavailable on this platform -- peak_rss_kb() correctly reports -1"
-                          " rather than a fabricated number\n";
+            CHECK(before == -1);
+            std::cerr << "  /proc/self/status unavailable: growth measurement skipped; explicit -1 checked\n";
         }
+        std::cout << "  Peak RSS contract checked: Linux measures growth; other platforms report unavailable (-1).\n";
     }
 
     std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";

@@ -657,7 +657,7 @@ A linear layer's weight matrix, read once, can be reused across every column of 
 // matrices but are, arithmetically, different problems. Prefill
 // multiplies a weight matrix by MANY token columns at once (a GEMM);
 // decode multiplies the same matrix by a SINGLE column (a GEMV). This
-// file measures both, in FP32 and in Chapter 4's Q4_0 format, and finds
+// file measures both, in FP32 and in Chapter 4's TeachingQ4 format, and finds
 // the actual sequence length at which a kernel crosses from memory-bound
 // to compute-bound -- rather than asserting a single "prefill is compute
 // bound, decode is memory bound" rule that turns out to depend on how
@@ -683,6 +683,7 @@ A linear layer's weight matrix, read once, can be reused across every column of 
 
 #include <mdspan/mdspan.hpp>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <vector>
@@ -705,36 +706,51 @@ static int g_tests = 0, g_passed = 0;
 // CHAPTER 4's fp16_t and BlockQ4 (reused verbatim -- exact byte layout,
 // 18 bytes/block: a 2-byte fp16 scale plus 16 bytes of packed nibbles)
 // =========================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -742,11 +758,13 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };  // 32 values, 18 bytes t
 #pragma pack(pop)
 
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2 * i] * inv), -8.0f, 7.0f));
@@ -929,10 +947,10 @@ int main() {
                   << q4.arithmetic_intensity() << " FLOPs/byte\n";
         double measured_ratio = static_cast<double>(fp32.bytes) / static_cast<double>(q4.bytes);
         std::cout << "  Measured byte-size ratio FP32:Q4 = " << std::setprecision(2) << measured_ratio << "x\n";
-        std::cout << "  (Not the ~4x a naive 'Q4 means 4 bits vs. 32 bits' guess would predict -- a\n";
+        std::cout << "  (Less than the 8x raw ratio for 4-bit values versus 32-bit values -- a\n";
         std::cout << "  32-value BlockQ4 packs 4-bit nibbles PLUS a 2-byte fp16 scale into 18 bytes,\n";
-        std::cout << "  which compresses harder than a flat 4-bit-per-value estimate, since the scale\n";
-        std::cout << "  overhead is small relative to the 32 values it covers.)\n";
+        std::cout << "  which compresses less than a flat 4-bit-per-value estimate, because the scale\n";
+        std::cout << "  adds two bytes per block: 128/18 = approximately 7.11x.)\n";
 
         CHECK(fp32.arithmetic_intensity() < RIDGE_POINT);
         CHECK(q4.arithmetic_intensity() < RIDGE_POINT);   // still memory-bound at SEQ=1
@@ -1031,10 +1049,10 @@ Chapter 8.3: Prefill (GEMM) vs. Decode (GEMV)
   FP32: 224 MB read, AI = 0.4998 FLOPs/byte
   Q4:   31 MB read, AI = 5.3215 FLOPs/byte
   Measured byte-size ratio FP32:Q4 = 7.10x
-  (Not the ~4x a naive 'Q4 means 4 bits vs. 32 bits' guess would predict -- a
+  (Less than the 8x raw ratio for 4-bit values versus 32-bit values -- a
   32-value BlockQ4 packs 4-bit nibbles PLUS a 2-byte fp16 scale into 18 bytes,
-  which compresses harder than a flat 4-bit-per-value estimate, since the scale
-  overhead is small relative to the 32 values it covers.)
+  which compresses less than a flat 4-bit-per-value estimate, because the scale
+  adds two bytes per block: 128/18 = approximately 7.11x.)
 
 -- Test 2: Crossover sequence length (memory-bound -> compute-bound) --
   FP32 becomes compute-bound at seq_len = 36
@@ -1303,6 +1321,8 @@ A single decode step touches far more than one kernel: two RMSNorms, four attent
 
 Every projection's cost reuses Section 8.3's verified linear-layer formula directly. Attention's cost is new to this section but built to match, term for term, a real GQA attention kernel: each KV head's cached rows are read once and reused by every query head in its group — the same "read once, reuse across the group" shape Section 8.3 used for weight matrices — while the score dot products, softmax, and weighted sum are real per-element arithmetic paid by every query head, verified here against Chapter 3.4's own std::mdspan-viewed KVCache and gqa_attention, reused verbatim with a cost counter threaded through it. Summing all of these for one decode step at a realistic context length confirms the whole step lands memory-bound, consistent with Section 8.1's own choice of a representative decode arithmetic intensity. Separating the step's bytes into the part that is FIXED (the QKVO and FFN weight matrices, read in full on every step regardless of context length) and the part that GROWS with context (the KV cache read) shows the fixed part dominating by more than an order of magnitude at a two-thousand-token context, and finds the context length at which the two would actually cross to be far beyond most deployed context windows.
 
+**Model scope:** this section sums selected operation and traffic counts under its stated reuse assumptions. Aggregate FLOPs/bytes is not an exact bottleneck classifier for serial unfused kernels. Different kernels can be bandwidth- and compute-limited separately. For serial execution, sum per-kernel bounds `max(F_i/P, B_i/BW)` and include the relevant activation and KV traffic; use real measurements for achieved performance. The weight-versus-KV payload comparison is illustrative for these shapes and precision, not a universal statement about deployed models or context lengths.
+
 ### Code and Verification
 
 ```cpp
@@ -1544,12 +1564,12 @@ int main() {
     };
 
     // =====================================================================
-    // TEST 1: at a realistic context length, classify the whole decode
+    // TEST 1: an aggregate modeled accounting ratio for the decode
     // step against the roofline, and check it lands memory-bound (as
     // Section 8.1's Test 3 assumed when it picked AI=0.5 as "a
     // representative decode-time GEMV").
     // =====================================================================
-    std::cout << "\n-- Test 1: one decode step at cache_len=2048, classified against the roofline --\n";
+    std::cout << "\n-- Test 1: one decode step at cache_len=2048, aggregate accounting against the roofline --\n";
     {
         constexpr long long L = 2048;
         Cost step = decode_step_cost(L);
@@ -1599,6 +1619,10 @@ int main() {
         CHECK(crossover_L > 50000);                       // and only stop dominating at a very long context
     }
 
+    std::cout << "  Scope: the aggregate intensity is an optimistic accounting model, not a proof\n";
+    std::cout << "  that every unfused kernel shares one bottleneck. Activation, cache and overhead\n";
+    std::cout << "  assumptions matter; serial kernel time bounds must be summed separately.\n";
+
     // -- Summary --------------------------------------------------------
     std::cout << "\n========================================================\n";
     std::cout << g_passed << "/" << g_tests << " checks passed";
@@ -1626,7 +1650,7 @@ Chapter 8.5: A Full Layer's Roofline Profile
   Real GQA kernel: FLOPs=1008 Bytes=960
   Closed formula:  FLOPs=1008 Bytes=960
 
--- Test 1: one decode step at cache_len=2048, classified against the roofline --
+-- Test 1: one decode step at cache_len=2048, aggregate accounting against the roofline --
   FLOPs=470466888  Bytes=890151168  AI=0.5285 FLOPs/byte
   Ridge point=17.50 -> MEMORY-BOUND
 
@@ -1641,6 +1665,9 @@ Chapter 8.5: A Full Layer's Roofline Profile
   fixed weight-read cost, paid again every single step regardless of context,
   is what a decode step's memory traffic is actually dominated by until the
   context grows far longer than most conversations ever do.
+  Scope: the aggregate intensity is an optimistic accounting model, not a proof
+  that every unfused kernel shares one bottleneck. Activation, cache and overhead
+  assumptions matter; serial kernel time bounds must be summed separately.
 
 ========================================================
 5/5 checks passed  ALL PASS

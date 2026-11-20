@@ -155,8 +155,8 @@ CONCEPTS = {
 ('timeline','A conversation carries edit state forward',['Turn 1|original image|edit A|version 1','Turn 2|version 1|edit B|version 2','Undo|saved version|restore state|explicit result'],'Keep the source image and version identity so a follow-up applies to the intended result.'),
 ],
 '25': [
-('flow','Sample frames under a declared privacy boundary',['Camera stream','Bounded frame sampling','Scene/event tags','Reviewable record'],'The chapter boundary excludes facial recognition. Identity must not be inferred from scene tags.'),
-('flow','Evidence handling preserves source identity',['Capture source','Hash and timestamp','Draft incident narrative','Record custody and edits'],'A generated narrative is derived material. Retain the original and an auditable derivation trail.'),
+('flow','Sample frames with a limited schema guard',['Camera stream','Bounded frame sampling','Scene/event tags','Reviewable record'],'Three forbidden field names are checked. This does not establish pipeline-wide privacy.'),
+('flow','An annotation checksum is not evidence integrity',['Supplied annotations','Non-security FNV checksum','Draft incident narrative','Unknown coverage flagged'],'Production evidence needs source hashes, protected digests and custody procedures beyond this example.'),
 ('timeline','Rep counting follows a defined state transition',['Pose estimate|frame sample|joint features|confidence checks','Rep state|start position|movement phase|return position','Count|candidate transition|validate threshold|increment once'],'Occlusion and camera angle can invalidate pose estimates; provide an uncertain state.'),
 ('mapping','Nutrition estimates depend on several uncertain links',['Image|food candidate','Portion estimate|approximate quantity','Reference lookup|nutrient values','Result|estimate with limitations'],'An image cannot reliably determine ingredients or exact portion mass on its own.'),
 ],

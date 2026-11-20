@@ -1,0 +1,27 @@
+================================================
+A GGUF Writer and Reader: A Full Round Trip
+================================================
+
+-- Test 1: Writing the file --
+  header+metadata+descriptors: 416 bytes
+  token_embd.weight  F32  65536 bytes, offset=0
+  blk.0.attn_q       Q8_0 4352 bytes, offset=65536
+  blk.0.ffn_gate     TeachingQ4 4608 bytes, offset=69888
+  total file size: 74912 bytes
+
+-- Test 2: Parsing the header back --
+  magic=0x46554747 version=3 tensors=3 kv=5
+
+-- Test 3: Metadata --
+  architecture="llama"
+  embedding_length=64 block_count=2
+
+-- Test 4: Tensor descriptors --
+  data section starts at byte 416
+    token_embd.weight     F32  n_elements=16384  data_size=65536 bytes
+    blk.0.attn_q.weight   Q8_0  n_elements=4096  data_size=4352 bytes
+    blk.0.ffn_gate.weight TeachingQ4  n_elements=8192  data_size=4608 bytes
+
+================================================
+21/21 checks passed ALL PASS
+================================================

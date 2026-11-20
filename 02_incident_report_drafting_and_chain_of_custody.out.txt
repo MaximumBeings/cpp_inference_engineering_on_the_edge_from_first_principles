@@ -15,10 +15,10 @@ Chapter 25.2: Incident Report Drafting and Chain of Custody
   the identical two frames, supplied once in real chronological order and once deliberately shuffled, draft to the exact identical report -- draft_report never assumes its own input already arrived sorted
 
 -- Test 5: a real, genuine gap with no tag activity at all is reported explicitly, never silently omitted --
-  a real 59-second silence between VEHICLE_PRESENT ending at 0ms and EMS_PRESENT starting at 60000ms, and a real 30-second silence after EMS_PRESENT ends and the incident's own stated end time, both get their own explicit "No notable activity" line rather than simply not appearing
+  a real 59-second silence between VEHICLE_PRESENT ending at 0ms and EMS_PRESENT starting at 60000ms, and a real 30-second silence after EMS_PRESENT ends and the incident's own stated end time, both get their own explicit "No tagged observations; coverage unknown" line rather than simply not appearing
 
--- Test 6: the chain-of-custody hash is a real, tamper-evident checksum -- an identical record hashes identically, and changing even one tag on one frame changes the hash --
-  an identical copy of the same incident record hashes to the exact same real chain-of-custody value; silently removing just the PERSON_ON_GROUND tag from one single frame changes that hash, proving the checksum really does depend on every real tag on every real frame
+-- Test 6: the chain-of-custody hash is a real, non-security checksum -- an identical record hashes identically, and changing even one tag on one frame changes the hash --
+  an identical copy of the same incident record hashes to the exact same real chain-of-custody value; silently removing just the PERSON_ON_GROUND tag from one single frame changes that hash, demonstrating change detection for this tested tag mutation only; collisions and adversarial tampering are not tested
 
-16/16 checks passed
+19/19 checks passed
 ALL CHECKS PASSED

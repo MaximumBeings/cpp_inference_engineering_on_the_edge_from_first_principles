@@ -28,6 +28,8 @@
 
 Chapter 8 established that a kernel's speed is capped by two independent resources, compute and bandwidth, and that the ratio between them — arithmetic intensity — decides which one actually limits a given kernel. This chapter is about the compute side of that ceiling: how a CPU's peak FLOP rate is actually achieved in practice, one instruction at a time, by processing more than one data element per instruction. Section 9.1 derives what a SIMD register buys a kernel from nothing but its bit width and element width, reusing Chapter 8.1's own peak-compute formula to show precisely how much of a chip's peak throughput its register width accounts for — and reusing Chapter 8.1's own COMMON TRAP to show, again, that none of it matters for a kernel that is memory-bound. Section 9.2 writes real AVX2 intrinsics against the Q8_0 and Q4_0 formats this book has quantized weights into since Chapter 4, including the integer unpacking a packed 4-bit format demands before any arithmetic can touch it. Section 9.3 writes the same two kernels again in Arm NEON, and finds a genuine, verifiable difference in how many instructions the identical logical step costs on the two architectures. Section 9.4 steps back from hand-written intrinsics entirely to ask what a compiler's auto-vectorizer does on its own, and what specific promise `__restrict` makes to unlock it. Section 9.5 closes the chapter with the piece every one of these kernels needs before it can ship: a runtime check that decides, once, at startup, which instruction set the CPU actually sitting under the binary supports.
 
+> **Encoding boundary:** The quantized dot-product examples here use the adjacent-pair, alpha/7 TeachingQ4 encoding introduced in Chapter 4. TeachingQ4 is not upstream GGUF Q4_0; its nibble layout and scaling must not be used to read real Q4_0 weights.
+
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
@@ -290,7 +292,7 @@ The Q8_0 and Q4_0 dot product this book has computed scalar-element-by-scalar-el
 
 ```cpp
 // 02_avx2_quantized_dot_product.cpp
-// Chapter 9, Part 2: every Q8_0 and Q4_0 block dot product in this book
+// Chapter 9, Part 2: every Q8_0 and TeachingQ4 block dot product in this book
 // so far -- Chapter 4's fused_dot_product, Chapter 8.3's linear layer
 // cost model -- has been a plain scalar loop. This section writes the
 // real AVX2 instructions a production inference engine actually issues
@@ -306,6 +308,7 @@ The Q8_0 and Q4_0 dot product this book has computed scalar-element-by-scalar-el
 
 #include <immintrin.h>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <vector>
@@ -328,36 +331,51 @@ static int g_tests = 0, g_passed = 0;
 // Chapter 4/8's fp16_t, BlockQ8, and BlockQ4 (reused verbatim) -- the
 // exact byte layouts a real AVX2 kernel has to unpack.
 // =========================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -366,22 +384,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2 * i] * inv), -8.0f, 7.0f));
@@ -440,7 +462,7 @@ float avx2_dot_q8(const BlockQ8& b, const float* x) {
 }
 
 // =========================================================================
-// AVX2 Q4_0 dot product: the packed nibbles must be unpacked into 32
+// AVX2 TeachingQ4 dot product: the packed nibbles must be unpacked into 32
 // individual signed int8 values BEFORE the same widen-convert-FMA
 // pipeline applies. The unpack itself is real SIMD work, not a scalar
 // preprocessing step smuggled in before "the real" vectorized part.
@@ -479,7 +501,7 @@ float avx2_dot_q4(const BlockQ4& b, const float* x) {
 
 int main() {
     std::cout << "========================================================\n";
-    std::cout << "Chapter 9.2: AVX2 Integer Dot Products -- Q8_0 and Q4_0, Vectorized\n";
+    std::cout << "Chapter 9.2: AVX2 Integer Dot Products -- Q8_0 and TeachingQ4, Vectorized\n";
     std::cout << "========================================================\n\n";
 
     std::mt19937 rng(42);
@@ -515,10 +537,10 @@ int main() {
     }
 
     // =====================================================================
-    // TEST 2: AVX2 Q4_0 dot product -- including the nibble-unpack step --
+    // TEST 2: AVX2 TeachingQ4 dot product -- including the nibble-unpack step --
     // matches the scalar reference across many random blocks.
     // =====================================================================
-    std::cout << "\n-- Test 2: AVX2 Q4_0 dot product (with SIMD nibble unpacking) vs. scalar, 200 trials --\n";
+    std::cout << "\n-- Test 2: AVX2 TeachingQ4 dot product (with SIMD nibble unpacking) vs. scalar, 200 trials --\n";
     {
         float max_abs_err = 0.0f;
         for (int trial = 0; trial < 200; ++trial) {
@@ -649,7 +671,7 @@ NEON's 128-bit registers hold four packed FP32 lanes or sixteen packed int8 lane
 ```cpp
 // 03_neon_quantized_dot_product.cpp
 // Chapter 9, Part 3: Arm NEON's equivalent of Section 9.2 -- the same
-// Q8_0 and Q4_0 block dot products, now written against NEON's 128-bit,
+// Q8_0 and TeachingQ4 block dot products, now written against NEON's 128-bit,
 // 4-lane-fp32 register model instead of AVX2's 256-bit, 8-lane one.
 // Every intrinsic here has a direct AVX2 analogue from Section 9.2
 // (vld1q_s8 <-> _mm256_loadu_si256, vmovl_s8/vmovl_s16 widening <->
@@ -673,6 +695,7 @@ NEON's 128-bit registers hold four packed FP32 lanes or sixteen packed int8 lane
 
 #include <arm_neon.h>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <vector>
@@ -693,36 +716,51 @@ static int g_tests = 0, g_passed = 0;
 // =========================================================================
 // Chapter 4/8/9's fp16_t, BlockQ8, and BlockQ4 (reused verbatim)
 // =========================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -731,22 +769,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2 * i] * inv), -8.0f, 7.0f));
@@ -808,7 +850,7 @@ float neon_dot_q8(const BlockQ8& b, const float* x) {
 }
 
 // =========================================================================
-// NEON Q4_0 dot product: the same mask/shift/bias/interleave unpack as
+// NEON TeachingQ4 dot product: the same mask/shift/bias/interleave unpack as
 // Section 9.2's AVX2 version, using NEON's vzip1q/vzip2q_s8 in place of
 // _mm_unpacklo_epi8/_mm_unpackhi_epi8 -- the identical interleaving
 // operation, named differently.
@@ -882,9 +924,9 @@ int main() {
     }
 
     // =====================================================================
-    // TEST 2: NEON Q4_0 dot product (with SIMD nibble unpacking) vs. scalar.
+    // TEST 2: NEON TeachingQ4 dot product (with SIMD nibble unpacking) vs. scalar.
     // =====================================================================
-    std::cout << "\n-- Test 2: NEON Q4_0 dot product (with SIMD nibble unpacking) vs. scalar, 200 trials --\n";
+    std::cout << "\n-- Test 2: NEON TeachingQ4 dot product (with SIMD nibble unpacking) vs. scalar, 200 trials --\n";
     {
         float max_abs_err = 0.0f;
         for (int trial = 0; trial < 200; ++trial) {
@@ -1277,7 +1319,7 @@ Every kernel this chapter has written so far assumes its target instruction set 
 
 ### The Concept, In Detail
 
-`__builtin_cpu_supports("avx2")`, backed by `__builtin_cpu_init()`'s real CPUID query, answers a question about the machine the binary is running on RIGHT NOW, not a question about the machine that compiled it — and a small dispatch table built around that query, choosing a function pointer once and calling through it from then on, lets one binary use AVX2 where it is available and fall back to a scalar kernel, correctly, where it is not. On Arm this section's dispatch table has exactly one entry: NEON is part of the aarch64 base instruction set, present unconditionally on every aarch64 CPU capable of running the binary at all, so there is no equivalent feature to query and nothing to dispatch between. The COMMON TRAP this section exists to prevent is not a bug in the dispatch logic itself; it is skipping dispatch altogether. A binary built with `-march=native` tells the compiler, at compile time, that the BUILD machine's entire instruction set is always available — so `__builtin_cpu_supports` becomes a check the compiler is free to assume always succeeds, and ordinary auto-vectorized loops (not just hand-written intrinsics) may freely use instructions the build machine has and a customer's older CPU does not. The result on that older CPU is not a graceful, slow fallback; it is `SIGILL`, an illegal-instruction crash, on the first such instruction the CPU actually tries to execute — a correctness failure a test suite run only on the build machine has no way to ever observe.
+`__builtin_cpu_supports` checks the runtime CPU features. The dispatcher checks both AVX2 and FMA, then chooses a function pointer. Compile this translation unit for the baseline ISA; only `avx2_dot` uses `__attribute__((target("avx2,fma")))`. Global `-mavx2`, `-mfma` or `-march=native` options may emit unsupported instructions in ordinary code outside the guarded function, so a scalar fallback cannot make such a binary portable. These options do not necessarily remove an explicit feature query. The self-tests check arithmetic on the current host; safe execution on an older CPU requires an appropriate baseline build and a separate target/emulated run. The Arm branch in this particular example returns the scalar implementation; Section 9.3 demonstrates NEON separately. See [GCC's runtime detection guidance](https://gcc.gnu.org/onlinedocs/gcc/x86-Built-in-Functions.html).
 
 ### Code and Verification
 
@@ -1300,7 +1342,7 @@ Every kernel this chapter has written so far assumes its target instruction set 
 // kernel side by side, so the dispatch decision is never assumed to
 // produce correctness, only checked to.
 //
-// Compile: g++ -std=c++23 -Wall -Wextra -O3 -mavx2 -mfma 05_runtime_dispatch.cpp -o 05_runtime_dispatch
+// Compile: g++ -std=c++23 -Wall -Wextra -O3 05_runtime_dispatch.cpp -o 05_runtime_dispatch
 
 #include <cmath>
 #include <cstdint>
@@ -1330,8 +1372,8 @@ static int g_tests = 0, g_passed = 0;
 // =========================================================================
 // The scalar reference dot product -- correct on every CPU that can run
 // this program at all, and the thing every faster kernel below must match
-// bit-for-bit (this is FP32 multiply-add in a fixed, sequential order, so
-// "bit-for-bit" is a meaningful, checkable claim here, not an approximation).
+// within the stated tolerance: SIMD reduction order and fused operations
+// can differ from the scalar reference in their final rounding bits.
 // =========================================================================
 __attribute__((noinline))
 float scalar_dot(const float* a, const float* b, int n) {
@@ -1470,49 +1512,17 @@ int main() {
 #endif
 
     // =====================================================================
-    // TEST 3 [COMMON TRAP]: the failure this section exists to prevent
-    // is not "the dispatch logic is buggy" -- it is skipping dispatch
-    // entirely. A binary built with -march=native bakes the BUILD
-    // machine's instruction set into every function, unconditionally,
-    // with no runtime check at all: __builtin_cpu_supports becomes a
-    // dead branch the compiler is free to assume is always true, and
-    // ordinary AVX2 instructions can appear even in code that never
-    // mentions an intrinsic, because auto-vectorization also targets
-    // whatever -march says is available. Shipped to a customer's older
-    // CPU that lacks AVX2, the result is not a slow fallback -- it is
-    // SIGILL, an illegal-instruction crash, on the first vectorized loop
-    // the OS scheduler happens to reach. This is verified here as a
-    // documented, checkable claim about compiler behavior (what flag
-    // produces what CPUID-independent code), not as a live crash --
-    // deliberately crashing this program would defeat every other
-    // check in this file, so the unsafe binary is built and inspected
-    // instead of executed.
-    // =====================================================================
-    std::cout << "\n-- Test 3 [COMMON TRAP]: -march=native bypasses runtime dispatch entirely --\n";
+    // TEST 3: the fallback is compiled for the baseline ISA. Global
+    // -mavx2/-mfma or -march=native could permit unsupported instructions
+    // outside the guarded target-attributed function, even if CPUID checks
+    // remain in the binary. Selecting scalar_dot does not undo such flags.
+    // A same-host run checks arithmetic, not execution on an older CPU.
+    std::cout << "\n-- Test 3: baseline compilation and specialized dispatch --\n";
     {
-        std::cout << "  A binary built with '-march=native' does not call __builtin_cpu_supports at\n";
-        std::cout << "  runtime to decide whether to use AVX2 -- the compiler is TOLD, at compile\n";
-        std::cout << "  time, that the build machine's full instruction set is always available, so\n";
-        std::cout << "  it may emit AVX2/FMA instructions anywhere, including inside ordinary loops\n";
-        std::cout << "  the auto-vectorizer decides to widen, with no runtime feature check at all.\n";
-        std::cout << "  This function's own dispatch table, by contrast, calls __builtin_cpu_init()\n";
-        std::cout << "  and __builtin_cpu_supports(\"avx2\") -- a real CPUID query, performed once, on\n";
-        std::cout << "  the machine the binary is ACTUALLY running on -- before ever calling avx2_dot.\n";
-        std::cout << "  The scalar fallback exists specifically so this program still runs correctly,\n";
-        std::cout << "  just slower, on a CPU where that query comes back false.\n";
-        std::cout << "  Shipping a '-march=native' build to a customer fleet with mixed CPU\n";
-        std::cout << "  generations trades this section's slower-but-safe fallback for a binary that\n";
-        std::cout << "  works on the build machine and SIGILLs on any older one -- a correctness bug\n";
-        std::cout << "  that a test suite run only on the build machine can never observe.\n";
-
-        // This is the checkable half of the claim: this program's own
-        // dispatch logic does NOT assume AVX2 -- it degrades to a kernel
-        // that agrees with the scalar reference, on any CPU, including
-        // one where __builtin_cpu_supports("avx2") is false. That was
-        // already exercised by Test 1 above; here we simply confirm the
-        // scalar fallback path itself -- the one -march=native has no
-        // equivalent of -- produces the same numbers the dispatched
-        // kernel does, when forced, on this machine's own data.
+        std::cout << "  Compile the baseline translation unit without -mavx2/-mfma or -march=native.\n";
+        std::cout << "  Only avx2_dot has target(\"avx2,fma\"); dispatch checks both features.\n";
+        std::cout << "  Global ISA flags may introduce unsupported instructions outside that function.\n";
+        std::cout << "  A forced scalar arithmetic check is not proof of execution on a non-AVX2 CPU.\n";
         std::vector<float> a(37), b(37);
         for (int i = 0; i < 37; ++i) { a[i] = static_cast<float>(i) * 0.1f; b[i] = static_cast<float>(37 - i) * 0.2f; }
         float forced_scalar = scalar_dot(a.data(), b.data(), 37);
@@ -1533,7 +1543,7 @@ int main() {
 **Compile and run:**
 
 ```bash
-g++ -std=c++23 -Wall -Wextra -O3 -mavx2 -mfma 05_runtime_dispatch.cpp -o 05_runtime_dispatch
+g++ -std=c++23 -Wall -Wextra -O3 05_runtime_dispatch.cpp -o 05_runtime_dispatch
 ./05_runtime_dispatch
 ```
 
@@ -1552,21 +1562,11 @@ Chapter 9.5: Runtime CPU Feature Detection and Dispatch
   __builtin_cpu_supports("avx2") && ("fma") on this machine: true
   avx2_dot matches scalar_dot at every tested size
 
--- Test 3 [COMMON TRAP]: -march=native bypasses runtime dispatch entirely --
-  A binary built with '-march=native' does not call __builtin_cpu_supports at
-  runtime to decide whether to use AVX2 -- the compiler is TOLD, at compile
-  time, that the build machine's full instruction set is always available, so
-  it may emit AVX2/FMA instructions anywhere, including inside ordinary loops
-  the auto-vectorizer decides to widen, with no runtime feature check at all.
-  This function's own dispatch table, by contrast, calls __builtin_cpu_init()
-  and __builtin_cpu_supports("avx2") -- a real CPUID query, performed once, on
-  the machine the binary is ACTUALLY running on -- before ever calling avx2_dot.
-  The scalar fallback exists specifically so this program still runs correctly,
-  just slower, on a CPU where that query comes back false.
-  Shipping a '-march=native' build to a customer fleet with mixed CPU
-  generations trades this section's slower-but-safe fallback for a binary that
-  works on the build machine and SIGILLs on any older one -- a correctness bug
-  that a test suite run only on the build machine can never observe.
+-- Test 3: baseline compilation and specialized dispatch --
+  Compile the baseline translation unit without -mavx2/-mfma or -march=native.
+  Only avx2_dot has target("avx2,fma"); dispatch checks both features.
+  Global ISA flags may introduce unsupported instructions outside that function.
+  A forced scalar arithmetic check is not proof of execution on a non-AVX2 CPU.
 
 ========================================================
 3/3 checks passed  ALL PASS

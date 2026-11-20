@@ -1,8 +1,8 @@
 # C++ Inference Book Technical Accuracy Audit
 
-**November 20, 2026. The book is not yet cleared for technical accuracy.** The review found **26 confirmed issues: nine P1 and seventeen P2**. Passing the existing self-tests remains valid execution evidence, but does not establish external file-format compatibility, independent numerical correctness, benchmark comparability or regulatory accuracy.
+**November 20, 2026. Review and correction record.** The original review found **26 confirmed issues: nine P1 and seventeen P2**. The correction pass below distinguishes implementation fixes from claims narrowed to the examples' actual scope. Passing self-tests does not establish general external-format compatibility, benchmark comparability or regulatory conformance.
 
-P1 findings affect foundational correctness, interoperability, portability, evidence integrity or standards claims. P2 findings require correction before the affected explanation or example can support its current claim. All findings below remain open. The sample-output improvements described later are separate.
+P1 findings affect foundational correctness, interoperability, portability, evidence integrity or standards claims. P2 findings require correction before the affected explanation or example can support its current claim. The finding descriptions below preserve the original audited snapshot; consult the correction record for their current disposition. Scope corrections do not add the production capabilities that the original text overstated.
 
 ## Review coverage
 
@@ -10,7 +10,16 @@ Three agents reviewed numerical/model foundations (Chapters 2-8 and 30), C++/ser
 
 This is a comprehensive review across the published subject areas, not an exhaustive proof, certification, production deployment assessment, complete concurrency analysis or fresh benchmark campaign. Physical Jetson execution and a new real-model comparison were not performed. Explicitly disclosed teaching simplifications were distinguished from claims of standard compatibility or production behavior.
 
-## Findings
+## Correction record
+
+The correction pass changes the affected implementations, source embeds, explanations and captured stdout. Detailed per-finding resolutions and actual validation logs are in [validation/accuracy-fixes](validation/accuracy-fixes). Machine-readable dispositions are in [the findings ledger](audit/technical-findings-2026-11-20.json).
+
+- Implementation corrections cover binary16 subnormals and safe scales, container constants, baseline dispatch, benchmark statistics, SwiGLU accounting, simultaneous-location handling and unknown observation coverage.
+- Teaching simplifications are explicitly identified: the four-bit layout is not upstream Q4_0; GGUF readers remain trusted-input instructional readers; FNV is not evidentiary protection; limited accessibility/AML/schema checks do not establish conformance or legal conclusions.
+- CUDA arithmetic is unchanged. Its documented contract is unscaled noncausal attention with tolerance comparisons and fixed score-tile storage, not a complete production decoder or fixed total memory. Existing A100 runs remain historical evidence, not a fresh GPU run for this correction pass.
+- Historical model transcripts and unavailable platform runs are not relabeled as new measurements. See the validation record for what actually ran.
+
+## Original findings
 
 ### TA-01 P1 Tiny valid quantization scales become zero
 
@@ -266,7 +275,7 @@ The repository repeatedly describes four-way validation including physical aarch
 
 ## Reproduction evidence
 
-The benign tiny-scale reproduction is saved as [fp16_tiny_scale.cpp](audit/evidence/fp16_tiny_scale.cpp), with actual [sanitizer output](audit/evidence/fp16_tiny_scale.stderr.txt). It deliberately exercises an open defect, so a sanitizer failure is expected until TA-01 is corrected. It is not a passing regression test.
+The benign tiny-scale reproduction is saved as [fp16_tiny_scale.cpp](audit/evidence/fp16_tiny_scale.cpp), with actual [sanitizer output](audit/evidence/fp16_tiny_scale.stderr.txt). This is the original failing snapshot, retained as historical evidence; it is not the corrected implementation or a passing regression test. Current conversion and quantizer tests are in `tests/numerical_accuracy_regressions.py`.
 
 ```sh
 clang++ -std=c++23 -O1 -fsanitize=undefined,float-cast-overflow \
@@ -280,9 +289,9 @@ Agent review also reproduced the simultaneous-location alert failure and confirm
 
 The scan covered 162 fenced text blocks. Sections 2.1 and 2.2 were the two whose sample stdout contained only a pass count. Both now print actual shapes, strides, selected values and write-through behavior before their original test summaries. Section 2.2 also prints every selected head row, range-slice values, combined-slice values and whether the head view aliases the original allocation.
 
-The updated samples were compiled and run, and their exact stdout was inserted into the chapter. `python3 tests/sample_output_checks.py` re-executes both examples and checks the published output. No summary-only sample blocks remain. Other captured output was not regenerated merely to make a known incorrect claim look polished. Chapters 4-6, 8, 17, 25, 29, 30 and 32 require the applicable technical corrections above before their affected claims can be cleared.
+The updated samples were compiled and run, and their exact stdout was inserted into the chapter. `python3 tests/sample_output_checks.py` re-executes both examples and checks the published output. No summary-only sample blocks remain. Other captured output was not regenerated merely to make a known incorrect claim look polished. The subsequent correction pass updates affected claims and refreshes stdout where implementations changed; the resolution logs distinguish fresh runs from retained historical captures.
 
-## Correction order
+## Original correction plan
 
 1. Correct the half helper and standard file/quantization contracts, including copied implementations and diagrams. Use independent format fixtures.
 2. Correct baseline CPU dispatch and current-versus-historical benchmark behavior.
@@ -292,4 +301,4 @@ The updated samples were compiled and run, and their exact stdout was inserted i
 
 ## Verification during this review
 
-The new tensor stdout checks pass. The tiny-scale sanitizer reproduction confirms TA-01. Earlier recorded GCC/Linux and A100 logs are evidence of their listed runs, not resolution of the findings above. The changed tensor examples retain their original 18/18 and 16/16 checks in addition to the explanatory output.
+The new tensor stdout checks pass. The tiny-scale sanitizer reproduction confirms TA-01. Earlier recorded GCC/Linux and A100 logs are evidence of their listed runs. Current correction-pass validation is recorded separately under `validation/accuracy-fixes`. The changed tensor examples retain their original 18/18 and 16/16 checks in addition to the explanatory output.

@@ -26,6 +26,10 @@
 
 ---
 
+!!! warning "Trusted instructional inputs only"
+    The GGUF readers copied into this chapter assume the documented trusted fixtures and compatible checkpoints. They are not hardened arbitrary-file parsers: read success, metadata allocation limits, dimension products, alignment and every tensor byte range are not comprehensively validated. A successful `open()` does not establish that an arbitrary file is safe. Validate those properties before exposing mapped views in production, and do not use these examples on untrusted model files.
+
+
 Section 15.4 produced one real, correct, decoded token from a real forward pass -- and stopped there, because getting that one token right was already the whole job Chapter 15 set out to do. A production binary needs more than one token: it needs a command line a reader can actually type, a sampling pipeline that turns a raw logit distribution into a token someone would want to read, a decoder that reassembles that token's bytes into text correctly even when a single character spans two tokens, a loop that keeps generating until a real stopping condition fires, a conversation abstraction that lets a second question build on the first without recomputing everything, and enough error handling and visibility into its own performance that running it on a machine no one is watching doesn't mean flying blind. This chapter builds exactly those six things, in that order, states plainly which of this book's own earlier subsystems (Chapter 8's threads, Chapters 13 and 14's KV-cache compression) did NOT make it into this binary and why, and ends by running the complete result -- the CLI, the sampling pipeline, the streaming decoder, the conversation loop, and the profiler, all compiled into one file -- against the actual downloaded Qwen2.5-0.5B-Instruct checkpoint for a real two-turn conversation.
 
 <!-- chapter-figure -->

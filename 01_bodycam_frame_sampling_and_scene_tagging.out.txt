@@ -20,8 +20,8 @@ Chapter 25.1: Body-Camera Frame Sampling and Scene Tagging
 -- Test 6: a frame's own report line renders its real scene tags and real uniform roles exactly, and nothing else --
   frame 120's report line renders to exactly "[frame 120] tags: WEAPON_VISIBLE, PERSON_ON_GROUND; people: 2 (OFFICER, CIVILIAN)" -- a role and a bounding box, never a name; an empty frame renders to exactly "[frame 0] tags: (none); people: 0"
 
--- Test 7: PersonBox's own structural inability to hold an identity is a real, compile-time property, checked here at runtime against the identical concept the static_assert above already enforced at build time --
+-- Test 7: PersonBox omits the three specifically checked member names; this is a compile-time property, checked here at runtime against the identical concept the static_assert above already enforced at build time --
   this file already failed to compile if PersonBox ever gained a name, person_id, or face_embedding field -- the fact this line runs at all is itself part of the proof, confirmed here directly against the same real concept
 
-24/24 checks passed
+25/25 checks passed
 ALL CHECKS PASSED

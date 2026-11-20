@@ -1,13 +1,6 @@
-// Chapter 25.2 -- Section 25.1's own per-frame scene tags are only
-// useful once turned into a real, chronological incident report a
-// human can actually read, with a real, tamper-evident record proving
-// what that report was built from. This section reuses Section 22.1's
-// own presence-interval coalescing technique to turn raw per-frame tags
-// into readable narrative lines, adds an honest "no notable activity"
-// line for any real gap rather than silently skipping it, and builds a
-// real, well-known non-cryptographic checksum -- FNV-1a -- from scratch
-// as this incident's own chain-of-custody hash, verified against its
-// own real, published reference vectors.
+// Chapter 25.2: chronological annotation reports and a non-security FNV
+// checksum. Gaps mean unknown coverage, not proven inactivity.
+// Source-video integrity and custody procedures are outside this example.
 //
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 02_incident_report_drafting_and_chain_of_custody.cpp -o 02_incident_report_drafting_and_chain_of_custody
 // Run:     ./02_incident_report_drafting_and_chain_of_custody
@@ -128,7 +121,7 @@ std::string render_narrative_line(const TagInterval& iv) {
 
 // A real gap in the timeline where no tag interval covers any part of
 // it is reported explicitly, honestly, and by name -- never silently
-// skipped, exactly this book's own established "no notable activity"
+// skipped, exactly this book's own established "no tagged observations; coverage unknown"
 // (rather than no line at all) discipline.
 constexpr int64_t NOTABLE_GAP_THRESHOLD_MS = 10000;
 
@@ -143,7 +136,7 @@ std::vector<std::string> draft_report(std::vector<FrameRecord> frames, int64_t i
         if (iv.start_ms - cursor >= NOTABLE_GAP_THRESHOLD_MS) {
             std::ostringstream gap;
             gap << "[" << format_mmss(cursor) << " - " << format_mmss(iv.start_ms) << "] "
-                << "No notable activity";
+                << "No tagged observations; coverage unknown";
             lines.push_back(gap.str());
         }
         lines.push_back(render_narrative_line(iv));
@@ -152,7 +145,7 @@ std::vector<std::string> draft_report(std::vector<FrameRecord> frames, int64_t i
     if (incident_end_ms - cursor >= NOTABLE_GAP_THRESHOLD_MS) {
         std::ostringstream gap;
         gap << "[" << format_mmss(cursor) << " - " << format_mmss(incident_end_ms) << "] "
-            << "No notable activity";
+            << "No tagged observations; coverage unknown";
         lines.push_back(gap.str());
     }
     return lines;
@@ -180,8 +173,8 @@ uint32_t fnv1a_32(const std::string& data) {
 
 // This incident's own canonical, order-sensitive serialization -- the
 // exact bytes the chain-of-custody hash is computed over. Changing a
-// single tag on a single frame changes this string, and therefore
-// changes the hash.
+// single tag changes the serialized bytes. Hash collisions remain possible;
+// this checksum does not prove integrity or hash original video bytes.
 std::string canonical_serialization(const std::vector<FrameRecord>& frames) {
     std::ostringstream out;
     for (const auto& f : frames) {
@@ -280,16 +273,16 @@ int main() {
         };
         auto report = draft_report(frames, 90000);
         bool has_gap_line = false;
-        for (const auto& line : report) if (line.find("No notable activity") != std::string::npos) has_gap_line = true;
+        for (const auto& line : report) if (line.find("No tagged observations; coverage unknown") != std::string::npos) has_gap_line = true;
         CHECK(has_gap_line);
-        CHECK(report.back().find("No notable activity") != std::string::npos);
+        CHECK(report.back().find("No tagged observations; coverage unknown") != std::string::npos);
         std::cout << "  a real 59-second silence between VEHICLE_PRESENT ending at 0ms and EMS_PRESENT "
                      "starting at 60000ms, and a real 30-second silence after EMS_PRESENT ends and the "
                      "incident's own stated end time, both get their own explicit "
-                     "\"No notable activity\" line rather than simply not appearing\n";
+                     "\"No tagged observations; coverage unknown\" line rather than simply not appearing\n";
     }
 
-    std::cout << "\n-- Test 6: the chain-of-custody hash is a real, tamper-evident checksum -- an "
+    std::cout << "\n-- Test 6: the chain-of-custody hash is a real, non-security checksum -- an "
                  "identical record hashes identically, and changing even one tag on one frame changes "
                  "the hash --\n";
     {
@@ -309,8 +302,16 @@ int main() {
         CHECK(hash_original != hash_tampered);
         std::cout << "  an identical copy of the same incident record hashes to the exact same real "
                      "chain-of-custody value; silently removing just the PERSON_ON_GROUND tag from one "
-                     "single frame changes that hash, proving the checksum really does depend on every "
-                     "real tag on every real frame\n";
+                     "single frame changes that hash, demonstrating change detection for this tested "
+                     "tag mutation only; collisions and adversarial tampering are not tested\n";
+    }
+
+    // No observations do not justify claiming the scene was inactive.
+    {
+        auto missing = draft_report({}, 20000);
+        CHECK(missing.size() == 1);
+        CHECK(missing.front().find("coverage unknown") != std::string::npos);
+        CHECK(missing.front().find("No notable activity") == std::string::npos);
     }
 
     std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";

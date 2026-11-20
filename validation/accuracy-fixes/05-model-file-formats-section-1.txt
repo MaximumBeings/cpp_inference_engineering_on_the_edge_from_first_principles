@@ -1,0 +1,26 @@
+================================================
+The GGUF Binary Format, Byte by Byte
+================================================
+
+-- Test 1: Building the file, field by field --
+  header: 24 bytes
+  metadata KV pair: 45 bytes
+  tensor descriptor: 57 bytes
+  total before alignment: 126 bytes
+  header hex: 47 47 55 46 03 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 
+
+-- Test 2: Alignment to the data section --
+  size before padding: 126 bytes
+  padding added: 2 bytes
+  data section starts at: 128 bytes
+
+-- Test 3: Parsing the file back --
+  magic: 0x46554747 ("GGUF" == 0x46554747)
+  version=3 n_tensors=1 n_kv=1
+  metadata: "general.architecture" = "llama" (type=8)
+  tensor: "token_embd.weight" dims=[4096,32768] type=0 offset=0
+  parser cursor after descriptors: 126 bytes
+
+================================================
+18/18 checks passed ALL PASS
+================================================

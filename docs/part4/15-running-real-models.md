@@ -26,6 +26,10 @@
 
 ---
 
+!!! warning "Trusted instructional inputs only"
+    The GGUF readers copied into this chapter assume the documented trusted fixtures and compatible checkpoints. They are not hardened arbitrary-file parsers: read success, metadata allocation limits, dimension products, alignment and every tensor byte range are not comprehensively validated. A successful `open()` does not establish that an arbitrary file is safe. Validate those properties before exposing mapped views in production, and do not use these examples on untrusted model files.
+
+
 Every chapter so far has proven its code correct against data this book's own tools produced: a writer this book wrote, read back by a reader this book wrote, checked against values this book's own test computed. That symmetry is exactly what makes those chapters' cross-architecture verification possible, and exactly what this chapter breaks on purpose. A real, published model file was produced by someone else's tooling, encodes someone else's architecture choices, and makes no promise that this book's prior assumptions hold. Section 15.1 builds a GGUF reader that survives contact with such a file -- closing gaps (an unsupported metadata value type, wrong assumptions about a magic number's exact bytes) that no self-consistent round-trip test could ever have surfaced. Section 15.2 puts that reader to work identifying exactly where a real Qwen2.5 checkpoint's architecture diverges from the Llama-style choices this book built Part 0 and Part 3 against: five differences, each checked against the real file's own bytes rather than assumed from a spec sheet or carried forward from an unverified claim. Section 15.3 adapts the actual forward-pass and tokenizer code for those five differences and proves the adaptation correct against a small synthetic model shaped like the real one. Section 15.4, the chapter's capstone, wires every piece -- the reader, the dequantizer, the BPE engine, the adapted transformer block -- together, points the result at the actual 644 MB file, and produces one real, computed, decoded token. Getting that one token right required finding and fixing four genuine bugs that no synthetic self-test, however careful, could have caught -- and this chapter documents each one as it was actually found, not as though the correct answer were obvious from the start.
 
 <!-- chapter-figure -->
@@ -274,6 +278,11 @@ struct TensorInfo {
 using MetaValue = std::variant<std::string, uint32_t, float, bool,
                                 std::vector<std::string>, std::vector<int32_t>, std::vector<float>>;
 
+// INPUT SCOPE: this instructional GGUF reader assumes trusted, compatible
+// fixtures/checkpoints. It is not a hardened parser: it does not fully
+// validate all reads, allocation sizes, dimension products, alignment or
+// tensor/file bounds. Do not pass untrusted or arbitrary model files.
+// Production loading needs those checks before exposing any tensor view.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }
@@ -831,6 +840,11 @@ struct TensorInfo {
 
 using MetaValue = std::variant<std::string, uint32_t, float, bool>;
 
+// INPUT SCOPE: this instructional GGUF reader assumes trusted, compatible
+// fixtures/checkpoints. It is not a hardened parser: it does not fully
+// validate all reads, allocation sizes, dimension products, alignment or
+// tensor/file bounds. Do not pass untrusted or arbitrary model files.
+// Production loading needs those checks before exposing any tensor view.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }
@@ -1962,6 +1976,7 @@ With all four fixes in place, a real 24-layer forward pass over the real 36-toke
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -2058,6 +2073,11 @@ struct TensorInfo {
 };
 using MetaValue = std::variant<std::string, uint32_t, float, bool, std::vector<std::string>>;
 
+// INPUT SCOPE: this instructional GGUF reader assumes trusted, compatible
+// fixtures/checkpoints. It is not a hardened parser: it does not fully
+// validate all reads, allocation sizes, dimension products, alignment or
+// tensor/file bounds. Do not pass untrusted or arbitrary model files.
+// Production loading needs those checks before exposing any tensor view.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }
@@ -2165,36 +2185,51 @@ public:
 // PART 2: Chapter 4.2's fp16_t and BlockQ8, reused verbatim -- this is
 // the machinery that turns the real file's Q8_0 bytes back into floats.
 // =======================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -2203,11 +2238,13 @@ struct BlockQ8 { fp16_t scale; int8_t weights[32]; };
 static_assert(sizeof(BlockQ8) == 34);
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
@@ -3085,7 +3122,7 @@ This chapter took every piece of machinery this book had built through Chapter 1
 
 ## Where We Go Next
 
-This chapter closed the gap between "an inference engine whose every piece is independently verified" and "an inference engine that produces a correct answer from a real, downloaded model" -- and closing that gap required exactly the kind of debugging no synthetic self-test, however thorough, can substitute for: an independently built reference implementation, and a willingness to keep looking after every earlier fix still left the wrong answer in place. With a real forward pass now producing a real, correct first token, Chapter 16 turns from producing one token to producing a conversation: the generation loop that turns one correct token into a full response, the interactive loop that turns one response into an ongoing exchange, a streaming token decoder, and the error handling and startup sequence a production binary needs that a single self-contained section never did -- all of it compiled into the single deployable binary this book has been building every piece of since Chapter 1.
+This chapter closed the gap between "an inference engine whose every piece is independently verified" and "an inference engine that produces a correct answer from a real, downloaded model" -- and closing that gap required exactly the kind of debugging no synthetic self-test, however thorough, can substitute for: an independently built reference implementation, and a willingness to keep looking after every earlier fix still left the wrong answer in place. With a real forward pass now producing a real, correct first token, Chapter 16 turns from producing one token to producing a conversation: the generation loop that turns one correct token into a full response, the interactive loop that turns one response into an ongoing exchange, a streaming token decoder, and the error handling and startup sequence a production binary needs that a single self-contained section never did -- all of it compiled into the single deployable binary this book has been building every piece of since the tensor foundations in Chapter 2.
 
 ## Worked Solutions
 

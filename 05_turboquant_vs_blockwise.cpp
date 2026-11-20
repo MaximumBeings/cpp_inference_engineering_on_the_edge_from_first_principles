@@ -2,7 +2,7 @@
 // TurboQuant, Part 5: put every piece from this chapter together -- the
 // rotation (7.1), the Lloyd-Max codebook and MSE quantizer (7.2), and the
 // QJL-free "MSE mode" used for KV caches (7.4) -- and compare it head to
-// head against Chapter 3/4's blockwise Q8_0/Q4_0 on a common set of
+// head against Chapter 3/4's blockwise Q8_0/TeachingQ4 on a common set of
 // vectors. We also check TurboQuant's distortion against the
 // information-theoretic lower bound that makes it "near-optimal" rather
 // than just "pretty good".
@@ -10,6 +10,7 @@
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 05_turboquant_vs_blockwise.cpp -o out05
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -31,39 +32,54 @@ static int g_tests = 0, g_passed = 0;
 } while (0)
 
 // =========================================================================
-// CHAPTER 3/4's fp16_t and blockwise Q8_0/Q4_0 (reused verbatim, this is
+// CHAPTER 3/4's fp16_t and blockwise Q8_0/TeachingQ4 (reused verbatim, this is
 // the baseline TurboQuant is being compared against)
 // =========================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -72,22 +88,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2 * i] * inv), -8.0f, 7.0f));
@@ -281,7 +301,7 @@ int main() {
             for (int i = 0; i < D; ++i) { float e = v[i] - recon[i]; total_mse += e * e; }
             for (const auto& q : queries) { float d1 = dot(q, v) - dot(q, recon); total_ip_err += d1 * d1; }
         }
-        results.push_back({"Q4_0 blockwise", total_mse / (N_VEC * D), total_ip_err / (N_VEC * N_QUERIES),
+        results.push_back({"TeachingQ4 blockwise", total_mse / (N_VEC * D), total_ip_err / (N_VEC * N_QUERIES),
                             static_cast<size_t>(nblocks) * sizeof(BlockQ4)});
     }
     for (int b = 2; b <= 4; ++b) {
@@ -309,8 +329,8 @@ int main() {
     }
     CHECK(results[0].mse < results[1].mse);        // Q8 beats Q4 in MSE
     CHECK(results[1].bytes < results[0].bytes);    // Q4 smaller than Q8
-    CHECK(results[4].mse < results[1].mse);        // TurboQuant 4-bit beats Q4_0 in MSE
-    std::cout << "\n  TurboQuant 4-bit matches or beats Q4_0's reconstruction quality\n";
+    CHECK(results[4].mse < results[1].mse);        // TurboQuant 4-bit beats TeachingQ4 in MSE
+    std::cout << "\n  TurboQuant 4-bit matches or beats TeachingQ4's reconstruction quality\n";
     std::cout << "  while using a comparable or smaller byte budget.\n";
 
     // =====================================================================
@@ -384,7 +404,7 @@ int main() {
                   << std::fixed << std::setprecision(1) << fp32_bytes / static_cast<float>(tq_index_only) << "x compression (WRONG)\n";
         std::cout << "    Including the norm:  " << tq_with_overhead << " bytes -> "
                   << fp32_bytes / static_cast<float>(tq_with_overhead) << "x compression (correct)\n";
-        std::cout << "  Q4_0 blockwise:\n";
+        std::cout << "  TeachingQ4 blockwise:\n";
         std::cout << "    Ignoring the scale:  " << q4_index_only << " bytes -> "
                   << fp32_bytes / static_cast<float>(q4_index_only) << "x compression (WRONG)\n";
         std::cout << "    Including the scale: " << q4_with_overhead << " bytes -> "
@@ -393,7 +413,7 @@ int main() {
         float tq_inflation = (fp32_bytes / static_cast<float>(tq_index_only)) / (fp32_bytes / static_cast<float>(tq_with_overhead));
         float q4_inflation = (fp32_bytes / static_cast<float>(q4_index_only)) / (fp32_bytes / static_cast<float>(q4_with_overhead));
         std::cout << "  Overstatement factor: TurboQuant " << std::setprecision(2) << tq_inflation
-                  << "x, Q4_0 " << q4_inflation << "x -- both look better than they are\n";
+                  << "x, TeachingQ4 " << q4_inflation << "x -- both look better than they are\n";
         std::cout << "  if the per-vector/per-block overhead is silently dropped from the count.\n";
         CHECK(tq_with_overhead > tq_index_only);
         CHECK(q4_with_overhead > q4_index_only);

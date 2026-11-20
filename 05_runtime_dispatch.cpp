@@ -16,7 +16,7 @@
 // kernel side by side, so the dispatch decision is never assumed to
 // produce correctness, only checked to.
 //
-// Compile: g++ -std=c++23 -Wall -Wextra -O3 -mavx2 -mfma 05_runtime_dispatch.cpp -o 05_runtime_dispatch
+// Compile: g++ -std=c++23 -Wall -Wextra -O3 05_runtime_dispatch.cpp -o 05_runtime_dispatch
 
 #include <cmath>
 #include <cstdint>
@@ -46,8 +46,8 @@ static int g_tests = 0, g_passed = 0;
 // =========================================================================
 // The scalar reference dot product -- correct on every CPU that can run
 // this program at all, and the thing every faster kernel below must match
-// bit-for-bit (this is FP32 multiply-add in a fixed, sequential order, so
-// "bit-for-bit" is a meaningful, checkable claim here, not an approximation).
+// within the stated tolerance: SIMD reduction order and fused operations
+// can differ from the scalar reference in their final rounding bits.
 // =========================================================================
 __attribute__((noinline))
 float scalar_dot(const float* a, const float* b, int n) {
@@ -186,49 +186,17 @@ int main() {
 #endif
 
     // =====================================================================
-    // TEST 3 [COMMON TRAP]: the failure this section exists to prevent
-    // is not "the dispatch logic is buggy" -- it is skipping dispatch
-    // entirely. A binary built with -march=native bakes the BUILD
-    // machine's instruction set into every function, unconditionally,
-    // with no runtime check at all: __builtin_cpu_supports becomes a
-    // dead branch the compiler is free to assume is always true, and
-    // ordinary AVX2 instructions can appear even in code that never
-    // mentions an intrinsic, because auto-vectorization also targets
-    // whatever -march says is available. Shipped to a customer's older
-    // CPU that lacks AVX2, the result is not a slow fallback -- it is
-    // SIGILL, an illegal-instruction crash, on the first vectorized loop
-    // the OS scheduler happens to reach. This is verified here as a
-    // documented, checkable claim about compiler behavior (what flag
-    // produces what CPUID-independent code), not as a live crash --
-    // deliberately crashing this program would defeat every other
-    // check in this file, so the unsafe binary is built and inspected
-    // instead of executed.
-    // =====================================================================
-    std::cout << "\n-- Test 3 [COMMON TRAP]: -march=native bypasses runtime dispatch entirely --\n";
+    // TEST 3: the fallback is compiled for the baseline ISA. Global
+    // -mavx2/-mfma or -march=native could permit unsupported instructions
+    // outside the guarded target-attributed function, even if CPUID checks
+    // remain in the binary. Selecting scalar_dot does not undo such flags.
+    // A same-host run checks arithmetic, not execution on an older CPU.
+    std::cout << "\n-- Test 3: baseline compilation and specialized dispatch --\n";
     {
-        std::cout << "  A binary built with '-march=native' does not call __builtin_cpu_supports at\n";
-        std::cout << "  runtime to decide whether to use AVX2 -- the compiler is TOLD, at compile\n";
-        std::cout << "  time, that the build machine's full instruction set is always available, so\n";
-        std::cout << "  it may emit AVX2/FMA instructions anywhere, including inside ordinary loops\n";
-        std::cout << "  the auto-vectorizer decides to widen, with no runtime feature check at all.\n";
-        std::cout << "  This function's own dispatch table, by contrast, calls __builtin_cpu_init()\n";
-        std::cout << "  and __builtin_cpu_supports(\"avx2\") -- a real CPUID query, performed once, on\n";
-        std::cout << "  the machine the binary is ACTUALLY running on -- before ever calling avx2_dot.\n";
-        std::cout << "  The scalar fallback exists specifically so this program still runs correctly,\n";
-        std::cout << "  just slower, on a CPU where that query comes back false.\n";
-        std::cout << "  Shipping a '-march=native' build to a customer fleet with mixed CPU\n";
-        std::cout << "  generations trades this section's slower-but-safe fallback for a binary that\n";
-        std::cout << "  works on the build machine and SIGILLs on any older one -- a correctness bug\n";
-        std::cout << "  that a test suite run only on the build machine can never observe.\n";
-
-        // This is the checkable half of the claim: this program's own
-        // dispatch logic does NOT assume AVX2 -- it degrades to a kernel
-        // that agrees with the scalar reference, on any CPU, including
-        // one where __builtin_cpu_supports("avx2") is false. That was
-        // already exercised by Test 1 above; here we simply confirm the
-        // scalar fallback path itself -- the one -march=native has no
-        // equivalent of -- produces the same numbers the dispatched
-        // kernel does, when forced, on this machine's own data.
+        std::cout << "  Compile the baseline translation unit without -mavx2/-mfma or -march=native.\n";
+        std::cout << "  Only avx2_dot has target(\"avx2,fma\"); dispatch checks both features.\n";
+        std::cout << "  Global ISA flags may introduce unsupported instructions outside that function.\n";
+        std::cout << "  A forced scalar arithmetic check is not proof of execution on a non-AVX2 CPU.\n";
         std::vector<float> a(37), b(37);
         for (int i = 0; i < 37; ++i) { a[i] = static_cast<float>(i) * 0.1f; b[i] = static_cast<float>(37 - i) * 0.2f; }
         float forced_scalar = scalar_dot(a.data(), b.data(), 37);

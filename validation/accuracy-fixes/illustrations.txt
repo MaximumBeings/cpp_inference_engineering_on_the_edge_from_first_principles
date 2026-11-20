@@ -1,0 +1,3 @@
+All 234 figures use the shared deep-blue style and 760-unit canvas; all appendix sections are covered.
+31 chapter openers and 140 section figures pass coverage, XML and accessible-label checks.
+All 234 SVG embeds resolve in the built book and have alt text.

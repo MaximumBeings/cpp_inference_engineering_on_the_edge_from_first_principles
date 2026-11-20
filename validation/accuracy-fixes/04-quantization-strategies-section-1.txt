@@ -1,0 +1,43 @@
+================================================
+Affine Quantization: the general formula
+================================================
+
+-- Test 1: Symmetric case (Z = 0) --
+  S=0.003137 Z=0 f=0.153
+  quantized q = 49
+  dequantized f' = 0.15371
+
+-- Test 2: Asymmetric case (Z != 0), range [-0.5, 5.5] --
+  S = 0.023529, Z = 21
+  quantize(0.0) = 21 (= Z)
+  quantize(-0.5) = 0 (= q_min)
+  quantize(5.5) = 255 (= q_max)
+  quantize(2.0) = 106, dequantize -> 2.000000
+
+-- Test 3: The memory wall (computed, not measured) --
+  Llama-3 8B:
+    FP32              32.00 GB
+    FP16/BF16         16.00 GB
+    Q8  (block=32)     8.50 GB
+    TeachingQ4(block=32)    4.50 GB
+  Llama-3 70B:
+    FP32             280.00 GB
+    FP16/BF16        140.00 GB
+    Q8  (block=32)    74.38 GB
+    TeachingQ4(block=32)   39.38 GB
+  Llama-3 405B:
+    FP32            1620.00 GB
+    FP16/BF16        810.00 GB
+    Q8  (block=32)   430.31 GB
+    TeachingQ4(block=32)  227.81 GB
+  Llama-3 8B fits in 16GB RAM at FP32: no
+  Llama-3 8B fits in 16GB RAM at TeachingQ4: yes
+
+  Analytical tokens/sec model at 64.00 GB/s (Llama-3 8B, memory-bandwidth-bound decode):
+    FP32: 2.0 tok/s
+    Q8:   7.5 tok/s
+    TeachingQ4: 14.2 tok/s
+
+================================================
+16/16 checks passed ALL PASS
+================================================

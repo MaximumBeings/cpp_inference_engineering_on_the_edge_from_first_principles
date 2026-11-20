@@ -9,12 +9,16 @@
 </figure>
 <!-- edge:opener:end -->
 
+!!! note "Teaching encoding and compatibility boundary"
+    `TeachingQ4` is this book's adjacent-pair, positive `alpha/7` four-bit encoding. It is **not GGUF Q4_0**. Upstream Q4_0 uses a signed extremum divided by -8 and pairs coordinates j and j+16. Matching its 18-byte block size does not make these bytes interchangeable. Synthetic containers here use private type tag `0x80000000` for TeachingQ4; they are GGUF-like teaching fixtures, not files for upstream loaders. F32 and Q8_0 use standard type identifiers 0 and 8. The reader covers trusted little-endian instructional inputs with default alignment, not every valid GGUF file.
+
+
 **What you will understand by the end of this chapter:**
 
 - Why LLM inference is memory-bandwidth-bound rather than compute-bound, and how that single fact turns "make the weights smaller" into "make inference faster" — not just cheaper to store.
 - The one formula, affine quantization, that every scheme in this chapter is a special case of, and exactly when its zero-point can be forced to zero (a pure multiply on the hot path) versus when it genuinely cannot.
 - Why one global scale for an entire weight matrix is not just imprecise but actively destructive in the presence of outliers, and how blockwise scales fix this by localizing the damage to the block that actually has the outlier.
-- How to pack two 4-bit values into a single byte for Q4_0, and how a fused dequantize-and-dot-product kernel avoids ever writing a dequantized float to memory at all.
+- How to pack two 4-bit values into a single byte for TeachingQ4, and how a fused dequantize-and-dot-product kernel avoids ever writing a dequantized float to memory at all.
 - How weights (quantized once, offline) and activations (quantized every token, at runtime) need different quantization strategies, and how INT8 x INT8 matrix multiplication turns that runtime cost into a throughput win on real hardware.
 - How Quantization-Aware Training uses the Straight-Through Estimator to work around round()'s zero gradient, letting a model's weights adapt to quantization noise instead of merely tolerating it after the fact.
 
@@ -61,7 +65,7 @@ This section also turns the "inference gets faster" claim into a computed quanti
 ### Code and Verification
 
 ```cpp
-// Chapter 4.1 -- every quantization scheme in this chapter (Q8, Q4_0,
+// Chapter 4.1 -- every quantization scheme in this chapter (Q8, TeachingQ4,
 // per-token activation quantization) is one special case of a single
 // formula: affine (linear) quantization. A real number f is mapped to
 // an integer q by a scale S and a zero-point Z:
@@ -90,6 +94,7 @@ This section also turns the "inference gets faster" claim into a computed quanti
 // anywhere in this file.
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <algorithm>
 #include <iostream>
@@ -206,7 +211,7 @@ int main() {
             {"FP32", 4.0},
             {"FP16/BF16", 2.0},
             {"Q8  (block=32)", (32.0 * 1.0 + SCALE_BYTES) / BLOCK},
-            {"Q4_0(block=32)", (32.0 * 0.5 + SCALE_BYTES) / BLOCK},
+            {"TeachingQ4(block=32)", (32.0 * 0.5 + SCALE_BYTES) / BLOCK},
         };
 
         struct Model { const char* name; double params_billion; };
@@ -221,16 +226,16 @@ int main() {
                           << std::right << std::fixed << std::setprecision(2)
                           << std::setw(8) << gb << " GB\n";
                 if (std::string(m.name) == "Llama-3 8B" && std::string(fmt.name) == "FP32") gb_8b_fp32 = gb;
-                if (std::string(m.name) == "Llama-3 8B" && std::string(fmt.name) == "Q4_0(block=32)") gb_8b_q4 = gb;
+                if (std::string(m.name) == "Llama-3 8B" && std::string(fmt.name) == "TeachingQ4(block=32)") gb_8b_q4 = gb;
             }
         }
 
         // An 8B model in FP32 needs ~32GB -- it will not fit in 16GB of
-        // RAM. The same model in Q4_0 needs a bit over 4GB -- it does.
+        // RAM. The same model in TeachingQ4 needs a bit over 4GB -- it does.
         CHECK(gb_8b_fp32 > 16.0);
         CHECK(gb_8b_q4 < 16.0);
         std::cout << "  Llama-3 8B fits in 16GB RAM at FP32: " << (gb_8b_fp32 < 16.0 ? "yes" : "no") << "\n";
-        std::cout << "  Llama-3 8B fits in 16GB RAM at Q4_0: " << (gb_8b_q4 < 16.0 ? "yes" : "no") << "\n";
+        std::cout << "  Llama-3 8B fits in 16GB RAM at TeachingQ4: " << (gb_8b_q4 < 16.0 ? "yes" : "no") << "\n";
 
         // Analytical bandwidth model (NOT a measured benchmark): for a
         // memory-bandwidth-bound decode step, tokens/sec is bounded by
@@ -250,13 +255,13 @@ int main() {
                   << " GB/s (Llama-3 8B, memory-bandwidth-bound decode):\n";
         std::cout << "    FP32: " << std::setprecision(1) << tok_s_fp32 << " tok/s\n";
         std::cout << "    Q8:   " << tok_s_q8 << " tok/s\n";
-        std::cout << "    Q4_0: " << tok_s_q4 << " tok/s\n";
+        std::cout << "    TeachingQ4: " << tok_s_q4 << " tok/s\n";
 
         // Structural fact, not a measurement: halving the bytes read
         // per token roughly doubles the projected tokens/sec.
         CHECK(tok_s_q4 > tok_s_q8);
         CHECK(tok_s_q8 > tok_s_fp32);
-        CHECK(tok_s_q4 > tok_s_fp32 * 3.0);   // FP32 is 4 bytes/param, Q4_0 effective ~0.5625 -- over 7x fewer bytes
+        CHECK(tok_s_q4 > tok_s_fp32 * 3.0);   // FP32 is 4 bytes/param, TeachingQ4 effective ~0.5625 -- over 7x fewer bytes
     }
 
     std::cout << "\n================================================\n";
@@ -298,24 +303,24 @@ Affine Quantization: the general formula
     FP32              32.00 GB
     FP16/BF16         16.00 GB
     Q8  (block=32)     8.50 GB
-    Q4_0(block=32)     4.50 GB
+    TeachingQ4(block=32)    4.50 GB
   Llama-3 70B:
     FP32             280.00 GB
     FP16/BF16        140.00 GB
     Q8  (block=32)    74.38 GB
-    Q4_0(block=32)    39.38 GB
+    TeachingQ4(block=32)   39.38 GB
   Llama-3 405B:
     FP32            1620.00 GB
     FP16/BF16        810.00 GB
     Q8  (block=32)   430.31 GB
-    Q4_0(block=32)   227.81 GB
+    TeachingQ4(block=32)  227.81 GB
   Llama-3 8B fits in 16GB RAM at FP32: no
-  Llama-3 8B fits in 16GB RAM at Q4_0: yes
+  Llama-3 8B fits in 16GB RAM at TeachingQ4: yes
 
   Analytical tokens/sec model at 64.00 GB/s (Llama-3 8B, memory-bandwidth-bound decode):
     FP32: 2.0 tok/s
     Q8:   7.5 tok/s
-    Q4_0: 14.2 tok/s
+    TeachingQ4: 14.2 tok/s
 
 ================================================
 16/16 checks passed ALL PASS
@@ -343,7 +348,7 @@ A single scale for an entire weight matrix sounds simpler than one scale per blo
 
 ### The Concept, In Detail
 
-Q8 quantization is the direct, symmetric application of Section 4.1's general formula with `Z=0`: for each block of 32 weights, find `alpha`, the block's own largest-magnitude value, set `scale = alpha / 127`, and quantize each weight to the signed int8 range `[-127, 127]` (not `[-128, 127]` — clamping to `-127` keeps the range symmetric, so `|-127| == |+127|` exactly). The scale itself does not need to be a full 4-byte float: it is always a small positive number recovered from 32 weights, so storing it as a hand-rolled 2-byte IEEE-754 binary16 (`fp16_t`, built the same way Chapter 2.5 built `bf16_t` — by hand, from the bit pattern, just with a different exponent width) rounds the scale by at most a few hundredths of a percent, a rounding error dwarfed by the int8 quantization error already being introduced. That difference is not cosmetic: a 4-byte scale makes a Q8 block 36 bytes (3.56x compression over FP32); a 2-byte scale makes it 34 bytes (3.76x) — which is what real GGUF Q8_0 files, and this chapter's own memory-wall numbers, actually assume.
+Q8 quantization is the direct, symmetric application of Section 4.1's general formula with `Z=0`: for each block of 32 weights, find `alpha`, the block's own largest-magnitude value, set `scale = alpha / 127`, and quantize each weight to the signed int8 range `[-127, 127]` (not `[-128, 127]` — clamping to `-127` keeps the range symmetric, so `|-127| == |+127|` exactly). The scale itself need not be a full 4-byte float. Storing it as a hand-rolled 2-byte IEEE-754 binary16 (`fp16_t`, built the same way Chapter 2.5 built `bf16_t` — by hand, from the bit pattern, just with a different exponent width) has small relative rounding error for normal half scales; subnormal scales can have larger relative error. Nonzero scales are clamped to the finite representable range; this prevents division by zero but does not guarantee small relative error for every input magnitude. That difference is not cosmetic: a 4-byte scale makes a Q8 block 36 bytes (3.56x compression over FP32); a 2-byte scale makes it 34 bytes (3.76x) — which is what real GGUF Q8_0 files, and this chapter's own memory-wall numbers, actually assume.
 
 The outlier problem this section opened with is not hypothetical. Concretely: if one block contains a true outlier of magnitude 12.5 among otherwise-typical weights near 0.05, a single global scale derived from that outlier (`12.5/127 ~= 0.0984`) reconstructs a weight of 0.05 as roughly 0.098 — almost double its true value, a relative error near 97%. A block that does NOT contain that outlier, quantized with its own scale (derived from its own, much smaller, maximum magnitude), reconstructs the same 0.05 weight to within a few percent. The damage is entirely localized to the block that actually has the outlier.
 
@@ -363,14 +368,15 @@ The outlier problem this section opened with is not hypothetical. Concretely: if
 // precision type by hand" technique Chapter 2.5 used for bf16_t, just
 // with a different bit layout (1 sign + 5 exponent + 10 mantissa,
 // instead of bf16's 1+8+7). A scale is always a small positive number
-// recovered from a handful of weights, so fp16's tighter ~0.05%
-// rounding on the scale itself is negligible next to the quantization
-// error already being introduced by int8 rounding -- and it is what
+// recovered from a handful of weights. Normal half scales have about
+// 0.05% relative rounding error; subnormal scales require explicit handling.
+// A two-byte scale is what
 // turns a block from 36 bytes (4-byte scale) into 34 bytes, matching
 // the ~3.8x compression this book (and real GGUF Q8_0 files) claim,
 // rather than the 3.56x a 4-byte scale actually delivers.
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <span>
@@ -396,55 +402,54 @@ static int g_tests = 0, g_passed = 0;
 // FP32's top 16 bits), fp16 uses a different exponent width, so
 // converting requires re-biasing the exponent and correctly rounding
 // the mantissa down from 23 bits to 10 -- this implementation handles
-// the normal-number range exactly (round-to-nearest-even) and flushes
-// subnormal-on-encode to zero, which is correct for every scale value
-// this chapter ever produces (always a small positive normal float,
-// never within a factor of 1000 of fp16's smallest normal magnitude).
+// normal numbers and
+// subnormals with round-to-nearest-even. Quantizers clamp nonzero scales
+// to the finite binary16 range and reject nonfinite inputs.
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
-
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
-
     static uint16_t encode(float f) {
-        uint32_t x;
-        std::memcpy(&x, &f, 4);
+        uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-
-        if (((x >> 23) & 0xFFu) == 0xFFu) {                 // inf/nan
-            return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);   // overflow -> inf
-        if (exp <= 0)  return static_cast<uint16_t>(sign);             // underflow -> flush to zero
-
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
-
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
         if (exp == 0) {
-            fbits = sign;                                    // zero (subnormal fp16 never produced by encode)
-        } else if (exp == 31) {
-            fbits = sign | 0x7F800000u | (mant << 13);        // inf/nan
-        } else {
-            uint32_t exp32 = exp - 15 + 127;
-            fbits = sign | (exp32 << 23) | (mant << 13);
-        }
-        float f;
-        std::memcpy(&f, &fbits, 4);
-        return f;
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 
@@ -456,6 +461,9 @@ struct BlockQ8 {
 };
 
 BlockQ8 quantize_q8(std::span<const float> input) {
+    if (input.size() != 32) throw std::invalid_argument("block requires 32 values");
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(input[k])) throw std::domain_error("quantizer requires finite input");
     assert(input.size() == 32);
     BlockQ8 block;
 
@@ -468,7 +476,7 @@ BlockQ8 quantize_q8(std::span<const float> input) {
         return block;
     }
 
-    block.scale = fp16_t(alpha / 127.0f);
+    block.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float s = static_cast<float>(block.scale);          // the ACTUAL (fp16-rounded) scale used
     float inv_scale = 1.0f / s;
 
@@ -741,7 +749,7 @@ Symmetric Blockwise Q8 Quantization (fp16 scale)
 !!! warning "[COMMON TRAP] a plain 4-byte scale silently under-delivers the compression you designed for"
     Storing a block's scale as an ordinary `float` compiles fine, produces correct numbers, and is a completely legitimate design — it is simply a different, less aggressive compression target (3.56x, not 3.76x) than the one this chapter's memory-wall analysis assumes. There is no compiler warning for "this struct is 2 bytes larger than the format you had in mind": the mismatch only shows up as a `sizeof()` that does not match the compression ratio you expected, which is exactly why Test 6 above checks `sizeof(BlockQ8)` directly rather than trusting the arithmetic on paper.
 
-## 4.3 Q4_0: Packing Two Weights Into One Byte
+## 4.3 TeachingQ4: Packing Two Weights Into One Byte
 
 <!-- edge:concept-4.3:start -->
 <figure class="chapter-figure" markdown="1">
@@ -755,19 +763,19 @@ Symmetric Blockwise Q8 Quantization (fp16 scale)
 
 ### Intuition
 
-C++ has no 4-bit integer type — the smallest addressable unit any pointer can reference is a byte. Q4_0 packs two 4-bit values ("nibbles") into every byte: an unsigned range `[0, 15]`, reinterpreted as signed `[-8, +7]` by subtracting a fixed offset of 8. Halving int8's 8 bits per weight to 4 roughly doubles the compression again — and is the difference between a 70-billion-parameter model needing 140GB (FP16) versus needing about 20GB (Q4_0), which is the difference between "needs a server" and "runs on a laptop."
+C++ has no 4-bit integer type — the smallest addressable unit any pointer can reference is a byte. TeachingQ4 packs two 4-bit values ("nibbles") into every byte: an unsigned range `[0, 15]`, reinterpreted as signed `[-8, +7]` by subtracting a fixed offset of 8. Halving int8's 8 bits per weight to 4 roughly doubles the compression again — and is the difference between a 70-billion-parameter model needing 140GB (FP16) versus needing about 20GB (TeachingQ4), which is the difference between "needs a server" and "runs on a laptop."
 
 ### The Concept, In Detail
 
 Packing two logical values `+3` and `-2` into one byte: `+3` is stored as `3 + 8 = 11` (binary `1011`) in the low nibble, `-2` as `-2 + 8 = 6` (binary `0110`) in the high nibble, giving `packed = (6 << 4) | 11 = 0x6B`. Extraction reverses this exactly: `byte & 0x0F` recovers the low nibble, `(byte >> 4) & 0x0F` the high nibble, and subtracting 8 from each undoes the offset. Because the signed range after offsetting is `[-8, +7]` — not symmetric, since 4-bit unsigned only has 16 codes total — the scale is deliberately derived from `alpha / 7`, not `alpha / 8`: this is the same symmetric-quantization discipline as Q8 (the block's maximum magnitude maps to the largest achievable code), just working around 4 bits having one fewer negative-side code than positive-side headroom would suggest.
 
-A Q4_0 block holds 32 weights in 16 bytes of packed nibbles plus one scale. Using the same hand-rolled `fp16_t` from Section 4.2 for that scale (2 bytes, not 4) makes the block genuinely 18 bytes: `128 / 18 ~= 7.1x` compression over FP32 — matching what real GGUF Q4_0 files achieve, and a meaningfully different number from the 20-byte, 6.4x block a plain 4-byte float scale would produce. Because 4 bits gives only 16 distinct levels against int8's 256, Q4 introduces substantially more quantization error than Q8 for the same data — the tradeoff this format is explicitly making in exchange for its far smaller footprint.
+A TeachingQ4 block holds 32 weights in 16 bytes of packed nibbles plus one scale. Using the same hand-rolled `fp16_t` from Section 4.2 for that scale (2 bytes, not 4) makes the block genuinely 18 bytes: `128 / 18 ~= 7.1x` compression over FP32 — the same payload ratio as upstream Q4_0, but a different encoding, and a meaningfully different number from the 20-byte, 6.4x block a plain 4-byte float scale would produce. Because 4 bits gives only 16 distinct levels against int8's 256, Q4 introduces substantially more quantization error than Q8 for the same data — the tradeoff this format is explicitly making in exchange for its far smaller footprint.
 
 ### Code and Verification
 
 ```cpp
 // Chapter 4.3 -- C++ has no 4-bit integer type; the smallest
-// addressable unit is a byte. Q4_0 packs two 4-bit "nibbles" into
+// addressable unit is a byte. TeachingQ4 packs two 4-bit "nibbles" into
 // each byte: an unsigned range [0, 15], reinterpreted as a signed
 // range [-8, +7] by subtracting a fixed offset of 8. Because that
 // range is not symmetric (|-8| != |+7|), the scale is derived from
@@ -776,16 +784,17 @@ A Q4_0 block holds 32 weights in 16 bytes of packed nibbles plus one scale. Usin
 // discipline Section 4.2 established for int8, one bit narrower.
 //
 // [COMMON TRAP]: it is tempting to keep the block's scale as a plain
-// 4-byte float "for simplicity." Doing so makes a Q4_0 block 20 bytes
+// 4-byte float "for simplicity." Doing so makes a TeachingQ4 block 20 bytes
 // (4 scale + 16 nibbles) -- a real, working format, but only a 6.4x
 // compression over FP32, not the 7.1x this chapter's own memory-wall
 // numbers assume. Using the fp16_t built in Section 4.2 for the scale
 // (2 bytes instead of 4) makes the block genuinely 18 bytes and the
-// compression genuinely 7.1x -- matching what real GGUF Q4_0 files do,
+// compression genuinely 7.1x -- the same payload size as Q4_0, but not its encoding,
 // and what let a 70B-parameter model fit in a single MacBook's RAM for
 // the first time.
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <span>
@@ -806,37 +815,51 @@ static int g_tests = 0, g_passed = 0;
 
 // Identical to Section 4.2's fp16_t (each chapter file in this book is
 // self-contained, so the small hand-rolled type is repeated here).
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
-
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 
@@ -854,6 +877,9 @@ struct BlockQ8 {
 #pragma pack(pop)
 
 BlockQ4 quantize_q4(std::span<const float> input) {
+    if (input.size() != 32) throw std::invalid_argument("block requires 32 values");
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(input[k])) throw std::domain_error("quantizer requires finite input");
     assert(input.size() == 32);
     BlockQ4 block;
 
@@ -870,7 +896,7 @@ BlockQ4 quantize_q4(std::span<const float> input) {
     // COMMON TRAP above the class definitions: the 4-bit signed range
     // after the +8 offset is [-8, +7], and using +7 as the symmetric
     // bound is what keeps this a genuinely symmetric (Z=0) scheme).
-    block.scale = fp16_t(alpha / 7.0f);
+    block.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float s = static_cast<float>(block.scale);
     float inv_scale = 1.0f / s;
 
@@ -897,12 +923,15 @@ void dequantize_q4(const BlockQ4& block, std::span<float> output) {
 }
 
 BlockQ8 quantize_q8(std::span<const float> input) {
+    if (input.size() != 32) throw std::invalid_argument("block requires 32 values");
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(input[k])) throw std::domain_error("quantizer requires finite input");
     assert(input.size() == 32);
     BlockQ8 block;
     float alpha = 0.0f;
     for (float v : input) alpha = std::max(alpha, std::fabs(v));
     if (alpha == 0.0f) { block.scale = fp16_t(0.0f); return block; }
-    block.scale = fp16_t(alpha / 127.0f);
+    block.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(block.scale);
     for (int i = 0; i < 32; ++i)
         block.weights[i] = static_cast<int8_t>(std::clamp(std::round(input[i] * inv), -127.0f, 127.0f));
@@ -923,7 +952,7 @@ float mse(std::span<const float> a, std::span<const float> b) {
 
 int main() {
     std::cout << "================================================\n";
-    std::cout << "Q4_0 Bit Packing and Dequantization\n";
+    std::cout << "TeachingQ4 Bit Packing and Dequantization\n";
     std::cout << "================================================\n\n";
 
     // =====================================================================
@@ -1036,7 +1065,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_q4_bitpacking.cpp -o 03_q4_bitpacking
 
 ```text
 ================================================
-Q4_0 Bit Packing and Dequantization
+TeachingQ4 Bit Packing and Dequantization
 ================================================
 
 -- Test 1: Nibble pack/unpack mechanics --
@@ -1051,7 +1080,7 @@ Q4_0 Bit Packing and Dequantization
   recon[2]=0.00000 (orig 0.05), recon[3]=1.46973 (orig 1.47)
 
 -- Test 3: Q4 vs Q8 error comparison --
-  Q8 MSE: 7.52351e-09
+  Q8 MSE: 7.52350e-09
   Q4 MSE: 2.36364e-06
   Q4/Q8 ratio: 314.2x worse
 
@@ -1066,7 +1095,7 @@ Q4_0 Bit Packing and Dequantization
 ================================================
 ```
 
-!!! warning "[COMMON TRAP] dividing by 8, not 7, when deriving the Q4_0 scale"
+!!! warning "[COMMON TRAP] dividing by 8, not 7, when deriving the TeachingQ4 scale"
     Since a 4-bit signed value after the offset spans `[-8, +7]`, it is easy to assume the scale should map the block's maximum magnitude to 8 — mirroring Q8's `alpha/127`. But `+8` is not an achievable positive code (the range tops out at `+7`), so `scale = alpha/8` would let the true maximum-magnitude weight round to a code one step past what the format can store, silently clamping it. Deriving the scale from `alpha/7` instead keeps the largest weight exactly representable, at the minor cost of `-8` being one code more precise than it strictly needs to be — an intentional, symmetric-quantization tradeoff, not an oversight.
 
 ## 4.4 The Fused Dequantize-Dot-Product
@@ -1087,7 +1116,7 @@ The straightforward way to compute a quantized dot product is two phases: dequan
 
 ### The Concept, In Detail
 
-For one Q4_0 block (18 bytes with the fp16 scale from Section 4.3), the naive two-phase approach touches memory four times: read the 18-byte block, WRITE the 128-byte dequantized float buffer, READ that same 128 bytes back, and read the 128-byte input vector slice — 402 bytes of traffic for 32 multiply-accumulates. The fused version touches memory twice: read the 18-byte block, read the 128-byte input slice — 146 bytes, a genuine 2.75x reduction, with the block's scale applied exactly once per block (`block_sum * s`) rather than once per weight, since scalar multiplication distributes over the sum. This is a claim about memory TRAFFIC, and it is verified here the same way this book verified the compute graph's memory-planning claim in Chapter 3.5: by literally accounting the bytes each access pattern touches, not by racing two implementations against a clock. A real hardware benchmark would also have to account for cache state, out-of-order execution, and how aggressively the compiler auto-vectorizes each version — all of which vary by machine, and none of which change the byte count a fixed algorithm is defined to touch.
+For one TeachingQ4 block (18 bytes with the fp16 scale from Section 4.3), the naive two-phase approach touches memory four times: read the 18-byte block, WRITE the 128-byte dequantized float buffer, READ that same 128 bytes back, and read the 128-byte input vector slice — 402 bytes of traffic for 32 multiply-accumulates. The fused version touches memory twice: read the 18-byte block, read the 128-byte input slice — 146 bytes, a genuine 2.75x reduction, with the block's scale applied exactly once per block (`block_sum * s`) rather than once per weight, since scalar multiplication distributes over the sum. This is a claim about memory TRAFFIC, and it is verified here the same way this book verified the compute graph's memory-planning claim in Chapter 3.5: by literally accounting the bytes each access pattern touches, not by racing two implementations against a clock. A real hardware benchmark would also have to account for cache state, out-of-order execution, and how aggressively the compiler auto-vectorizes each version — all of which vary by machine, and none of which change the byte count a fixed algorithm is defined to touch.
 
 ### Code and Verification
 
@@ -1113,6 +1142,7 @@ For one Q4_0 block (18 bytes with the fp16 scale from Section 4.3), the naive tw
 // The byte counts below do not vary by machine.
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <span>
@@ -1132,36 +1162,51 @@ static int g_tests = 0, g_passed = 0;
 #define CHECK_NEAR(a, b, tol) CHECK(std::fabs((float)(a) - (float)(b)) < (tol))
 
 // Identical to Sections 4.2/4.3's fp16_t (each chapter file is self-contained).
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 
@@ -1171,12 +1216,15 @@ struct BlockQ8 { fp16_t scale; int8_t weights[32]; };    // 34 bytes
 #pragma pack(pop)
 
 BlockQ4 quantize_q4(std::span<const float> in) {
+    if (in.size() != 32) throw std::invalid_argument("block requires 32 values");
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(in[k])) throw std::domain_error("quantizer requires finite input");
     assert(in.size() == 32);
     BlockQ4 b;
     float alpha = 0.0f;
     for (float v : in) alpha = std::max(alpha, std::fabs(v));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(in[2*i] * inv), -8.0f, 7.0f));
@@ -1225,12 +1273,15 @@ float dot_q4_fused(const BlockQ4* blocks, std::span<const float> x, int n_blocks
 }
 
 BlockQ8 quantize_q8(std::span<const float> in) {
+    if (in.size() != 32) throw std::invalid_argument("block requires 32 values");
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(in[k])) throw std::domain_error("quantizer requires finite input");
     assert(in.size() == 32);
     BlockQ8 b;
     float alpha = 0.0f;
     for (float v : in) alpha = std::max(alpha, std::fabs(v));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(in[i] * inv), -127.0f, 127.0f));
@@ -1459,6 +1510,7 @@ Dynamic activation quantization is a two-pass algorithm: Pass 1 scans every elem
 // algorithm, independent of what hardware runs it.
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <span>
 #include <vector>
@@ -1668,7 +1720,7 @@ Dynamic Activation Quantization (INT8)
   FP32 ref: -0.260983, INT8: -0.269538, rel error: 3.28%
 
 -- Test 3: Full matmul row comparison (dim=256) --
-  FP32: 0.347086, INT8: 0.347316, error: 0.000229 (0.066107%)
+  FP32: 0.347086, INT8: 0.347316, error: 0.000230 (0.066159%)
 
 -- Test 4: Two-pass element-read accounting (d=4096) --
   d=4096, passes=2, float reads counted: 8192
@@ -1736,6 +1788,7 @@ The obstacle is `round()`'s gradient: it is exactly zero almost everywhere (a st
 // converge, confirmed by watching the loss curve drop in the output.
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <vector>
 #include <span>
@@ -1971,48 +2024,48 @@ Quantization-Aware Training (QAT) vs PTQ
 ================================================
 
 -- FP32 baseline (quant_bits=0, 2000 epochs) --
-  epoch    0 loss: 5.5432
-  epoch  200 loss: 0.4134
-  epoch  400 loss: 0.3527
-  epoch  600 loss: 0.3489
-  epoch  800 loss: 0.3479
-  epoch 1000 loss: 0.3474
-  epoch 1200 loss: 0.3472
-  epoch 1400 loss: 0.3471
-  epoch 1600 loss: 0.3470
-  epoch 1800 loss: 0.3469
-  final loss: 0.3469
+  epoch    0 loss: 5.5433
+  epoch  200 loss: 0.3927
+  epoch  400 loss: 0.3501
+  epoch  600 loss: 0.3480
+  epoch  800 loss: 0.3474
+  epoch 1000 loss: 0.3471
+  epoch 1200 loss: 0.3470
+  epoch 1400 loss: 0.3469
+  epoch 1600 loss: 0.3468
+  epoch 1800 loss: 0.3468
+  final loss: 0.3468
 
 -- Q8 QAT (quant_bits=8, 2000 epochs) --
   epoch    0 loss: 5.5432
-  epoch  200 loss: 0.4134
-  epoch  400 loss: 0.3527
-  epoch  600 loss: 0.3490
-  epoch  800 loss: 0.3479
-  epoch 1000 loss: 0.3474
-  epoch 1200 loss: 0.3472
-  epoch 1400 loss: 0.3476
-  epoch 1600 loss: 0.3470
-  epoch 1800 loss: 0.3470
+  epoch  200 loss: 0.3930
+  epoch  400 loss: 0.3502
+  epoch  600 loss: 0.3480
+  epoch  800 loss: 0.3474
+  epoch 1000 loss: 0.3471
+  epoch 1200 loss: 0.3471
+  epoch 1400 loss: 0.3469
+  epoch 1600 loss: 0.3469
+  epoch 1800 loss: 0.3468
   final loss: 0.3469
 
 -- Q4 QAT (quant_bits=4, 2000 epochs) --
-  epoch    0 loss: 5.5426
-  epoch  200 loss: 0.4143
-  epoch  400 loss: 0.3907
-  epoch  600 loss: 0.3504
-  epoch  800 loss: 0.3482
-  epoch 1000 loss: 0.3505
-  epoch 1200 loss: 0.3487
-  epoch 1400 loss: 0.3598
-  epoch 1600 loss: 0.3476
-  epoch 1800 loss: 0.3475
-  final loss: 0.3475
+  epoch    0 loss: 5.5427
+  epoch  200 loss: 0.3937
+  epoch  400 loss: 0.4048
+  epoch  600 loss: 0.3481
+  epoch  800 loss: 0.3474
+  epoch 1000 loss: 0.3472
+  epoch 1200 loss: 0.3471
+  epoch 1400 loss: 0.3470
+  epoch 1600 loss: 0.3469
+  epoch 1800 loss: 0.3469
+  final loss: 0.3470
 
 -- Comparison summary --
-  FP32 final loss: 0.3469
+  FP32 final loss: 0.3468
   Q8 final loss:   0.3469 (1.0x FP32)
-  Q4 final loss:   0.3475 (1.0x FP32)
+  Q4 final loss:   0.3470 (1.0x FP32)
   With STE, the model ADAPTS its weights to work despite quantization rounding:
   FP32 and Q8 reach nearly the same final loss; Q4's per-epoch trace above visibly
   oscillates (coarser rounding perturbs which weights look best epoch to epoch), yet
@@ -2028,7 +2081,7 @@ Quantization-Aware Training (QAT) vs PTQ
 
 ## Chapter Summary
 
-This chapter reduced every quantization scheme in modern LLM inference to one formula — affine quantization with a scale and a zero-point — and then built up from there: the symmetric special case that gives weights a pure-multiply dequantization path, blockwise scales that keep a rare outlier from destroying the precision of every other weight in a matrix, Q8 and Q4_0 as two points on the same compression-versus-accuracy tradeoff curve, a fused dequantize-dot-product kernel that turns a memory-traffic reduction into a genuine performance win, dynamic activation quantization that applies the same ideas at runtime instead of offline, and Quantization-Aware Training, which uses the Straight-Through Estimator to let a model adapt to quantization noise during training rather than merely surviving it afterward. Two of this chapter's numeric claims — the exact byte counts for Q8 and Q4_0 blocks, and whether the QAT training loop actually converges — turned out to require running the code to get right rather than trusting hand arithmetic or a plausible-looking hyperparameter choice, which is the discipline this book has followed since Chapter 2 and will keep following for the rest of it.
+This chapter reduced every quantization scheme in modern LLM inference to one formula — affine quantization with a scale and a zero-point — and then built up from there: the symmetric special case that gives weights a pure-multiply dequantization path, blockwise scales that keep a rare outlier from destroying the precision of every other weight in a matrix, Q8 and TeachingQ4 as two points on the same compression-versus-accuracy tradeoff curve, a fused dequantize-dot-product kernel that turns a memory-traffic reduction into a genuine performance win, dynamic activation quantization that applies the same ideas at runtime instead of offline, and Quantization-Aware Training, which uses the Straight-Through Estimator to let a model adapt to quantization noise during training rather than merely surviving it afterward. Two of this chapter's numeric claims — the exact byte counts for Q8 and TeachingQ4 blocks, and whether the QAT training loop actually converges — turned out to require running the code to get right rather than trusting hand arithmetic or a plausible-looking hyperparameter choice, which is the discipline this book has followed since Chapter 2 and will keep following for the rest of it.
 
 ## Self-Check Questions
 
@@ -2036,16 +2089,16 @@ This chapter reduced every quantization scheme in modern LLM inference to one fo
 2. In the asymmetric worked example over `[-0.5, 5.5]`, why does quantizing the real value `0.0` land exactly on the integer `Z`, by construction?
 3. Explain concretely why one global scale for an entire weight matrix can quantize a normal-sized weight to zero, using the 12.5-outlier example from Section 4.2.
 4. Why is Q8's block scale worth shrinking to a 2-byte `fp16_t`, but Section 4.5's activation scale is deliberately left as a plain 4-byte `float`?
-5. Why must a Q4_0 block's scale be derived from `alpha / 7` rather than `alpha / 8`, given that the signed nibble range is `[-8, +7]`?
-6. What would go wrong, precision-wise, if Q4_0 nibbles were unpacked to a temporary array of `float` before being multiplied against an input vector, compared to the fused approach in Section 4.4?
-7. Walk through why the naive two-phase quantized dot product touches 402 bytes of memory traffic for one Q4_0 block, accounting for each of the four memory accesses.
+5. Why must a TeachingQ4 block's scale be derived from `alpha / 7` rather than `alpha / 8`, given that the signed nibble range is `[-8, +7]`?
+6. What would go wrong, precision-wise, if TeachingQ4 nibbles were unpacked to a temporary array of `float` before being multiplied against an input vector, compared to the fused approach in Section 4.4?
+7. Walk through why the naive two-phase quantized dot product touches 402 bytes of memory traffic for one TeachingQ4 block, accounting for each of the four memory accesses.
 8. Why does INT8 x INT8 matrix multiplication need an `int32` accumulator instead of `int16`, given that each individual product is at most `127 * 127 = 16129`?
 9. What specific problem does the Straight-Through Estimator solve, and what approximation does it make to solve it?
 10. In Section 4.6's QAT experiment, what visible difference in the training-loss trace distinguishes Q4 QAT from Q8/FP32 QAT, even though their final losses end up close together?
 
 ## Where We Go Next
 
-This chapter can compress a model's weights and can quantize activations on the fly, but every block, scale, and nibble built here still lives in memory this program allocated and filled itself. Chapter 5 picks up where Chapter 3's `mmap`-based weight loading left off: the actual on-disk file formats — GGUF and SafeTensors — that store these exact Q8 and Q4_0 blocks (plus their metadata: tensor names, shapes, and quantization type) in a real, portable file, and how to read one directly out of a memory-mapped region without a heap-sized copy standing between the file and the first token generated.
+This chapter can compress a model's weights and can quantize activations on the fly, but every block, scale, and nibble built here still lives in memory this program allocated and filled itself. Chapter 5 picks up where Chapter 3's `mmap`-based weight loading left off: the actual on-disk file formats — GGUF and SafeTensors, plus an explicitly private GGUF-like fixture for TeachingQ4 — that illustrate storing blocks (plus their metadata: tensor names, shapes, and quantization type) in a real, portable file, and how to read one directly out of a memory-mapped region without a heap-sized copy standing between the file and the first token generated.
 
 ## Worked Solutions
 
@@ -2061,7 +2114,7 @@ This chapter can compress a model's weights and can quantize activations on the 
 
 **6.** Unpacking to a temporary `float` array first does not lose any additional NUMERICAL precision (the arithmetic is identical) — the cost is entirely in memory traffic: that temporary array has to be written to memory and then read back for the subsequent dot product, exactly the "naive" 402-byte pattern Section 4.4 measures, versus the fused approach's 146 bytes for the same computation and the same numerical result.
 
-**7.** The four accesses are: reading the 18-byte Q4_0 block itself; WRITING the 32 dequantized floats (128 bytes) to a temporary buffer; READING those same 128 bytes back out of the buffer for the dot product; and reading the 128-byte slice of the input vector being dotted against. `18 + 128 + 128 + 128 = 402` bytes total for 32 multiply-accumulates.
+**7.** The four accesses are: reading the 18-byte TeachingQ4 block itself; WRITING the 32 dequantized floats (128 bytes) to a temporary buffer; READING those same 128 bytes back out of the buffer for the dot product; and reading the 128-byte slice of the input vector being dotted against. `18 + 128 + 128 + 128 = 402` bytes total for 32 multiply-accumulates.
 
 **8.** Each individual product is indeed within `int16`'s range, but the ACCUMULATOR sums many such products across an entire vector — for a 4096-element vector, up to `4096 * 16129 ~= 66,000,000`, which overflows a 16-bit accumulator (max ~32,767) many times over. `int32` (max ~2.1 billion) comfortably holds the running sum for realistic vector lengths.
 

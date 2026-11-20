@@ -9,17 +9,21 @@
 </figure>
 <!-- edge:opener:end -->
 
+!!! note "Teaching encoding and compatibility boundary"
+    `TeachingQ4` is this book's adjacent-pair, positive `alpha/7` four-bit encoding. It is **not GGUF Q4_0**. Upstream Q4_0 uses a signed extremum divided by -8 and pairs coordinates j and j+16. Matching its 18-byte block size does not make these bytes interchangeable. Synthetic containers here use private type tag `0x80000000` for TeachingQ4; they are GGUF-like teaching fixtures, not files for upstream loaders. F32 and Q8_0 use standard type identifiers 0 and 8. The reader covers trusted little-endian instructional inputs with default alignment, not every valid GGUF file.
+
+
 **What you will understand by the end of this chapter:**
 
 - Why giving every weight matrix the same quantization format is a mistake that has nothing to do with some matrices being harder to quantize than others — the raw rounding error a block format introduces depends only on the format's bit width, verified directly by quantizing an attention-shaped and an FFN-shaped matrix from the same distribution and finding statistically identical error.
-- Why the real argument for hybrid quantization is about DOWNSTREAM CONSEQUENCES, not raw error: a quantization error fed through a softmax's discrete argmax decision can flip which token a model attends to, measurably more often at Q4_0 than at Q8_0, while the same-sized error fed through an FFN's smooth SiLU gate produces only a continuous, proportional output error with no equivalent decision to flip.
+- Why the real argument for hybrid quantization is about DOWNSTREAM CONSEQUENCES, not raw error: a quantization error fed through a softmax's discrete argmax decision can flip which token a model attends to, measurably more often at TeachingQ4 than at Q8_0, while the same-sized error fed through an FFN's smooth SiLU gate produces only a continuous, proportional output error with no equivalent decision to flip.
 - How to encode a per-tensor quantization policy directly in the format GGUF already provides — a tensor descriptor's own type field, dispatched on by a reader that never guesses a format from a tensor's name — and why guessing from the name is not a hypothetical risk: Chapter 5.3's own naming convention has a tensor ("ffn_norm") whose real role contradicts what its name would suggest.
-- How to compute, rather than assume, whether a hybrid policy is actually worth it: this chapter's own first attempt at a policy (keep norm AND embedding weights at F32) turned out to cost 86% more than uniform Q4_0, almost entirely because of the embedding table's size at a modern vocabulary — a mistake the chapter corrects in the same section it is discovered in.
-- How to wire a complete hybrid engine end to end: a real multi-layer GGUF file, memory-mapped with Chapter 5.3's zero-copy technique, feeding Chapter 3's RMSNorm, RoPE, and grouped-query attention through Chapter 4's fused Q8_0/Q4_0 dot products, generating tokens autoregressively — with a plain FP32 KV cache, because TurboQuant is Chapter 7's subject, not this one's.
+- How to compute, rather than assume, whether a hybrid policy is actually worth it: this chapter's own first attempt at a policy (keep norm AND embedding weights at F32) turned out to cost 86% more than uniform TeachingQ4, almost entirely because of the embedding table's size at a modern vocabulary — a mistake the chapter corrects in the same section it is discovered in.
+- How to wire a complete hybrid engine end to end: a real multi-layer GGUF file, memory-mapped with Chapter 5.3's zero-copy technique, feeding Chapter 3's RMSNorm, RoPE, and grouped-query attention through Chapter 4's fused Q8_0/TeachingQ4 dot products, generating tokens autoregressively — with a plain FP32 KV cache, because TurboQuant is Chapter 7's subject, not this one's.
 
 **What you need to know first:**
 
-- Chapter 3's RMSNorm, SwiGLU, RoPE, and grouped-query attention with a KV cache, and Chapter 4's blockwise Q4_0/Q8_0 quantization with fused dot products — this chapter assembles those pieces rather than re-deriving them.
+- Chapter 3's RMSNorm, SwiGLU, RoPE, and grouped-query attention with a KV cache, and Chapter 4's blockwise TeachingQ4/Q8_0 quantization with fused dot products — this chapter assembles those pieces rather than re-deriving them.
 - Chapter 5's GGUF binary format, its per-tensor type tag, and its `mmap`-based zero-copy weight access — this chapter's hybrid policy is stored using exactly that mechanism, nothing new.
 
 ---
@@ -49,17 +53,17 @@ Chapter 5 built one quantization pipeline and applied it the same way to every t
 
 ### Intuition
 
-It would be convenient if some weight matrices were simply more "quantizable" than others — if an attention matrix's values were, in some measurable sense, harder to round to 4 bits than an FFN matrix's values. That is not the story this section finds. Rounding a block of 32 weights to Q4_0 or Q8_0 introduces an error that depends on the block's own values and the format's bit width — nothing about the matrix's role in a transformer enters into that calculation. What actually differs by role is what happens to that error AFTER it is introduced: an attention weight feeds a dot product that gets normalized by softmax and then very often consumed through a discrete decision (which cached position wins the most attention weight), and a small perturbation can flip that decision outright whenever two positions are nearly tied. An FFN weight feeds a smooth, non-competitive SiLU gate with no equivalent discrete decision to flip. Same format, same raw error, different consequences.
+It would be convenient if some weight matrices were simply more "quantizable" than others — if an attention matrix's values were, in some measurable sense, harder to round to 4 bits than an FFN matrix's values. That is not the story this section finds. Rounding a block of 32 weights to TeachingQ4 or Q8_0 introduces an error that depends on the block's own values and the format's bit width — nothing about the matrix's role in a transformer enters into that calculation. What actually differs by role is what happens to that error AFTER it is introduced: an attention weight feeds a dot product that gets normalized by softmax and then very often consumed through a discrete decision (which cached position wins the most attention weight), and a small perturbation can flip that decision outright whenever two positions are nearly tied. An FFN weight feeds a smooth, non-competitive SiLU gate with no equivalent discrete decision to flip. Same format, same raw error, different consequences.
 
 ### The Concept, In Detail
 
-Two experiments make this precise. The first quantizes an attention-shaped (DIM x DIM) and an FFN-shaped (D_FF x DIM) matrix drawn from the same random distribution at both Q4_0 and Q8_0, and measures the relative error each format introduces. The two shapes' errors match each other within measurement noise for a given format — the shape carries no information the format doesn't already determine. The second experiment isolates a single Q4-quantized attention weight matrix (the key projection), feeds it a genuine query-key dot product across several cached positions, and measures two different things: the raw relative error in the resulting scores, and — across many independent trials — how often the SOFTMAX ARGMAX (which position the query ends up attending to most) changes compared to the FP32 result. A first version of this section measured the wrong second quantity: the total-variation distance between the full FP32 and Q4 softmax distributions, expecting it to be larger than the raw score error (an "amplification" story). It was not — softmax's outputs are bounded in [0, 1] and sum to 1, which caps how far the BULK distribution can move regardless of the input error, so the total-variation number came out smaller than the raw error, not larger. The discrete argmax decision, measured across many trials instead of one distribution, is where the real fragility shows up: at Q4_0 it flips measurably more often than at Q8_0. Feeding the identical Q4 format into an FFN's gate matrix instead produces a raw output error of the same order of magnitude as the raw attention score error — unsurprising, since the arithmetic is identical — but there is no discrete decision downstream for that error to disrupt; it stays a continuous, bounded output error. The final piece of the argument is not about error at all, but about population size: with this chapter's own D_FF = 4 x DIM convention, a layer's FFN matrices (gate, up, down) outnumber its attention matrices (Q, K, V, O) three to one, which is why aggressive Q4_0 quantization there buys the largest absolute memory savings while attention's smaller footprint makes the extra precision of Q8_0 comparatively cheap to afford.
+Two experiments make this precise. The first quantizes an attention-shaped (DIM x DIM) and an FFN-shaped (D_FF x DIM) matrix drawn from the same random distribution at both TeachingQ4 and Q8_0, and measures the relative error each format introduces. The two shapes' errors match each other within measurement noise for a given format — the shape carries no information the format doesn't already determine. The second experiment isolates a single Q4-quantized attention weight matrix (the key projection), feeds it a genuine query-key dot product across several cached positions, and measures two different things: the raw relative error in the resulting scores, and — across many independent trials — how often the SOFTMAX ARGMAX (which position the query ends up attending to most) changes compared to the FP32 result. A first version of this section measured the wrong second quantity: the total-variation distance between the full FP32 and Q4 softmax distributions, expecting it to be larger than the raw score error (an "amplification" story). It was not — softmax's outputs are bounded in [0, 1] and sum to 1, which caps how far the BULK distribution can move regardless of the input error, so the total-variation number came out smaller than the raw error, not larger. The discrete argmax decision, measured across many trials instead of one distribution, is where the real fragility shows up: at TeachingQ4 it flips measurably more often than at Q8_0. Feeding the identical Q4 format into an FFN's gate matrix instead produces a raw output error of the same order of magnitude as the raw attention score error — unsurprising, since the arithmetic is identical — but there is no discrete decision downstream for that error to disrupt; it stays a continuous, bounded output error. The final piece of the argument is not about error at all, but about population size: with this chapter's own D_FF = 4 x DIM convention, a layer's FFN matrices (gate, up, down) outnumber its attention matrices (Q, K, V, O) three to one, which is why aggressive TeachingQ4 quantization there buys the largest absolute memory savings while attention's smaller footprint makes the extra precision of Q8_0 comparatively cheap to afford.
 
 ### Code and Verification
 
 ```cpp
 // Chapter 6.1 -- Chapters 4 and 5 built one quantization pipeline and
-// applied it uniformly: every weight matrix went through the same Q4_0
+// applied it uniformly: every weight matrix went through the same TeachingQ4
 // or Q8_0 block format. A real inference engine does not do this. It
 // gives different weight CLASSES different formats -- and the reason
 // is not that some matrices are more "quantizable" than others in the
@@ -73,7 +77,7 @@ Two experiments make this precise. The first quantizes an attention-shaped (DIM 
 //
 // Two separate experiments make this concrete. First, the same-format,
 // same-distribution comparison: quantizing an "attention-shaped" matrix
-// and an "FFN-shaped" matrix with the same random distribution at Q4_0
+// and an "FFN-shaped" matrix with the same random distribution at TeachingQ4
 // produces statistically indistinguishable relative error -- the shape
 // does not matter, only the bit width does (Test 1). Second, a
 // downstream-consumption comparison: attention's softmax gets consumed
@@ -99,6 +103,7 @@ Two experiments make this precise. The first quantizes an attention-shaped (DIM 
 // how often the decision itself changes.
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <vector>
@@ -118,36 +123,51 @@ static int g_tests = 0, g_passed = 0;
 
 // -- Chapter 4.2/4.3's fp16_t and block layouts (repeated per this
 // book's one-file-per-section convention). --
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 
@@ -157,22 +177,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };  // 18 bytes -- Chapter 4
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2*i] * inv), -8.0f, 7.0f));
@@ -325,7 +349,7 @@ int main() {
         err_ffn_q8  = measure_error(ffn_w, D_FF, DIM, true);
 
         std::cout << std::fixed << std::setprecision(5);
-        std::cout << "  Q4_0 relative L2 error -- attention-shaped: " << err_attn_q4
+        std::cout << "  TeachingQ4 relative L2 error -- attention-shaped: " << err_attn_q4
                    << ", FFN-shaped: " << err_ffn_q4 << "\n";
         std::cout << "  Q8_0 relative L2 error -- attention-shaped: " << err_attn_q8
                    << ", FFN-shaped: " << err_ffn_q8 << "\n";
@@ -511,7 +535,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_weight_class_quantization_error.cpp -o 01_we
 ./01_weight_class_quantization_error
 ```
 
-**Sample input:** an attention-shaped (64x64) and an FFN-shaped (256x64) weight matrix from the same Gaussian distribution, quantized at Q4_0 and Q8_0; a 500-trial Monte Carlo experiment measuring how often Q4_0 vs Q8_0 key-weight quantization flips which cached position a query attends to most; the same Q4_0 format applied to an FFN gate matrix, measured for continuous output error instead; and the FFN:attention element-count ratio implied by this chapter's D_FF = 4 x DIM convention.
+**Sample input:** an attention-shaped (64x64) and an FFN-shaped (256x64) weight matrix from the same Gaussian distribution, quantized at TeachingQ4 and Q8_0; a 500-trial Monte Carlo experiment measuring how often TeachingQ4 vs Q8_0 key-weight quantization flips which cached position a query attends to most; the same TeachingQ4 format applied to an FFN gate matrix, measured for continuous output error instead; and the FFN:attention element-count ratio implied by this chapter's D_FF = 4 x DIM convention.
 
 ```text
 ================================================
@@ -519,21 +543,21 @@ Weight Class Sensitivity: Same Format, Different Consequences
 ================================================
 
 -- Test 1: Quantization error depends on format, not matrix shape --
-  Q4_0 relative L2 error -- attention-shaped: 0.09972, FFN-shaped: 0.09643
+  TeachingQ4 relative L2 error -- attention-shaped: 0.09972, FFN-shaped: 0.09643
   Q8_0 relative L2 error -- attention-shaped: 0.00544, FFN-shaped: 0.00532
   same-format errors match across shapes (within 10% relative): yes
 
 -- Test 2: Attention's discrete failure mode -- argmax flips --
-  mean raw score relative error over 500 trials -- Q4 keys: 0.10072, Q8 keys: 0.00555
-  argmax ("which position wins attention") flip rate -- Q4 keys: 36/500 (7.2%), Q8 keys: 2/500 (0.4%)
+  mean raw score relative error over 500 trials -- Q4 keys: 0.09853, Q8 keys: 0.00554
+  argmax ("which position wins attention") flip rate -- Q4 keys: 35/500 (7.0%), Q8 keys: 3/500 (0.6%)
 
 -- Test 3: No discrete decision, no flip -- just a continuous error --
-  FFN output relative error (Q4 gate weights): 0.10485
-  attention mean raw score relative error (Q4 key weights, Test 2): 0.10072
+  FFN output relative error (Q4 gate weights): 0.10610
+  attention mean raw score relative error (Q4 key weights, Test 2): 0.09853
   same order of magnitude (within 5x either way): yes
   FFN has nothing analogous to Test 2's argmax to flip -- the error above is
   the entire downstream consequence, whereas attention's same-sized error also
-  produced a 7.2% chance of silently changing WHICH position the model attends to.
+  produced a 7.0% chance of silently changing WHICH position the model attends to.
 
 -- Test 4: Element counts per layer -- where the parameters actually live --
   attention elements/layer (Q+K+V+O, 64x64 each): 16384
@@ -565,11 +589,11 @@ Weight Class Sensitivity: Same Format, Different Consequences
 
 ### Intuition
 
-Section 6.1 established why different weight classes deserve different formats. Nothing new needs to be invented to store that decision: Chapter 5's tensor descriptor already carries a per-tensor type tag, because that is what real GGUF files do — a single file with a norm vector in F32 sitting next to an FFN matrix in Q4_0 is not a special case, it is the normal case. The policy itself is just a small function from a weight's role to a format. The part that has to be gotten right is the READER'S half of the bargain: it must dispatch on the descriptor's own recorded type, tensor by tensor, and never guess a format from the tensor's name.
+Section 6.1 established why different weight classes deserve different formats. Nothing new needs to be invented to store that decision: Chapter 5's tensor descriptor already carries a per-tensor type tag, because that is what real GGUF files do — a single file with a norm vector in F32 sitting next to an FFN matrix in TeachingQ4 is not a special case, it is the normal case. The policy itself is just a small function from a weight's role to a format. The part that has to be gotten right is the READER'S half of the bargain: it must dispatch on the descriptor's own recorded type, tensor by tensor, and never guess a format from the tensor's name.
 
 ### The Concept, In Detail
 
-The policy maps four roles to three formats: norm weights to F32 (there are only ever a few tens of thousands of them per model, so F32 costs essentially nothing), attention weights to Q8_0 (Section 6.1's discrete decision to protect), FFN weights to Q4_0 (Section 6.1's bulk of the parameters), and — this is stated here and justified in Section 6.3 — the embedding table also to Q8_0, not F32, because a modern vocabulary makes it far too numerous for F32 to be free. Writing a file under this policy means calling the policy function once per tensor at write time and recording whatever format it returns in that tensor's own descriptor; nothing about the file format changes. Reading it back correctly means writing a dispatcher that switches on `TensorInfo::type` and calls the matching dequantization or dot-product routine — never a dispatcher that pattern-matches the tensor's NAME. The risk in doing the latter is not hypothetical: Chapter 5.3's own naming convention gives every layer an "ffn_norm" tensor, the normalization weight applied before the FFN block, which the policy above correctly assigns to F32 despite the substring "ffn" appearing in its name. A dispatcher that trusts the name would guess Q4_0 for it and reinterpret its true F32 bytes as fp16-scaled 4-bit nibbles — not a rounding error, a structurally wrong reinterpretation of bytes that happen to mean something completely different.
+The policy maps four roles to three formats: norm weights to F32 (there are only ever a few tens of thousands of them per model, so F32 costs essentially nothing), attention weights to Q8_0 (Section 6.1's discrete decision to protect), FFN weights to TeachingQ4 (Section 6.1's bulk of the parameters), and — this is stated here and justified in Section 6.3 — the embedding table also to Q8_0, not F32, because a modern vocabulary makes it far too numerous for F32 to be free. Writing a file under this policy means calling the policy function once per tensor at write time and recording whatever format it returns in that tensor's own descriptor; nothing about the file format changes. Reading it back correctly means writing a dispatcher that switches on `TensorInfo::type` and calls the matching dequantization or dot-product routine — never a dispatcher that pattern-matches the tensor's NAME. The risk in doing the latter is not hypothetical: Chapter 5.3's own naming convention gives every layer an "ffn_norm" tensor, the normalization weight applied before the FFN block, which the policy above correctly assigns to F32 despite the substring "ffn" appearing in its name. A dispatcher that trusts the name would guess TeachingQ4 for it and reinterpret its true F32 bytes as fp16-scaled 4-bit nibbles — not a rounding error, a structurally wrong reinterpretation of bytes that happen to mean something completely different.
 
 ### Code and Verification
 
@@ -579,11 +603,11 @@ The policy maps four roles to three formats: norm weights to F32 (there are only
 // per-tensor quantization POLICY (a small function mapping a weight's
 // role -- norm, embedding, attention, FFN -- to a GGUF quantization
 // type), and a GGUF file that actually uses it, writing some tensors as
-// F32, some as Q8_0, and some as Q4_0 in the SAME file. Nothing new has
+// F32, some as Q8_0, and some as TeachingQ4 in the SAME file. Nothing new has
 // to be invented to store this: Chapter 5's tensor descriptor already
 // carries a per-tensor type tag (GGMLType), because that is exactly
 // what GGUF real files do -- a single file with blk.0.attn_norm.weight
-// in F32 sitting next to blk.0.ffn_gate.weight in Q4_0 is not a special
+// in F32 sitting next to blk.0.ffn_gate.weight in TeachingQ4 is not a special
 // case, it is the normal case.
 //
 // The embedding table gets Q8_0 here, not F32 -- Section 6.3 will show
@@ -600,7 +624,7 @@ The policy maps four roles to three formats: norm weights to F32 (there are only
 // FFN block, which is almost always stored at full F32 precision
 // despite "ffn" appearing in its name. A dispatcher that guesses the
 // format from a substring match on the name would misclassify it as
-// Q4_0 and try to reinterpret its raw F32 bytes as fp16-scaled 4-bit
+// TeachingQ4 and try to reinterpret its raw F32 bytes as fp16-scaled 4-bit
 // nibbles -- structurally nonsense output, not just numerically
 // imprecise output. A dispatcher that reads the descriptor's own
 // recorded type gets it right regardless of what the name says.
@@ -616,6 +640,7 @@ The policy maps four roles to three formats: norm weights to F32 (there are only
 #include <variant>
 #include <span>
 #include <cmath>
+#include <stdexcept>
 #include <algorithm>
 #include <random>
 #include <cassert>
@@ -629,36 +654,51 @@ static int g_tests = 0, g_passed = 0;
 } while (0)
 
 // -- Chapter 4.2/4.3's fp16_t and block layouts. --
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 
@@ -668,22 +708,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2*i] * inv), -8.0f, 7.0f));
@@ -722,13 +766,13 @@ float dot_fp32_row(const float* w, const float* x, int n) {
 
 // -- Chapter 5.2's GGUF constants, writer, and reader (repeated per this
 // book's one-file-per-section convention). --
-static constexpr uint32_t GGUF_MAGIC = 0x46475547;
+static constexpr uint32_t GGUF_MAGIC = 0x46554747;
 static constexpr uint32_t GGUF_VERSION = 3;
 enum GGUFType : uint32_t { T_STRING = 8, T_UINT32 = 4 };
-enum GGMLType : uint32_t { GGML_F32 = 0, GGML_Q4_0 = 2, GGML_Q8_0 = 7 };
+enum GGMLType : uint32_t { GGML_F32 = 0, GGML_TeachingQ4 = 0x80000000u, GGML_Q8_0 = 8 };
 
 static const char* ggml_type_name(uint32_t t) {
-    switch (t) { case 0: return "F32"; case 2: return "Q4_0"; case 7: return "Q8_0"; default: return "???"; }
+    switch (t) { case 0: return "F32"; case 0x80000000u: return "TeachingQ4"; case 8: return "Q8_0"; default: return "???"; }
 }
 
 class GGUFWriter {
@@ -771,7 +815,7 @@ struct TensorInfo {
         switch (type) {
             case GGML_F32:  return n_elements * 4;
             case GGML_Q8_0: return (n_elements / 32) * sizeof(BlockQ8);
-            case GGML_Q4_0: return (n_elements / 32) * sizeof(BlockQ4);
+            case GGML_TeachingQ4: return (n_elements / 32) * sizeof(BlockQ4);
             default: return 0;
         }
     }
@@ -855,7 +899,7 @@ GGMLType pick_format(WeightRole role) {
         case WeightRole::NORM:      return GGML_F32;    // tens of thousands of elements -- F32 is free
         case WeightRole::EMBEDDING: return GGML_Q8_0;    // Section 6.3: large vocabularies are NOT free at F32
         case WeightRole::ATTENTION: return GGML_Q8_0;    // Section 6.1: a discrete decision to protect
-        case WeightRole::FFN:       return GGML_Q4_0;    // Section 6.1: the bulk of the parameters
+        case WeightRole::FFN:       return GGML_TeachingQ4;    // Section 6.1: the bulk of the parameters
     }
     return GGML_F32;
 }
@@ -884,7 +928,7 @@ float dot_generic_row(const GGUFReader& reader, const TensorInfo& t, int row, in
             auto* blocks = reinterpret_cast<const BlockQ8*>(base) + static_cast<size_t>(row) * bpr;
             return dot_q8(std::span<const BlockQ8>(blocks, bpr), x);
         }
-        case GGML_Q4_0: {
+        case GGML_TeachingQ4: {
             int bpr = row_width / 32;
             auto* blocks = reinterpret_cast<const BlockQ4*>(base) + static_cast<size_t>(row) * bpr;
             return dot_q4(std::span<const BlockQ4>(blocks, bpr), x);
@@ -913,7 +957,7 @@ int main() {
         CHECK(pick_format(WeightRole::NORM) == GGML_F32);
         CHECK(pick_format(WeightRole::EMBEDDING) == GGML_Q8_0);
         CHECK(pick_format(WeightRole::ATTENTION) == GGML_Q8_0);
-        CHECK(pick_format(WeightRole::FFN) == GGML_Q4_0);
+        CHECK(pick_format(WeightRole::FFN) == GGML_TeachingQ4);
     }
 
     // =====================================================================
@@ -922,7 +966,7 @@ int main() {
     // GGUF files from llama.cpp do exactly this: every tensor carries
     // its own type tag, independent of every other tensor's.
     // =====================================================================
-    std::cout << "\n-- Test 2: Writing a hybrid file (F32 + Q8_0 + Q4_0 in one file) --\n";
+    std::cout << "\n-- Test 2: Writing a hybrid file (F32 + Q8_0 + TeachingQ4 in one file) --\n";
     std::vector<float> attn_norm_data(DIM), ffn_norm_data(DIM);
     std::vector<float> wq_data(DIM * DIM), wk_data(DIM * DIM);
     std::vector<float> wgate_data(D_FF * DIM), wup_data(D_FF * DIM);
@@ -979,7 +1023,7 @@ int main() {
         writer.write_bytes(wgate_q4.data(), wgate_q4.size() * sizeof(BlockQ4));
         writer.write_bytes(wup_q4.data(), wup_q4.size() * sizeof(BlockQ4));
 
-        std::cout << "  wrote 6 tensors: 2x NORM (F32), 2x ATTENTION (Q8_0), 2x FFN (Q4_0)\n";
+        std::cout << "  wrote 6 tensors: 2x NORM (F32), 2x ATTENTION (Q8_0), 2x FFN (TeachingQ4)\n";
         CHECK(writer.good());
     }
 
@@ -1010,7 +1054,7 @@ int main() {
         CHECK(attn_norm_t != nullptr && wq_t != nullptr && wgate_t != nullptr);
         CHECK(attn_norm_t->type == GGML_F32);
         CHECK(wq_t->type == GGML_Q8_0);
-        CHECK(wgate_t->type == GGML_Q4_0);
+        CHECK(wgate_t->type == GGML_TeachingQ4);
 
         // Row 0 of each multi-row tensor, dispatched generically by type.
         float attn_norm_val = dot_generic_row(reader, *attn_norm_t, 0, DIM, x.data());   // whole vector as "row 0"
@@ -1025,7 +1069,7 @@ int main() {
                    << " (exact: " << (attn_norm_val == attn_norm_ref ? "yes" : "no") << ")\n";
         std::cout << "  ATTENTION (Q8_0) dispatch: " << wq_row0 << " vs FP32 ref " << wq_row0_ref
                    << " (error " << std::fabs(wq_row0 - wq_row0_ref) << ")\n";
-        std::cout << "  FFN (Q4_0) dispatch:      " << wgate_row0 << " vs FP32 ref " << wgate_row0_ref
+        std::cout << "  FFN (TeachingQ4) dispatch:      " << wgate_row0 << " vs FP32 ref " << wgate_row0_ref
                    << " (error " << std::fabs(wgate_row0 - wgate_row0_ref) << ")\n";
 
         CHECK(attn_norm_val == attn_norm_ref);   // F32 dispatch is bit-exact, not merely close
@@ -1048,14 +1092,14 @@ int main() {
         CHECK(ffn_norm_t->type == GGML_F32);   // correctly recorded as F32 by the writer's policy
 
         // A naive dispatcher that guesses format from a substring match
-        // on the name: sees "ffn" and assumes Q4_0, exactly the mistake
+        // on the name: sees "ffn" and assumes TeachingQ4, exactly the mistake
         // this section warns against.
         bool name_says_q4 = ffn_norm_t->name.find("ffn") != std::string::npos;
         std::cout << "  tensor name: \"" << ffn_norm_t->name << "\"\n";
         std::cout << "  recorded type (correct):    " << ggml_type_name(ffn_norm_t->type) << "\n";
-        std::cout << "  name-substring guess:       " << (name_says_q4 ? "Q4_0 (WRONG)" : "F32") << "\n";
+        std::cout << "  name-substring guess:       " << (name_says_q4 ? "TeachingQ4 (WRONG)" : "F32") << "\n";
 
-        // Reinterpret the SAME true-F32 bytes as if they were Q4_0
+        // Reinterpret the SAME true-F32 bytes as if they were TeachingQ4
         // blocks -- what the naive dispatcher would actually do.
         const uint8_t* base = reader.tensor_data(*ffn_norm_t);
         int bpr = DIM / 32;
@@ -1081,7 +1125,7 @@ int main() {
         }
         std::cout << "  true value[0..3]:    " << ffn_norm_data[0] << ", " << ffn_norm_data[1]
                    << ", " << ffn_norm_data[2] << ", " << ffn_norm_data[3] << "\n";
-        std::cout << "  misread as Q4_0[0..3]: " << misread[0] << ", " << misread[1]
+        std::cout << "  misread as TeachingQ4[0..3]: " << misread[0] << ", " << misread[1]
                    << ", " << misread[2] << ", " << misread[3] << "\n";
         std::cout << "  relative L2 error from misreading the format: " << true_relerr
                    << " (not a rounding error -- structurally wrong bytes)\n";
@@ -1107,7 +1151,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_gguf_type_dispatch.cpp -o 02_gguf_type_dispa
 ./02_gguf_type_dispatch
 ```
 
-**Sample input:** a small hybrid GGUF file with six tensors — two norm vectors (F32), two attention weight matrices (Q8_0), and two FFN weight matrices (Q4_0) — written under the policy above, read back, and dispatched on by recorded type; then a deliberate demonstration of what a name-based dispatcher would do to the file's "ffn_norm.weight" tensor.
+**Sample input:** a small hybrid GGUF file with six tensors — two norm vectors (F32), two attention weight matrices (Q8_0), and two FFN weight matrices (TeachingQ4) — written under the policy above, read back, and dispatched on by recorded type; then a deliberate demonstration of what a name-based dispatcher would do to the file's "ffn_norm.weight" tensor.
 
 ```text
 ================================================
@@ -1118,29 +1162,29 @@ A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag
   NORM       -> F32
   EMBEDDING  -> Q8_0
   ATTENTION  -> Q8_0
-  FFN        -> Q4_0
+  FFN        -> TeachingQ4
 
--- Test 2: Writing a hybrid file (F32 + Q8_0 + Q4_0 in one file) --
-  wrote 6 tensors: 2x NORM (F32), 2x ATTENTION (Q8_0), 2x FFN (Q4_0)
+-- Test 2: Writing a hybrid file (F32 + Q8_0 + TeachingQ4 in one file) --
+  wrote 6 tensors: 2x NORM (F32), 2x ATTENTION (Q8_0), 2x FFN (TeachingQ4)
 
 -- Test 3: Reading back and dispatching by recorded type --
   blk.0.attn_norm.weight  F32  n_elements=64
   blk.0.ffn_norm.weight   F32  n_elements=64
   blk.0.attn_q.weight     Q8_0  n_elements=4096
   blk.0.attn_k.weight     Q8_0  n_elements=4096
-  blk.0.ffn_gate.weight   Q4_0  n_elements=16384
-  blk.0.ffn_up.weight     Q4_0  n_elements=16384
-  NORM (F32) dispatch:      -9.221472 vs FP32 ref -9.221472 (exact: yes)
+  blk.0.ffn_gate.weight   TeachingQ4  n_elements=16384
+  blk.0.ffn_up.weight     TeachingQ4  n_elements=16384
+  NORM (F32) dispatch:      -9.221473 vs FP32 ref -9.221473 (exact: yes)
   ATTENTION (Q8_0) dispatch: -0.008333 vs FP32 ref -0.010321 (error 0.001988)
-  FFN (Q4_0) dispatch:      0.003833 vs FP32 ref 0.027152 (error 0.023319)
+  FFN (TeachingQ4) dispatch:      0.003833 vs FP32 ref 0.027152 (error 0.023319)
 
 -- Test 4: [COMMON TRAP] dispatch-by-name misreads ffn_norm.weight --
   tensor name: "blk.0.ffn_norm.weight"
   recorded type (correct):    F32
-  name-substring guess:       Q4_0 (WRONG)
-  true value[0..3]:    0.992979, 0.982336, 0.985402, 1.001003
-  misread as Q4_0[0..3]: 1.472168, -0.245361, 1.717529, -1.226807
-  relative L2 error from misreading the format: 7.220647 (not a rounding error -- structurally wrong bytes)
+  name-substring guess:       TeachingQ4 (WRONG)
+  true value[0..3]:    0.982336, 0.992979, 1.001003, 0.985402
+  misread as TeachingQ4[0..3]: 156768.000000, -52256.000000, 365792.000000, -261280.000000
+  relative L2 error from misreading the format: 198761.656250 (not a rounding error -- structurally wrong bytes)
 
 ================================================
 18/18 checks passed ALL PASS
@@ -1148,7 +1192,7 @@ A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag
 ```
 
 !!! warning "[COMMON TRAP] guessing a tensor's format from its name"
-    A dispatcher that checks whether a tensor's name contains the substring "ffn" and assumes Q4_0 on a match gets `blk.0.ffn_norm.weight` wrong — that tensor is genuinely F32 despite its name, because it is a norm vector that happens to sit before the FFN block, not an FFN weight matrix itself. Reinterpreting its true F32 bytes as Q4_0 blocks (an fp16 scale followed by packed 4-bit nibbles) does not fail loudly: it produces values that are numerically plausible-looking floats, just completely wrong ones, with a relative error over 7 — not a quantization rounding error, a wholesale misreading of what the bytes mean. The descriptor's own `type` field is the only source of truth; a tensor's name is a human-readable label, never a format specification.
+    A dispatcher that checks whether a tensor's name contains the substring "ffn" and assumes TeachingQ4 on a match gets `blk.0.ffn_norm.weight` wrong — that tensor is genuinely F32 despite its name, because it is a norm vector that happens to sit before the FFN block, not an FFN weight matrix itself. Reinterpreting its true F32 bytes as TeachingQ4 blocks (an fp16 scale followed by packed 4-bit nibbles) does not fail loudly: it produces values that are numerically plausible-looking floats, just completely wrong ones, with a relative error over 7 — not a quantization rounding error, a wholesale misreading of what the bytes mean. The descriptor's own `type` field is the only source of truth; a tensor's name is a human-readable label, never a format specification.
 
 ## 6.3 The Memory Budget: Uniform vs. Hybrid Quantization
 
@@ -1168,13 +1212,13 @@ A hybrid policy is only worth adopting if it is cheap. This section prices Secti
 
 ### The Concept, In Detail
 
-Plugging illustrative large-model dimensions into Chapter 5.3's "3 + L x 9" tensor-count formula and Section 6.1's element-count formulas gives a total parameter count in the single-digit billions, split across four roles: embedding, norm, attention, and FFN. Computing total bytes under the NAIVE policy (F32 for both norm and embedding) against uniform Q4_0 shows an 86% overhead — nearly doubling the size a fully Q4_0 model would have been, for a policy that was supposed to be a minor refinement. Breaking that overhead down by role shows almost all of it (essentially the entire difference) comes from the embedding table, not the norm weights, which really do stay negligible under any format. The corrected policy — Section 6.2's actual policy — moves the embedding table to Q8_0 alongside attention, leaving only the genuinely tiny norm weights at F32, and the overhead against uniform Q4_0 drops from 86% to under 30%, while still saving roughly a third of the bytes uniform Q8_0 would have cost. The lesson is not "protect small, sensitive tensors" — it is "protect tensors that are small in POPULATION, and check that the population is actually small before assuming it," because a role can look conceptually similar to another (both "not weight matrices," both "touched by every forward pass") while having a wildly different element count.
+Plugging illustrative large-model dimensions into Chapter 5.3's "3 + L x 9" tensor-count formula and Section 6.1's element-count formulas gives a total parameter count in the single-digit billions, split across four roles: embedding, norm, attention, and FFN. Computing total bytes under the NAIVE policy (F32 for both norm and embedding) against uniform TeachingQ4 shows an 86% overhead — nearly doubling the size a fully TeachingQ4 model would have been, for a policy that was supposed to be a minor refinement. Breaking that overhead down by role shows almost all of it (essentially the entire difference) comes from the embedding table, not the norm weights, which really do stay negligible under any format. The corrected policy — Section 6.2's actual policy — moves the embedding table to Q8_0 alongside attention, leaving only the genuinely tiny norm weights at F32, and the overhead against uniform TeachingQ4 drops from 86% to under 30%, while still saving roughly a third of the bytes uniform Q8_0 would have cost. The lesson is not "protect small, sensitive tensors" — it is "protect tensors that are small in POPULATION, and check that the population is actually small before assuming it," because a role can look conceptually similar to another (both "not weight matrices," both "touched by every forward pass") while having a wildly different element count.
 
 ### Code and Verification
 
 ```cpp
 // Chapter 6.3 -- Section 6.2 settled on a policy: norm weights at F32,
-// embedding and attention at Q8_0, FFN at Q4_0. This section is where
+// embedding and attention at Q8_0, FFN at TeachingQ4. This section is where
 // that policy actually came from -- not a guess, but the result of
 // computing the byte cost of the more obvious-looking policy (norm AND
 // embedding both at F32) and finding it did not hold up.
@@ -1188,7 +1232,7 @@ Plugging illustrative large-model dimensions into Chapter 5.3's "3 + L x 9" tens
 // large-vocabulary embedding table is tens to hundreds of millions of
 // elements, not tens of thousands. Running the numbers below with
 // embeddings at F32 produced a hybrid file costing 86% more than
-// uniform Q4_0 -- most of a Q4_0-sized model's memory budget again, just
+// uniform TeachingQ4 -- most of a TeachingQ4-sized model's memory budget again, just
 // for keeping one table exact. Section 6.2's actual policy (embedding
 // at Q8_0, only norm at F32) is the corrected version, verified here by
 // computing both and showing which one the numbers actually support.
@@ -1197,6 +1241,7 @@ Plugging illustrative large-model dimensions into Chapter 5.3's "3 + L x 9" tens
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <stdexcept>
 #include <cassert>
 
 static int g_tests = 0, g_passed = 0;
@@ -1262,7 +1307,7 @@ int main() {
     }
 
     // =====================================================================
-    // TEST 3: Total bytes under uniform Q4_0, uniform Q8_0, and TWO
+    // TEST 3: Total bytes under uniform TeachingQ4, uniform Q8_0, and TWO
     // hybrid variants -- the naive one (F32 for both norm and embedding)
     // and the corrected one from Section 6.2 (F32 for norm only, Q8_0
     // for embedding). Computing both, rather than just asserting the
@@ -1297,7 +1342,7 @@ int main() {
         hybrid_gb = hybrid_bytes / 1e9;
 
         std::cout << std::fixed << std::setprecision(3);
-        std::cout << "  uniform Q4_0 everywhere:            " << uniform_q4_gb << " GB\n";
+        std::cout << "  uniform TeachingQ4 everywhere:            " << uniform_q4_gb << " GB\n";
         std::cout << "  uniform Q8_0 everywhere:             " << uniform_q8_gb << " GB\n";
         std::cout << "  hybrid, naive (F32 norm+embedding):  " << hybrid_naive_gb << " GB\n";
         std::cout << "  hybrid, corrected (F32 norm only):   " << hybrid_gb << " GB\n";
@@ -1306,15 +1351,15 @@ int main() {
         double corrected_overhead_pct = 100.0 * (hybrid_gb - uniform_q4_gb) / uniform_q4_gb;
         double corrected_savings_pct = 100.0 * (uniform_q8_gb - hybrid_gb) / uniform_q8_gb;
         std::cout << std::setprecision(1);
-        std::cout << "  naive hybrid costs "     << naive_overhead_pct     << "% more than uniform Q4_0\n";
-        std::cout << "  corrected hybrid costs " << corrected_overhead_pct << "% more than uniform Q4_0\n";
+        std::cout << "  naive hybrid costs "     << naive_overhead_pct     << "% more than uniform TeachingQ4\n";
+        std::cout << "  corrected hybrid costs " << corrected_overhead_pct << "% more than uniform TeachingQ4\n";
         std::cout << "  corrected hybrid saves "  << corrected_savings_pct  << "% versus uniform Q8_0\n";
 
         CHECK(hybrid_gb < hybrid_naive_gb);       // the correction actually helps
         CHECK(hybrid_gb > uniform_q4_gb);
         CHECK(hybrid_gb < uniform_q8_gb);
         CHECK(naive_overhead_pct > 50.0);         // the naive policy's cost is not a rounding error
-        CHECK(corrected_overhead_pct < 40.0);      // the corrected policy stays much closer to uniform Q4_0
+        CHECK(corrected_overhead_pct < 40.0);      // the corrected policy stays much closer to uniform TeachingQ4
     }
 
     // =====================================================================
@@ -1337,7 +1382,7 @@ int main() {
         double embed_delta = embed_as_f32_gb - embed_as_q8_gb;
 
         std::cout << std::fixed << std::setprecision(3);
-        std::cout << "  norm weights:     F32 costs " << norm_as_f32_gb << " GB vs. Q4_0's " << norm_as_q4_gb
+        std::cout << "  norm weights:     F32 costs " << norm_as_f32_gb << " GB vs. TeachingQ4's " << norm_as_q4_gb
                    << " GB -- delta " << norm_delta << " GB (genuinely negligible)\n";
         std::cout << "  embedding table:  F32 costs " << embed_as_f32_gb << " GB vs. Q8_0's " << embed_as_q8_gb
                    << " GB -- delta " << embed_delta << " GB (the actual cost of the naive policy)\n";
@@ -1363,7 +1408,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_hybrid_memory_budget.cpp -o 03_hybrid_memory
 ./03_hybrid_memory_budget
 ```
 
-**Sample input:** illustrative large-model dimensions (4096-dimensional, 32 layers, a 4x feed-forward multiplier, a 128,000-token vocabulary) run through Chapter 5.3's tensor-count formula and this chapter's element-count formulas, computing total bytes under uniform Q4_0, uniform Q8_0, the naive hybrid policy (F32 norm and embedding), and the corrected policy (F32 norm only, Q8_0 embedding).
+**Sample input:** illustrative large-model dimensions (4096-dimensional, 32 layers, a 4x feed-forward multiplier, a 128,000-token vocabulary) run through Chapter 5.3's tensor-count formula and this chapter's element-count formulas, computing total bytes under uniform TeachingQ4, uniform Q8_0, the naive hybrid policy (F32 norm and embedding), and the corrected policy (F32 norm only, Q8_0 embedding).
 
 ```text
 ================================================
@@ -1382,16 +1427,16 @@ The Memory Budget: Uniform vs. Hybrid Quantization
   total: 9638776832 (9.64 billion parameters)
 
 -- Test 3: Total weight bytes -- naive vs. corrected hybrid policy --
-  uniform Q4_0 everywhere:            5.422 GB
+  uniform TeachingQ4 everywhere:            5.422 GB
   uniform Q8_0 everywhere:             10.241 GB
   hybrid, naive (F32 norm+embedding):  10.101 GB
   hybrid, corrected (F32 norm only):   7.021 GB
-  naive hybrid costs 86.3% more than uniform Q4_0
-  corrected hybrid costs 29.5% more than uniform Q4_0
+  naive hybrid costs 86.3% more than uniform TeachingQ4
+  corrected hybrid costs 29.5% more than uniform TeachingQ4
   corrected hybrid saves 31.4% versus uniform Q8_0
 
 -- Test 4: The naive policy's overhead, broken down by role --
-  norm weights:     F32 costs 0.001 GB vs. Q4_0's 0.000 GB -- delta 0.001 GB (genuinely negligible)
+  norm weights:     F32 costs 0.001 GB vs. TeachingQ4's 0.000 GB -- delta 0.001 GB (genuinely negligible)
   embedding table:  F32 costs 4.194 GB vs. Q8_0's 1.114 GB -- delta 3.080 GB (the actual cost of the naive policy)
   embedding's share of the naive policy's total overhead vs. corrected: 100.0%
 
@@ -1401,7 +1446,7 @@ The Memory Budget: Uniform vs. Hybrid Quantization
 ```
 
 !!! warning "[COMMON TRAP] treating 'small and sensitive' as one category"
-    Norm weights and the embedding table both sound like they belong in the same "small, sensitive, keep it exact" bucket — neither is a big square weight matrix, and both feed something that touches every token. But "small" is doing all the work in that sentence, and it is true for one of them and false for the other: norm weights total a few tens of thousands of elements per model regardless of scale, while an embedding table's element count is `vocabulary_size x hidden_dimension`, and a 128,000-token vocabulary at a 4096-dimensional hidden size alone is over half a billion elements. Grouping them by a shared adjective instead of checking their actual element counts is exactly how this chapter's own first-draft policy ended up costing 86% more than uniform Q4_0 — a mistake that a five-line calculation, run before committing to the policy rather than after, would have caught immediately.
+    Norm weights and the embedding table both sound like they belong in the same "small, sensitive, keep it exact" bucket — neither is a big square weight matrix, and both feed something that touches every token. But "small" is doing all the work in that sentence, and it is true for one of them and false for the other: norm weights total a few tens of thousands of elements per model regardless of scale, while an embedding table's element count is `vocabulary_size x hidden_dimension`, and a 128,000-token vocabulary at a 4096-dimensional hidden size alone is over half a billion elements. Grouping them by a shared adjective instead of checking their actual element counts is exactly how this chapter's own first-draft policy ended up costing 86% more than uniform TeachingQ4 — a mistake that a five-line calculation, run before committing to the policy rather than after, would have caught immediately.
 
 ## 6.4 A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File
 
@@ -1417,11 +1462,11 @@ The Memory Budget: Uniform vs. Hybrid Quantization
 
 ### Intuition
 
-Every section so far has worked with weights generated in-process. This section writes an actual GGUF file to disk under Section 6.2's corrected policy, memory-maps it with Chapter 5.3's zero-copy technique, and runs one complete transformer layer's forward pass against the mapped weights — RMSNorm, RoPE, grouped-query attention with a KV cache, and a SwiGLU FFN, exactly as Chapter 3 built each piece, with the projections now reading fused dot products directly off mmap'd Q8_0 and Q4_0 blocks instead of in-process float arrays. The KV cache stays exactly Chapter 3.4's KVCache, unchanged and still FP32 — TurboQuant is Chapter 7's subject, and using a technique this book has not built yet would be getting ahead of the material.
+Every section so far has worked with weights generated in-process. This section writes an actual GGUF file to disk under Section 6.2's corrected policy, memory-maps it with Chapter 5.3's zero-copy technique, and runs one complete transformer layer's forward pass against the mapped weights — RMSNorm, RoPE, grouped-query attention with a KV cache, and a SwiGLU FFN, exactly as Chapter 3 built each piece, with the projections now reading fused dot products directly off mmap'd Q8_0 and TeachingQ4 blocks instead of in-process float arrays. The KV cache stays exactly Chapter 3.4's KVCache, unchanged and still FP32 — TurboQuant is Chapter 7's subject, and using a technique this book has not built yet would be getting ahead of the material.
 
 ### The Concept, In Detail
 
-The one genuine wrinkle since Chapter 5.3 is the embedding table's format. Chapter 5.3's `MappedGGUF::get_f32` accessor does not check what format a tensor actually is — it assumes whatever tensor you hand it IS F32 and reinterprets its bytes as floats unconditionally. That was safe in Chapter 5.3 because the embedding table really was F32 there. Section 6.2's policy stores it as Q8_0 instead, so calling `get_f32` on it here — copying Chapter 5.3's lookup code unchanged, which is exactly the kind of mistake copying old code without checking its assumptions produces — does not crash or error. It silently reinterprets Q8_0 blocks (an fp16 scale packed next to 32 signed bytes) as 8 raw floats per block and returns numbers that are wrong by many orders of magnitude, with no indication anything went wrong. The fix is the same lesson Section 6.2 already taught: check the tensor descriptor's own recorded type before choosing an accessor, then call `get_q8` and dequantize the requested row properly. With that fixed, the forward pass itself is a straight assembly of established pieces: an RMSNorm using the mmap'd F32 norm weights, Q/K/V/O projections as fused Q8_0 dot products (with W_k and W_v genuinely narrower than W_q and W_o, the real GQA weight-count savings from Chapter 3.4), RoPE applied per head, insertion into Chapter 3.4's KVCache, attention, a residual connection, and a SwiGLU FFN built from fused Q4_0 dot products — all reading directly from mapped pages, with zero heap bytes allocated for any weight tensor.
+The one genuine wrinkle since Chapter 5.3 is the embedding table's format. Chapter 5.3's `MappedGGUF::get_f32` accessor does not check what format a tensor actually is — it assumes whatever tensor you hand it IS F32 and reinterprets its bytes as floats unconditionally. That was safe in Chapter 5.3 because the embedding table really was F32 there. Section 6.2's policy stores it as Q8_0 instead, so calling `get_f32` on it here — copying Chapter 5.3's lookup code unchanged, which is exactly the kind of mistake copying old code without checking its assumptions produces — does not crash or error. It silently reinterprets Q8_0 blocks (an fp16 scale packed next to 32 signed bytes) as 8 raw floats per block and returns numbers that are wrong by many orders of magnitude, with no indication anything went wrong. The fix is the same lesson Section 6.2 already taught: check the tensor descriptor's own recorded type before choosing an accessor, then call `get_q8` and dequantize the requested row properly. With that fixed, the forward pass itself is a straight assembly of established pieces: an RMSNorm using the mmap'd F32 norm weights, Q/K/V/O projections as fused Q8_0 dot products (with W_k and W_v genuinely narrower than W_q and W_o, the real GQA weight-count savings from Chapter 3.4), RoPE applied per head, insertion into Chapter 3.4's KVCache, attention, a residual connection, and a SwiGLU FFN built from fused TeachingQ4 dot products — all reading directly from mapped pages, with zero heap bytes allocated for any weight tensor.
 
 ### Code and Verification
 
@@ -1429,7 +1474,7 @@ The one genuine wrinkle since Chapter 5.3 is the embedding table's format. Chapt
 // Chapter 6.4 -- everything so far in this chapter has worked with
 // weights generated in-process. This section writes a real hybrid GGUF
 // file to disk -- ten tensors, three formats, following Section 6.2's
-// policy exactly (F32 norms, Q8_0 embedding and attention, Q4_0 FFN) --
+// policy exactly (F32 norms, Q8_0 embedding and attention, TeachingQ4 FFN) --
 // memory-maps it with Chapter 5.3's zero-copy technique, and runs one
 // full transformer layer's forward pass against the mapped weights:
 // RMSNorm, RoPE, grouped-query attention with a genuine (F32, not yet
@@ -1456,6 +1501,7 @@ The one genuine wrinkle since Chapter 5.3 is the embedding table's format. Chapt
 #include <cstdint>
 #include <cstring>
 #include <cmath>
+#include <stdexcept>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -1482,36 +1528,51 @@ static int g_tests = 0, g_passed = 0;
 } while (0)
 
 // -- Chapter 4.2/4.3's fp16_t and block layouts --
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -1520,22 +1581,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2*i] * inv), -8.0f, 7.0f));
@@ -1665,10 +1730,10 @@ void gqa_attention(std::span<const float> q_heads, KVCache& cache, std::span<flo
 }
 
 // -- GGUF writing (Chapter 5.2's writer) and mmap reading (5.3's MappedGGUF) --
-static constexpr uint32_t GGUF_MAGIC = 0x46475547;
-enum GGMLType : uint32_t { GGML_F32 = 0, GGML_Q4_0 = 2, GGML_Q8_0 = 7 };
+static constexpr uint32_t GGUF_MAGIC = 0x46554747;
+enum GGMLType : uint32_t { GGML_F32 = 0, GGML_TeachingQ4 = 0x80000000u, GGML_Q8_0 = 8 };
 static const char* ggml_type_name(uint32_t t) {
-    switch (t) { case 0: return "F32"; case 2: return "Q4_0"; case 7: return "Q8_0"; default: return "???"; }
+    switch (t) { case 0: return "F32"; case 0x80000000u: return "TeachingQ4"; case 8: return "Q8_0"; default: return "???"; }
 }
 
 class GGUFWriter {
@@ -1772,7 +1837,7 @@ int main() {
     // =====================================================================
     // TEST 1: Write the hybrid GGUF file -- ten tensors, three formats,
     // exactly Section 6.2's policy (F32 norms, Q8_0 embedding+attention,
-    // Q4_0 FFN). W_k and W_v are narrower than W_q/W_o (KV_DIM rows
+    // TeachingQ4 FFN). W_k and W_v are narrower than W_q/W_o (KV_DIM rows
     // instead of DIM), the real GQA weight-count savings from Chapter 3.4.
     // =====================================================================
     std::cout << "-- Test 1: Writing the hybrid layer --\n";
@@ -1834,9 +1899,9 @@ int main() {
         w.write_tensor_info("blk.0.attn_k.weight", {DIM, KV_DIM}, GGML_Q8_0, off_wk);
         w.write_tensor_info("blk.0.attn_v.weight", {DIM, KV_DIM}, GGML_Q8_0, off_wv);
         w.write_tensor_info("blk.0.attn_output.weight", {DIM, DIM}, GGML_Q8_0, off_wo);
-        w.write_tensor_info("blk.0.ffn_gate.weight", {DIM, D_FF}, GGML_Q4_0, off_wg);
-        w.write_tensor_info("blk.0.ffn_up.weight", {DIM, D_FF}, GGML_Q4_0, off_wu);
-        w.write_tensor_info("blk.0.ffn_down.weight", {D_FF, DIM}, GGML_Q4_0, off_wd);
+        w.write_tensor_info("blk.0.ffn_gate.weight", {DIM, D_FF}, GGML_TeachingQ4, off_wg);
+        w.write_tensor_info("blk.0.ffn_up.weight", {DIM, D_FF}, GGML_TeachingQ4, off_wu);
+        w.write_tensor_info("blk.0.ffn_down.weight", {D_FF, DIM}, GGML_TeachingQ4, off_wd);
 
         w.align(32);
         w.write_bytes(emb_q8.data(), emb_q8.size() * sizeof(BlockQ8));
@@ -1874,7 +1939,7 @@ int main() {
         CHECK(emb_t && emb_t->type == GGML_Q8_0);
         CHECK(an_t && an_t->type == GGML_F32);
         CHECK(wq_t && wq_t->type == GGML_Q8_0);
-        CHECK(wg_t && wg_t->type == GGML_Q4_0);
+        CHECK(wg_t && wg_t->type == GGML_TeachingQ4);
         std::cout << "  file size: " << gguf.file_size << " bytes, mmap'd, tensors: " << gguf.tensors.size() << "\n";
         std::cout << "  token_embd.weight recorded as: " << ggml_type_name(emb_t->type) << "\n";
     }
@@ -1935,7 +2000,7 @@ int main() {
     // (Q8_0, dequantized correctly per Test 3), RMSNorm, Q/K/V/O
     // projections (Q8_0 fused dot products against mmap'd blocks), RoPE,
     // GQA attention with a plain FP32 KV cache (Chapter 3.4, unchanged --
-    // TurboQuant is Chapter 7), residual, FFN (Q4_0 fused dot products +
+    // TurboQuant is Chapter 7), residual, FFN (TeachingQ4 fused dot products +
     // SwiGLU), second residual. Eight tokens, processed one at a time.
     // =====================================================================
     std::cout << "\n-- Test 4: Full single-layer forward pass, 8 tokens --\n";
@@ -1998,7 +2063,7 @@ int main() {
             if (pos < 3 || pos == SEQ_LEN - 1)
                 std::cout << "  token " << pos << " ('" << prompt[pos] << "'): ||output|| = "
                            << std::fixed << std::setprecision(4) << xnorm
-                           << " (Q8_0 attn + Q4_0 FFN, mmap'd, FP32 KV cache)\n";
+                           << " (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)\n";
             if (pos == 3) std::cout << "  ...\n";
 
             CHECK(std::isfinite(xnorm));
@@ -2025,7 +2090,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_hybrid_forward_pass.cpp -o 04_hybrid_forward
 ./04_hybrid_forward_pass
 ```
 
-**Sample input:** a ten-tensor, single-layer GGUF file (an embedding table, two norm vectors, four Q8_0 attention matrices with GQA-narrowed K/V rows, and three Q4_0 FFN matrices) written to `/tmp`, memory-mapped, and run through one full transformer layer's forward pass across an 8-token prompt ("Hello!!!"), printing the output vector's norm at selected positions.
+**Sample input:** a ten-tensor, single-layer GGUF file (an embedding table, two norm vectors, four Q8_0 attention matrices with GQA-narrowed K/V rows, and three TeachingQ4 FFN matrices) written to `/tmp`, memory-mapped, and run through one full transformer layer's forward pass across an 8-token prompt ("Hello!!!"), printing the output vector's norm at selected positions.
 
 ```text
 ================================================
@@ -2041,17 +2106,17 @@ A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File
   token_embd.weight recorded as: Q8_0
 
 -- Test 3: [COMMON TRAP] get_f32 on a Q8_0 tensor is silently wrong --
-  true embedding[token=65][0..3]:      -0.000460914, -0.0451334, -0.00238367, 0.00947825
-  get_f32 misread [0..3]:              6.58707e-18, -2.2497, -6.86367e+26, -7.88984e+33 (garbage -- wrong format)
-  type-checked get_q8 + dequant [0..3]: -0.000413656, -0.0450885, -0.00248194, 0.00951409
-  correct lookup's relative L2 error (quantization only): 0.0060154
+  true embedding[token=65][0..3]:      -0.0451334, -0.000460914, 0.00947825, -0.00238367
+  get_f32 misread [0..3]:              -1.28473e+31, 1.89419e-29, 1.46053e-30, -123.935 (garbage -- wrong format)
+  type-checked get_q8 + dequant [0..3]: -0.0450885, -0.000413656, 0.00951409, -0.00248194
+  correct lookup's relative L2 error (quantization only): 0.00601539
 
 -- Test 4: Full single-layer forward pass, 8 tokens --
-  token 0 ('H'): ||output|| = 0.2766 (Q8_0 attn + Q4_0 FFN, mmap'd, FP32 KV cache)
-  token 1 ('e'): ||output|| = 0.2107 (Q8_0 attn + Q4_0 FFN, mmap'd, FP32 KV cache)
-  token 2 ('l'): ||output|| = 0.2017 (Q8_0 attn + Q4_0 FFN, mmap'd, FP32 KV cache)
+  token 0 ('H'): ||output|| = 0.3007 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
+  token 1 ('e'): ||output|| = 0.2209 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
+  token 2 ('l'): ||output|| = 0.2382 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
   ...
-  token 7 ('!'): ||output|| = 0.1848 (Q8_0 attn + Q4_0 FFN, mmap'd, FP32 KV cache)
+  token 7 ('!'): ||output|| = 0.1763 (Q8_0 attn + TeachingQ4 FFN, mmap'd, FP32 KV cache)
   heap bytes allocated for weight data: 0 (every weight span aliases the mmap'd file)
 
 ================================================
@@ -2102,6 +2167,7 @@ Extending Section 6.4 to multiple layers means two things have to be gotten righ
 #include <cstdint>
 #include <cstring>
 #include <cmath>
+#include <stdexcept>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -2128,36 +2194,51 @@ static int g_tests = 0, g_passed = 0;
 } while (0)
 
 // -- Chapter 4.2/4.3's fp16_t and block layouts --
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -2166,22 +2247,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2*i] * inv), -8.0f, 7.0f));
@@ -2308,10 +2393,10 @@ void gqa_attention(std::span<const float> q_heads, KVCache& cache, std::span<flo
 }
 
 // -- GGUF writing and mmap reading (Chapter 5.2/5.3) --
-static constexpr uint32_t GGUF_MAGIC = 0x46475547;
-enum GGMLType : uint32_t { GGML_F32 = 0, GGML_Q4_0 = 2, GGML_Q8_0 = 7 };
+static constexpr uint32_t GGUF_MAGIC = 0x46554747;
+enum GGMLType : uint32_t { GGML_F32 = 0, GGML_TeachingQ4 = 0x80000000u, GGML_Q8_0 = 8 };
 static const char* ggml_type_name(uint32_t t) {
-    switch (t) { case 0: return "F32"; case 2: return "Q4_0"; case 7: return "Q8_0"; default: return "???"; }
+    switch (t) { case 0: return "F32"; case 0x80000000u: return "TeachingQ4"; case 8: return "Q8_0"; default: return "???"; }
 }
 class GGUFWriter {
     std::ofstream out;
@@ -2494,9 +2579,9 @@ int main() {
             w.write_tensor_info(tname(L, "attn_k.weight"), {DIM, KV_DIM}, GGML_Q8_0, off_wk[L]);
             w.write_tensor_info(tname(L, "attn_v.weight"), {DIM, KV_DIM}, GGML_Q8_0, off_wv[L]);
             w.write_tensor_info(tname(L, "attn_output.weight"), {DIM, DIM}, GGML_Q8_0, off_wo[L]);
-            w.write_tensor_info(tname(L, "ffn_gate.weight"), {DIM, D_FF}, GGML_Q4_0, off_wg[L]);
-            w.write_tensor_info(tname(L, "ffn_up.weight"), {DIM, D_FF}, GGML_Q4_0, off_wu[L]);
-            w.write_tensor_info(tname(L, "ffn_down.weight"), {D_FF, DIM}, GGML_Q4_0, off_wd[L]);
+            w.write_tensor_info(tname(L, "ffn_gate.weight"), {DIM, D_FF}, GGML_TeachingQ4, off_wg[L]);
+            w.write_tensor_info(tname(L, "ffn_up.weight"), {DIM, D_FF}, GGML_TeachingQ4, off_wu[L]);
+            w.write_tensor_info(tname(L, "ffn_down.weight"), {D_FF, DIM}, GGML_TeachingQ4, off_wd[L]);
         }
 
         w.align(32);
@@ -2532,7 +2617,7 @@ int main() {
         CHECK(gguf.find("token_embd.weight")->type == GGML_Q8_0);
         CHECK(gguf.find("output_norm.weight")->type == GGML_F32);
         CHECK(gguf.find("output.weight")->type == GGML_Q8_0);
-        CHECK(gguf.find(tname(1, "ffn_gate.weight"))->type == GGML_Q4_0);
+        CHECK(gguf.find(tname(1, "ffn_gate.weight"))->type == GGML_TeachingQ4);
         CHECK(gguf.find(tname(2, "attn_q.weight"))->type == GGML_Q8_0);
         std::cout << "  file size: " << gguf.file_size << " bytes, " << gguf.tensors.size() << " tensors, mmap'd\n";
         std::cout << "  token_embd.weight: " << ggml_type_name(gguf.find("token_embd.weight")->type)
@@ -2589,7 +2674,7 @@ int main() {
     // TEST 4: The complete engine -- N_LAYERS layers, each with its OWN
     // KV cache, processing a 2-token prompt and generating 6 more tokens
     // autoregressively. Every projection is a fused dot product against
-    // mmap'd Q8_0/Q4_0 blocks; the KV cache is plain FP32 throughout
+    // mmap'd Q8_0/TeachingQ4 blocks; the KV cache is plain FP32 throughout
     // (Chapter 7 replaces this with TurboQuant, not this chapter).
     // =====================================================================
     std::cout << "\n-- Test 4: Full engine -- " << N_LAYERS << " layers, prompt + autoregressive generation --\n";
@@ -2739,7 +2824,7 @@ The Complete Hybrid Engine: Multi-Layer, Multi-Token, End to End
 
 -- Test 2: mmap the complete model --
   file size: 160544 bytes, 30 tensors, mmap'd
-  token_embd.weight: Q8_0, output.weight: Q8_0, blk.1.ffn_gate.weight: Q4_0
+  token_embd.weight: Q8_0, output.weight: Q8_0, blk.1.ffn_gate.weight: TeachingQ4
 
 -- Test 3: [COMMON TRAP] the final norm before the LM head is not optional --
   next-token distribution shift from skipping the final norm (TV): 0.00628
@@ -2748,7 +2833,7 @@ The Complete Hybrid Engine: Multi-Layer, Multi-Token, End to End
 
 -- Test 4: Full engine -- 3 layers, prompt + autoregressive generation --
   prompt: "Hi", generating 6 tokens...
-  output: Hi[238][228]Q!0[10]
+  output: Hi[237][227]P"0[10]
   generated 6 tokens (random weights -> not real language, but every code path exercised)
 
   --- Memory summary ---
@@ -2773,7 +2858,7 @@ This chapter took Chapter 5's uniform quantization pipeline and made it heteroge
 
 1. Section 6.1 quantizes an attention-shaped and an FFN-shaped matrix from the same distribution at the same format and finds their relative errors match closely. What does this imply about the claim "attention weights are harder to quantize than FFN weights"?
 2. Why did measuring total-variation distance between FP32 and Q4-quantized softmax distributions fail to show the "amplification" effect Section 6.1 was looking for, and what measurement found it instead?
-3. In Section 6.2's policy, why does the FFN gate matrix get Q4_0 while the attention query matrix gets Q8_0, given that Section 6.1 showed their raw quantization error is the same order of magnitude?
+3. In Section 6.2's policy, why does the FFN gate matrix get TeachingQ4 while the attention query matrix gets Q8_0, given that Section 6.1 showed their raw quantization error is the same order of magnitude?
 4. Explain concretely what happens, byte by byte, when a dispatcher that guesses format from a tensor's name encounters `blk.0.ffn_norm.weight`.
 5. Section 6.3's naive hybrid policy put both norm weights and the embedding table at F32. Why did this cost so much more than expected, and why didn't the same reasoning apply to norm weights?
 6. What formula determines an embedding table's element count, and why does that make it fundamentally different from a norm vector's element count as a function of model scale?
@@ -2784,7 +2869,7 @@ This chapter took Chapter 5's uniform quantization pipeline and made it heteroge
 
 ## Where We Go Next
 
-Every KV cache in this chapter stored its keys and values as plain FP32 vectors, exactly Chapter 3.4's `KVCache`, unchanged. That was a deliberate choice, not an oversight: this chapter's hybrid engine mixes precisions across WEIGHT classes, but the KV cache is not a weight at all — it is created fresh for every prompt, grows with every generated token, and for a long enough context can outweigh the model's own weights in memory. Chapter 7 covers TurboQuant, a vector quantization technique built specifically for exactly that job: online (no calibration pass), accurate enough for attention's inner products, and aggressive enough to compress a KV cache far past what a blockwise scalar format like Q4_0 or Q8_0 could manage. Everything this chapter built — the mmap'd hybrid weights, the per-layer forward pass, the multi-layer engine — carries forward unchanged; only the KV cache's storage format is about to change.
+Every KV cache in this chapter stored its keys and values as plain FP32 vectors, exactly Chapter 3.4's `KVCache`, unchanged. That was a deliberate choice, not an oversight: this chapter's hybrid engine mixes precisions across WEIGHT classes, but the KV cache is not a weight at all — it is created fresh for every prompt, grows with every generated token, and for a long enough context can outweigh the model's own weights in memory. Chapter 7 covers TurboQuant, a vector quantization technique built specifically for exactly that job: online (no calibration pass), accurate enough for attention's inner products, and aggressive enough to compress a KV cache far past what a blockwise scalar format like TeachingQ4 or Q8_0 could manage. Everything this chapter built — the mmap'd hybrid weights, the per-layer forward pass, the multi-layer engine — carries forward unchanged; only the KV cache's storage format is about to change.
 
 ## Worked Solutions
 
@@ -2794,7 +2879,7 @@ Every KV cache in this chapter stored its keys and values as plain FP32 vectors,
 
 **3.** Raw quantization error being the same order of magnitude does not mean the two matrices deserve the same format, because Section 6.1 showed the CONSEQUENCE of that error differs: the query/key path feeds a discrete argmax decision that a given error size flips at a measurable rate, while the FFN's SiLU-gated path has no such decision to flip and simply produces a proportional continuous output error. Giving attention weights Q8_0 buys a real reduction in how often that discrete decision changes; giving FFN weights the same protection would buy comparatively little, since there's no analogous discrete failure mode there to protect against, while costing far more in bytes since FFN weights vastly outnumber attention weights.
 
-**4.** The name-based dispatcher sees the substring "ffn" in `blk.0.ffn_norm.weight` and assumes the tensor is Q4_0, so it reads the tensor's raw bytes as a sequence of `BlockQ4` structs: the first 2 bytes as an fp16 scale, the next 16 bytes as 32 packed 4-bit nibbles, and so on. But the tensor is genuinely F32 — its true bytes are 16 raw 4-byte floats (for a 64-element vector). Reinterpreting those float bytes as an fp16 scale and nibbles produces a "scale" that is really the first two bytes of an unrelated float, and "nibbles" that are really fragments of three other floats, packed and unpacked according to a completely different bit layout than what actually produced those bytes. The result is not a rounding error on the true values; it is numbers with no mathematical relationship to the true values at all.
+**4.** The name-based dispatcher sees the substring "ffn" in `blk.0.ffn_norm.weight` and assumes the tensor is TeachingQ4, so it reads the tensor's raw bytes as a sequence of `BlockQ4` structs: the first 2 bytes as an fp16 scale, the next 16 bytes as 32 packed 4-bit nibbles, and so on. But the tensor is genuinely F32 — its true bytes are 16 raw 4-byte floats (for a 64-element vector). Reinterpreting those float bytes as an fp16 scale and nibbles produces a "scale" that is really the first two bytes of an unrelated float, and "nibbles" that are really fragments of three other floats, packed and unpacked according to a completely different bit layout than what actually produced those bytes. The result is not a rounding error on the true values; it is numbers with no mathematical relationship to the true values at all.
 
 **5.** Norm weights and the embedding table both sound like a "small, sensitive" category, but only norm weights are actually small in element count regardless of model scale (a few tens of thousands of elements total). The embedding table's element count is `vocabulary_size x hidden_dimension`, which scales with the tokenizer's vocabulary, not with the model's depth or width in the way norm weights do — at a 128,000-token vocabulary and a 4096-dimensional hidden size, the embedding table alone is over half a billion elements, more than a thousand times a typical norm-weight population. Storing that many elements at F32 (4 bytes each) instead of Q8_0 (about 1.0625 bytes each after amortizing the fp16 scale) costs several gigabytes at model scale, while doing the same for norm weights costs essentially nothing either way.
 

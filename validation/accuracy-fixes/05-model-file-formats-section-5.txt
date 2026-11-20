@@ -1,0 +1,32 @@
+================================================
+GGUF vs SafeTensors, and a Peek at Production K-Quants
+================================================
+
+-- Test 1: Q4_K super-block byte layout --
+  d (fp16 scale): 2 bytes
+  dmin (fp16 min): 2 bytes
+  packed sub-block scales+mins: 12 bytes
+  packed 4-bit weight nibbles: 128 bytes
+  total super-block size: 144 bytes for 256 weights
+  effective bits/weight: 4.5
+
+-- Test 2: Same nominal bit budget, different allocation --
+  TeachingQ4:   18 bytes / 32 weights = 4.5 bits/weight (ONE scale for the whole block)
+  Q4_K: 144 bytes / 256 weights = 4.5 bits/weight (a scale PER SUB-BLOCK of 32, within the super-block)
+  same nominal bit budget: yes -- Q4_K spends it on finer-grained scales, not more of them
+
+-- Test 3: Packed 6-bit sub-block scales, round-tripped --
+  edge cases (all-zero, all-max, alternating) round-trip: yes
+  2000 random 8-tuples of 6-bit values: 0 mismatches
+  packed size: 6 bytes for 8 six-bit values (48 bits, no padding)
+
+-- Test 4: One model, every format this chapter covered --
+  SafeTensors F32     32.00 GB  (training, full precision)
+  SafeTensors BF16    16.00 GB  (training/distribution, common default)
+  GGUF Q8_0            8.50 GB  (inference, Chapter 4.2's block)
+  GGUF-like TeachingQ4   4.50 GB  (inference, Chapter 4.3's block)
+  GGUF Q4_K            4.50 GB  (inference, this section's super-block)
+
+================================================
+9/9 checks passed ALL PASS
+================================================

@@ -140,12 +140,12 @@ def compile_and_run(idx: int, fname: str, arch_req: str):
 
     if arch_req == "avx2_dispatch":
         if HOST_ARCH == "x86_64":
-            cmd = ["g++", "-std=c++23", "-Wall", "-Wextra", "-O3", "-mavx2", "-mfma", str(src), "-o", str(binp)]
+            cmd = ["g++", "-std=c++23", "-Wall", "-Wextra", "-O3", str(src), "-o", str(binp)]
             r = subprocess.run(cmd, capture_output=True, text=True)
             if r.returncode != 0:
                 fail(f"compile of {fname} failed:\n{r.stderr}")
                 return None, None, False
-            ok(f"compile of {fname} succeeded (g++ -std=c++23 -mavx2 -mfma, native x86_64)")
+            ok(f"compile of {fname} succeeded (baseline g++ -std=c++23; AVX2+FMA confined to target attribute)")
             r2 = subprocess.run([str(binp)], capture_output=True, text=True)
             binp.unlink(missing_ok=True)
             return r2.stdout.rstrip("\n"), r2.returncode, False

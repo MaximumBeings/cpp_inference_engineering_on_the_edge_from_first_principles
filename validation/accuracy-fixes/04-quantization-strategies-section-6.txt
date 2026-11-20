@@ -1,0 +1,55 @@
+================================================
+Quantization-Aware Training (QAT) vs PTQ
+================================================
+
+-- FP32 baseline (quant_bits=0, 2000 epochs) --
+  epoch    0 loss: 5.5433
+  epoch  200 loss: 0.3927
+  epoch  400 loss: 0.3501
+  epoch  600 loss: 0.3480
+  epoch  800 loss: 0.3474
+  epoch 1000 loss: 0.3471
+  epoch 1200 loss: 0.3470
+  epoch 1400 loss: 0.3469
+  epoch 1600 loss: 0.3468
+  epoch 1800 loss: 0.3468
+  final loss: 0.3468
+
+-- Q8 QAT (quant_bits=8, 2000 epochs) --
+  epoch    0 loss: 5.5432
+  epoch  200 loss: 0.3930
+  epoch  400 loss: 0.3502
+  epoch  600 loss: 0.3480
+  epoch  800 loss: 0.3474
+  epoch 1000 loss: 0.3471
+  epoch 1200 loss: 0.3471
+  epoch 1400 loss: 0.3469
+  epoch 1600 loss: 0.3469
+  epoch 1800 loss: 0.3468
+  final loss: 0.3469
+
+-- Q4 QAT (quant_bits=4, 2000 epochs) --
+  epoch    0 loss: 5.5427
+  epoch  200 loss: 0.3937
+  epoch  400 loss: 0.4048
+  epoch  600 loss: 0.3481
+  epoch  800 loss: 0.3474
+  epoch 1000 loss: 0.3472
+  epoch 1200 loss: 0.3471
+  epoch 1400 loss: 0.3470
+  epoch 1600 loss: 0.3469
+  epoch 1800 loss: 0.3469
+  final loss: 0.3470
+
+-- Comparison summary --
+  FP32 final loss: 0.3468
+  Q8 final loss:   0.3469 (1.0x FP32)
+  Q4 final loss:   0.3470 (1.0x FP32)
+  With STE, the model ADAPTS its weights to work despite quantization rounding:
+  FP32 and Q8 reach nearly the same final loss; Q4's per-epoch trace above visibly
+  oscillates (coarser rounding perturbs which weights look best epoch to epoch), yet
+  it still lands close to FP32 -- not the smooth, better-converged descent FP32 shows.
+
+================================================
+5/5 checks passed ALL PASS
+================================================

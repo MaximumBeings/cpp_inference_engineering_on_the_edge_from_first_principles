@@ -103,11 +103,10 @@ struct UiElement {
     std::string alt_text;
 };
 
-// A real, stated policy choice: this section's own audit enforces the
-// AA bar (the level most real accessibility regulations, including the
-// ADA and Section 508, actually cite as their own minimum), not the
-// stricter, optional AAA bar -- an element failing AAA but passing AA is
-// not reported as a violation at all.
+// Limited educational policy: AA contrast plus an optional 44 CSS-pixel
+// target-size advisory inspired by WCAG 2.2 SC 2.5.5 (AAA). The example
+// assumes non-exempt targets; it does not implement WCAG exceptions,
+// AA SC 2.5.8 spacing, or establish full accessibility conformance.
 constexpr int MIN_TOUCH_TARGET_PX = 44;
 
 std::vector<std::string> audit_element(const UiElement& e) {
@@ -116,11 +115,11 @@ std::vector<std::string> audit_element(const UiElement& e) {
     auto classification = classify_contrast(ratio, e.text_size);
     if (!classification.meets_aa) {
         violations.push_back(e.id + ": 1.4.3 Contrast (Minimum) -- measured ratio " + std::to_string(ratio) +
-                              ":1 is below the required AA threshold");
+                              ":1 is below the required AA contrast threshold");
     }
     if (e.is_interactive && (e.width < MIN_TOUCH_TARGET_PX || e.height < MIN_TOUCH_TARGET_PX)) {
-        violations.push_back(e.id + ": 2.5.5 Target Size -- " + std::to_string(e.width) + "x" +
-                              std::to_string(e.height) + "px is below the required " +
+        violations.push_back(e.id + ": Advisory 2.5.5 Target Size (AAA, non-exempt policy) -- " + std::to_string(e.width) + "x" +
+                              std::to_string(e.height) + "px is below the advisory " +
                               std::to_string(MIN_TOUCH_TARGET_PX) + "x" + std::to_string(MIN_TOUCH_TARGET_PX) + "px minimum");
     }
     if (e.is_image && e.alt_text.empty()) {
@@ -188,7 +187,7 @@ int main() {
                      "at exactly 4.5:1 -- every stated threshold is exact, not approximate\n";
     }
 
-    std::cout << "\n-- Test 4: a fully compliant element produces zero violations, and a non-compliant "
+    std::cout << "\n-- Test 4: a passing the limited example policy element produces zero violations, and an example failing the policy "
                  "element is flagged with all 3 real, specific, named criteria --\n";
     {
         UiElement compliant{"btn-save", RgbColor{0, 0, 0}, RgbColor{255, 255, 255}, TextSize::NORMAL,
@@ -207,7 +206,7 @@ int main() {
             if (v.find("1.1.1") != std::string::npos) has_alt = true;
         }
         CHECK(has_contrast && has_target && has_alt);
-        std::cout << "  a fully compliant 48x48 black-on-white button produces zero violations; a "
+        std::cout << "  a passing the limited example policy 48x48 black-on-white button produces zero violations; a "
                      "30x30 low-contrast icon with no alt text is flagged with all 3 real, specific "
                      "criteria at once: 1.4.3 Contrast, 2.5.5 Target Size, and 1.1.1 Non-text Content\n";
     }
@@ -227,8 +226,8 @@ int main() {
             CHECK(v.find("icon-delete") != std::string::npos);
         }
         std::cout << "  a 3-element report (a compliant label, a compliant large button, and the "
-                     "non-compliant icon from Test 4) produces exactly 3 violations, all attributed to "
-                     "icon-delete -- the two genuinely compliant elements contribute zero false "
+                     "policy-failing icon from Test 4) produces exactly 3 violations, all attributed to "
+                     "icon-delete -- the two passing the limited example policy elements contribute zero false "
                      "positives\n";
     }
 

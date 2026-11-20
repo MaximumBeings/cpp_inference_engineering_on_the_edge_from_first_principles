@@ -1,3 +1,6 @@
+// Contract: unscaled, noncausal single-head softmax(Q K^T) V.
+// No causal/padding mask, default 1/sqrt(d) scaling or production-model integration.
+// Fixed-size score tiles do not imply constant total Q/K/V/output storage.
 // Chapter 32.3: tiled online-softmax attention and CPU/GPU validation.
 // Compile for the target GPU, for example A100:
 //   nvcc -std=c++20 -arch=sm_80 03_cuda_kernel_and_validation_suite.cu -o cuda_validation

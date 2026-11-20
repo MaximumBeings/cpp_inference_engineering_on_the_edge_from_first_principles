@@ -1,12 +1,6 @@
-// Chapter 25.1 -- A body-worn camera cannot process every frame it
-// records, and it must never be able to identify a face even if it
-// wanted to. This section builds a real frame-sampling strategy (a
-// fixed periodic rate unioned with real motion-triggered frames, deduped
-// and sorted) suitable for edge deployment, plus a scene-tagging data
-// model whose own types make facial recognition structurally
-// impossible -- there is no field anywhere in this module capable of
-// holding an identity, proven here at COMPILE time with a real C++20
-// concept, not merely promised in a comment.
+// Chapter 25.1: periodic and motion-triggered frame sampling, strict scene
+// tags and a limited compile-time guard against three member names.
+// This is not a pipeline-wide prohibition of facial recognition.
 //
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 01_bodycam_frame_sampling_and_scene_tagging.cpp -o 01_bodycam_frame_sampling_and_scene_tagging
 // Run:     ./01_bodycam_frame_sampling_and_scene_tagging
@@ -144,14 +138,12 @@ std::string uniform_type_name(UniformType u) {
 struct PersonBox {
     double x = 0.0, y = 0.0, w = 0.0, h = 0.0;
     UniformType uniform = UniformType::UNKNOWN;
-    // No name. No badge number. No face embedding. No identity field of
-    // any kind. This is not a policy this file follows -- it is a type
-    // this file defines, and no function anywhere below can extract an
-    // identity from it because there is nowhere for one to be stored.
+    // Geometry and clothing role only in the current schema. The guard below
+    // checks three names, not all possible identity encodings or data flows.
 };
 
 // A real, general C++20 concept: true only for a type exposing an
-// identity-shaped member. Checked against PersonBox below with a
+// name, person_id or face_embedding member. Checked against PersonBox with a
 // static_assert -- if a future edit ever added a `.name` or `.person_id`
 // field to PersonBox, this file would fail to COMPILE, not merely fail
 // a runtime test a reviewer might skip.
@@ -165,8 +157,8 @@ concept HasIdentityField = requires(T t) {
 };
 
 static_assert(!HasIdentityField<PersonBox>,
-              "PersonBox must never gain an identity-shaped field -- this book's own "
-              "no-facial-recognition boundary is enforced structurally, at compile time.");
+              "PersonBox must not expose name, person_id, or face_embedding: "
+              "this limited field-name guard is checked at compile time.");
 
 struct FrameAnnotation {
     FrameSample sample;
@@ -303,12 +295,14 @@ int main() {
                      "\"[frame 0] tags: (none); people: 0\"\n";
     }
 
-    std::cout << "\n-- Test 7: PersonBox's own structural inability to hold an identity is a real, "
+    std::cout << "\n-- Test 7: PersonBox omits the three specifically checked member names; this is a "
                  "compile-time property, checked here at runtime against the identical concept the "
                  "static_assert above already enforced at build time --\n";
     {
         CHECK(!HasIdentityField<PersonBox>);
-        CHECK(HasIdentityField<FrameAnnotation> == false);  // no identity reachable through this type either
+        CHECK(HasIdentityField<FrameAnnotation> == false);  // checks direct member names only
+        struct DifferentlyNamedIdentity { std::string identity; };
+        CHECK(!HasIdentityField<DifferentlyNamedIdentity>); // documents the guard's limitation
         std::cout << "  this file already failed to compile if PersonBox ever gained a name, "
                      "person_id, or face_embedding field -- the fact this line runs at all is itself "
                      "part of the proof, confirmed here directly against the same real concept\n";

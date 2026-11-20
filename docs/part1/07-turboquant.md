@@ -16,11 +16,11 @@
 - How the Lloyd-Max algorithm turns a known probability distribution into a provably optimal quantizer for that distribution, and why this beats Chapters 2-6's uniformly-spaced blockwise bins whenever the underlying values are not uniformly distributed to begin with.
 - Why a quantizer built to minimize reconstruction error is not automatically safe to use for inner products — it can be systematically, not just randomly, wrong — and how a second, independent 1-bit correction (QJL) restores unbiasedness without needing a better quantizer for the first stage.
 - How to apply the whole pipeline to the KV cache, the one part of a running transformer that blockwise quantization was never well suited for: it grows online, one vector at a time, with no calibration data available in advance, which is exactly the setting TurboQuant's data-oblivious codebooks were designed for.
-- Where TurboQuant stops being the right tool: Chapters 2-6's blockwise Q4_0/Q8_0 remain the correct choice for static weight matrices, because TurboQuant's O(d^2) per-vector rotation cost does not belong inside a fused SIMD matmul inner loop the way a per-block integer scale does.
+- Where TurboQuant stops being the right tool: Chapters 2-6's blockwise TeachingQ4/Q8_0 remain the correct choice for static weight matrices, because TurboQuant's O(d^2) per-vector rotation cost does not belong inside a fused SIMD matmul inner loop the way a per-block integer scale does.
 
 **What you need to know first:**
 
-- Chapters 2-4's blockwise Q8_0/Q4_0 quantization, its fixed 32-element blocks, and its per-block scale — this chapter is defined mostly by contrast with that approach, and Section 7.5 measures the two head to head.
+- Chapters 2-4's blockwise Q8_0/TeachingQ4 quantization, its fixed 32-element blocks, and its per-block scale — this chapter is defined mostly by contrast with that approach, and Section 7.5 measures the two head to head.
 - Basic familiarity with probability densities and expectation is helpful for Sections 7.2 and 7.3, though every formula used is derived or numerically verified in code rather than assumed.
 
 ---
@@ -417,11 +417,11 @@ TurboQuant 7.1: Random Rotation and the Beta Distribution
 
 -- Test 1: Orthogonality of the constructed rotation --
   Diagonal of Q^T Q in [1, 1] (want ~1.0)
-  Max off-diagonal of Q^T Q: 4e-06 (want ~0.0)
+  Max off-diagonal of Q^T Q: 3e-06 (want ~0.0)
 
 -- Test 2: Norm preservation and exact round-trip --
   ||x|| = 8.33056, ||Pi x|| = 8.33056
-  Max |x - Pi^T Pi x| = 5e-06
+  Max |x - Pi^T Pi x| = 8e-06
 
 -- Test 3: Worst-case vector before and after rotation --
   Before: max|x[j]| = 1 (all energy in one coordinate)
@@ -429,15 +429,15 @@ TurboQuant 7.1: Random Rotation and the Beta Distribution
   Expected scale ~ 1/sqrt(d) = 0.1250
 
 -- Test 4: Empirical variance of a rotated coordinate matches 1/d --
-  Empirical mean of y[0]:      1.551e-04
-  Empirical variance of y[0]:  0.007991
+  Empirical mean of y[0]:      -7.696e-04
+  Empirical variance of y[0]:  0.007800
   Theoretical variance (1/d):  0.007812
-  Observed max |y[0]| over 20000 trials: 0.347782
+  Observed max |y[0]| over 20000 trials: 0.375491
   Rotated coordinate distribution matches the Beta-distribution prediction
 
 -- Test 5 [COMMON TRAP]: raw Gaussian matrix breaks round-trip --
   Raw Gaussian 'rotate then rotate back' max error: 1.2938e+02
-  Properly orthogonalised round-trip max error:     6e-06
+  Properly orthogonalised round-trip max error:     3e-06
   The raw Gaussian matrix is NOT its own transpose-inverse -- G^T G != I.
   Every downstream dequantization would silently reconstruct the wrong vector.
 
@@ -879,19 +879,19 @@ TurboQuant 7.2: Lloyd-Max Codebooks and the MSE Quantizer
 
 -- Test 3: TurboQuantMSE round-trip (d=64, b=2) --
   Stored norm: 8.9869
-  Total SE on unit sphere: 0.1425 (theory for b=2 is ~0.117 per coord * d)
+  Total SE on unit sphere: 0.1029 (theory for b=2 is ~0.117 per coord * d)
   Storage: 20 bytes vs FP32 256 bytes (12.8x compression)
 
 -- Test 4: MSE vs bit-width, averaged over 50 vectors (d=64) --
-  b=1  avg total SE: 0.3738  storage: 12 bytes/vec  compression: 21.3x
-  b=2  avg total SE: 0.1162  storage: 20 bytes/vec  compression: 12.8x
-  b=3  avg total SE: 0.0341  storage: 28 bytes/vec  compression: 9.1x
-  b=4  avg total SE: 0.0094  storage: 36 bytes/vec  compression: 7.1x
+  b=1  avg total SE: 0.3635  storage: 12 bytes/vec  compression: 21.3x
+  b=2  avg total SE: 0.1177  storage: 20 bytes/vec  compression: 12.8x
+  b=3  avg total SE: 0.0335  storage: 28 bytes/vec  compression: 9.1x
+  b=4  avg total SE: 0.0089  storage: 36 bytes/vec  compression: 7.1x
 
 -- Test 5 [COMMON TRAP]: skipping normalisation before quantizing --
   ||x|| = 48.02 (deliberately far from 1)
-  Correct pipeline (normalize, rotate, quantize, rescale) MSE: 1.072e+00
-  Buggy pipeline (quantize raw, un-normalised coordinates) MSE: 3.358e+01
+  Correct pipeline (normalize, rotate, quantize, rescale) MSE: 1.310e+00
+  Buggy pipeline (quantize raw, un-normalised coordinates) MSE: 3.357e+01
   Skipping normalisation is not a rounding error -- it is a missing
   scale factor, and the reconstruction is wrong by orders of magnitude.
 
@@ -921,7 +921,7 @@ Section 7.2's quantizer is provably optimal for one specific goal: minimizing th
 
 ### The Concept, In Detail
 
-The mechanism is best seen at the extreme: a 1-bit MSE quantizer for large `d` has just two centroids, `+/- sqrt(2/(pi*d))`, and it reconstructs every coordinate as one of those two values based only on the ROTATED coordinate's sign — all information about the original coordinate's magnitude within its half is thrown away. When that reconstruction is dotted with an arbitrary query vector, the expected value of the resulting estimate is not the true inner product but exactly `2/pi` (about 0.637) times it — a multiplicative shrinkage baked into the quantizer's own construction, not a symptom of any particular unlucky rotation. At higher bit-widths this shrinkage factor climbs toward 1.0, but it never reaches it at any finite bit budget. The fix does not require a better single-stage quantizer — it requires a second, independent stage aimed specifically at inner products. Writing `x = x_tilde_mse + r`, where `r` is the residual the MSE stage failed to capture, the true inner product decomposes as `<y, x> = <y, x_tilde_mse> + <y, r>`. The MSE stage already gives the first term; QJL (Quantized Johnson-Lindenstrauss) supplies the second by quantizing the RESIDUAL with a completely different, 1-bit-per-coordinate scheme: multiply by a fresh random Gaussian matrix `S`, keep only the sign of each projection, and dequantize with the rescaling `sqrt(pi/2)/d * S^T * signs`. That specific rescaling is what makes `<y, QJL_dequant(r)>` an unbiased estimator of `<y, r>` — proved by the symmetry of the Gaussian distribution — and adding it to the MSE term exactly cancels the MSE stage's own bias in expectation, at the cost of one additional bit per coordinate. The residual and the MSE reconstruction must be computed in the SAME coordinate system before they are combined — both in the original, un-rotated space — which is precisely the step this section's own trap gets wrong.
+The mechanism is best seen at the extreme: a 1-bit MSE quantizer for large `d` has just two centroids, `+/- sqrt(2/(pi*d))`, and it reconstructs every coordinate as one of those two values based only on the ROTATED coordinate's sign — all information about the original coordinate's magnitude within its half is thrown away. When that reconstruction is dotted with an arbitrary query vector, the expected value of the resulting estimate is not the true inner product but exactly `2/pi` (about 0.637) times it — a multiplicative shrinkage baked into the quantizer's own construction, not a symptom of any particular unlucky rotation. At higher bit-widths this shrinkage factor climbs toward 1.0, but it never reaches it at any finite bit budget. The fix does not require a better single-stage quantizer — it requires a second, independent stage aimed specifically at inner products. Writing `x = x_tilde_mse + r`, where `r` is the residual the MSE stage failed to capture, the true inner product decomposes as `<y, x> = <y, x_tilde_mse> + <y, r>`. The MSE stage already gives the first term; QJL (Quantized Johnson-Lindenstrauss) supplies the second by quantizing the RESIDUAL with a completely different, 1-bit-per-coordinate scheme: multiply by a fresh random Gaussian matrix `S`, keep only the sign of each projection, and dequantize with the rescaling `||r|| * sqrt(pi/2)/m * S^T * signs`. That specific rescaling is what makes `<y, QJL_dequant(r)>` an unbiased estimator of `<y, r>` — proved by the symmetry of the Gaussian distribution — and adding it to the MSE term exactly cancels the MSE stage's own bias in expectation, at the cost of one additional bit per coordinate. The residual and the MSE reconstruction must be computed in the SAME coordinate system before they are combined — both in the original, un-rotated space — which is precisely the step this section's own trap gets wrong.
 
 ### Code and Verification
 
@@ -1060,7 +1060,7 @@ float dot(std::span<const float> a, std::span<const float> b) {
 // =========================================================================
 // Q(x) = sign(S x), for a random Gaussian S. Storing only the sign of a
 // random projection loses almost all magnitude information -- but the
-// specific rescaling sqrt(pi/2)/d makes the ESTIMATOR unbiased even
+// specific rescaling ||r|| * sqrt(pi/2)/m (m=d here) makes the ESTIMATOR unbiased even
 // though any single reconstructed vector looks nothing like the input.
 struct QJL {
     int d;
@@ -1304,6 +1304,7 @@ int main() {
         float true_dot = dot(x, y);
 
         float sum_correct = 0.0f, sum_buggy = 0.0f;
+        double exact_same_error = 0.0, exact_mixed_error = 0.0;
         for (int t = 0; t < TRIALS; ++t) {
             unsigned seed = static_cast<unsigned>(t + 4000);
             RotationMatrix Pi(D, seed);
@@ -1338,6 +1339,11 @@ int main() {
             std::vector<float> residual_rotated(D);
             for (int i = 0; i < D; ++i) residual_rotated[i] = rot_x[i] - y_tilde[i];
             float rnorm_buggy = l2_norm(residual_rotated);
+            // Test the coordinate identity directly, without Monte Carlo noise.
+            double same_error = mse_dot + dot(y, residual_correct) * x_norm - true_dot;
+            double mixed_error = mse_dot + dot(y, residual_rotated) * x_norm - true_dot;
+            exact_same_error += same_error * same_error;
+            exact_mixed_error += mixed_error * mixed_error;
             auto signs_buggy = qjl.quantize_signs(residual_rotated);
             float qjl_dot_buggy = qjl.dot_estimate(y, signs_buggy, rnorm_buggy) * x_norm;
             sum_buggy += mse_dot + qjl_dot_buggy;
@@ -1353,7 +1359,9 @@ int main() {
         std::cout << "  Subtracting in rotated space but combining in original space breaks\n";
         std::cout << "  unbiasedness -- the residual and the MSE term must share a coordinate system.\n";
         CHECK(bias_correct < std::fabs(true_dot) * 0.2f);
-        CHECK(bias_buggy > 2.0f * bias_correct);
+        CHECK(exact_same_error / TRIALS < 1e-8);
+        CHECK(exact_mixed_error / TRIALS > 1e-4);
+        std::cout << "  exact coordinate identity: same-space PASS; mixed-space residual changes the target\n";
     }
 
     // -- Summary --------------------------------------------------------
@@ -1381,36 +1389,41 @@ TurboQuant 7.3: The Inner-Product Bias Problem and QJL
 
 -- Test 1: MSE-only quantizer's inner-product bias (b=1) --
   True <query, x>:        -4.1923
-  Avg MSE-only estimate:  -2.5111
-  Ratio (theory: 2/pi ~= 0.637): 0.5990
+  Avg MSE-only estimate:  -2.4034
+  Ratio (theory: 2/pi ~= 0.637): 0.5733
   Confirmed: the MSE-optimal quantizer systematically shrinks inner products
 
 -- Test 2: QJL unbiasedness, averaged over 500 random projections --
   True <x,y>: -4.1923   Avg QJL estimate: -3.6006   |bias|: 0.5918
 
 -- Test 3: TurboQuantProd unbiasedness (d=32, b=3), 300 trials --
-  True <x,y>: -4.1923   Avg TurboQuantProd estimate: -4.4093   |bias|: 0.2170
+  True <x,y>: -4.1923   Avg TurboQuantProd estimate: -3.8241   |bias|: 0.3682
   The QJL residual stage cancels the MSE stage's bias, as designed
 
 -- Test 4: Inner-product estimator variance vs bit-width --
-  b=2  variance: 1.585e+01
-  b=3  variance: 5.089e+00
-  b=4  variance: 1.493e+00
+  b=2  variance: 1.713e+01
+  b=3  variance: 5.854e+00
+  b=4  variance: 1.224e+00
 
 -- Test 5 [COMMON TRAP]: residual computed in the wrong coordinate space --
   True <x,y>:              -4.1923
-  Correct (same-space) estimate: -4.0273   |bias|: 0.1650
-  Buggy (mixed-space) estimate:  -3.6812   |bias|: 0.5111
+  Correct (same-space) estimate: -3.9692   |bias|: 0.2232
+  Buggy (mixed-space) estimate:  -3.9099   |bias|: 0.2824
   Subtracting in rotated space but combining in original space breaks
   unbiasedness -- the residual and the MSE term must share a coordinate system.
+  exact coordinate identity: same-space PASS; mixed-space residual changes the target
 
 ========================================================
-9/9 checks passed  ALL PASS
+10/10 checks passed  ALL PASS
 ========================================================
 ```
 
 !!! warning "[COMMON TRAP] combining the two stages in different coordinate systems"
     The MSE stage's quantization happens in ROTATED coordinates (that is where the Beta-distribution codebook applies), but its reconstruction is rotated back to ORIGINAL coordinates before anything else touches it. The residual that QJL quantizes must be computed in that same original coordinate system — `x_hat - x_hat_mse` — because QJL's own random matrix `S` and its unbiasedness proof are stated for the space the QUERY lives in, which is the original, un-rotated space. Subtracting in rotated coordinates instead (`y - y_tilde`, skipping the rotate-back step) and then adding the resulting QJL correction directly to the original-space MSE term mixes two vectors that are expressed in different bases — the correction and the query it gets dotted with are no longer describing the same coordinates. The combined estimate does not crash or produce an obviously wrong shape; it simply drifts further from the true inner product than either stage's error alone would predict, because the two pieces being added together do not actually correspond to each other.
+
+Here `m` is the number of independent Gaussian projection rows (the examples choose `m = d`). For a zero residual, store a zero norm and reconstruct zero; sign bits then carry no information.
+
+The finite Monte Carlo means below illustrate sampling variation; unbiasedness is an expectation statement. The coordinate-system regression therefore checks the exact reconstruction identity, rather than assuming one random sample must show a fixed bias ratio.
 
 ## 7.4 Compressing the KV Cache with TurboQuant
 
@@ -1824,16 +1837,16 @@ TurboQuant 7.4: Compressing the KV Cache
 
 -- Test 1: Attention with a TurboQuant-compressed KV cache --
    (head_dim=32, seq_len=24, bits=3)
-  Max attention-weight difference: 1.8410e-03
-  Output vector MSE:                2.1416e-04
+  Max attention-weight difference: 1.4929e-03
+  Output vector MSE:                1.7083e-04
   Cache bytes/vector: 16  vs FP32: 128 bytes (8.0x compression)
 
 -- Test 2: Per-vector error stays flat as the cache grows (bits=3) --
-  Tokens 0-31: per-element MSE = 2.806e-03
-  Tokens 32-63: per-element MSE = 2.826e-03
-  Tokens 64-95: per-element MSE = 2.643e-03
-  Tokens 96-127: per-element MSE = 2.698e-03
-  Relative drift from first chunk to last: 3.8%
+  Tokens 0-31: per-element MSE = 2.858e-03
+  Tokens 32-63: per-element MSE = 2.914e-03
+  Tokens 64-95: per-element MSE = 2.478e-03
+  Tokens 96-127: per-element MSE = 3.027e-03
+  Relative drift from first chunk to last: 5.9%
 
 -- Test 3: KV cache memory footprint, FP16 vs TurboQuant 3-bit --
   8B-class model,  4K context:
@@ -1850,8 +1863,8 @@ TurboQuant 7.4: Compressing the KV Cache
    own evaluation, not from this toy simulation, and are cited as such.)
 
 -- Test 4 [COMMON TRAP]: one shared norm instead of a per-vector norm --
-  Correct (per-vector norm) MSE: 5.561e-02
-  Buggy (one shared norm) MSE:   1.635e+00
+  Correct (per-vector norm) MSE: 6.667e-02
+  Buggy (one shared norm) MSE:   1.640e+00
   The norm is not a codebook parameter -- it is per-vector data, exactly
   as necessary as the indices. Skipping it for all but one token wrecks
   every vector whose true magnitude differs from that one token's.
@@ -1878,11 +1891,11 @@ TurboQuant 7.4: Compressing the KV Cache
 
 ### Intuition
 
-The chapter has built an alternative to Chapters 2-6's blockwise Q8_0/Q4_0, not a replacement for it — the two approaches are optimized for different situations, and the honest way to see that is to run them against each other on the same vectors and look at where each one wins. It is also worth asking a harder question about TurboQuant specifically: not just "is it better than blockwise here," but "how much better could ANY quantizer possibly be" — because a technique described as "near-optimal" ought to be checked against the theoretical optimum it claims to approach, not just against one specific competitor.
+The chapter has built an alternative to Chapters 2-6's blockwise Q8_0/TeachingQ4, not a replacement for it — the two approaches are optimized for different situations, and the honest way to see that is to run them against each other on the same vectors and look at where each one wins. It is also worth asking a harder question about TurboQuant specifically: not just "is it better than blockwise here," but "how much better could ANY quantizer possibly be" — because a technique described as "near-optimal" ought to be checked against the theoretical optimum it claims to approach, not just against one specific competitor.
 
 ### The Concept, In Detail
 
-Running Chapters 2-4's blockwise Q8_0 and Q4_0 alongside TurboQuant's MSE quantizer at several bit-widths, on the same set of random vectors, with the same set of query vectors for measuring inner-product error, shows the expected shape of the trade-off: Q8_0's larger byte budget buys the lowest reconstruction error of the group, Q4_0 trades some of that accuracy for roughly half the bytes, and TurboQuant at a comparable bit-width matches or beats Q4_0's reconstruction quality using a comparable byte budget — while TurboQuant at very low bit-widths (2 bits) trades substantially more accuracy for a much smaller footprint than either blockwise format can reach at all, since Q4_0 has no lower-bit-width sibling. Checking TurboQuant's own measured distortion against the Shannon lower bound (`4^-bits`, the information-theoretic floor for any quantizer of a unit-sphere vector at that bit budget, independent of `d`) shows the measured-to-bound ratio staying within a small, roughly constant factor across every bit-width tested — close to (though not an exact reproduction of) the 2.7x cap the TurboQuant paper proves analytically for the idealized infinite-dimensional codebook. Comparing byte budgets fairly across the two families requires counting EVERY byte a real system would actually store, not just the part that is convenient to count — which is exactly where this section's own trap lives.
+Running Chapters 2-4's blockwise Q8_0 and TeachingQ4 alongside TurboQuant's MSE quantizer at several bit-widths, on the same set of random vectors, with the same set of query vectors for measuring inner-product error, shows the expected shape of the trade-off: Q8_0's larger byte budget buys the lowest reconstruction error of the group, TeachingQ4 trades some of that accuracy for roughly half the bytes, and TurboQuant at a comparable bit-width matches or beats TeachingQ4's reconstruction quality using a comparable byte budget — while TurboQuant at very low bit-widths (2 bits) trades substantially more accuracy for a much smaller footprint than either blockwise format can reach at all, since TeachingQ4 has no lower-bit-width sibling. Checking TurboQuant's own measured distortion against the Shannon lower bound (`4^-bits`, the information-theoretic floor for any quantizer of a unit-sphere vector at that bit budget, independent of `d`) shows the measured-to-bound ratio staying within a small, roughly constant factor across every bit-width tested — close to (though not an exact reproduction of) the 2.7x cap the TurboQuant paper proves analytically for the idealized infinite-dimensional codebook. Comparing byte budgets fairly across the two families requires counting EVERY byte a real system would actually store, not just the part that is convenient to count — which is exactly where this section's own trap lives.
 
 ### Code and Verification
 
@@ -1891,7 +1904,7 @@ Running Chapters 2-4's blockwise Q8_0 and Q4_0 alongside TurboQuant's MSE quanti
 // TurboQuant, Part 5: put every piece from this chapter together -- the
 // rotation (7.1), the Lloyd-Max codebook and MSE quantizer (7.2), and the
 // QJL-free "MSE mode" used for KV caches (7.4) -- and compare it head to
-// head against Chapter 3/4's blockwise Q8_0/Q4_0 on a common set of
+// head against Chapter 3/4's blockwise Q8_0/TeachingQ4 on a common set of
 // vectors. We also check TurboQuant's distortion against the
 // information-theoretic lower bound that makes it "near-optimal" rather
 // than just "pretty good".
@@ -1899,6 +1912,7 @@ Running Chapters 2-4's blockwise Q8_0 and Q4_0 alongside TurboQuant's MSE quanti
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 05_turboquant_vs_blockwise.cpp -o out05
 
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -1920,39 +1934,54 @@ static int g_tests = 0, g_passed = 0;
 } while (0)
 
 // =========================================================================
-// CHAPTER 3/4's fp16_t and blockwise Q8_0/Q4_0 (reused verbatim, this is
+// CHAPTER 3/4's fp16_t and blockwise Q8_0/TeachingQ4 (reused verbatim, this is
 // the baseline TurboQuant is being compared against)
 // =========================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -1961,22 +1990,26 @@ struct BlockQ4 { fp16_t scale; uint8_t nibbles[16]; };
 #pragma pack(pop)
 
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
     return b;
 }
 BlockQ4 quantize_q4(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ4 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); for (auto& n : b.nibbles) n = 0x88; return b; }
-    b.scale = fp16_t(alpha / 7.0f);
+    b.scale = fp16_t(std::clamp(alpha / 7.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 16; ++i) {
         int lo = static_cast<int>(std::clamp(std::round(data[2 * i] * inv), -8.0f, 7.0f));
@@ -2170,7 +2203,7 @@ int main() {
             for (int i = 0; i < D; ++i) { float e = v[i] - recon[i]; total_mse += e * e; }
             for (const auto& q : queries) { float d1 = dot(q, v) - dot(q, recon); total_ip_err += d1 * d1; }
         }
-        results.push_back({"Q4_0 blockwise", total_mse / (N_VEC * D), total_ip_err / (N_VEC * N_QUERIES),
+        results.push_back({"TeachingQ4 blockwise", total_mse / (N_VEC * D), total_ip_err / (N_VEC * N_QUERIES),
                             static_cast<size_t>(nblocks) * sizeof(BlockQ4)});
     }
     for (int b = 2; b <= 4; ++b) {
@@ -2198,8 +2231,8 @@ int main() {
     }
     CHECK(results[0].mse < results[1].mse);        // Q8 beats Q4 in MSE
     CHECK(results[1].bytes < results[0].bytes);    // Q4 smaller than Q8
-    CHECK(results[4].mse < results[1].mse);        // TurboQuant 4-bit beats Q4_0 in MSE
-    std::cout << "\n  TurboQuant 4-bit matches or beats Q4_0's reconstruction quality\n";
+    CHECK(results[4].mse < results[1].mse);        // TurboQuant 4-bit beats TeachingQ4 in MSE
+    std::cout << "\n  TurboQuant 4-bit matches or beats TeachingQ4's reconstruction quality\n";
     std::cout << "  while using a comparable or smaller byte budget.\n";
 
     // =====================================================================
@@ -2273,7 +2306,7 @@ int main() {
                   << std::fixed << std::setprecision(1) << fp32_bytes / static_cast<float>(tq_index_only) << "x compression (WRONG)\n";
         std::cout << "    Including the norm:  " << tq_with_overhead << " bytes -> "
                   << fp32_bytes / static_cast<float>(tq_with_overhead) << "x compression (correct)\n";
-        std::cout << "  Q4_0 blockwise:\n";
+        std::cout << "  TeachingQ4 blockwise:\n";
         std::cout << "    Ignoring the scale:  " << q4_index_only << " bytes -> "
                   << fp32_bytes / static_cast<float>(q4_index_only) << "x compression (WRONG)\n";
         std::cout << "    Including the scale: " << q4_with_overhead << " bytes -> "
@@ -2282,7 +2315,7 @@ int main() {
         float tq_inflation = (fp32_bytes / static_cast<float>(tq_index_only)) / (fp32_bytes / static_cast<float>(tq_with_overhead));
         float q4_inflation = (fp32_bytes / static_cast<float>(q4_index_only)) / (fp32_bytes / static_cast<float>(q4_with_overhead));
         std::cout << "  Overstatement factor: TurboQuant " << std::setprecision(2) << tq_inflation
-                  << "x, Q4_0 " << q4_inflation << "x -- both look better than they are\n";
+                  << "x, TeachingQ4 " << q4_inflation << "x -- both look better than they are\n";
         std::cout << "  if the per-vector/per-block overhead is silently dropped from the count.\n";
         CHECK(tq_with_overhead > tq_index_only);
         CHECK(q4_with_overhead > q4_index_only);
@@ -2306,7 +2339,7 @@ g++ -std=c++23 -Wall -Wextra -O2 05_turboquant_vs_blockwise.cpp -o 05_turboquant
 ./05_turboquant_vs_blockwise
 ```
 
-**Sample input:** Q8_0, Q4_0, and TurboQuant MSE at 2, 3, and 4 bits, compared head to head for per-element MSE, average inner-product error, and bytes per vector across 100 random 64-dimensional vectors and 10 query vectors; TurboQuant's measured total squared error against the Shannon lower bound `4^-bits` at bit-widths 1 through 4; and a deliberate compression-ratio comparison that first omits, then includes, each format's per-vector or per-block overhead bytes.
+**Sample input:** Q8_0, TeachingQ4, and TurboQuant MSE at 2, 3, and 4 bits, compared head to head for per-element MSE, average inner-product error, and bytes per vector across 100 random 64-dimensional vectors and 10 query vectors; TurboQuant's measured total squared error against the Shannon lower bound `4^-bits` at bit-widths 1 through 4; and a deliberate compression-ratio comparison that first omits, then includes, each format's per-vector or per-block overhead bytes.
 
 ```text
 ========================================================
@@ -2318,12 +2351,12 @@ TurboQuant 7.5: vs. Blockwise Quantization, and the Bounds
   Method              MSE/elem     IP err(avg)   Bytes/vec  Compress
   ------------------  -----------  ------------  ---------  --------
   Q8_0 blockwise      2.615e-06    1.546e-05            68  3.8x
-  Q4_0 blockwise      8.731e-04    5.282e-03            36  7.1x
-  TurboQuant 2-bit    1.054e-02    6.452e-02            20  12.8x
-  TurboQuant 3-bit    3.106e-03    1.746e-02            28  9.1x
-  TurboQuant 4-bit    8.373e-04    4.932e-03            36  7.1x
+  TeachingQ4 blockwise 8.731e-04    5.282e-03            36  7.1x
+  TurboQuant 2-bit    1.040e-02    6.255e-02            20  12.8x
+  TurboQuant 3-bit    3.029e-03    1.682e-02            28  9.1x
+  TurboQuant 4-bit    8.013e-04    4.786e-03            36  7.1x
 
-  TurboQuant 4-bit matches or beats Q4_0's reconstruction quality
+  TurboQuant 4-bit matches or beats TeachingQ4's reconstruction quality
   while using a comparable or smaller byte budget.
 
 -- Test 2: Distortion vs. the information-theoretic lower bound --
@@ -2331,10 +2364,10 @@ TurboQuant 7.5: vs. Blockwise Quantization, and the Bounds
    unit-norm vector, ||x - x~||^2 -- not divided by d -- so that is what
    we measure here, matching Section 7.2's Test 3 convention.)
   bits  lower bound(4^-b)  measured total SE  ratio
-   1        0.25000            0.36099        1.44x
-   2        0.06250            0.11424        1.83x
-   3        0.01562            0.03474        2.22x
-   4        0.00391            0.01172        3.00x
+   1        0.25000            0.36403        1.46x
+   2        0.06250            0.11563        1.85x
+   3        0.01562            0.03586        2.30x
+   4        0.00391            0.01214        3.11x
   Measured distortion sits within a small constant factor of the lower
   bound at every bit-width -- consistent with (not a precise reproduction
   of) the paper's proven ~2.7x cap.
@@ -2344,10 +2377,10 @@ TurboQuant 7.5: vs. Blockwise Quantization, and the Bounds
   TurboQuant 2-bit:
     Ignoring the norm:   8 bytes -> 16.0x compression (WRONG)
     Including the norm:  12 bytes -> 10.7x compression (correct)
-  Q4_0 blockwise:
+  TeachingQ4 blockwise:
     Ignoring the scale:  16 bytes -> 8.0x compression (WRONG)
     Including the scale: 18 bytes -> 7.1x compression (correct)
-  Overstatement factor: TurboQuant 1.50x, Q4_0 1.12x -- both look better than they are
+  Overstatement factor: TurboQuant 1.50x, TeachingQ4 1.12x -- both look better than they are
   if the per-vector/per-block overhead is silently dropped from the count.
 
 ========================================================
@@ -2358,9 +2391,11 @@ TurboQuant 7.5: vs. Blockwise Quantization, and the Bounds
 !!! warning "[COMMON TRAP] dropping the overhead bytes from a compression ratio"
     Every format in this comparison has some per-vector or per-block overhead beyond the raw quantized values themselves — TurboQuant's stored norm (4 bytes), or a blockwise format's stored scale (2 bytes as fp16, per 32-element block). That overhead is easy to leave out of a quick compression-ratio calculation, and it is NOT a rounding error to do so — it inflates the reported ratio in a way that gets worse, not better, at smaller dimensions, because a fixed few bytes of overhead is a much larger fraction of a small vector's total size than of a large one's. A single 32-element vector at 2-bit TurboQuant looks like 16x compression if only the index bytes are counted, and a real 10.7x once the stored norm is included — the same distortion in the other direction hits blockwise formats too. Neither number is fabricated, but only one of them describes what an actual running system would need to store.
 
+The reused TeachingQ4 blocks are instructional adjacent-pair encodings, not upstream GGUF Q4_0; see Chapter 4 for the compatibility boundary.
+
 ## Chapter Summary
 
-This chapter built TurboQuant from first principles as a genuinely different family of quantizer from every blockwise format in Chapters 2 through 6 — one that treats a whole vector as a single geometric object rather than a sequence of independent 32-element blocks. Section 7.1 built and verified the random rotation that makes this possible, confirming both that it spreads a worst-case vector's energy evenly across every coordinate and that a rotated coordinate's variance matches the theoretical prediction the rest of the chapter depends on — and showed concretely what breaks if the "rotation" is not actually orthogonal. Section 7.2 built the Lloyd-Max codebook that exploits the resulting known distribution, combined it with the rotation into a complete reconstruction-optimal quantizer, and demonstrated why skipping the normalize step before quantizing is not a rounding error but a missing scale factor with unbounded consequences. Section 7.3 showed that reconstruction-optimal is not the same as inner-product-safe: the MSE quantizer is systematically biased for dot products, and the QJL residual correction fixes that bias by adding a second, independent 1-bit stage — provided the two stages are combined in a consistent coordinate system, which this section's own trap showed is not automatic. Section 7.4 applied the resulting quantizer to the KV cache, the online, uncalibrated structure blockwise quantization struggles with, and showed that a per-vector norm is not optional bookkeeping any more than the quantization indices themselves are. Section 7.5 closed the chapter by measuring TurboQuant against Chapters 2-6's blockwise formats directly and against the Shannon lower bound that no quantizer of any kind can beat, landing within a small constant factor of that bound at every bit-width tested — while also showing how easily a compression-ratio comparison can be quietly skewed by dropping the overhead bytes real storage would require. TurboQuant does not replace blockwise quantization; the two are complementary, and Chapter 4's hybrid engine now has both tools available — Q4_0/Q8_0 for the static weights a fused SIMD matmul needs, and TurboQuant for the KV cache that arrives one vector at a time with no calibration data at all.
+This chapter built TurboQuant from first principles as a genuinely different family of quantizer from every blockwise format in Chapters 2 through 6 — one that treats a whole vector as a single geometric object rather than a sequence of independent 32-element blocks. Section 7.1 built and verified the random rotation that makes this possible, confirming both that it spreads a worst-case vector's energy evenly across every coordinate and that a rotated coordinate's variance matches the theoretical prediction the rest of the chapter depends on — and showed concretely what breaks if the "rotation" is not actually orthogonal. Section 7.2 built the Lloyd-Max codebook that exploits the resulting known distribution, combined it with the rotation into a complete reconstruction-optimal quantizer, and demonstrated why skipping the normalize step before quantizing is not a rounding error but a missing scale factor with unbounded consequences. Section 7.3 showed that reconstruction-optimal is not the same as inner-product-safe: the MSE quantizer is systematically biased for dot products, and the QJL residual correction fixes that bias by adding a second, independent 1-bit stage — provided the two stages are combined in a consistent coordinate system, which this section's own trap showed is not automatic. Section 7.4 applied the resulting quantizer to the KV cache, the online, uncalibrated structure blockwise quantization struggles with, and showed that a per-vector norm is not optional bookkeeping any more than the quantization indices themselves are. Section 7.5 closed the chapter by measuring TurboQuant against Chapters 2-6's blockwise formats directly and against the Shannon lower bound that no quantizer of any kind can beat, landing within a small constant factor of that bound at every bit-width tested — while also showing how easily a compression-ratio comparison can be quietly skewed by dropping the overhead bytes real storage would require. TurboQuant does not replace blockwise quantization; the two are complementary, and Chapter 4's hybrid engine now has both tools available — TeachingQ4/Q8_0 for the static weights a fused SIMD matmul needs, and TurboQuant for the KV cache that arrives one vector at a time with no calibration data at all.
 
 ## Self-Check Questions
 
@@ -2369,15 +2404,15 @@ This chapter built TurboQuant from first principles as a genuinely different fam
 3. Why can TurboQuant's Lloyd-Max codebooks be precomputed entirely offline, with no data dependence, in a way that Product Quantization's k-means-based codebooks cannot?
 4. Section 7.2 normalizes a vector to the unit sphere before rotating and quantizing it. What goes wrong, concretely, if that normalization step is skipped and the raw vector is rotated and quantized directly?
 5. Explain why a quantizer that is provably optimal for minimizing reconstruction error (MSE) can still be systematically biased when used to estimate inner products. What does "systematically biased" mean here, as opposed to merely noisy?
-6. Walk through how the QJL residual stage restores unbiasedness without needing a better first-stage quantizer. What specific property of the rescaling factor `sqrt(pi/2)/d` makes this work?
+6. Walk through how the QJL residual stage restores unbiasedness without needing a better first-stage quantizer. What specific property of the rescaling factor `||r|| * sqrt(pi/2)/m` makes this work?
 7. Why must the residual quantized by QJL be computed in the same coordinate system as the query vector it will later be dotted with, and what goes wrong if it is computed in rotated coordinates instead?
 8. Why is a per-vector stored norm not optional in KV cache quantization, even though the rotation matrix and codebook are shared across every vector in the cache?
-9. Why is TurboQuant not a good replacement for Chapters 2-6's blockwise Q4_0/Q8_0 when quantizing static weight matrices for a fused matmul kernel?
+9. Why is TurboQuant not a good replacement for Chapters 2-6's blockwise TeachingQ4/Q8_0 when quantizing static weight matrices for a fused matmul kernel?
 10. What does it mean for TurboQuant's measured distortion to be checked "against the Shannon lower bound," and why is landing within a small constant factor of that bound a meaningfully stronger claim than just "lower error than one specific competitor"?
 
 ## Where We Go Next
 
-This chapter, like Chapter 6, has been a supplementary deep dive rather than a direct continuation of the hybrid engine's forward pass — TurboQuant compresses the KV cache, a structure that exists only during generation and grows one vector at a time, which is a fundamentally different problem from the static weight loading Chapters 2 through 6 focused on. With both tools now available — blockwise Q4_0/Q8_0 for weights, TurboQuant for an online KV cache — Part 1's quantization story is complete. Part 2 turns from what a model's numbers are represented as to how fast an engine can actually move those numbers through a CPU: Chapter 8 covers the memory wall and the roofline model, the framework for understanding when an inference engine's speed is limited by arithmetic and when it is limited by how fast data can be fetched from memory in the first place — a question that shapes every optimization decision Part 2 makes from that point on.
+This chapter, like Chapter 6, has been a supplementary deep dive rather than a direct continuation of the hybrid engine's forward pass — TurboQuant compresses the KV cache, a structure that exists only during generation and grows one vector at a time, which is a fundamentally different problem from the static weight loading Chapters 2 through 6 focused on. With both tools now available — blockwise TeachingQ4/Q8_0 for weights, TurboQuant for an online KV cache — Part 1's quantization story is complete. Part 2 turns from what a model's numbers are represented as to how fast an engine can actually move those numbers through a CPU: Chapter 8 covers the memory wall and the roofline model, the framework for understanding when an inference engine's speed is limited by arithmetic and when it is limited by how fast data can be fetched from memory in the first place — a question that shapes every optimization decision Part 2 makes from that point on.
 
 ## Worked Solutions
 
@@ -2391,7 +2426,7 @@ This chapter, like Chapter 6, has been a supplementary deep dive rather than a d
 
 **5.** "Systematically biased" means the estimator's EXPECTED value — its average over many independent randomizations of the quantizer, such as many different random rotation matrices — differs from the true inner product by a consistent, predictable amount in one direction, not just by random noise that would average out to zero over repeated trials. The MSE-optimal quantizer's inner-product estimate is a clear example: at low bit-widths, its expected value is a fixed fraction (as small as `2/pi` at 1 bit) of the true inner product, EVERY time, for EVERY vector, not merely wrong on some unlucky draws and right on others. A quantizer can be "optimal" for one loss function (squared reconstruction error) while being provably, unavoidably wrong in a specific direction for a different one (inner-product estimation), because the two loss functions are simply measuring different things.
 
-**6.** Writing `x = x_tilde_mse + r`, the true inner product with a query `y` splits as `<y, x> = <y, x_tilde_mse> + <y, r>`. The MSE stage already supplies the first term exactly (it is just the dequantized MSE reconstruction). QJL supplies an UNBIASED estimate of the second term, `<y, r>`, using only the sign of a random Gaussian projection of `r` — and the specific rescaling `sqrt(pi/2)/d` is exactly the constant that makes `E[<y, QJL_dequant(r)>]` equal `<y, r>`, a fact that follows from the symmetry of the Gaussian distribution used to build the projection matrix `S`. Adding an unbiased estimate of the missing term to the exact first term gives, in expectation, the true inner product — the QJL stage does not need to reconstruct `r` accurately at all (and it does not: keeping only a sign per coordinate throws away almost all of `r`'s information), it only needs its INNER PRODUCT WITH `y`, in expectation, to be correct.
+**6.** Writing `x = x_tilde_mse + r`, the true inner product with a query `y` splits as `<y, x> = <y, x_tilde_mse> + <y, r>`. The MSE stage already supplies the first term exactly (it is just the dequantized MSE reconstruction). QJL supplies an UNBIASED estimate of the second term, `<y, r>`, using only the sign of a random Gaussian projection of `r` — and the specific rescaling `||r|| * sqrt(pi/2)/m` is exactly the constant that makes `E[<y, QJL_dequant(r)>]` equal `<y, r>`, a fact that follows from the symmetry of the Gaussian distribution used to build the projection matrix `S`. Adding an unbiased estimate of the missing term to the exact first term gives, in expectation, the true inner product — the QJL stage does not need to reconstruct `r` accurately at all (and it does not: keeping only a sign per coordinate throws away almost all of `r`'s information), it only needs its INNER PRODUCT WITH `y`, in expectation, to be correct.
 
 **7.** QJL's unbiasedness proof is stated for a random Gaussian matrix `S` applied directly to the vector whose inner product with an arbitrary query is being estimated — and that query lives in the ORIGINAL, un-rotated coordinate space, since that is the space attention scores and vector-database queries are actually computed in. If the residual is instead computed in ROTATED coordinates (subtracting before rotating the MSE term back), the resulting QJL-quantized correction describes a residual expressed in a different basis than the query it will later be dotted with. Adding that correction directly to the original-space MSE term and dotting the sum with an original-space query does not correspond to any consistent linear-algebra operation — the pieces being summed are not describing the same coordinates — and the resulting estimate drifts further from the true inner product than either stage's individual error would suggest, without producing any obviously wrong shape or crash to signal the mistake.
 
@@ -2399,4 +2434,4 @@ This chapter, like Chapter 6, has been a supplementary deep dive rather than a d
 
 **9.** A fused SIMD matmul kernel needs to dequantize and multiply-accumulate a weight block using only cheap, local arithmetic — Chapters 2-6's blockwise formats fit this exactly, since dequantizing one block requires only that block's own stored scale and a handful of integer multiplies. TurboQuant's dequantization requires a full `O(d^2)` matrix-vector multiply by the rotation matrix's transpose for every single vector before its values are usable at all — a cost that is negligible when applied once per KV cache vector as it is produced, but would dominate the inner loop of a matmul that touches every weight in a matrix multiple times per forward pass. Static weights also do not benefit from TurboQuant's core advantage: they are quantized once, offline, with as much calibration effort as desired, which is exactly the setting blockwise per-block scales already handle well, whereas TurboQuant's advantage is specifically for data that arrives online with no calibration opportunity at all.
 
-**10.** The Shannon lower bound is not "how well some other specific quantizer happens to do" — it is a proof, from information theory, of the smallest possible distortion ANY quantizer whatsoever could achieve for a given bit budget on a unit-sphere vector, regardless of how clever or specialized that hypothetical quantizer might be. Beating one specific competitor (such as Q4_0) only shows TurboQuant is better than that one alternative; it says nothing about how much further improvement might still be possible. Landing within a small, bounded factor of the Shannon lower bound at every bit-width tested is a much stronger claim: it means no future quantizer, however sophisticated, could improve on TurboQuant by more than that same small constant factor, because the lower bound itself is a hard floor that no algorithm can cross.
+**10.** The Shannon lower bound is not "how well some other specific quantizer happens to do" — it is a proof, from information theory, of the smallest possible distortion ANY quantizer whatsoever could achieve for a given bit budget on a unit-sphere vector, regardless of how clever or specialized that hypothetical quantizer might be. Beating one specific competitor (such as TeachingQ4) only shows TurboQuant is better than that one alternative; it says nothing about how much further improvement might still be possible. Landing within a small, bounded factor of the Shannon lower bound at every bit-width tested is a much stronger claim: it means no future quantizer, however sophisticated, could improve on TurboQuant by more than that same small constant factor, because the lower bound itself is a hard floor that no algorithm can cross.

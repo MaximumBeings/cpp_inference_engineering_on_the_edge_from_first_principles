@@ -25,6 +25,10 @@
 
 ---
 
+!!! warning "Trusted instructional inputs only"
+    The GGUF readers copied into this chapter assume the documented trusted fixtures and compatible checkpoints. They are not hardened arbitrary-file parsers: read success, metadata allocation limits, dimension products, alignment and every tensor byte range are not comprehensively validated. A successful `open()` does not establish that an arbitrary file is safe. Validate those properties before exposing mapped views in production, and do not use these examples on untrusted model files.
+
+
 Every chapter so far has assumed tokens already exist as small integers flowing into an embedding table. This chapter builds the thing that produces them. Section 12.1 implements byte-pair encoding's actual merge loop — the algorithm that turns a stream of raw bytes into the hierarchical, always-representable vocabulary a real model was trained on — and traces a genuinely counterintuitive case by hand to show that merge PRIORITY, not merge OPPORTUNITY, decides the result. Section 12.2 builds the pre-tokenizer that runs before BPE ever sees a byte, so a merge rule can never accidentally fuse two words together. Section 12.3 turns to special tokens and the chat template that assembles a real multi-turn conversation, and makes concrete a security property this book has not needed to state before: special tokens are inserted by ID at fixed positions, never discovered by pattern-matching user text, so a user cannot inject a fake end-of-turn signal just by typing its literal string. Section 12.4 reverses the whole process with a token decoder, handling byte-fallback and control tokens correctly enough that a real multi-byte UTF-8 codepoint falls out of it with no Unicode-specific code at all. Section 12.5 closes the chapter by extending Chapter 5's real GGUF reader and writer with array support, writing an actual tokenizer vocabulary to a real file, and loading a complete, working tokenizer back out of it — proving the whole pipeline with a lossless round trip on ordinary text.
 
 <!-- chapter-figure -->

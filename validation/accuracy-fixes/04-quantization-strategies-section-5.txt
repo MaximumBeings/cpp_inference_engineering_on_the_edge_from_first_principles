@@ -1,0 +1,21 @@
+================================================
+Dynamic Activation Quantization (INT8)
+================================================
+
+-- Test 1: Activation quantize -> dequantize --
+  scale: 0.0165354 (max_abs/127 = 0.0165354)
+  MSE: 1.286503e-05
+
+-- Test 2: INT8 dot product vs FP32 reference --
+  FP32 ref: -0.260983, INT8: -0.269538, rel error: 3.28%
+
+-- Test 3: Full matmul row comparison (dim=256) --
+  FP32: 0.347086, INT8: 0.347316, error: 0.000230 (0.066159%)
+
+-- Test 4: Two-pass element-read accounting (d=4096) --
+  d=4096, passes=2, float reads counted: 8192
+  (matches this section's own claim: 2 passes x d reads = 8192 for d=4096)
+
+================================================
+8/8 checks passed ALL PASS
+================================================

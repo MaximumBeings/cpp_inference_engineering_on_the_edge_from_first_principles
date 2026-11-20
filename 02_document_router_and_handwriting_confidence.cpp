@@ -20,7 +20,7 @@
 // large solid block), not a trained machine-learning classifier -- every
 // rule it applies is stated and justified in its own right, exactly the
 // way this book has built every other from-scratch algorithm since
-// Chapter 1. The glyph-size-variance signal this section uses to flag
+// the tensor foundations. The glyph-size-variance signal this section uses to flag
 // likely handwriting is a real, computable, but genuinely COARSE proxy,
 // stated honestly as exactly that: handwritten glyphs vary considerably
 // more in size than a printed font's own glyphs do, but a real, careful

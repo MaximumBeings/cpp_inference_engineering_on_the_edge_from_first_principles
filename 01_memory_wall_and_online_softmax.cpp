@@ -1,3 +1,6 @@
+// Contract: unscaled, noncausal single-head softmax(Q K^T) V.
+// No causal/padding mask, default 1/sqrt(d) scaling or production-model integration.
+// Fixed-size score tiles do not imply constant total Q/K/V/output storage.
 // Chapter 32.1 -- The real O(N^2) memory wall standard attention hits, and
 // the real online-softmax recurrence that fixes it. Standard attention
 // materializes a full N x N score matrix before it can take a single
@@ -7,8 +10,8 @@
 // builds a real, from-scratch streaming attention that processes keys and
 // values in small blocks, updating a running max, running sum, and running
 // output incrementally -- the identical real recurrence Flash Attention is
-// built on -- and proves it produces EXACTLY the same result as materializing
-// the full row, while its own real peak memory never depends on N at all.
+// built on -- and checks numerical agreement within tolerance as materializing
+// the full row, while its score-buffer storage is fixed for a fixed block size.
 //
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 01_memory_wall_and_online_softmax.cpp -o 01_memory_wall_and_online_softmax
 // Run:     ./01_memory_wall_and_online_softmax
@@ -35,7 +38,7 @@ bool near(double a, double b, double eps = 1e-9) { return std::fabs(a - b) < eps
 // attention's own real score matrix is N (queries) x N (keys) -- for a
 // single (batch, head) pair, at a stated real dtype width. Streaming
 // attention never materializes more than one real BLOCK of scores at a
-// time, so its own real peak memory is a fixed constant, independent of N.
+// time, so its score-buffer storage is fixed for fixed tile dimensions.
 // =======================================================================
 double bytes_for_full_scores(int64_t n, int64_t dtype_bytes) {
     return static_cast<double>(n) * static_cast<double>(n) * static_cast<double>(dtype_bytes);
@@ -176,7 +179,7 @@ int main() {
         std::cout << std::defaultfloat << std::setprecision(6);
     }
 
-    std::cout << "\n-- Test 2: streaming attention's own real peak memory -- one block's worth of scores -- "
+    std::cout << "\n-- Test 2: streaming attention's score-buffer storage -- one block's worth of scores -- "
                  "is a fixed constant that does not depend on N at all, confirmed directly by computing it "
                  "at two wildly different real sequence lengths and finding it identical --\n";
     {

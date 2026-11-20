@@ -1,0 +1,35 @@
+================================================
+A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag
+================================================
+
+-- Test 1: The quantization policy --
+  NORM       -> F32
+  EMBEDDING  -> Q8_0
+  ATTENTION  -> Q8_0
+  FFN        -> TeachingQ4
+
+-- Test 2: Writing a hybrid file (F32 + Q8_0 + TeachingQ4 in one file) --
+  wrote 6 tensors: 2x NORM (F32), 2x ATTENTION (Q8_0), 2x FFN (TeachingQ4)
+
+-- Test 3: Reading back and dispatching by recorded type --
+  blk.0.attn_norm.weight  F32  n_elements=64
+  blk.0.ffn_norm.weight   F32  n_elements=64
+  blk.0.attn_q.weight     Q8_0  n_elements=4096
+  blk.0.attn_k.weight     Q8_0  n_elements=4096
+  blk.0.ffn_gate.weight   TeachingQ4  n_elements=16384
+  blk.0.ffn_up.weight     TeachingQ4  n_elements=16384
+  NORM (F32) dispatch:      -9.221473 vs FP32 ref -9.221473 (exact: yes)
+  ATTENTION (Q8_0) dispatch: -0.008333 vs FP32 ref -0.010321 (error 0.001988)
+  FFN (TeachingQ4) dispatch:      0.003833 vs FP32 ref 0.027152 (error 0.023319)
+
+-- Test 4: [COMMON TRAP] dispatch-by-name misreads ffn_norm.weight --
+  tensor name: "blk.0.ffn_norm.weight"
+  recorded type (correct):    F32
+  name-substring guess:       TeachingQ4 (WRONG)
+  true value[0..3]:    0.982336, 0.992979, 1.001003, 0.985402
+  misread as TeachingQ4[0..3]: 156768.000000, -52256.000000, 365792.000000, -261280.000000
+  relative L2 error from misreading the format: 198761.656250 (not a rounding error -- structurally wrong bytes)
+
+================================================
+18/18 checks passed ALL PASS
+================================================

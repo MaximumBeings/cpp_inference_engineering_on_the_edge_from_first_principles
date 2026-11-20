@@ -236,12 +236,12 @@ int main() {
     };
 
     // =====================================================================
-    // TEST 1: at a realistic context length, classify the whole decode
+    // TEST 1: an aggregate modeled accounting ratio for the decode
     // step against the roofline, and check it lands memory-bound (as
     // Section 8.1's Test 3 assumed when it picked AI=0.5 as "a
     // representative decode-time GEMV").
     // =====================================================================
-    std::cout << "\n-- Test 1: one decode step at cache_len=2048, classified against the roofline --\n";
+    std::cout << "\n-- Test 1: one decode step at cache_len=2048, aggregate accounting against the roofline --\n";
     {
         constexpr long long L = 2048;
         Cost step = decode_step_cost(L);
@@ -290,6 +290,10 @@ int main() {
         CHECK(weight_bytes > kv_cache_bytes * 10);       // weight reads dominate by an order of magnitude here
         CHECK(crossover_L > 50000);                       // and only stop dominating at a very long context
     }
+
+    std::cout << "  Scope: the aggregate intensity is an optimistic accounting model, not a proof\n";
+    std::cout << "  that every unfused kernel shares one bottleneck. Activation, cache and overhead\n";
+    std::cout << "  assumptions matter; serial kernel time bounds must be summed separately.\n";
 
     // -- Summary --------------------------------------------------------
     std::cout << "\n========================================================\n";

@@ -6,7 +6,7 @@ Chapter 8.5: A Full Layer's Roofline Profile
   Real GQA kernel: FLOPs=1008 Bytes=960
   Closed formula:  FLOPs=1008 Bytes=960
 
--- Test 1: one decode step at cache_len=2048, classified against the roofline --
+-- Test 1: one decode step at cache_len=2048, aggregate accounting against the roofline --
   FLOPs=470466888  Bytes=890151168  AI=0.5285 FLOPs/byte
   Ridge point=17.50 -> MEMORY-BOUND
 
@@ -21,6 +21,9 @@ Chapter 8.5: A Full Layer's Roofline Profile
   fixed weight-read cost, paid again every single step regardless of context,
   is what a decode step's memory traffic is actually dominated by until the
   context grows far longer than most conversations ever do.
+  Scope: the aggregate intensity is an optimistic accounting model, not a proof
+  that every unfused kernel shares one bottleneck. Activation, cache and overhead
+  assumptions matter; serial kernel time bounds must be summed separately.
 
 ========================================================
 5/5 checks passed  ALL PASS

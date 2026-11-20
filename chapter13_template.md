@@ -50,7 +50,7 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 
 ### Intuition
 
-An autoregressive model is stateful: generating the Nth token requires attending over all N-1 tokens that came before it. Storing their Key and Value vectors instead of recomputing them every step turns an O(N^2) total-FLOP generation into O(N) per step — a genuinely good trade, but one that swaps compute for memory traffic, and memory traffic has its own, much harder, speed limit.
+An autoregressive model is stateful: generating the Nth token requires attending over all N-1 tokens that came before it. Caching previous Key and Value vectors avoids recomputing their projections at every decode step. With fixed layer dimensions, the new token still attends over N cached positions, so dense attention costs O(N) per step and O(N^2) across N generated tokens. These are per-step and total costs respectively; caching does not make total dense attention linear. It trades repeated prefix computation for retained state and memory traffic. A fixed-size sliding window instead bounds the number of positions read per step.
 
 ### The Concept, In Detail
 

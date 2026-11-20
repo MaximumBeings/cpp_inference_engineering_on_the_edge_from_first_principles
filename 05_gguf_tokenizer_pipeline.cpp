@@ -113,6 +113,11 @@ public:
 using MetaValue = std::variant<std::string, uint32_t, float,
                                 std::vector<std::string>, std::vector<int32_t>, std::vector<float>>;
 
+// INPUT SCOPE: this instructional GGUF reader assumes trusted, compatible
+// fixtures/checkpoints. It is not a hardened parser: it does not fully
+// validate all reads, allocation sizes, dimension products, alignment or
+// tensor/file bounds. Do not pass untrusted or arbitrary model files.
+// Production loading needs those checks before exposing any tensor view.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }

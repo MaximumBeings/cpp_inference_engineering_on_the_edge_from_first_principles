@@ -1,0 +1,39 @@
+OK:   H1 matches
+OK:   H2 sequence matches
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 5 bash compile/run blocks
+OK:   bash block 1 references 01_kv_cache_bandwidth_estimator.cpp
+OK:   bash block 2 references 02_paged_attention_block_manager.cpp
+OK:   bash block 3 references 03_ring_buffer_sink_tokens.cpp
+OK:   bash block 4 references 04_h2o_eviction.cpp
+OK:   bash block 5 references 05_kv_cache_manager.cpp
+OK:   found exactly 5 cpp code blocks
+OK:   code block 1 matches locked 01_kv_cache_bandwidth_estimator.cpp exactly
+OK:   code block 2 matches locked 02_paged_attention_block_manager.cpp exactly
+OK:   code block 3 matches locked 03_ring_buffer_sink_tokens.cpp exactly
+OK:   code block 4 matches locked 04_h2o_eviction.cpp exactly
+OK:   code block 5 matches locked 05_kv_cache_manager.cpp exactly
+OK:   found exactly 5 text output blocks
+OK:   output block 1 matches locked 01_kv_cache_bandwidth_estimator.out.txt exactly
+OK:   output block 2 matches locked 02_paged_attention_block_manager.out.txt exactly
+OK:   output block 3 matches locked 03_ring_buffer_sink_tokens.out.txt exactly
+OK:   output block 4 matches locked 04_h2o_eviction.out.txt exactly
+OK:   output block 5 matches locked 05_kv_cache_manager.out.txt exactly
+OK:   compile of 01_kv_cache_bandwidth_estimator.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 01_kv_cache_bandwidth_estimator.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 01_kv_cache_bandwidth_estimator.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_paged_attention_block_manager.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 02_paged_attention_block_manager.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 02_paged_attention_block_manager.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_ring_buffer_sink_tokens.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 03_ring_buffer_sink_tokens.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 03_ring_buffer_sink_tokens.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_h2o_eviction.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 04_h2o_eviction.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 04_h2o_eviction.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 05_kv_cache_manager.cpp succeeded (g++ -std=c++23 -Wall -Wextra -O2)
+OK:   fresh rerun of 05_kv_cache_manager.cpp matches locked output exactly (deterministic)
+OK:   second rerun of 05_kv_cache_manager.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

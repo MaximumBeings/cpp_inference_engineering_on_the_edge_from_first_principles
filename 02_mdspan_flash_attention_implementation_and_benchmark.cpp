@@ -1,17 +1,20 @@
+// Contract: unscaled, noncausal single-head softmax(Q K^T) V.
+// No causal/padding mask, default 1/sqrt(d) scaling or production-model integration.
+// Fixed-size score tiles do not imply constant total Q/K/V/output storage.
 // Chapter 32.2 -- A real, from-scratch, std::mdspan-based tiled Flash
 // Attention implementation, checked directly against a naive full-matrix
 // reference for exact numerical agreement, and "benchmarked" the way this
 // book's own Appendix D discipline requires: with real, deterministic
 // operation counts and real, deterministic peak-memory byte counts, never
 // with genuinely variable wall-clock timing, which this book has kept out
-// of every locked self-test contract from Chapter 1 onward. Q, K, V, and the
+// of every locked self-test contract from the tensor foundations onward. Q, K, V, and the
 // output O are all real 2D matrices, viewed through std::mdspan over flat
 // storage -- Chapter 2.1's own non-owning-view technique, applied here to
 // this book's own final numerical kernel.
 //
 // This book's own real aarch64 hardware has only GCC 11.4.0, which predates
 // C++23's multi-argument subscript-operator syntax (view[i, j]); exactly as
-// Chapter 13's own mdspan appendix did, every mdspan access below goes
+// the tensor foundations3's own mdspan appendix did, every mdspan access below goes
 // through the idx2() helper (an ordinary function call, not new syntax) so
 // this file compiles unchanged on that exact toolchain.
 //

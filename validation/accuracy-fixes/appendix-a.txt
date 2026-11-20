@@ -1,0 +1,28 @@
+OK:   H1 matches
+OK:   H2 sequence matches (A.1-A.4 + Summary + Where We Go Next; no self-check section, since Appendix B is this book's own dedicated quiz)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 1 cpp code block(s)
+OK:   code block matches locked portable_dot_product.cpp exactly
+OK:   found exactly 2 cmake code block(s)
+OK:   code block matches locked CMakeLists.txt exactly
+OK:   code block matches locked toolchain-aarch64-linux-gnu.cmake exactly
+OK:   found exactly 7 text output blocks
+OK:   output block matches locked portable_dot_product.native.out.txt exactly
+OK:   output block matches locked portable_dot_product.aarch64.out.txt exactly
+OK:   output block matches locked diag1_excerpt.txt exactly
+OK:   output block matches locked diag2_no_native_mdspan.stderr.txt exactly
+OK:   output block matches locked diag3_ctest_no_emulator.stdout.txt exactly
+OK:   output block matches locked diag4_qemu_missing_linker.stdout.txt exactly
+OK:   output block matches locked diag5_nvcc_cpp23.stderr.txt exactly
+OK:   native CMake project configures and builds cleanly
+OK:   fresh native binary rerun matches locked portable_dot_product.aarch64.out.txt exactly (this machine's own real architecture is arm64)
+OK:   native binary output confirmed deterministic across two runs
+OK:   native ctest reports a real, clean 100% pass
+OK:   aarch64-linux-gnu-g++ and/or qemu-aarch64 not found on this machine -- expected on this book's own real aarch64 device (there, the NATIVE build above already IS the real-hardware check); skipping the cross-compiled build check here.
+OK:   g++-11 not found on this machine -- expected on this book's own real aarch64 device, which has no g++-11 installed (its own native GCC 11.4.0 is what every OTHER chapter's real-device check already exercises); skipping Diagnostic 1's fresh recompilation here.
+OK:   g++-11 not found -- skipping Diagnostic 2's fresh recompilation (see Diagnostic 1 above).
+OK:   aarch64-linux-gnu-g++ and/or cmake/ninja not found -- skipping Diagnostic 3's fresh reproduction (expected on this book's own real aarch64 device).
+OK:   aarch64-linux-gnu-g++ and/or qemu-aarch64 not found -- skipping Diagnostic 4's fresh reproduction (expected on this book's own real aarch64 device).
+OK:   nvcc not found on this machine -- expected (no CUDA toolchain on macOS/Apple Silicon, the same documented exception Chapter 32's own verify script uses); skipping Diagnostic 5's fresh reproduction.
+
+=== ALL CHECKS PASSED ===

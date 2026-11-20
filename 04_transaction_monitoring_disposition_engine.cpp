@@ -1,26 +1,6 @@
-// Chapter 29.4 -- This chapter's own capstone, and the FOURTH and final
-// financial-industry chapter this book set out to build: a real,
-// auditable transaction-monitoring engine that combines Section 29.1's
-// structuring signal, Section 29.2's velocity signal, and Section 29.3's
-// impossible-travel signal into one per-account disposition. The central
-// discipline reapplies this book's own recurring never-suppress-a-
-// named-flag structure one final time, with a real, deliberate legal
-// boundary specific to this domain: under the real US Bank Secrecy Act,
-// a Suspicious Activity Report (SAR) can only ever be FILED by a human
-// compliance officer at a regulated institution -- no automated system
-// may file one on its own. This engine's own strongest disposition is
-// therefore named, precisely, `FILE_SAR_RECOMMENDED`, never
-// `FILE_SAR` -- a real, legally meaningful distinction, not a stylistic
-// choice.
-//
-// A note on this section's own honest scope: exactly like Chapter 28.4's
-// own claims-disposition engine, this engine decides only where an
-// account is ROUTED for human attention, never any account-level action
-// (freezing funds, closing an account, blocking a card) on its own.
-// This section's own COMMON TRAP box returns to exactly this
-// distinction, one final time for this book's four-chapter run through
-// real financial-industry deployments.
-//
+// Educational review-routing policy, not a SAR filing implementation.
+// Institutional governance and submission mechanics are distinct; FinCEN
+// supports automated/batch transmission. No human-only filing law is asserted.
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 04_transaction_monitoring_disposition_engine.cpp -o 04_transaction_monitoring_disposition_engine
 // Run:     ./04_transaction_monitoring_disposition_engine
 

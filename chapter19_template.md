@@ -25,6 +25,10 @@
 
 ---
 
+!!! warning "Trusted instructional model inputs"
+    The copied GGUF reader is not a hardened arbitrary-file parser. Use only the documented trusted fixtures/checkpoint. Read success, sizes, arithmetic overflow, alignment and every tensor range require additional validation before loading untrusted files in production.
+
+
 Chapter 18 taught a vision-language model to inspect a single manufactured part in isolation and decide, from what it saw, whether the part was good. A retail shelf asks a related but genuinely different question: not "what is this," but "is this where it is supposed to be, and if it is missing, has it been missing long enough to matter." This chapter builds every piece that question requires, in the order a real retail deployment would need them -- encoding what SHOULD be on a shelf, observing what actually is there across a batch of real photographs, reporting both into the ERP and WMS systems a retailer already runs its business on, aggregating that reporting honestly across every store in a chain, and finally reconciling expectation against observation into the two real findings -- misplacement and shrinkage -- a store operator can actually act on.
 
 <!-- chapter-figure -->

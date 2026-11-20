@@ -28,6 +28,8 @@
 
 Chapter 8 established that a kernel's speed is capped by two independent resources, compute and bandwidth, and that the ratio between them — arithmetic intensity — decides which one actually limits a given kernel. This chapter is about the compute side of that ceiling: how a CPU's peak FLOP rate is actually achieved in practice, one instruction at a time, by processing more than one data element per instruction. Section 9.1 derives what a SIMD register buys a kernel from nothing but its bit width and element width, reusing Chapter 8.1's own peak-compute formula to show precisely how much of a chip's peak throughput its register width accounts for — and reusing Chapter 8.1's own COMMON TRAP to show, again, that none of it matters for a kernel that is memory-bound. Section 9.2 writes real AVX2 intrinsics against the Q8_0 and Q4_0 formats this book has quantized weights into since Chapter 4, including the integer unpacking a packed 4-bit format demands before any arithmetic can touch it. Section 9.3 writes the same two kernels again in Arm NEON, and finds a genuine, verifiable difference in how many instructions the identical logical step costs on the two architectures. Section 9.4 steps back from hand-written intrinsics entirely to ask what a compiler's auto-vectorizer does on its own, and what specific promise `__restrict` makes to unlock it. Section 9.5 closes the chapter with the piece every one of these kernels needs before it can ship: a runtime check that decides, once, at startup, which instruction set the CPU actually sitting under the binary supports.
 
+> **Encoding boundary:** The quantized dot-product examples here use the adjacent-pair, alpha/7 TeachingQ4 encoding introduced in Chapter 4. TeachingQ4 is not upstream GGUF Q4_0; its nibble layout and scaling must not be used to read real Q4_0 weights.
+
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
@@ -207,7 +209,7 @@ Every kernel this chapter has written so far assumes its target instruction set 
 
 ### The Concept, In Detail
 
-`__builtin_cpu_supports("avx2")`, backed by `__builtin_cpu_init()`'s real CPUID query, answers a question about the machine the binary is running on RIGHT NOW, not a question about the machine that compiled it — and a small dispatch table built around that query, choosing a function pointer once and calling through it from then on, lets one binary use AVX2 where it is available and fall back to a scalar kernel, correctly, where it is not. On Arm this section's dispatch table has exactly one entry: NEON is part of the aarch64 base instruction set, present unconditionally on every aarch64 CPU capable of running the binary at all, so there is no equivalent feature to query and nothing to dispatch between. The COMMON TRAP this section exists to prevent is not a bug in the dispatch logic itself; it is skipping dispatch altogether. A binary built with `-march=native` tells the compiler, at compile time, that the BUILD machine's entire instruction set is always available — so `__builtin_cpu_supports` becomes a check the compiler is free to assume always succeeds, and ordinary auto-vectorized loops (not just hand-written intrinsics) may freely use instructions the build machine has and a customer's older CPU does not. The result on that older CPU is not a graceful, slow fallback; it is `SIGILL`, an illegal-instruction crash, on the first such instruction the CPU actually tries to execute — a correctness failure a test suite run only on the build machine has no way to ever observe.
+`__builtin_cpu_supports` checks the runtime CPU features. The dispatcher checks both AVX2 and FMA, then chooses a function pointer. Compile this translation unit for the baseline ISA; only `avx2_dot` uses `__attribute__((target("avx2,fma")))`. Global `-mavx2`, `-mfma` or `-march=native` options may emit unsupported instructions in ordinary code outside the guarded function, so a scalar fallback cannot make such a binary portable. These options do not necessarily remove an explicit feature query. The self-tests check arithmetic on the current host; safe execution on an older CPU requires an appropriate baseline build and a separate target/emulated run. The Arm branch in this particular example returns the scalar implementation; Section 9.3 demonstrates NEON separately. See [GCC's runtime detection guidance](https://gcc.gnu.org/onlinedocs/gcc/x86-Built-in-Functions.html).
 
 ### Code and Verification
 
@@ -216,7 +218,7 @@ Every kernel this chapter has written so far assumes its target instruction set 
 **Compile and run:**
 
 ```bash
-g++ -std=c++23 -Wall -Wextra -O3 -mavx2 -mfma 05_runtime_dispatch.cpp -o 05_runtime_dispatch
+g++ -std=c++23 -Wall -Wextra -O3 05_runtime_dispatch.cpp -o 05_runtime_dispatch
 ./05_runtime_dispatch
 ```
 

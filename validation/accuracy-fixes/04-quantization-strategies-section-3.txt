@@ -1,0 +1,29 @@
+================================================
+TeachingQ4 Bit Packing and Dequantization
+================================================
+
+-- Test 1: Nibble pack/unpack mechanics --
+  packed byte: 0x49
+  lo nibble: 1 (expect +1), hi nibble: -4 (expect -4)
+  all 16 nibble values [-8,+7] round-trip: yes
+
+-- Test 2: Worked example (8 values, alpha=1.47) --
+  scale = 0.20996 (expected ~0.21000)
+  byte[0] = 0x49 (expected 0x49)
+  byte[1] = 0xf8 (expected 0xF8)
+  recon[2]=0.00000 (orig 0.05), recon[3]=1.46973 (orig 1.47)
+
+-- Test 3: Q4 vs Q8 error comparison --
+  Q8 MSE: 7.52350e-09
+  Q4 MSE: 2.36364e-06
+  Q4/Q8 ratio: 314.2x worse
+
+-- Test 4: Memory layout --
+  sizeof(BlockQ4) = 18 bytes (expected 18: 2 scale + 16 nibbles)
+  sizeof(BlockQ8) = 34 bytes (expected 34: 2 scale + 32 weights)
+  Q4 compression = 7.11x
+  Q8 compression = 3.76x
+
+================================================
+28/28 checks passed ALL PASS
+================================================

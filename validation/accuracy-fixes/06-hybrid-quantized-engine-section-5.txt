@@ -1,0 +1,30 @@
+================================================
+The Complete Hybrid Engine: Multi-Layer, Multi-Token, End to End
+================================================
+
+-- Test 1: Writing a 3-layer hybrid model --
+  wrote 30 tensors across 3 layers, 160544 bytes
+
+-- Test 2: mmap the complete model --
+  file size: 160544 bytes, 30 tensors, mmap'd
+  token_embd.weight: Q8_0, output.weight: Q8_0, blk.1.ffn_gate.weight: TeachingQ4
+
+-- Test 3: [COMMON TRAP] the final norm before the LM head is not optional --
+  next-token distribution shift from skipping the final norm (TV): 0.00628
+  argmax with norm: 237, argmax without: 89 (DIFFERENT)
+  same lesson as Section 6.1: the bulk distribution barely moves (TV=0.00628), but the DISCRETE decision -- which token gets sampled -- changed anyway
+
+-- Test 4: Full engine -- 3 layers, prompt + autoregressive generation --
+  prompt: "Hi", generating 6 tokens...
+  output: Hi[237][227]P"0[10]
+  generated 6 tokens (random weights -> not real language, but every code path exercised)
+
+  --- Memory summary ---
+  this model, hybrid GGUF (mmap'd, on disk): 160544 bytes
+  the same tensors, all at F32:               870144 bytes
+  compression ratio: 5.42x
+  heap bytes allocated for weight data across all 3 layers: 0
+
+================================================
+13/13 checks passed ALL PASS
+================================================

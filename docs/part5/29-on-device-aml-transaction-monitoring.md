@@ -13,7 +13,7 @@
 
 - How to detect "structuring" (smurfing) -- a real, specifically named federal offense under the US Bank Secrecy Act -- by scanning a rolling window across a SEQUENCE of transactions, since no individual transaction in the pattern is suspicious on its own.
 - How to build a real transaction-velocity anomaly check, reapplying Section 27.2's own "stated parameters, never a wall clock" discipline to a frequency-based signal instead of a deadline.
-- How to build a real "impossible travel" check from the real, published Haversine great-circle-distance formula, catching a required travel speed that could not possibly be genuine, while deliberately staying generous enough never to flag a real traveler.
+- How to compute a geographic speed anomaly with explicit zero-time and chronological-input handling, without treating it as proof of fraud.
 - How to combine three independent, sequence-based signals into one per-account disposition, closing this book's four-chapter run through real financial-industry deployments with a final, real, legally precise never-suppress-a-flag discipline: a Suspicious Activity Report can only ever be RECOMMENDED by this engine, never filed by it.
 
 **What you need to know first:**
@@ -25,7 +25,7 @@
 
 ---
 
-Chapter 28 turned to a claim's own photographic and temporal evidence. This chapter closes this book's four-chapter run through real financial-industry deployments with a genuinely different real constraint once more: catching a pattern that only becomes visible across a SEQUENCE of transactions from the same account, where no single transaction in the sequence is suspicious by itself. Each of this chapter's four sections builds one real, independent, sequence-based AML signal, and closes with a capstone that combines all three into one auditable, per-account disposition -- never an automated filing, since real law reserves that decision for a human.
+Chapter 28 turned to a claim's own photographic and temporal evidence. This chapter closes this book's four-chapter run through real financial-industry deployments with a genuinely different real constraint once more: catching a pattern that only becomes visible across a SEQUENCE of transactions from the same account, where no single transaction in the sequence is suspicious by itself. Each of this chapter's four sections builds one real, independent, sequence-based AML signal, and closes with a capstone that combines all three into one auditable, per-account disposition -- using a demonstration review policy that does not implement filing.
 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
@@ -50,43 +50,20 @@ Chapter 28 turned to a claim's own photographic and temporal evidence. This chap
 
 ### Intuition
 
-"Structuring" is a real, specifically named offense under the US Bank Secrecy Act: deliberately breaking a large cash transaction into several smaller ones, each kept under the real $10,000 Currency Transaction Report threshold, specifically to avoid the reporting the full amount would trigger. No individual transaction in the pattern looks suspicious -- the pattern is only visible across several transactions from the same account within a real, short window of time.
+This example uses a simplified screening heuristic: within a rolling per-account window, flag an aggregate strictly above $10,000 only when every individual amount is below $10,000. Its boundaries are implementation choices, not the definition of structuring. Structuring depends on a purpose to evade reporting and can involve any amount, multiple days or institutions. A negative result does not establish legitimacy, and a positive result does not establish criminal intent. The CTR reporting threshold and a structuring determination are different questions. See [FFIEC guidance](https://bsaaml.ffiec.gov/manual/Appendices/08).
 
 ### The Concept, In Detail
 
-`detect_structuring` scans every possible rolling window within one account's own sorted transaction history, flagging a window only when BOTH real conditions hold: every individual transaction inside it stays strictly under the real CTR threshold, and the window's own sum is strictly greater than it. Tests 5 and 6 confirm this section's own precise real legal boundary: the actual US regulation applies to a transaction "in excess of" $10,000 -- strictly more, not $10,000 exactly -- and this section's own code matches that real distinction precisely rather than rounding it away. Test 4 confirms the check is a genuine ROLLING window, not a whole-history sum: the identical three amounts that trigger a flag when clustered within the window do not trigger one when spread across nine days instead.
+This example uses a simplified screening heuristic: within a rolling per-account window, flag an aggregate strictly above $10,000 only when every individual amount is below $10,000. Its boundaries are implementation choices, not the definition of structuring. Structuring depends on a purpose to evade reporting and can involve any amount, multiple days or institutions. A negative result does not establish legitimacy, and a positive result does not establish criminal intent. The CTR reporting threshold and a structuring determination are different questions. See [FFIEC guidance](https://bsaaml.ffiec.gov/manual/Appendices/08).
 
 Test 7 confirms `flag_structuring_accounts`'s own per-account independence: a mixed batch spanning two accounts flags only the one actually exhibiting the pattern, by name.
 
 ### Code and Verification
 
 ```cpp
-// Chapter 29.1 -- Every prior finance chapter in this book evaluated ONE
-// document, ONE order-book snapshot, or ONE claim at a time. This
-// chapter's own real constraint is different: catching a real, well-
-// documented anti-money-laundering pattern requires looking at a
-// SEQUENCE of transactions together, since no single transaction in the
-// pattern looks suspicious on its own.
-//
-// "Structuring" (sometimes called "smurfing") is a real, specifically
-// named federal offense under the US Bank Secrecy Act: deliberately
-// breaking a large cash transaction into several smaller ones, each kept
-// under the real $10,000 Currency Transaction Report (CTR) threshold
-// (31 CFR 1010.311), specifically to avoid the reporting the full amount
-// would trigger. No individual transaction in the pattern is suspicious
-// by itself -- $4,000 is an ordinary cash transaction -- the pattern is
-// only visible across several transactions from the SAME account within
-// a real, short window of time.
-//
-// A note on this section's own honest scope, precise about the real
-// regulation it models: the real CTR threshold applies to a cash
-// transaction "in excess of" $10,000 -- STRICTLY more than $10,000, not
-// $10,000 exactly -- and this section's own boundary tests confirm that
-// precise real legal distinction directly, the same care this book has
-// given every other real, published threshold since Chapter 26.1's ABA
-// checksum. This section's own COMMON TRAP box returns to a related
-// scope limitation.
-//
+// Educational scope: this is a configurable alert heuristic, not a legal
+// definition. Structuring depends on evasion purpose and may involve any
+// amount, several institutions or days. Negative results do not prove legitimacy.
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 01_aml_structuring_detection.cpp -o 01_aml_structuring_detection
 // Run:     ./01_aml_structuring_detection
 
@@ -195,7 +172,8 @@ int main() {
     }
 
     // -- Test 3: three $2,000 transactions within the same window --
-    // genuinely small, legitimate transactions that never approach the
+    // smaller transactions that do not trigger this heuristic
+    // (no conclusion about legitimacy follows from that result); below the
     // threshold at all. --
     {
         std::vector<Transaction> history = {{"ACC-3", 1, 2000.0}, {"ACC-3", 2, 2000.0}, {"ACC-3", 3, 2000.0}};
@@ -218,14 +196,13 @@ int main() {
         CHECK(!r.flagged);
     }
 
-    // -- Test 5: the real regulatory boundary itself -- two transactions
-    // summing to EXACTLY $10,000.00 are NOT flagged, matching the real
-    // legal threshold of "in excess of" $10,000, not "at or above" it. --
+    // -- Test 5: this heuristic uses a strictly-greater-than threshold.
+    // This is not the legal boundary of structuring. --
     {
         std::vector<Transaction> history = {{"ACC-5", 1, 5000.0}, {"ACC-5", 2, 5000.0}};
         auto r = detect_structuring(history, WINDOW_DAYS, CTR_THRESHOLD);
         std::cout << "-- Test 5: two transactions summing to exactly $10,000.00 -- flagged="
-                  << (r.flagged ? "YES" : "NO") << " (matches the real 'in excess of' legal standard) --\n";
+                  << (r.flagged ? "YES" : "NO") << " (matches this heuristic's strict aggregate threshold) --\n";
         CHECK(!r.flagged);
     }
 
@@ -267,7 +244,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_aml_structuring_detection.cpp -o 01_aml_stru
 ./01_aml_structuring_detection
 ```
 
-**Sample input:** a single transaction well over the real CTR threshold, checked to be a direct CTR case rather than structuring; three transactions each under the threshold but summing well past it within the stated window, checked to be flagged; the identical pattern of small transactions with a sum safely under the threshold, checked as legitimate; the identical flagged amounts spread across a much longer span, checked as NOT flagged since no single window contains enough of them; the exact real regulatory boundary of $10,000.00 exactly, and one cent past it; and a mixed two-account batch checked to flag only the account actually exhibiting the pattern.
+**Sample input:** single payments, rolling aggregates below/at/above the illustrative threshold, dispersed payments and per-account isolation. These tests validate rule behavior, not legal structuring determinations.
 
 ```text
 ========================================================
@@ -278,7 +255,7 @@ Chapter 29.1: AML Structuring (Smurfing) Detection
 -- Test 2: three $4,000 transactions across days 1-3 -- flagged=YES, window_sum=$12000, count=3 --
 -- Test 3: three $2,000 transactions across days 1-3 -- flagged=NO --
 -- Test 4: the same three $4,000 amounts spread across days 1, 5, 9 -- flagged=NO --
--- Test 5: two transactions summing to exactly $10,000.00 -- flagged=NO (matches the real 'in excess of' legal standard) --
+-- Test 5: two transactions summing to exactly $10,000.00 -- flagged=NO (matches this heuristic's strict aggregate threshold) --
 -- Test 6: two transactions summing to $10,000.01 -- flagged=YES --
 -- Test 7: two accounts, one structuring, one clean -- flagged=[ACC-7A] --
 
@@ -539,7 +516,7 @@ ALL CHECKS PASSED
 
 ### Intuition
 
-A third, independent real signal asks a different question again: could the same physical person plausibly have been at both of two transaction locations, given how little time passed between them? "Impossible travel" is a real, well-documented technique used across both AML and account-security fraud detection, built on a deliberately generous real bound -- fast enough to cover an actual commercial flight -- so a genuine cross-country traveler is never flagged.
+A third, independent real signal asks a different question again: could the same physical person plausibly have been at both of two transaction locations, given how little time passed between them? "Impossible travel" is a real, well-documented technique used across both AML and account-security fraud detection, built on a deliberately generous real bound -- fast enough to cover an actual commercial flight -- as an illustrative anomaly heuristic, with possible false positives and false negatives.
 
 ### The Concept, In Detail
 
@@ -550,37 +527,14 @@ Test 6 confirms this check is genuinely about SPEED, not raw distance: a much sh
 ### Code and Verification
 
 ```cpp
-// Chapter 29.3 -- A third, independent real AML and card-fraud signal
-// asks a different question again: could the SAME physical person
-// plausibly have been at both of two transaction locations, given how
-// little time passed between them? "Impossible travel" is a real, well-
-// documented technique used across both AML transaction monitoring and
-// account-security fraud detection: compute the real great-circle
-// distance between two consecutive transaction locations, divide by the
-// real elapsed time, and compare the required speed against a
-// deliberately GENEROUS real bound -- fast enough to cover an actual
-// commercial flight, so a genuine cross-country traveler is never
-// flagged. Only a required speed beyond even that generous bound is
-// truly IMPOSSIBLE, not merely unusual, which is exactly what this
-// section's own name promises and nothing more.
-//
-// The real distance calculation is the Haversine formula -- a real,
-// published great-circle-distance formula that has computed distances
-// between two points on a sphere since well before any digital computer
-// existed, exactly the same "real, published formula, not invented for
-// this book" standard Chapter 27.1's own microprice formula and Chapter
-// 26.1's own ABA checksum already met.
-//
-// A note on this section's own honest scope: MAX_PLAUSIBLE_SPEED_KMH is
-// stated at 900 km/h -- the real cruising speed of a typical commercial
-// jet -- specifically chosen to be generous enough that no genuine
-// traveler is ever flagged. This section's own COMMON TRAP box returns
-// to exactly what this generosity trades away.
-//
+// Configurable geographic anomaly heuristic. Not proof of fraud: shared
+// accounts, CNP transactions, location errors and flight ground speeds matter.
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 03_impossible_travel_geographic_detection.cpp -o 03_impossible_travel_geographic_detection
 // Run:     ./03_impossible_travel_geographic_detection
 
 #include <algorithm>
+#include <limits>
+#include <stdexcept>
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -637,7 +591,9 @@ TravelResult check_travel_pair(const GeoTransaction& earlier, const GeoTransacti
     TravelResult r;
     r.distance_km = haversine_distance_km(earlier.lat_deg, earlier.lon_deg, later.lat_deg, later.lon_deg);
     double elapsed_hours = (later.minute - earlier.minute) / 60.0;
-    r.required_speed_kmh = (elapsed_hours > 0.0) ? r.distance_km / elapsed_hours : 0.0;
+    if (elapsed_hours < 0.0) throw std::invalid_argument("timestamps must be chronological");
+    r.required_speed_kmh = elapsed_hours > 0.0 ? r.distance_km / elapsed_hours
+        : (r.distance_km > 0.0 ? std::numeric_limits<double>::infinity() : 0.0);
     r.flagged = r.required_speed_kmh > max_speed_kmh;
     return r;
 }
@@ -775,6 +731,22 @@ int main() {
         CHECK(flagged[0] == "ACC-7A");
     }
 
+    // Equal timestamps cannot silently turn positive distance into zero speed.
+    {
+        GeoTransaction a{"REGRESSION", 100.0, NYC_LAT, NYC_LON};
+        GeoTransaction b{"REGRESSION", 100.0, LA_LAT, LA_LON};
+        CHECK(check_travel_pair(a, b, MAX_PLAUSIBLE_SPEED_KMH).flagged);
+        CHECK(!check_travel_pair(a, a, MAX_PLAUSIBLE_SPEED_KMH).flagged);
+        b.minute = 99.0;
+        bool rejected = false;
+        try { (void)check_travel_pair(a, b, MAX_PLAUSIBLE_SPEED_KMH); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        CHECK(rejected);
+        b.minute = 100.0;
+        CHECK(flag_impossible_travel_accounts({a, b}, MAX_PLAUSIBLE_SPEED_KMH).size() == 1);
+        std::cout << "-- Regression: simultaneous distant events flagged; same-location tie accepted; reversed time rejected --\n";
+    }
+
     std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";
     std::cout << (g_passed == g_tests ? "ALL CHECKS PASSED" : "SOME CHECKS FAILED") << "\n";
     return g_passed == g_tests ? 0 : 1;
@@ -804,13 +776,14 @@ Chapter 29.3: Impossible Travel Geographic Detection
 -- Test 5: one minute less than that boundary -- required_speed=903.443 km/h, flagged=YES --
 -- Test 6: London to Paris (343.556 km) in 10 minutes -- required_speed=2061.34 km/h, flagged=YES --
 -- Test 7: two accounts, one impossible-travel pattern, one normal -- flagged=[ACC-7A] --
+-- Regression: simultaneous distant events flagged; same-location tie accepted; reversed time rejected --
 
-13/13 checks passed
+17/17 checks passed
 ALL CHECKS PASSED
 ```
 
 !!! warning "[COMMON TRAP] treating MAX_PLAUSIBLE_SPEED_KMH's own generosity as a weakness rather than a deliberate design choice"
-    A tighter, less generous speed threshold would catch MORE real anomalies, but at a real, serious cost: a genuine customer who legitimately flew from one real city to another between two ordinary transactions would be flagged as fraudulent, purely for traveling normally. This section's own stated 900 km/h bound is deliberately set close to the real physical limit of ordinary human travel specifically so that ONLY a genuinely impossible required speed -- one no real commercial transportation could achieve -- is ever flagged, exactly the same "real, useful signal without an unacceptable false-positive cost" design tradeoff Section 26.1's own signature-comparison tolerance and Section 28.1's own duplicate-photo threshold already made in their own respective domains.
+    The 900 km/h threshold is an illustrative policy, not a universal physical boundary or false-positive guarantee. Location provenance, shared cards, card-not-present transactions and flight ground speeds can undermine the assumption that one person traveled between two recorded locations. Equal-time distant observations are flagged, same-location ties are accepted and reversed timestamps are rejected.
 
 ## 29.4 The Transaction Monitoring Disposition Engine
 
@@ -826,40 +799,20 @@ ALL CHECKS PASSED
 
 ### Intuition
 
-This chapter's capstone, and the fourth and final financial-industry chapter this book set out to build, combines Section 29.1's structuring signal, Section 29.2's velocity signal, and Section 29.3's impossible-travel signal into one per-account disposition -- with a real, legally precise boundary specific to this domain: under real US law, a Suspicious Activity Report can only ever be filed by a human compliance officer, never by an automated system.
+This example routes accounts to review and does not implement SAR filing. Its two-signal threshold is an illustrative policy, not a legal rule or proof that filing is warranted. The recommendation name distinguishes routing from a completed filing; institutional responsibility and review governance are separate from electronic submission mechanics. FinCEN supports automated/batch transmission ([transmission methods](https://bsaefiling.fincen.gov/transmission-methods)); this example does not claim that US law universally prohibits automated submission.
 
 ### The Concept, In Detail
 
-`assess_account` counts how many of the three independent signals fired for one account -- Test 2 confirms all three are weighted identically, each alone producing `INTERNAL_REVIEW`. Test 3 confirms the exact boundary at a count of two signals, driving this engine's own strongest disposition, `FILE_SAR_RECOMMENDED`. Test 5 is this section's own central, real legal precision check: the strongest disposition's own name is checked, precisely, to end in "RECOMMENDED" rather than stating a filing has actually occurred -- a real, legally meaningful distinction this engine's own naming enforces structurally, not merely by convention.
+This example routes accounts to review and does not implement SAR filing. Its two-signal threshold is an illustrative policy, not a legal rule or proof that filing is warranted. The recommendation name distinguishes routing from a completed filing; institutional responsibility and review governance are separate from electronic submission mechanics. FinCEN supports automated/batch transmission ([transmission methods](https://bsaefiling.fincen.gov/transmission-methods)); this example does not claim that US law universally prohibits automated submission.
 
 Test 6 confirms the disposition's own audit trail names the exact signals responsible, and Test 7 confirms every account in a mixed batch is assessed completely independently, closing this chapter's own recurring per-account-isolation discipline one final time.
 
 ### Code and Verification
 
 ```cpp
-// Chapter 29.4 -- This chapter's own capstone, and the FOURTH and final
-// financial-industry chapter this book set out to build: a real,
-// auditable transaction-monitoring engine that combines Section 29.1's
-// structuring signal, Section 29.2's velocity signal, and Section 29.3's
-// impossible-travel signal into one per-account disposition. The central
-// discipline reapplies this book's own recurring never-suppress-a-
-// named-flag structure one final time, with a real, deliberate legal
-// boundary specific to this domain: under the real US Bank Secrecy Act,
-// a Suspicious Activity Report (SAR) can only ever be FILED by a human
-// compliance officer at a regulated institution -- no automated system
-// may file one on its own. This engine's own strongest disposition is
-// therefore named, precisely, `FILE_SAR_RECOMMENDED`, never
-// `FILE_SAR` -- a real, legally meaningful distinction, not a stylistic
-// choice.
-//
-// A note on this section's own honest scope: exactly like Chapter 28.4's
-// own claims-disposition engine, this engine decides only where an
-// account is ROUTED for human attention, never any account-level action
-// (freezing funds, closing an account, blocking a card) on its own.
-// This section's own COMMON TRAP box returns to exactly this
-// distinction, one final time for this book's four-chapter run through
-// real financial-industry deployments.
-//
+// Educational review-routing policy, not a SAR filing implementation.
+// Institutional governance and submission mechanics are distinct; FinCEN
+// supports automated/batch transmission. No human-only filing law is asserted.
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 04_transaction_monitoring_disposition_engine.cpp -o 04_transaction_monitoring_disposition_engine
 // Run:     ./04_transaction_monitoring_disposition_engine
 
@@ -1062,11 +1015,11 @@ ALL CHECKS PASSED
 ```
 
 !!! warning "[COMMON TRAP] treating FILE_SAR_RECOMMENDED as equivalent to a SAR having actually been filed"
-    `MonitoringDisposition::FILE_SAR_RECOMMENDED` means only that TWO OR MORE independent real signals fired for this account, which real compliance practice treats as strong enough evidence to warrant a human compliance officer's own real review and, potentially, a real SAR filing -- it does not mean a SAR has been filed, and this engine has no code path that could ever file one automatically, since real US law reserves that decision for a human at a regulated institution. A downstream system that treated this disposition as equivalent to an actual completed filing would misrepresent this engine's own real legal role, exactly the same category of harm Chapter 28.4's own COMMON TRAP box already named for conflating a claim routed to human review with a claim that had already been denied.
+    This example routes accounts to review and does not implement SAR filing. Its two-signal threshold is an illustrative policy, not a legal rule or proof that filing is warranted. The recommendation name distinguishes routing from a completed filing; institutional responsibility and review governance are separate from electronic submission mechanics. FinCEN supports automated/batch transmission ([transmission methods](https://bsaefiling.fincen.gov/transmission-methods)); this example does not claim that US law universally prohibits automated submission.
 
 ## Chapter Summary
 
-This chapter closed this book's four-chapter run through real financial-industry deployments with a genuinely different real constraint: catching a pattern visible only across a sequence of transactions, never in any single one alone. Section 29.1 built a real structuring detector matching the exact legal boundary of the US Bank Secrecy Act's own CTR threshold. Section 29.2 reapplied Section 27.2's own stated-parameter timing discipline to a transaction-frequency burst instead of a deadline. Section 29.3 built a real "impossible travel" check from the real, published Haversine formula, deliberately generous enough to never flag a genuine traveler. Section 29.4 closed the chapter, and this book's four-chapter finance arc, by combining all three signals into one auditable disposition with a final, real legal precision: this engine can only ever recommend a Suspicious Activity Report, never file one, since real law reserves that decision for a human.
+This chapter demonstrates three configurable screening signals and an auditable review-routing policy. None establishes criminal conduct or regulatory compliance. Geographic anomalies require reliable timestamps and location provenance; a speed threshold can produce both false positives and false negatives.
 
 ## Self-Check Questions
 
@@ -1076,14 +1029,15 @@ This chapter closed this book's four-chapter run through real financial-industry
 4. Section 29.2's own COMMON TRAP box explains that a structuring pattern and a velocity anomaly are independent signals. Construct one concrete, realistic transaction sequence that would trigger Section 29.1's own structuring check while triggering NEITHER Section 29.2's velocity check nor Section 29.3's impossible-travel check.
 5. Section 29.3's Test 4 constructs its own boundary using `dist_nyc_la / MAX_PLAUSIBLE_SPEED_KMH` directly, rather than a hardcoded number of minutes. Explain why this algorithmic construction makes the test more robust than picking a specific round number of minutes and checking it against the stated 900 km/h constant.
 6. Section 29.3's own COMMON TRAP box explains the real tradeoff behind choosing a generous 900 km/h threshold. Describe one concrete real scenario in which a MORE generous threshold (say, 1200 km/h) would cause this section's own check to miss a real, genuinely impossible pattern that the stated 900 km/h threshold would have caught.
-7. Section 29.4's `assess_account` counts fired signals using a simple integer count, exactly like Section 28.3's own `assess_fraud_likelihood`. Identify one structural similarity and one structural difference between these two functions' own real designs, referring to their actual code.
-8. Section 29.4's own introduction explains a real, legally grounded reason its strongest disposition is named `FILE_SAR_RECOMMENDED` rather than `FILE_SAR`. Explain why Chapter 26.4's own `AUTO_REJECT` disposition did not need this same naming caution for its own domain.
+7. Why is a two-signal review-routing threshold a policy choice rather than a legal SAR filing rule?
+8. Why must a recommendation be distinguished from a completed filing, regardless of the submission mechanism?
 9. Across Sections 29.1 through 29.3, each section's own detection function operates on ONE account's own transaction history at a time, with a separate aggregator function handling multiple accounts. Explain one concrete real advantage of keeping these two responsibilities in separate functions, rather than combining per-account detection and multi-account aggregation into a single function.
 10. This chapter's own introduction states its central shift from every prior finance chapter: evaluating a SEQUENCE of transactions rather than any single one in isolation. Identify the ONE specific design choice, present in all three of Sections 29.1, 29.2, and 29.3, that makes this sequence-based evaluation possible, and explain why Chapters 26 and 28's own per-document and per-claim checks did not need it.
 
+
 ## Where We Go Next
 
-This chapter closed this book's four-chapter run through real financial-industry deployments -- check and invoice fraud, low-latency market signals, insurance claims, and now sequence-based AML monitoring -- each grounded in a real, well-documented pattern from its own domain, and each ending in an auditable disposition that names its own reasoning rather than hiding behind a single opaque score. With all four now complete, Part 5 itself is complete: twelve real, deployed case-study systems spanning industrial inspection, retail, medical imaging, document intelligence, security and authenticity, natural language photo editing, personal cameras, and now four real financial-industry deployments. The next step revisits Chapter 32's own closing count of real edge deployments across this entire book, now that Part 5's own final real total is settled.
+This chapter demonstrates three configurable screening signals and an auditable review-routing policy. None establishes criminal conduct or regulatory compliance. Geographic anomalies require reliable timestamps and location provenance; a speed threshold can produce both false positives and false negatives.
 
 ## Worked Solutions
 
@@ -1097,11 +1051,11 @@ This chapter closed this book's four-chapter run through real financial-industry
 
 **5.** A hardcoded round number of minutes checked against the stated 900 km/h constant would only remain a valid boundary test for THIS SPECIFIC real distance (New York to Los Angeles) -- if a future edit to this section changed which two cities Test 4 used, or adjusted the stated `MAX_PLAUSIBLE_SPEED_KMH` value for any reason, a hardcoded minute value would silently stop testing the actual boundary at all, landing at some arbitrary point either safely inside or past it without anyone noticing until the test's own assertions started failing for the wrong reason. Constructing `boundary_hours` directly from `dist_nyc_la / MAX_PLAUSIBLE_SPEED_KMH` guarantees the test always lands EXACTLY on the true boundary implied by whatever real distance and real speed constant the file currently uses, remaining a true boundary test even if either value changes later.
 
-**6.** Consider a genuinely fraudulent pattern where a compromised card is used in New York and, exactly 3 hours later, used again in London -- a real distance of roughly 5,570 km, requiring a real speed of about 1,857 km/h, which is well beyond what any real commercial passenger transportation could achieve (commercial supersonic passenger flight ended with Concorde's retirement in 2003) and would be correctly flagged as impossible under the stated 900 km/h threshold. Raising the threshold to 1,200 km/h would still catch this specific example, but a slightly less extreme version of the identical fraud pattern -- say, a required speed of exactly 1,050 km/h, still an entirely real impossibility for any genuine traveler -- would slip through undetected under the more generous 1,200 km/h bound, while the stated 900 km/h threshold would have caught it correctly.
+**6.** A pair requiring 1,050 km/h triggers a 900 km/h heuristic but not a 1,200 km/h heuristic. Neither threshold proves fraud: aircraft ground speeds, shared accounts, card-not-present activity and location errors can invalidate the physical-travel assumption.
 
 **7.** Both functions share the identical structural approach: count how many independent, boolean, pre-named signals fired, and map that count onto an ordered set of outcomes via simple integer comparisons (`count >= 2`, `count == 1`), never weighting any one signal more heavily than another. The two functions differ in what they map that count ONTO: Section 28.3's `assess_fraud_likelihood` returns a `FraudLikelihood` LEVEL (LOW/MEDIUM/HIGH) describing a single zone's own suspicion, feeding into a SEPARATE disposition function (Section 28.4's own `assess_claim_disposition`) one level higher, while Section 29.4's `assess_account` maps its count DIRECTLY onto the final, actionable `MonitoringDisposition` in one single function -- there is no separate zone-level/claim-level split in this chapter, since Section 29.4's own three signals are already computed at the account level Section 29.4 itself operates on.
 
-**8.** Chapter 26.4's own `AUTO_REJECT` disposition governs a bank's own internal decision about whether to CLEAR a specific check for processing -- a real, ordinary business decision a bank's own automated system is legally and operationally permitted to make about its own transaction processing. Section 29.4's own `FILE_SAR_RECOMMENDED`, by contrast, concerns a specific REGULATORY FILING (a Suspicious Activity Report) that real US law under the Bank Secrecy Act explicitly reserves for a human decision-maker at a regulated institution -- no amount of business judgment delegated to an automated check-clearing system changes who is legally permitted to file a SAR, which is exactly why this specific disposition name needed the extra legal precision that an internal processing decision like `AUTO_REJECT` never required.
+**8.** This example routes accounts to review and does not implement SAR filing. Its two-signal threshold is an illustrative policy, not a legal rule or proof that filing is warranted. The recommendation name distinguishes routing from a completed filing; institutional responsibility and review governance are separate from electronic submission mechanics. FinCEN supports automated/batch transmission ([transmission methods](https://bsaefiling.fincen.gov/transmission-methods)); this example does not claim that US law universally prohibits automated submission.
 
 **9.** Keeping per-account detection (`detect_structuring`, `detect_velocity_anomaly`, `detect_impossible_travel`) and multi-account aggregation (`flag_structuring_accounts`, `flag_velocity_accounts`, `flag_impossible_travel_accounts`) as separate functions lets each per-account function be tested, and reasoned about, in complete isolation -- exactly as this section's own Tests 1 through 6 in each of the first three sections do, using a single account's own history directly, with no grouping or sorting logic involved at all. A combined function would force every single-account test to also exercise the grouping and sorting logic every time, making it harder to tell whether a test failure came from the real detection LOGIC itself or from the unrelated bookkeeping of splitting a mixed batch by account -- the same general "test the core logic separately from the batch-orchestration wrapper around it" principle this book's own capstone engines have followed since Chapter 26.4.
 

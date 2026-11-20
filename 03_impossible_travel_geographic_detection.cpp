@@ -1,34 +1,11 @@
-// Chapter 29.3 -- A third, independent real AML and card-fraud signal
-// asks a different question again: could the SAME physical person
-// plausibly have been at both of two transaction locations, given how
-// little time passed between them? "Impossible travel" is a real, well-
-// documented technique used across both AML transaction monitoring and
-// account-security fraud detection: compute the real great-circle
-// distance between two consecutive transaction locations, divide by the
-// real elapsed time, and compare the required speed against a
-// deliberately GENEROUS real bound -- fast enough to cover an actual
-// commercial flight, so a genuine cross-country traveler is never
-// flagged. Only a required speed beyond even that generous bound is
-// truly IMPOSSIBLE, not merely unusual, which is exactly what this
-// section's own name promises and nothing more.
-//
-// The real distance calculation is the Haversine formula -- a real,
-// published great-circle-distance formula that has computed distances
-// between two points on a sphere since well before any digital computer
-// existed, exactly the same "real, published formula, not invented for
-// this book" standard Chapter 27.1's own microprice formula and Chapter
-// 26.1's own ABA checksum already met.
-//
-// A note on this section's own honest scope: MAX_PLAUSIBLE_SPEED_KMH is
-// stated at 900 km/h -- the real cruising speed of a typical commercial
-// jet -- specifically chosen to be generous enough that no genuine
-// traveler is ever flagged. This section's own COMMON TRAP box returns
-// to exactly what this generosity trades away.
-//
+// Configurable geographic anomaly heuristic. Not proof of fraud: shared
+// accounts, CNP transactions, location errors and flight ground speeds matter.
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 03_impossible_travel_geographic_detection.cpp -o 03_impossible_travel_geographic_detection
 // Run:     ./03_impossible_travel_geographic_detection
 
 #include <algorithm>
+#include <limits>
+#include <stdexcept>
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -85,7 +62,9 @@ TravelResult check_travel_pair(const GeoTransaction& earlier, const GeoTransacti
     TravelResult r;
     r.distance_km = haversine_distance_km(earlier.lat_deg, earlier.lon_deg, later.lat_deg, later.lon_deg);
     double elapsed_hours = (later.minute - earlier.minute) / 60.0;
-    r.required_speed_kmh = (elapsed_hours > 0.0) ? r.distance_km / elapsed_hours : 0.0;
+    if (elapsed_hours < 0.0) throw std::invalid_argument("timestamps must be chronological");
+    r.required_speed_kmh = elapsed_hours > 0.0 ? r.distance_km / elapsed_hours
+        : (r.distance_km > 0.0 ? std::numeric_limits<double>::infinity() : 0.0);
     r.flagged = r.required_speed_kmh > max_speed_kmh;
     return r;
 }
@@ -221,6 +200,22 @@ int main() {
         std::cout << "] --\n";
         CHECK(flagged.size() == 1);
         CHECK(flagged[0] == "ACC-7A");
+    }
+
+    // Equal timestamps cannot silently turn positive distance into zero speed.
+    {
+        GeoTransaction a{"REGRESSION", 100.0, NYC_LAT, NYC_LON};
+        GeoTransaction b{"REGRESSION", 100.0, LA_LAT, LA_LON};
+        CHECK(check_travel_pair(a, b, MAX_PLAUSIBLE_SPEED_KMH).flagged);
+        CHECK(!check_travel_pair(a, a, MAX_PLAUSIBLE_SPEED_KMH).flagged);
+        b.minute = 99.0;
+        bool rejected = false;
+        try { (void)check_travel_pair(a, b, MAX_PLAUSIBLE_SPEED_KMH); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        CHECK(rejected);
+        b.minute = 100.0;
+        CHECK(flag_impossible_travel_accounts({a, b}, MAX_PLAUSIBLE_SPEED_KMH).size() == 1);
+        std::cout << "-- Regression: simultaneous distant events flagged; same-location tie accepted; reversed time rejected --\n";
     }
 
     std::cout << "\n" << g_passed << "/" << g_tests << " checks passed\n";

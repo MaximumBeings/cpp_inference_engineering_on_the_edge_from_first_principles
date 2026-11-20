@@ -12,10 +12,10 @@ Chapter 8.3: Prefill (GEMM) vs. Decode (GEMV)
   FP32: 224 MB read, AI = 0.4998 FLOPs/byte
   Q4:   31 MB read, AI = 5.3215 FLOPs/byte
   Measured byte-size ratio FP32:Q4 = 7.10x
-  (Not the ~4x a naive 'Q4 means 4 bits vs. 32 bits' guess would predict -- a
+  (Less than the 8x raw ratio for 4-bit values versus 32-bit values -- a
   32-value BlockQ4 packs 4-bit nibbles PLUS a 2-byte fp16 scale into 18 bytes,
-  which compresses harder than a flat 4-bit-per-value estimate, since the scale
-  overhead is small relative to the 32 values it covers.)
+  which compresses less than a flat 4-bit-per-value estimate, because the scale
+  adds two bytes per block: 128/18 = approximately 7.11x.)
 
 -- Test 2: Crossover sequence length (memory-bound -> compute-bound) --
   FP32 becomes compute-bound at seq_len = 36

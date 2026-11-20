@@ -1,0 +1,41 @@
+================================================
+Symmetric Blockwise Q8 Quantization (fp16 scale)
+================================================
+
+-- Test 1: fp16_t correctness --
+  fp16(1.0) bits=0x3c00 (expect 0x3c00)
+  fp16 round-trip of a typical scale, relative error: 9.278034e-05
+
+-- Test 2: Worked example (alpha=0.61) --
+  alpha (max abs): 0.61
+  scale (fp16-rounded) = 0.004803
+  quantized int8 (first 8): [ 31 -87 17 69 -127 46 -21 98 ]
+  MSE: 3.936784e-07, SNR: 48.8 dB
+
+-- Test 3: Max value always maps to +-127 --
+  magnitude=0.1 q[0]=127 q[1]=-127
+  magnitude=1.0 q[0]=127 q[1]=-127
+  magnitude=10.0 q[0]=127 q[1]=-127
+  magnitude=100.0 q[0]=127 q[1]=-127
+
+-- Test 4: Realistic weights (Xavier normal, std=0.02) --
+  Q8 MSE: 7.5e-09, SNR: 47.1 dB
+
+-- Test 5: All-zeros input --
+  scale=0, all outputs=0, no NaN: yes
+
+-- Test 6: Memory layout --
+  sizeof(BlockQ8) = 34 bytes (2 scale + 32 weights)
+  FP32 equivalent = 128 bytes
+  compression = 3.76x
+
+-- Test 7: The outlier problem (global scale vs blockwise) --
+  global scale = 0.09843 (from outlier, alpha=12.50000)
+  quantize(0.05) with global scale -> q=1, reconstructed=0.09843, relative error=96.9%
+  block B's own scale = 0.00394 (from its own max, 0.5)
+  quantize(0.05) with blockwise scale -> q=13, reconstructed=0.05118, relative error=2.4%
+  blockwise error is smaller than global error: yes
+
+================================================
+30/30 checks passed ALL PASS
+================================================

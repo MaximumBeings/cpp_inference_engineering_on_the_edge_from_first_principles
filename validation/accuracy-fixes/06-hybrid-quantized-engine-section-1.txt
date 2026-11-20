@@ -1,0 +1,32 @@
+================================================
+Weight Class Sensitivity: Same Format, Different Consequences
+================================================
+
+-- Test 1: Quantization error depends on format, not matrix shape --
+  TeachingQ4 relative L2 error -- attention-shaped: 0.09972, FFN-shaped: 0.09643
+  Q8_0 relative L2 error -- attention-shaped: 0.00544, FFN-shaped: 0.00532
+  same-format errors match across shapes (within 10% relative): yes
+
+-- Test 2: Attention's discrete failure mode -- argmax flips --
+  mean raw score relative error over 500 trials -- Q4 keys: 0.09853, Q8 keys: 0.00554
+  argmax ("which position wins attention") flip rate -- Q4 keys: 35/500 (7.0%), Q8 keys: 3/500 (0.6%)
+
+-- Test 3: No discrete decision, no flip -- just a continuous error --
+  FFN output relative error (Q4 gate weights): 0.10610
+  attention mean raw score relative error (Q4 key weights, Test 2): 0.09853
+  same order of magnitude (within 5x either way): yes
+  FFN has nothing analogous to Test 2's argmax to flip -- the error above is
+  the entire downstream consequence, whereas attention's same-sized error also
+  produced a 7.0% chance of silently changing WHICH position the model attends to.
+
+-- Test 4: Element counts per layer -- where the parameters actually live --
+  attention elements/layer (Q+K+V+O, 64x64 each): 16384
+  FFN elements/layer (gate+up+down, 256x64 each, D_FF=4*DIM): 49152
+  FFN:attention element ratio: 3.0x
+  (production SwiGLU ratios vary with the FFN multiplier chosen, typically
+   landing somewhere between roughly 2.5x and 4x depending on architecture --
+   this chapter uses a clean 4x for its own worked examples throughout.)
+
+================================================
+8/8 checks passed ALL PASS
+================================================

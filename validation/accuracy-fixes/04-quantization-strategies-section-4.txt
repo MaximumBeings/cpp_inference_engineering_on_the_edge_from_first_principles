@@ -1,0 +1,27 @@
+================================================
+Fused Q4/Q8 Dot Products
+================================================
+
+-- Test 1: Fused and naive produce identical results --
+  FP32 reference: -0.200747
+  Q4 naive: -0.200015, Q4 fused: -0.200015
+  |naive - fused|: 0.000000
+  Q4 vs FP32 error: 0.000732
+
+-- Test 2: Exact arithmetic verification --
+  weights: all 0.5, input: all 1.0
+  expected: 16.000000, got (Q4): 15.996094, error: 0.003906
+
+-- Test 3: Q8 fused dot product correctness --
+  FP32 reference: -0.055122, Q8 fused: -0.054391, error: 0.000731
+
+-- Test 4: Memory traffic per Q4 block dot product (accounted, not timed) --
+  naive:  read 18 (block) + write 128 (buf) + read 128 (buf) + read 128 (x) = 402 bytes
+  fused:  read 18 (block) + read 128 (x) = 146 bytes
+  memory traffic reduction: 2.75x
+  (at a fixed memory bandwidth, less traffic per block directly buys more tokens/sec --
+   this is the same memory-bandwidth-bound argument Section 4.1 modeled analytically.)
+
+================================================
+7/7 checks passed ALL PASS
+================================================

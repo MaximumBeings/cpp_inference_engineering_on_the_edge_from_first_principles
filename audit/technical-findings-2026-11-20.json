@@ -16,7 +16,8 @@
           "https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/struct____half.html"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-02",
@@ -36,7 +37,8 @@
           "https://github.com/ggml-org/ggml/blob/master/include/ggml.h"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-03",
@@ -52,7 +54,8 @@
           "https://github.com/ggml-org/ggml/blob/master/src/ggml-quants.c"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-04",
@@ -68,7 +71,8 @@
           "https://gcc.gnu.org/onlinedocs/gcc/x86-Built-in-Functions.html"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/systems.md"
     },
     {
       "id": "TA-05",
@@ -84,7 +88,8 @@
           "https://github.com/ggml-org/llama.cpp/blob/master/tools/llama-bench/README.md"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/systems.md"
     },
     {
       "id": "TA-06",
@@ -100,7 +105,8 @@
           "https://github.com/ggml-org/ggml/blob/master/docs/gguf.md"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/systems.md"
     },
     {
       "id": "TA-07",
@@ -120,7 +126,8 @@
           "https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8387.pdf"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-08",
@@ -136,7 +143,8 @@
           "https://bsaaml.ffiec.gov/manual/Appendices/08"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-09",
@@ -156,7 +164,8 @@
           "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-10",
@@ -172,7 +181,8 @@
           "https://github.com/huggingface/safetensors/blob/main/safetensors/src/tensor.rs"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-11",
@@ -188,7 +198,8 @@
           "https://github.com/ggml-org/llama.cpp/blob/master/src/llama-quant.cpp"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-12",
@@ -204,7 +215,8 @@
           "https://www2.eecs.berkeley.edu/Pubs/TechRpts/2008/EECS-2008-134.pdf"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/systems.md"
     },
     {
       "id": "TA-13",
@@ -220,7 +232,8 @@
           "https://arxiv.org/abs/2002.05202"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/systems.md"
     },
     {
       "id": "TA-14",
@@ -236,7 +249,8 @@
           "https://arxiv.org/html/2504.19874v1"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-15",
@@ -252,7 +266,8 @@
           "https://github.com/IST-DASLab/gptq/blob/main/gptq.py"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-16",
@@ -263,7 +278,8 @@
       "problem": "The stdout says four bits versus 32 implies roughly 4x compression and metadata strengthens compression. The raw ratio is 8x; adding a scale reduces it to about 128/18 = 7.11x.",
       "correction": "Correct the explanation and captured stdout. The existing encoded-byte calculation can remain.",
       "sources": [],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/numerical.md"
     },
     {
       "id": "TA-17",
@@ -279,7 +295,8 @@
           "https://github.com/ggml-org/llama.cpp/blob/master/tools/llama-bench/README.md"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/systems.md"
     },
     {
       "id": "TA-18",
@@ -290,7 +307,8 @@
       "problem": "The comment describes vocabulary-sized argmax/sampling work, but pick(token_rng) draws one integer without scanning logits. Reported full-generation TTFT therefore excludes material work.",
       "correction": "Run the actual sampler or label the timing as a forward-pass microbenchmark with token selection, decoding and transport excluded.",
       "sources": [],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/systems.md"
     },
     {
       "id": "TA-19",
@@ -301,7 +319,8 @@
       "problem": "The code sets required speed to zero for elapsed time <= 0. A same-time New York/Los Angeles pair therefore receives no travel flag despite positive distance.",
       "correction": "Handle positive distance at zero elapsed time explicitly, reject reversed timestamps, and test equal-time, reversed-time and same-location cases.",
       "sources": [],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-20",
@@ -321,7 +340,8 @@
           "https://bsaefiling.fincen.gov/SDTM"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-21",
@@ -337,7 +357,8 @@
           "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-22",
@@ -353,7 +374,8 @@
           "https://arxiv.org/abs/2205.14135"
         ]
       ],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-23",
@@ -364,7 +386,8 @@
       "problem": "The concept checks only name, person_id and face_embedding. Other field names or recognition outside this result type are not ruled out. The book overstates the scope as structural prohibition of facial recognition.",
       "correction": "Describe a narrow schema guard and its precise checked names. A broader privacy claim needs pipeline constraints and separate review.",
       "sources": [],
-      "status": "open"
+      "status": "addressed_by_scope_correction",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-24",
@@ -375,7 +398,8 @@
       "problem": "Gaps between tags and empty observation collections are labeled No notable activity without evidence that the interval was observed and classified negative.",
       "correction": "Use No tagged observations or Coverage unknown unless validated observation coverage supports an inactivity statement. Track unavailable footage separately.",
       "sources": [],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/deployment.md"
     },
     {
       "id": "TA-25",
@@ -391,7 +415,8 @@
           "https://huggingface.co/docs/transformers/cache_explanation"
         ]
       ],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/references.md"
     },
     {
       "id": "TA-26",
@@ -402,7 +427,10 @@
       "problem": "The published navigation starts at Chapter 2 and ends at Appendix E, but prose contains six references to an absent Chapter 1 or Appendix F, including Appendix A/B/E conclusions.",
       "correction": "Replace these references with existing sections or add the promised material. Recheck prose references as well as clickable links.",
       "sources": [],
-      "status": "open"
+      "status": "corrected",
+      "resolution_record": "validation/accuracy-fixes/references.md"
     }
-  ]
+  ],
+  "correction_date": "2026-11-20",
+  "status_note": "Scope corrections explicitly limit educational examples; they do not implement the omitted production capabilities. Consult linked resolution records and validation limits."
 }

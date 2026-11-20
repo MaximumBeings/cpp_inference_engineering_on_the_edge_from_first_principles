@@ -11,11 +11,11 @@ Chapter 22.2: An Accessibility-Compliance Auditing Engine
 -- Test 3: AA and AAA classification thresholds are exact at their own stated boundary values, for both text sizes --
   normal text passes AA at exactly 4.5:1 and fails just below it; large text passes AA at exactly 3.0:1; normal text passes AAA at exactly 7.0:1; large text passes AAA at exactly 4.5:1 -- every stated threshold is exact, not approximate
 
--- Test 4: a fully compliant element produces zero violations, and a non-compliant element is flagged with all 3 real, specific, named criteria --
-  a fully compliant 48x48 black-on-white button produces zero violations; a 30x30 low-contrast icon with no alt text is flagged with all 3 real, specific criteria at once: 1.4.3 Contrast, 2.5.5 Target Size, and 1.1.1 Non-text Content
+-- Test 4: a passing the limited example policy element produces zero violations, and an example failing the policy element is flagged with all 3 real, specific, named criteria --
+  a passing the limited example policy 48x48 black-on-white button produces zero violations; a 30x30 low-contrast icon with no alt text is flagged with all 3 real, specific criteria at once: 1.4.3 Contrast, 2.5.5 Target Size, and 1.1.1 Non-text Content
 
 -- Test 5: a full multi-element audit report attributes every violation to its own specific element, with no false positives on the compliant elements sharing the report --
-  a 3-element report (a compliant label, a compliant large button, and the non-compliant icon from Test 4) produces exactly 3 violations, all attributed to icon-delete -- the two genuinely compliant elements contribute zero false positives
+  a 3-element report (a compliant label, a compliant large button, and the policy-failing icon from Test 4) produces exactly 3 violations, all attributed to icon-delete -- the two passing the limited example policy elements contribute zero false positives
 
 19/19 checks passed
 ALL CHECKS PASSED

@@ -1,0 +1,30 @@
+OK:   H1 matches
+OK:   H2 sequence matches (3 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 3 bash compile/run blocks
+OK:   bash block 1 references 01_benchmark_stats_and_definitions.cpp
+OK:   bash block 2 references 02_benchmark_harness.cpp
+OK:   bash block 3 references 03_llamacpp_comparison.cpp
+OK:   found exactly 3 cpp code blocks
+OK:   code block 1 matches locked 01_benchmark_stats_and_definitions.cpp exactly
+OK:   code block 2 matches locked 02_benchmark_harness.cpp exactly
+OK:   code block 3 matches locked 03_llamacpp_comparison.cpp exactly
+OK:   found exactly 4 text output blocks
+OK:   output block 1 matches locked 01_benchmark_stats_and_definitions.out.txt exactly
+OK:   output block 2 matches locked 02_benchmark_harness.out.txt exactly
+OK:   output block 3 matches locked 03_llamacpp_comparison.out.txt exactly
+OK:   real-run output block matches documented 03_llamacpp_comparison.real_run.out.txt exactly (verified as data, not re-executed)
+OK:   documented real-run output contains its honest-exception real-run banner
+OK:   documented real-run output matches this section's own described real comparison
+OK:   compile of 01_benchmark_stats_and_definitions.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_benchmark_stats_and_definitions.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_benchmark_stats_and_definitions.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_benchmark_harness.cpp succeeded (-std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_IMPL_PROPOSED_NAMESPACE=experimental -I_vendor_mdspan/include)
+OK:   fresh self-test rerun of 02_benchmark_harness.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_benchmark_harness.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_llamacpp_comparison.cpp succeeded (-std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_IMPL_PROPOSED_NAMESPACE=experimental -I_vendor_mdspan/include)
+OK:   fresh self-test rerun of 03_llamacpp_comparison.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_llamacpp_comparison.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   8 self-check questions, 8 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

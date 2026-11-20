@@ -1,0 +1,45 @@
+OK:   H1 matches
+OK:   H2 sequence matches (6 numbered sections + summary/self-check/next/solutions)
+OK:   no disallowed non-ASCII characters
+OK:   found exactly 6 bash compile/run blocks
+OK:   bash block 1 references 01_dot_product_arithmetic_intensity_and_gemv_gemm_crossover.cpp
+OK:   bash block 2 references 02_numerically_stable_softmax_and_log_sum_exp.cpp
+OK:   bash block 3 references 03_rope_rotation_math.cpp
+OK:   bash block 4 references 04_quantization_as_affine_algebra.cpp
+OK:   bash block 5 references 05_hessian_role_in_gptq.cpp
+OK:   bash block 6 references 06_full_transformer_layer_roofline_analysis.cpp
+OK:   found exactly 6 cpp code blocks
+OK:   code block 1 matches locked 01_dot_product_arithmetic_intensity_and_gemv_gemm_crossover.cpp exactly
+OK:   code block 2 matches locked 02_numerically_stable_softmax_and_log_sum_exp.cpp exactly
+OK:   code block 3 matches locked 03_rope_rotation_math.cpp exactly
+OK:   code block 4 matches locked 04_quantization_as_affine_algebra.cpp exactly
+OK:   code block 5 matches locked 05_hessian_role_in_gptq.cpp exactly
+OK:   code block 6 matches locked 06_full_transformer_layer_roofline_analysis.cpp exactly
+OK:   found exactly 6 text output blocks
+OK:   output block 1 matches locked 01_dot_product_arithmetic_intensity_and_gemv_gemm_crossover.out.txt exactly
+OK:   output block 2 matches locked 02_numerically_stable_softmax_and_log_sum_exp.out.txt exactly
+OK:   output block 3 matches locked 03_rope_rotation_math.out.txt exactly
+OK:   output block 4 matches locked 04_quantization_as_affine_algebra.out.txt exactly
+OK:   output block 5 matches locked 05_hessian_role_in_gptq.out.txt exactly
+OK:   output block 6 matches locked 06_full_transformer_layer_roofline_analysis.out.txt exactly
+OK:   compile of 01_dot_product_arithmetic_intensity_and_gemv_gemm_crossover.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 01_dot_product_arithmetic_intensity_and_gemv_gemm_crossover.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 01_dot_product_arithmetic_intensity_and_gemv_gemm_crossover.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 02_numerically_stable_softmax_and_log_sum_exp.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 02_numerically_stable_softmax_and_log_sum_exp.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 02_numerically_stable_softmax_and_log_sum_exp.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 03_rope_rotation_math.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 03_rope_rotation_math.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 03_rope_rotation_math.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 04_quantization_as_affine_algebra.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 04_quantization_as_affine_algebra.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 04_quantization_as_affine_algebra.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 05_hessian_role_in_gptq.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 05_hessian_role_in_gptq.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 05_hessian_role_in_gptq.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   compile of 06_full_transformer_layer_roofline_analysis.cpp succeeded (-std=c++23 -Wall -Wextra -O2)
+OK:   fresh self-test rerun of 06_full_transformer_layer_roofline_analysis.cpp matches locked self-test output exactly (deterministic)
+OK:   second rerun of 06_full_transformer_layer_roofline_analysis.cpp matches the first rerun exactly (confirmed deterministic)
+OK:   10 self-check questions, 10 worked solutions -- counts match
+
+=== ALL CHECKS PASSED ===

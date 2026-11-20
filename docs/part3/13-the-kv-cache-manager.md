@@ -50,7 +50,7 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 
 ### Intuition
 
-An autoregressive model is stateful: generating the Nth token requires attending over all N-1 tokens that came before it. Storing their Key and Value vectors instead of recomputing them every step turns an O(N^2) total-FLOP generation into O(N) per step — a genuinely good trade, but one that swaps compute for memory traffic, and memory traffic has its own, much harder, speed limit.
+An autoregressive model is stateful: generating the Nth token requires attending over all N-1 tokens that came before it. Caching previous Key and Value vectors avoids recomputing their projections at every decode step. With fixed layer dimensions, the new token still attends over N cached positions, so dense attention costs O(N) per step and O(N^2) across N generated tokens. These are per-step and total costs respectively; caching does not make total dense attention linear. It trades repeated prefix computation for retained state and memory traffic. A fixed-size sliding window instead bounds the number of positions read per step.
 
 ### The Concept, In Detail
 
@@ -64,9 +64,9 @@ Every decode step must read the entire model weight matrix plus the current KV c
 // CPU could compute. This chapter starts from a different bottleneck: an
 // autoregressive model is stateful, and generating the Nth token requires
 // attending over all N-1 tokens that came before. Storing their Key and
-// Value vectors instead of recomputing them turns an O(N^2) total-FLOP
-// generation into O(N) per step -- the KV cache is what makes that trade,
-// swapping recomputation for memory. But memory has its own speed limit,
+// Value vectors avoids repeated prefix projections. Dense attention still
+// costs O(N) per decode step and O(N^2) across N generated tokens for fixed
+// model dimensions. Caching swaps repeated prefix computation for memory. But memory has its own speed limit,
 // and once that trade is made, the KV cache itself becomes the dominant
 // cost at long context.
 //

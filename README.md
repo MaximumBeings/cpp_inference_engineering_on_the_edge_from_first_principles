@@ -46,3 +46,5 @@ Section-specific content lives in `tools/illustrations/concepts.py`; the generat
 See [the technical accuracy audit](TECHNICAL_ACCURACY_AUDIT.md) for open correctness findings, primary references and correction order. The machine-readable findings are in `audit/technical-findings-2026-11-20.json`.
 
 Run `python3 tests/sample_output_checks.py` to verify that the expanded tensor samples match actual stdout and that no captured sample contains only pass-count lines.
+
+Accuracy-fix validation records are in `validation/accuracy-fixes/`. Run `python3 tests/book_reference_checks.py` to check published chapter references and the corrected KV complexity explanation.

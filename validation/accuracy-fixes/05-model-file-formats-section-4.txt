@@ -1,0 +1,26 @@
+================================================
+The SafeTensors Format: JSON Header + mmap
+================================================
+
+-- Test 1: JSON field extraction --
+  dtype="BF16" shape=[2048,2048] data_offsets=[0,8388608]
+  2048x2048 BF16 tensor size check: 8388608 == 8388608
+
+-- Test 2: dtype_bytes --
+  F32=4, F16=2, BF16=2, I8=1 bytes
+
+-- Test 3: Full round trip (write, mmap, read back) --
+  wrote /tmp/ch5_test_model.safetensors (239 bytes)
+  loaded 2 tensors
+  "weight": dtype=F32 shape=[4,4], values match: yes
+  "bias": shape=[4], values match: yes
+
+-- Test 4: SafeTensors (BF16) vs GGUF (TeachingQ4) for an 8B-parameter model --
+  SafeTensors (BF16, training/distribution format): 16.0 GB
+  GGUF (TeachingQ4, inference format):                    4.5 GB
+  SafeTensors can store quantized tensors; this example implements F32/F16/BF16 only.
+  Both are safe formats (no code execution); GGUF's metadata is binary, SafeTensors' is JSON.
+
+================================================
+18/18 checks passed ALL PASS
+================================================

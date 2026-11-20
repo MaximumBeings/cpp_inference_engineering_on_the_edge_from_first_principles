@@ -11,6 +11,7 @@ Chapter 29.3: Impossible Travel Geographic Detection
 -- Test 5: one minute less than that boundary -- required_speed=903.443 km/h, flagged=YES --
 -- Test 6: London to Paris (343.556 km) in 10 minutes -- required_speed=2061.34 km/h, flagged=YES --
 -- Test 7: two accounts, one impossible-travel pattern, one normal -- flagged=[ACC-7A] --
+-- Regression: simultaneous distant events flagged; same-location tie accepted; reversed time rejected --
 
-13/13 checks passed
+17/17 checks passed
 ALL CHECKS PASSED

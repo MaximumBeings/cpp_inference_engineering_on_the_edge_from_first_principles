@@ -1,6 +1,8 @@
 # Validation Status
 
-The book's examples were revalidated on **November 20, 2026**. The recorded execution checks pass, but the subsequent [technical accuracy audit](https://github.com/MaximumBeings/cpp_inference_engineering_on_the_edge_from_first_principles/blob/main/TECHNICAL_ACCURACY_AUDIT.md) identified **26 open correctness and claim-scope issues**. Passing the existing tests does not establish external format compatibility, benchmark validity or standards compliance. Those findings remain open; the execution evidence below should be read with that scope.
+The November 20, 2026 [technical accuracy audit](https://github.com/MaximumBeings/cpp_inference_engineering_on_the_edge_from_first_principles/blob/main/TECHNICAL_ACCURACY_AUDIT.md) identified 26 correctness and claim-scope issues. The correction pass fixes affected algorithms and constants and narrows overstated production, compatibility and conformance claims. Detailed current checks and remaining limits are recorded in [accuracy-fix validation](https://github.com/MaximumBeings/cpp_inference_engineering_on_the_edge_from_first_principles/tree/main/validation/accuracy-fixes). The table below preserves the earlier execution baseline; it is not a claim that every platform was freshly rerun after these corrections.
+
+The current regression checks cover binary16 subnormals and quantizer edge cases, published tensor stdout, CLI/sampling behavior, benchmark arithmetic and chapter references. A successful self-test does not prove arbitrary-file safety, external-format interoperability, production suitability or standards compliance.
 
 | Area | Completed validation | Scope |
 | --- | --- | --- |
@@ -20,6 +22,8 @@ The book's examples were revalidated on **November 20, 2026**. The recorded exec
 - [Final Appendix A verification](https://github.com/MaximumBeings/cpp_inference_engineering_on_the_edge_from_first_principles/blob/main/validation/a100/verify_appendix_a_final.log), which supersedes its initial missing-build-tools failure.
 
 ## What the validation does not claim
+
+Historical four-way cross-check descriptions in chapter narratives are not new hardware validation claims. The checked-in follow-up evidence establishes GCC/Linux, Arm execution under QEMU and the listed physical A100 tests; it does not independently substantiate every older physical-Arm assertion.
 
 The canonical execution evidence is GCC/Linux. Some compiler- and random-distribution-dependent transcripts differ on macOS; those portability differences are documented in the audit report.
 

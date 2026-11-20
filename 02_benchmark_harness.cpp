@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <stdexcept>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -104,6 +105,11 @@ struct TensorInfo {
     uint64_t n_elements = 0;
 };
 using MetaValue = std::variant<std::string, uint32_t, float, bool, std::vector<std::string>>;
+// INPUT SCOPE: this instructional GGUF reader assumes trusted, compatible
+// fixtures/checkpoints. It is not a hardened parser: it does not fully
+// validate all reads, allocation sizes, dimension products, alignment or
+// tensor/file bounds. Do not pass untrusted or arbitrary model files.
+// Production loading needs those checks before exposing any tensor view.
 class GGUFReader {
     std::ifstream in;
     void read_raw(void* data, size_t size) { in.read(reinterpret_cast<char*>(data), size); }
@@ -197,36 +203,51 @@ public:
 // =======================================================================
 // PART 2: Chapter 4.2's fp16_t/BlockQ8 (Section 15.4's own copy).
 // =======================================================================
+// IEEE-754 binary16, round-to-nearest-even, including subnormals.
 struct fp16_t {
     uint16_t bits = 0;
     fp16_t() = default;
-    fp16_t(float f) { bits = encode(f); }
+    fp16_t(float f) : bits(encode(f)) {}
     operator float() const { return decode(bits); }
     static uint16_t encode(float f) {
         uint32_t x; std::memcpy(&x, &f, 4);
         uint32_t sign = (x >> 16) & 0x8000u;
-        int32_t exp = static_cast<int32_t>((x >> 23) & 0xFFu) - 127 + 15;
-        uint32_t mant = x & 0x7FFFFFu;
-        if (((x >> 23) & 0xFFu) == 0xFFu) return static_cast<uint16_t>(sign | 0x7C00u | (mant ? 0x0200u : 0u));
-        if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u);
-        if (exp <= 0)  return static_cast<uint16_t>(sign);
-        uint32_t mant10 = mant >> 13;
-        uint32_t remainder = mant & 0x1FFFu;
-        if (remainder > 0x1000u || (remainder == 0x1000u && (mant10 & 1u))) {
-            mant10 += 1;
-            if (mant10 == 0x400u) { mant10 = 0; exp += 1; if (exp >= 31) return static_cast<uint16_t>(sign | 0x7C00u); }
+        uint32_t mant = x & 0x7fffffu;
+        int exp = int((x >> 23) & 255u) - 127 + 15;
+        if (((x >> 23) & 255u) == 255u)
+            return uint16_t(sign | 0x7c00u | (mant ? 0x0200u : 0u));
+        if (exp >= 31) return uint16_t(sign | 0x7c00u);
+        if (exp <= 0) {
+            if (exp < -10) return uint16_t(sign);
+            mant |= 0x800000u;
+            unsigned shift = unsigned(14 - exp);
+            uint32_t out = mant >> shift;
+            uint32_t rem = mant & ((1u << shift) - 1u);
+            uint32_t half = 1u << (shift - 1u);
+            if (rem > half || (rem == half && (out & 1u))) ++out;
+            return uint16_t(sign | out); // rounding may reach minimum normal
         }
-        return static_cast<uint16_t>(sign | (static_cast<uint32_t>(exp) << 10) | mant10);
+        uint32_t out = mant >> 13, rem = mant & 0x1fffu;
+        if (rem > 0x1000u || (rem == 0x1000u && (out & 1u))) {
+            if (++out == 0x400u) { out = 0; ++exp; }
+        }
+        return uint16_t(sign | (uint32_t(exp) << 10) | out);
     }
     static float decode(uint16_t h) {
-        uint32_t sign = (static_cast<uint32_t>(h) & 0x8000u) << 16;
-        uint32_t exp  = (static_cast<uint32_t>(h) >> 10) & 0x1Fu;
-        uint32_t mant = static_cast<uint32_t>(h) & 0x3FFu;
-        uint32_t fbits;
-        if (exp == 0) fbits = sign;
-        else if (exp == 31) fbits = sign | 0x7F800000u | (mant << 13);
-        else fbits = sign | ((exp - 15 + 127) << 23) | (mant << 13);
-        float f; std::memcpy(&f, &fbits, 4); return f;
+        uint32_t sign = (uint32_t(h) & 0x8000u) << 16;
+        uint32_t mant = uint32_t(h) & 0x3ffu;
+        int exp = int((h >> 10) & 31u);
+        uint32_t out;
+        if (exp == 0) {
+            if (!mant) out = sign;
+            else {
+                exp = -14;
+                while (!(mant & 0x400u)) { mant <<= 1; --exp; }
+                out = sign | (uint32_t(exp + 127) << 23) | ((mant & 0x3ffu) << 13);
+            }
+        } else if (exp == 31) out = sign | 0x7f800000u | (mant << 13);
+        else out = sign | (uint32_t(exp - 15 + 127) << 23) | (mant << 13);
+        float f; std::memcpy(&f, &out, 4); return f;
     }
 };
 #pragma pack(push, 1)
@@ -234,11 +255,13 @@ struct BlockQ8 { fp16_t scale; int8_t weights[32]; };
 #pragma pack(pop)
 static_assert(sizeof(BlockQ8) == 34);
 BlockQ8 quantize_q8(const float* data) {
+    for (int k = 0; k < 32; ++k)
+        if (!std::isfinite(data[k])) throw std::domain_error("quantizer requires finite input");
     BlockQ8 b;
     float alpha = 0.0f;
     for (int i = 0; i < 32; ++i) alpha = std::max(alpha, std::fabs(data[i]));
     if (alpha == 0.0f) { b.scale = fp16_t(0.0f); std::memset(b.weights, 0, 32); return b; }
-    b.scale = fp16_t(alpha / 127.0f);
+    b.scale = fp16_t(std::clamp(alpha / 127.0f, 0x1p-24f, 65504.0f));
     float inv = 1.0f / static_cast<float>(b.scale);
     for (int i = 0; i < 32; ++i)
         b.weights[i] = static_cast<int8_t>(std::clamp(std::round(data[i] * inv), -127.0f, 127.0f));
@@ -535,7 +558,7 @@ struct Stats {
         double sq_sum = 0.0;
         for (double v : vals) sq_sum += (v - s.mean) * (v - s.mean);
         s.stddev = std::sqrt(sq_sum / static_cast<double>(s.n));
-        s.median = vals[s.n / 2];
+        s.median = s.n % 2 ? vals[s.n / 2] : (vals[s.n / 2 - 1] + vals[s.n / 2]) / 2.0;
         s.p95 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.95)];
         s.p99 = vals[static_cast<size_t>(static_cast<double>(s.n) * 0.99)];
         s.min_val = vals.front();
@@ -543,7 +566,7 @@ struct Stats {
         return s;
     }
 };
-double tokens_per_second(const Stats& decode_stats) { return decode_stats.median > 0.0 ? 1000.0 / decode_stats.median : 0.0; }
+double tokens_per_second(const Stats& decode_stats) { return decode_stats.mean > 0.0 ? 1000.0 / decode_stats.mean : 0.0; }
 long peak_rss_kb() {
     std::ifstream in("/proc/self/status");
     if (!in.is_open()) return -1;
@@ -561,7 +584,7 @@ long peak_rss_kb() {
 
 // =======================================================================
 // PART 7 (new): the harness itself. `run_benchmark` prefills a prompt,
-// times it for TTFT, then runs `decode_steps` further real decode steps
+// times prefill only, then runs `decode_steps` further real decode steps
 // -- the first `warmup_steps` of which are timed but EXCLUDED from the
 // reported Stats, exactly as Section 17.1's `is_warmup_step` defines.
 // Every timed step calls Section 16.3's real `decode_step` against
@@ -571,7 +594,7 @@ struct BenchResult {
     bool ok = false;
     double prefill_ms = 0.0;
     int prefill_tokens = 0;
-    double ttft_ms = 0.0;
+    double prefill_only_ms = 0.0;
     Stats decode_stats;
     int decode_steps_measured = 0;
     long peak_rss_kb_after = -1;
@@ -592,16 +615,13 @@ BenchResult run_benchmark(const QwenModel& model, const std::vector<QwenBlockWei
     res.prefill_tokens = static_cast<int>(prompt_ids.size());
     if (pf.exceeded_capacity || pf.nan_at_layer >= 0) return res;
 
-    // The one sampling step TTFT includes: this harness benchmarks the
-    // FORWARD pass, so it stands in for Section 16.2's real sampling
-    // pipeline with an argmax over a uniform distribution of the same
-    // vocabulary size -- cheap, deterministic, and the same order of
-    // work Section 16.2's own pipeline does for one token.
+    // This is a forward-pass microbenchmark, not a full generation TTFT.
+    // Token IDs are random workload inputs; drawing an integer neither
+    // scans logits nor runs a vocabulary-sized sampler. Selection, text
+    // decoding, streaming, queueing and transport are outside the timer.
     std::uniform_int_distribution<int> pick(0, vocab_size - 1);
-    auto s0 = Clock::now();
     int first_token = pick(token_rng);
-    double first_sample_ms = elapsed_ms(s0);
-    res.ttft_ms = res.prefill_ms + first_sample_ms;
+    res.prefill_only_ms = res.prefill_ms;
 
     std::vector<double> decode_ms_all;
     int pos = static_cast<int>(prompt_ids.size()) - 1;
@@ -725,7 +745,7 @@ int main() {
     // =====================================================================
     // TEST 1: run_benchmark against the synthetic model produces a
     // structurally sane report -- correct token counts, min <= median <=
-    // p95 <= p99 <= max, and a positive TTFT -- checked as INVARIANTS
+    // p95 <= p99 <= max, and a positive prefill-only time -- checked as INVARIANTS
     // that must hold regardless of how fast this specific machine
     // happens to run, rather than against any specific millisecond value.
     // =====================================================================
@@ -745,15 +765,19 @@ int main() {
         CHECK(result.ok);
         CHECK(result.prefill_tokens == static_cast<int>(prompt_ids.size()));
         CHECK(result.decode_steps_measured == DECODE_STEPS - WARMUP);
-        CHECK(result.ttft_ms >= result.prefill_ms);
+        CHECK(result.prefill_only_ms >= result.prefill_ms);
         CHECK(result.decode_stats.min_val <= result.decode_stats.median);
         CHECK(result.decode_stats.median <= result.decode_stats.p95);
         CHECK(result.decode_stats.p95 <= result.decode_stats.p99);
         CHECK(result.decode_stats.p99 <= result.decode_stats.max_val);
         CHECK(tokens_per_second(result.decode_stats) > 0.0);
+#if defined(__linux__)
         CHECK(result.peak_rss_kb_after > 0);
+#else
+        CHECK(result.peak_rss_kb_after == -1); // explicit unavailable sentinel
+#endif
 
-        std::cerr << "  (informational, machine-specific) TTFT=" << result.ttft_ms << "ms, decode median="
+        std::cerr << "  (informational, machine-specific) prefill-only=" << result.prefill_only_ms << "ms, decode median="
                    << result.decode_stats.median << "ms, TPS=" << tokens_per_second(result.decode_stats)
                    << ", peak RSS=" << result.peak_rss_kb_after << "KB\n";
         std::cout << "  benchmark completed: " << (result.ok ? "yes" : "no")
