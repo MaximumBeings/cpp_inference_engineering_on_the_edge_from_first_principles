@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 25: Sample camera streams into reviewable evidence](../images/chapter-openers/25.svg?v=c1707c856590)](../images/chapter-openers/25.svg?v=c1707c856590)
+[![Chapter 25: Sample camera streams into reviewable evidence](../images/chapter-openers/25.svg?v=6620ce66d042)](../images/chapter-openers/25.svg?v=6620ce66d042)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ This chapter closes Part 5 with two cameras that see far more of a person's life
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording.](../images/25-overview.svg?v=546f4b714db4){: loading="lazy" width="760" }
+![Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording.](../images/25-overview.svg?v=9395e36b4767){: loading="lazy" width="760" }
 
   <figcaption>Keep the original recording and its provenance alongside generated descriptions.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ This chapter closes Part 5 with two cameras that see far more of a person's life
 <!-- edge:concept-25.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Sample frames under a declared privacy boundary](../images/technical/ch25/25-01.svg?v=eea36ac0ec59)](../images/technical/ch25/25-01.svg?v=eea36ac0ec59)
+[![Sample frames under a declared privacy boundary](../images/technical/ch25/25-01.svg?v=793c8d715118)](../images/technical/ch25/25-01.svg?v=793c8d715118)
 
 <figcaption>The chapter boundary excludes facial recognition. Identity must not be inferred from scene tags.</figcaption>
 </figure>
@@ -429,7 +429,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-25.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Evidence handling preserves source identity](../images/technical/ch25/25-02.svg?v=d3ca323da5d2)](../images/technical/ch25/25-02.svg?v=d3ca323da5d2)
+[![Evidence handling preserves source identity](../images/technical/ch25/25-02.svg?v=87578f6bc009)](../images/technical/ch25/25-02.svg?v=87578f6bc009)
 
 <figcaption>A generated narrative is derived material. Retain the original and an auditable derivation trail.</figcaption>
 </figure>
@@ -814,7 +814,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-25.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Rep counting follows a defined state transition](../images/technical/ch25/25-03.svg?v=bcae84820bb9)](../images/technical/ch25/25-03.svg?v=bcae84820bb9)
+[![Rep counting follows a defined state transition](../images/technical/ch25/25-03.svg?v=400fea3be040)](../images/technical/ch25/25-03.svg?v=400fea3be040)
 
 <figcaption>Occlusion and camera angle can invalidate pose estimates; provide an uncertain state.</figcaption>
 </figure>
@@ -1105,7 +1105,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-25.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Nutrition estimates depend on several uncertain links](../images/technical/ch25/25-04.svg?v=30346495b5d5)](../images/technical/ch25/25-04.svg?v=30346495b5d5)
+[![Nutrition estimates depend on several uncertain links](../images/technical/ch25/25-04.svg?v=82d39537a343)](../images/technical/ch25/25-04.svg?v=82d39537a343)
 
 <figcaption>An image cannot reliably determine ingredients or exact portion mass on its own.</figcaption>
 </figure>

@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 18: A manufacturing inspection decision path](../images/chapter-openers/18.svg?v=3e546248ce45)](../images/chapter-openers/18.svg?v=3e546248ce45)
+[![Chapter 18: A manufacturing inspection decision path](../images/chapter-openers/18.svg?v=7cb1da9c0178)](../images/chapter-openers/18.svg?v=7cb1da9c0178)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every earlier chapter's real file was already sitting on disk before this book's
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![A manufacturing inspection decision path. Model output is one input to a disposition policy.](../images/18-overview.svg?v=8855e94fee9b){: loading="lazy" width="760" }
+![A manufacturing inspection decision path. Model output is one input to a disposition policy.](../images/18-overview.svg?v=ff7e143e8198){: loading="lazy" width="760" }
 
   <figcaption>Confidence and model output require validation before actuating a production workflow.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every earlier chapter's real file was already sitting on disk before this book's
 <!-- edge:concept-18.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Acquisition begins with a capture event](../images/technical/ch18/18-01.svg?v=0d36b9c17b7d)](../images/technical/ch18/18-01.svg?v=0d36b9c17b7d)
+[![Acquisition begins with a capture event](../images/technical/ch18/18-01.svg?v=cc1aedaba8a4)](../images/technical/ch18/18-01.svg?v=cc1aedaba8a4)
 
 <figcaption>A missing or late frame must have a defined handling path rather than silently shifting inspection order.</figcaption>
 </figure>
@@ -85,7 +85,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_gige_frame_acquisition.cpp -o 01_gige_frame_
 <!-- edge:concept-18.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Pixels become model features](../images/technical/ch18/18-02.svg?v=c324f96df302)](../images/technical/ch18/18-02.svg?v=c324f96df302)
+[![Pixels become model features](../images/technical/ch18/18-02.svg?v=28126a977d94)](../images/technical/ch18/18-02.svg?v=28126a977d94)
 
 <figcaption>Use the model-specific preprocessing contract. A generic resize is not a universal encoder input.</figcaption>
 </figure>
@@ -129,7 +129,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_vision_encoder.cpp -o 02_vision_encoder
 <!-- edge:concept-18.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Vision features join the language input](../images/technical/ch18/18-03.svg?v=0130b3f80243)](../images/technical/ch18/18-03.svg?v=0130b3f80243)
+[![Vision features join the language input](../images/technical/ch18/18-03.svg?v=cfcb5773c1b9)](../images/technical/ch18/18-03.svg?v=cfcb5773c1b9)
 
 <figcaption>The supported model determines the feature insertion and positional conventions.</figcaption>
 </figure>
@@ -173,7 +173,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESP
 <!-- edge:concept-18.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A model suggestion is not a line disposition](../images/technical/ch18/18-04.svg?v=8c039a8f15c8)](../images/technical/ch18/18-04.svg?v=8c039a8f15c8)
+[![A model suggestion is not a line disposition](../images/technical/ch18/18-04.svg?v=88d25f4e4aa4)](../images/technical/ch18/18-04.svg?v=88d25f4e4aa4)
 
 <figcaption>A schema-valid response still needs task validation and a safe uncertain-result path.</figcaption>
 </figure>
@@ -217,7 +217,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_disposition_and_logging.cpp -l:libsqlite3.so
 <!-- edge:concept-18.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Bridge inspection results to the line system](../images/technical/ch18/18-05.svg?v=20f652b6298f)](../images/technical/ch18/18-05.svg?v=20f652b6298f)
+[![Bridge inspection results to the line system](../images/technical/ch18/18-05.svg?v=cfe67ac4ec25)](../images/technical/ch18/18-05.svg?v=cfe67ac4ec25)
 
 <figcaption>Integration code must distinguish proposed results, accepted records and confirmed downstream actions.</figcaption>
 </figure>

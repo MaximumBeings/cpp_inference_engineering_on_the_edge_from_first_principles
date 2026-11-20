@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 2: A tensor view describes existing storage](../images/chapter-openers/02.svg?v=5976e284bba0)](../images/chapter-openers/02.svg?v=5976e284bba0)
+[![Chapter 2: A tensor view describes existing storage](../images/chapter-openers/02.svg?v=c6c1dde5a2cd)](../images/chapter-openers/02.svg?v=c6c1dde5a2cd)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -27,7 +27,7 @@ Chapter 1 argued that edge inference is a different engineering problem from clo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects.](../images/02-overview.svg?v=20aacd87253e){: loading="lazy" width="760" }
+![A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects.](../images/02-overview.svg?v=8818c03c845c){: loading="lazy" width="760" }
 
   <figcaption>Row-major offset(i, j) = i * columns + j</figcaption>
 </figure>
@@ -38,7 +38,7 @@ Chapter 1 argued that edge inference is a different engineering problem from clo
 <!-- edge:concept-2.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A two-dimensional view over one allocation](../images/technical/ch02/02-01.svg?v=fbb966b1abaf)](../images/technical/ch02/02-01.svg?v=fbb966b1abaf)
+[![A two-dimensional view over one allocation](../images/technical/ch02/02-01.svg?v=b94ea1f773ee)](../images/technical/ch02/02-01.svg?v=b94ea1f773ee)
 
 <figcaption>The view stores shape and strides; the arena owns the twelve elements.</figcaption>
 </figure>
@@ -201,7 +201,7 @@ Every check above passes without a single heap allocation beyond the original `s
 <!-- edge:concept-2.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Slicing changes the view, not the allocation](../images/technical/ch02/02-02.svg?v=671f9c4c0445)](../images/technical/ch02/02-02.svg?v=671f9c4c0445)
+[![Slicing changes the view, not the allocation](../images/technical/ch02/02-02.svg?v=e4c1870daf1b)](../images/technical/ch02/02-02.svg?v=e4c1870daf1b)
 
 <figcaption>A slice has a new origin and extents. Its lifetime cannot exceed the underlying storage.</figcaption>
 </figure>
@@ -351,7 +351,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-2.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Loop order determines the traversal](../images/technical/ch02/02-03.svg?v=d3da62386607)](../images/technical/ch02/02-03.svg?v=d3da62386607)
+[![Loop order determines the traversal](../images/technical/ch02/02-03.svg?v=6359f59ae6d0)](../images/technical/ch02/02-03.svg?v=6359f59ae6d0)
 
 <figcaption>Row-major layout favors walking across columns in the inner loop. Measure the real kernel.</figcaption>
 </figure>
@@ -519,7 +519,7 @@ On the machine this book was built on, the stride-2048 traversal ran roughly two
 <!-- edge:concept-2.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Scratch storage advances a cursor](../images/technical/ch02/02-04.svg?v=1ed2963b594a)](../images/technical/ch02/02-04.svg?v=1ed2963b594a)
+[![Scratch storage advances a cursor](../images/technical/ch02/02-04.svg?v=372b8b330797)](../images/technical/ch02/02-04.svg?v=372b8b330797)
 
 <figcaption>Aligned allocations advance the arena cursor. Reset reclaims scratch together after its users finish.</figcaption>
 </figure>
@@ -744,7 +744,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-2.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A format tag selects a typed representation](../images/technical/ch02/02-05.svg?v=c219d0ed6399)](../images/technical/ch02/02-05.svg?v=c219d0ed6399)
+[![A format tag selects a typed representation](../images/technical/ch02/02-05.svg?v=f72dc178aab8)](../images/technical/ch02/02-05.svg?v=f72dc178aab8)
 
 <figcaption>std::variant makes the active storage alternative explicit. A tag does not convert the payload.</figcaption>
 </figure>

@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 15: Produce a token from a real checkpoint](../images/chapter-openers/15.svg?v=1fba079a3e48)](../images/chapter-openers/15.svg?v=1fba079a3e48)
+[![Chapter 15: Produce a token from a real checkpoint](../images/chapter-openers/15.svg?v=d2f379dd474b)](../images/chapter-openers/15.svg?v=d2f379dd474b)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Every chapter so far has proven its code correct against data this book's own to
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass.](../images/15-overview.svg?v=4f0696c36497){: loading="lazy" width="760" }
+![Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass.](../images/15-overview.svg?v=692246c5d806){: loading="lazy" width="760" }
 
   <figcaption>A synthetic self-test and a real checkpoint run validate different contracts.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Every chapter so far has proven its code correct against data this book's own to
 <!-- edge:concept-15.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Validate before trusting model-file metadata](../images/technical/ch15/15-01.svg?v=203ab52b3c2e)](../images/technical/ch15/15-01.svg?v=203ab52b3c2e)
+[![Validate before trusting model-file metadata](../images/technical/ch15/15-01.svg?v=6278db330cce)](../images/technical/ch15/15-01.svg?v=6278db330cce)
 
 <figcaption>Reject unsupported formats and malformed dimensions before allocating or reading tensor data.</figcaption>
 </figure>
@@ -714,7 +714,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-15.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Architecture names do not imply identical tensors](../images/technical/ch15/15-02.svg?v=8365124fc252)](../images/technical/ch15/15-02.svg?v=8365124fc252)
+[![Architecture names do not imply identical tensors](../images/technical/ch15/15-02.svg?v=0ec58f8ad714)](../images/technical/ch15/15-02.svg?v=0ec58f8ad714)
 
 <figcaption>Use the checkpoint metadata and supported architecture implementation together.</figcaption>
 </figure>
@@ -1355,7 +1355,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-15.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Adapt the complete path, not only the weights](../images/technical/ch15/15-03.svg?v=bc373ee0e988)](../images/technical/ch15/15-03.svg?v=bc373ee0e988)
+[![Adapt the complete path, not only the weights](../images/technical/ch15/15-03.svg?v=5bf4c9163701)](../images/technical/ch15/15-03.svg?v=5bf4c9163701)
 
 <figcaption>A numerically valid tensor load can still produce wrong text if the surrounding conventions differ.</figcaption>
 </figure>
@@ -1904,7 +1904,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-15.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A first token has traceable intermediate stages](../images/technical/ch15/15-04.svg?v=b3eecd1858ea)](../images/technical/ch15/15-04.svg?v=b3eecd1858ea)
+[![A first token has traceable intermediate stages](../images/technical/ch15/15-04.svg?v=a391aad1ae55)](../images/technical/ch15/15-04.svg?v=a391aad1ae55)
 
 <figcaption>Verify shapes and finite values along the path before interpreting the output as model quality.</figcaption>
 </figure>

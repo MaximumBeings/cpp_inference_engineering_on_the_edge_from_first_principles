@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix C: Choose an optimization from the limiting resource](../images/chapter-openers/appendix-c.svg?v=fa546142921c)](../images/chapter-openers/appendix-c.svg?v=fa546142921c)
+[![Appendix C: Choose an optimization from the limiting resource](../images/chapter-openers/appendix-c.svg?v=c7a51538b106)](../images/chapter-openers/appendix-c.svg?v=c7a51538b106)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,7 +16,7 @@ This appendix builds nothing new. Every format, every partitioning rule, every c
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg?v=ccfd92d27b4a){: loading="lazy" width="760" }
+![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg?v=61d54411efd6){: loading="lazy" width="760" }
 
   <figcaption>Each optimization must preserve the model&#x27;s numerical and state contracts.</figcaption>
 </figure>
@@ -27,7 +27,7 @@ This appendix builds nothing new. Every format, every partitioning rule, every c
 <!-- edge:concept-C.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Choose precision under an explicit budget](../images/technical/appendix-c/c-01.svg?v=269d997c5ff0)](../images/technical/appendix-c/c-01.svg?v=269d997c5ff0)
+[![Choose precision under an explicit budget](../images/technical/appendix-c/c-01.svg?v=0e1ec7781f50)](../images/technical/appendix-c/c-01.svg?v=0e1ec7781f50)
 
 <figcaption>The smallest format is not automatically the best choice. The stored type must have a supported kernel.</figcaption>
 </figure>
@@ -351,7 +351,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-C.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Choose parallel work from the dependency structure](../images/technical/appendix-c/c-02.svg?v=944be25500b6)](../images/technical/appendix-c/c-02.svg?v=944be25500b6)
+[![Choose parallel work from the dependency structure](../images/technical/appendix-c/c-02.svg?v=c8153769e0eb)](../images/technical/appendix-c/c-02.svg?v=c8153769e0eb)
 
 <figcaption>Measure overhead and bandwidth limits before adding workers. More threads do not remove a serial dependency.</figcaption>
 </figure>
@@ -611,7 +611,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-C.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Select the cache policy for the actual constraint](../images/technical/appendix-c/c-03.svg?v=2e24160f6b89)](../images/technical/appendix-c/c-03.svg?v=2e24160f6b89)
+[![Select the cache policy for the actual constraint](../images/technical/appendix-c/c-03.svg?v=fe7d70ac51b4)](../images/technical/appendix-c/c-03.svg?v=fe7d70ac51b4)
 
 <figcaption>Every policy must preserve the supported model behavior, logical positions and storage lifetime contract.</figcaption>
 </figure>

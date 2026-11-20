@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 11: Parallelize the forward pass at independent outputs](../images/chapter-openers/11.svg?v=bdc0d55276b0)](../images/chapter-openers/11.svg?v=bdc0d55276b0)
+[![Chapter 11: Parallelize the forward pass at independent outputs](../images/chapter-openers/11.svg?v=1a8e0d018f63)](../images/chapter-openers/11.svg?v=1a8e0d018f63)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Chapter 10 built the primitives — atomics, mutexes, a barrier-synchronized thr
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result.](../images/11-overview.svg?v=459ffa159231){: loading="lazy" width="760" }
+![Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result.](../images/11-overview.svg?v=2333f1a49d64){: loading="lazy" width="760" }
 
   <figcaption>Keep reduction order fixed when bitwise reproducibility is required.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Chapter 10 built the primitives — atomics, mutexes, a barrier-synchronized thr
 <!-- edge:concept-11.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Partitioning output and partitioning reduction differ](../images/technical/ch11/11-01.svg?v=0f8315e5f93b)](../images/technical/ch11/11-01.svg?v=0f8315e5f93b)
+[![Partitioning output and partitioning reduction differ](../images/technical/ch11/11-01.svg?v=fc34bf681bb0)](../images/technical/ch11/11-01.svg?v=fc34bf681bb0)
 
 <figcaption>The partition determines both ownership and synchronization.</figcaption>
 </figure>
@@ -365,7 +365,7 @@ Chapter 11.1: Row-Parallel vs. Column-Parallel Matmul
 <!-- edge:concept-11.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Keep worker threads across layer phases](../images/technical/ch11/11-02.svg?v=f468cdaaec78)](../images/technical/ch11/11-02.svg?v=f468cdaaec78)
+[![Keep worker threads across layer phases](../images/technical/ch11/11-02.svg?v=fdd0d1826e49)](../images/technical/ch11/11-02.svg?v=fdd0d1826e49)
 
 <figcaption>Persistent threads avoid repeated creation. They do not remove dependencies between phases.</figcaption>
 </figure>
@@ -936,7 +936,7 @@ Chapter 11.2: A Persistent Pool Across a Full Layer's Phases
 <!-- edge:concept-11.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Head parallelism gives each task distinct outputs](../images/technical/ch11/11-03.svg?v=f315f4f15f9f)](../images/technical/ch11/11-03.svg?v=f315f4f15f9f)
+[![Head parallelism gives each task distinct outputs](../images/technical/ch11/11-03.svg?v=002fdf9c0765)](../images/technical/ch11/11-03.svg?v=002fdf9c0765)
 
 <figcaption>Grouped-query heads may share read-only KV storage while writing separate query-head outputs.</figcaption>
 </figure>
@@ -1368,7 +1368,7 @@ Chapter 11.3: Head-Parallel Attention
 <!-- edge:concept-11.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A fixed reduction tree makes ordering explicit](../images/technical/ch11/11-04.svg?v=1b037fe464c4)](../images/technical/ch11/11-04.svg?v=1b037fe464c4)
+[![A fixed reduction tree makes ordering explicit](../images/technical/ch11/11-04.svg?v=146331f63d09)](../images/technical/ch11/11-04.svg?v=146331f63d09)
 
 <figcaption>Floating-point addition is not associative. Determinism requires controlling operation order.</figcaption>
 </figure>
@@ -1728,7 +1728,7 @@ Chapter 11.4: Deterministic Floating-Point Reduction, Independent of Thread Coun
 <!-- edge:concept-11.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![One decode step is a dependency chain](../images/technical/ch11/11-05.svg?v=a7e560fae0e9)](../images/technical/ch11/11-05.svg?v=a7e560fae0e9)
+[![One decode step is a dependency chain](../images/technical/ch11/11-05.svg?v=f31dd00faec1)](../images/technical/ch11/11-05.svg?v=f31dd00faec1)
 
 <figcaption>Parallelize inside the phases and wait before a later phase consumes their outputs.</figcaption>
 </figure>

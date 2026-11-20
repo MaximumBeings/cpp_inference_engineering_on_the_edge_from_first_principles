@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 22: Combine visual findings with context](../images/chapter-openers/22.svg?v=d143b5ea1ee0)](../images/chapter-openers/22.svg?v=d143b5ea1ee0)
+[![Chapter 22: Combine visual findings with context](../images/chapter-openers/22.svg?v=a1de6314fbd6)](../images/chapter-openers/22.svg?v=a1de6314fbd6)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -28,7 +28,7 @@ Chapter 21 turned a single photograph into a structured extraction, claim assess
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Combine visual findings with context. Security, accessibility and provenance examples use explicit evidence and review.](../images/22-overview.svg?v=e459eeb8cf31){: loading="lazy" width="760" }
+![Combine visual findings with context. Security, accessibility and provenance examples use explicit evidence and review.](../images/22-overview.svg?v=6f7e9507bdf5){: loading="lazy" width="760" }
 
   <figcaption>A model&#x27;s description alone does not establish identity, authenticity or intent.</figcaption>
 </figure>
@@ -39,7 +39,7 @@ Chapter 21 turned a single photograph into a structured extraction, claim assess
 <!-- edge:concept-22.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Temporal correlation must preserve camera identity](../images/technical/ch22/22-01.svg?v=4513b6c8eaff)](../images/technical/ch22/22-01.svg?v=4513b6c8eaff)
+[![Temporal correlation must preserve camera identity](../images/technical/ch22/22-01.svg?v=9afeaf005e6e)](../images/technical/ch22/22-01.svg?v=9afeaf005e6e)
 
 <figcaption>Correlated narration is an inference. Distinguish recorded events from inferred relationships.</figcaption>
 </figure>
@@ -79,7 +79,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_surveillance_narration_and_multi_camera_corr
 <!-- edge:concept-22.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A photographed feature is not a full compliance audit](../images/technical/ch22/22-02.svg?v=879a03896210)](../images/technical/ch22/22-02.svg?v=879a03896210)
+[![A photographed feature is not a full compliance audit](../images/technical/ch22/22-02.svg?v=52b8169df880)](../images/technical/ch22/22-02.svg?v=52b8169df880)
 
 <figcaption>Perspective, hidden features and missing dimensions limit conclusions from a photo.</figcaption>
 </figure>
@@ -119,7 +119,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_accessibility_compliance_audit.cpp -o 02_acc
 <!-- edge:concept-22.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Condition and provenance require different evidence](../images/technical/ch22/22-03.svg?v=8b973157cc63)](../images/technical/ch22/22-03.svg?v=8b973157cc63)
+[![Condition and provenance require different evidence](../images/technical/ch22/22-03.svg?v=d4c022200aac)](../images/technical/ch22/22-03.svg?v=d4c022200aac)
 
 <figcaption>A visual model cannot certify authenticity from appearance alone.</figcaption>
 </figure>

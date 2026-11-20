@@ -32,22 +32,22 @@ def arrow(x1,y1,x2,y2):
     return f'<path d="M{x1} {y1} L{x2} {y2}" fill="none" stroke="#738993" stroke-width="2" marker-end="url(#arrow)"/>'
 
 def svg(title,description,body,height=610,dark=False):
-    bg='#181e30'
+    bg='#0b2e63'
     result=f'''<svg xmlns="http://www.w3.org/2000/svg" width="760" height="{height}" viewBox="0 0 760 {height}" role="img" aria-labelledby="title desc">
 <title id="title">{esc(title)}</title><desc id="desc">{esc(description)}</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#738993"/></marker></defs>
-<g font-family="Arial, Helvetica, sans-serif">{rect(1,1,758,height-2,bg,'#d8dedb' if not dark else '#3a455c',16)}{body}</g></svg>'''
+<g font-family="Arial, Helvetica, sans-serif">{rect(1,1,758,height-2,bg,'#d8dedb' if not dark else '#375d8e',16)}{body}</g></svg>'''
     # Apply the same dark palette to every figure, including overview cards.
     node=ET.fromstring(result)
     ns='{http://www.w3.org/2000/svg}'
     text_colors={'#182d38':'#f5f4fa','#526674':'#bdc9df','#0e756d':'#8ed5c4','#b94c27':'#f3b486'}
-    fills={'#fff':'#26324a','#ffffff':'#26324a','#fbfaf7':'#181e30','#e8f1ed':'#253d40','#faeee6':'#44332e','#eaf2ef':'#253d40','#eef0ed':'#303b50','#0e756d':'#245650'}
-    strokes={'#cbd5d8':'#5c6c88','#d8dedb':'#3a455c','#d2e1db':'#426b66','#eef0ed':'#303b50'}
+    fills={'#fff':'#16457e','#ffffff':'#16457e','#fbfaf7':'#0b2e63','#e8f1ed':'#123e68','#faeee6':'#214b7b','#eaf2ef':'#123e68','#eef0ed':'#183d70','#0e756d':'#1c5b87'}
+    strokes={'#cbd5d8':'#5b83b5','#d8dedb':'#375d8e','#d2e1db':'#467fac','#eef0ed':'#183d70'}
     for element in node.iter():
         if element.tag==ns+'text':
             element.set('fill',text_colors.get(element.get('fill'),element.get('fill','#f5f4fa')))
         elif element.tag==ns+'rect':
-            element.set('fill',fills.get(element.get('fill'),element.get('fill','#26324a')))
+            element.set('fill',fills.get(element.get('fill'),element.get('fill','#16457e')))
         if element.get('stroke') in strokes:element.set('stroke',strokes[element.get('stroke')])
     ET.register_namespace('', 'http://www.w3.org/2000/svg')
     return ET.tostring(node,encoding='unicode')
@@ -250,7 +250,7 @@ def opener(key,page):
     labels=[n[0] for n in SPECS[key][2]]
     for i,label in enumerate(labels):
         x=52+(i%2)*368;y=top+(i//2)*128
-        b+=rect(x,y,288,98,'#26324a','#5c6c88')
+        b+=rect(x,y,288,98,'#16457e','#5b83b5')
         for p in range(7):
             px=x+24+p*37
             b+=f'<path d="M{px} {y-9} V{y} M{px} {y+98} V{y+107}" stroke="#60708b" stroke-width="2"/>'

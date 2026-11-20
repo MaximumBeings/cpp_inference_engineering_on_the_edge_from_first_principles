@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix B: Use the quiz to test a chain of reasoning](../images/chapter-openers/appendix-b.svg?v=e0a2377a17de)](../images/chapter-openers/appendix-b.svg?v=e0a2377a17de)
+[![Appendix B: Use the quiz to test a chain of reasoning](../images/chapter-openers/appendix-b.svg?v=9a0a693cdc1d)](../images/chapter-openers/appendix-b.svg?v=9a0a693cdc1d)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -14,7 +14,7 @@ Every chapter in this book already ends with its own self-check questions and wo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg?v=e73a9e520cf9){: loading="lazy" width="760" }
+![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg?v=51caacdc3b0f){: loading="lazy" width="760" }
 
   <figcaption>Explain why an answer follows from the constraints.</figcaption>
 </figure>
@@ -25,7 +25,7 @@ Every chapter in this book already ends with its own self-check questions and wo
 <!-- edge:concept-B.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Use the quiz as a closed-loop learning check](../images/technical/appendix-b/b-01.svg?v=9ea35efcba35)](../images/technical/appendix-b/b-01.svg?v=9ea35efcba35)
+[![Use the quiz as a closed-loop learning check](../images/technical/appendix-b/b-01.svg?v=1af05535f7f1)](../images/technical/appendix-b/b-01.svg?v=1af05535f7f1)
 
 <figcaption>An explanation is more useful than a guessed result. Keep track of the assumptions behind each answer.</figcaption>
 </figure>
@@ -39,7 +39,7 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 <!-- edge:concept-B.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Connect each review question to an engineering contract](../images/technical/appendix-b/b-02.svg?v=3e4c29f0caf2)](../images/technical/appendix-b/b-02.svg?v=3e4c29f0caf2)
+[![Connect each review question to an engineering contract](../images/technical/appendix-b/b-02.svg?v=bbe4ea6808cc)](../images/technical/appendix-b/b-02.svg?v=bbe4ea6808cc)
 
 <figcaption>A correct answer should explain the invariant and what would fail if that invariant were broken.</figcaption>
 </figure>
@@ -86,7 +86,7 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 <!-- edge:concept-B.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Compare the reasoning, not only the final answer](../images/technical/appendix-b/b-03.svg?v=98bce8a79d1d)](../images/technical/appendix-b/b-03.svg?v=98bce8a79d1d)
+[![Compare the reasoning, not only the final answer](../images/technical/appendix-b/b-03.svg?v=62b66e295a10)](../images/technical/appendix-b/b-03.svg?v=62b66e295a10)
 
 <figcaption>A matching final number does not establish that the intermediate reasoning is valid.</figcaption>
 </figure>
@@ -126,7 +126,7 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 <!-- edge:concept-B.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Predict output before executing the program](../images/technical/appendix-b/b-04.svg?v=8de15003f5f0)](../images/technical/appendix-b/b-04.svg?v=8de15003f5f0)
+[![Predict output before executing the program](../images/technical/appendix-b/b-04.svg?v=ac25ff1082d6)](../images/technical/appendix-b/b-04.svg?v=ac25ff1082d6)
 
 <figcaption>Account for integer versus floating-point arithmetic, state changes and explicitly specified output formatting.</figcaption>
 </figure>

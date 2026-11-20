@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 7: Quantize a vector in a rotated coordinate system](../images/chapter-openers/07.svg?v=b46c406fd162)](../images/chapter-openers/07.svg?v=b46c406fd162)
+[![Chapter 7: Quantize a vector in a rotated coordinate system](../images/chapter-openers/07.svg?v=3857110eab03)](../images/chapter-openers/07.svg?v=3857110eab03)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every quantizer built so far in this book has worked one 32-element block at a t
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products.](../images/07-overview.svg?v=aa049940ba36){: loading="lazy" width="760" }
+![Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products.](../images/07-overview.svg?v=e5bfcd9ecab9){: loading="lazy" width="760" }
 
   <figcaption>Keep the MSE reconstruction, residual and query in compatible coordinates.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every quantizer built so far in this book has worked one 32-element block at a t
 <!-- edge:concept-7.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![An orthogonal transform preserves geometry](../images/technical/ch07/07-01.svg?v=0f23b5572532)](../images/technical/ch07/07-01.svg?v=0f23b5572532)
+[![An orthogonal transform preserves geometry](../images/technical/ch07/07-01.svg?v=58dfa38115d8)](../images/technical/ch07/07-01.svg?v=58dfa38115d8)
 
 <figcaption>Rotation redistributes coordinates before quantization. Quantization itself introduces approximation.</figcaption>
 </figure>
@@ -79,7 +79,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_rotation_and_beta_distribution.cpp -o 01_rot
 <!-- edge:concept-7.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A codebook alternates assignments and centroids](../images/technical/ch07/07-02.svg?v=fd3679bee822)](../images/technical/ch07/07-02.svg?v=fd3679bee822)
+[![A codebook alternates assignments and centroids](../images/technical/ch07/07-02.svg?v=1097fbe5df69)](../images/technical/ch07/07-02.svg?v=1097fbe5df69)
 
 <figcaption>The codebook is optimized for an assumed distribution. A mismatched distribution changes the error.</figcaption>
 </figure>
@@ -117,7 +117,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_lloyd_max_mse_quantizer.cpp -o 02_lloyd_max_
 <!-- edge:concept-7.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Reconstruction error and dot-product bias differ](../images/technical/ch07/07-03.svg?v=fd319cc8814e)](../images/technical/ch07/07-03.svg?v=fd319cc8814e)
+[![Reconstruction error and dot-product bias differ](../images/technical/ch07/07-03.svg?v=400a44039fc1)](../images/technical/ch07/07-03.svg?v=400a44039fc1)
 
 <figcaption>Low MSE alone is not a proof that an estimated attention score is unbiased.</figcaption>
 </figure>
@@ -155,7 +155,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_qjl_unbiased_inner_product.cpp -o 03_qjl_unb
 <!-- edge:concept-7.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Compressed KV must still support attention](../images/technical/ch07/07-04.svg?v=76306a237ea8)](../images/technical/ch07/07-04.svg?v=76306a237ea8)
+[![Compressed KV must still support attention](../images/technical/ch07/07-04.svg?v=f0a539b13412)](../images/technical/ch07/07-04.svg?v=f0a539b13412)
 
 <figcaption>Query and cache transforms must use compatible conventions and the same logical positions.</figcaption>
 </figure>
@@ -193,7 +193,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_kv_cache_quantization.cpp -o 04_kv_cache_qua
 <!-- edge:concept-7.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Two compression families use different metadata](../images/technical/ch07/07-05.svg?v=0b2b93a333c9)](../images/technical/ch07/07-05.svg?v=0b2b93a333c9)
+[![Two compression families use different metadata](../images/technical/ch07/07-05.svg?v=1d91422fc03d)](../images/technical/ch07/07-05.svg?v=1d91422fc03d)
 
 <figcaption>Compare total bytes and task error under the same workload. No measured speedup is implied.</figcaption>
 </figure>

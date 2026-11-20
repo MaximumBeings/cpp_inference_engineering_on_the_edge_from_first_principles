@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix A: Cross-compile, then execute the target binary](../images/chapter-openers/appendix-a.svg?v=c528b4916f43)](../images/chapter-openers/appendix-a.svg?v=c528b4916f43)
+[![Appendix A: Cross-compile, then execute the target binary](../images/chapter-openers/appendix-a.svg?v=921db5ee106b)](../images/chapter-openers/appendix-a.svg?v=921db5ee106b)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Every chapter in this book compiled and ran identically on an x86_64 development
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg?v=e24ce3eb414e){: loading="lazy" width="760" }
+![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg?v=910457733a4c){: loading="lazy" width="760" }
 
   <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Every chapter in this book compiled and ran identically on an x86_64 development
 <!-- edge:concept-A.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Verify the development toolchain before building](../images/technical/appendix-a/a-01.svg?v=1087e96beae9)](../images/technical/appendix-a/a-01.svg?v=1087e96beae9)
+[![Verify the development toolchain before building](../images/technical/appendix-a/a-01.svg?v=a9acf5355e9e)](../images/technical/appendix-a/a-01.svg?v=a9acf5355e9e)
 
 <figcaption>A compiler version alone does not guarantee every library feature. Verify the headers and flags used by the book.</figcaption>
 </figure>
@@ -80,7 +80,7 @@ This book's own pipeline verified only the Ubuntu 24.04 path directly; the AL202
 <!-- edge:concept-A.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A CMake project separates sources from build outputs](../images/technical/appendix-a/a-02.svg?v=64338f816bdc)](../images/technical/appendix-a/a-02.svg?v=64338f816bdc)
+[![A CMake project separates sources from build outputs](../images/technical/appendix-a/a-02.svg?v=dda37ca4dec1)](../images/technical/appendix-a/a-02.svg?v=dda37ca4dec1)
 
 <figcaption>Use an out-of-source build so generated artifacts do not overwrite project sources.</figcaption>
 </figure>
@@ -307,7 +307,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-A.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Cross-compilation has two distinct machines](../images/technical/appendix-a/a-03.svg?v=f9d34ce14615)](../images/technical/appendix-a/a-03.svg?v=f9d34ce14615)
+[![Cross-compilation has two distinct machines](../images/technical/appendix-a/a-03.svg?v=6a7609927340)](../images/technical/appendix-a/a-03.svg?v=6a7609927340)
 
 <figcaption>Compilation checks the target code path. It does not prove native execution or performance on the edge device.</figcaption>
 </figure>
@@ -423,7 +423,7 @@ The two real Test 2 values above -- the scalar and accelerated dot products of t
 <!-- edge:concept-A.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Classify the failure before changing the code](../images/technical/appendix-a/a-04.svg?v=fe0037c180ac)](../images/technical/appendix-a/a-04.svg?v=fe0037c180ac)
+[![Classify the failure before changing the code](../images/technical/appendix-a/a-04.svg?v=937992857662)](../images/technical/appendix-a/a-04.svg?v=937992857662)
 
 <figcaption>Read the first relevant diagnostic and reproduce it with the documented command before applying a fix.</figcaption>
 </figure>

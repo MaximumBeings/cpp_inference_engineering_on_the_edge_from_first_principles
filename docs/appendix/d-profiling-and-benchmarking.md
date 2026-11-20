@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix D: Profile a controlled workload](../images/chapter-openers/appendix-d.svg?v=cb6e0795f8f8)](../images/chapter-openers/appendix-d.svg?v=cb6e0795f8f8)
+[![Appendix D: Profile a controlled workload](../images/chapter-openers/appendix-d.svg?v=5148b044bb87)](../images/chapter-openers/appendix-d.svg?v=5148b044bb87)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,7 +16,7 @@ Chapter 32's own opening line makes a promise this appendix now keeps: "this boo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg?v=d5db56645f58){: loading="lazy" width="760" }
+![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg?v=85044dd5c8e1){: loading="lazy" width="760" }
 
   <figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
 </figure>
@@ -27,7 +27,7 @@ Chapter 32's own opening line makes a promise this appendix now keeps: "this boo
 <!-- edge:concept-D.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Convert a memory-interface specification into a bound](../images/technical/appendix-d/d-01.svg?v=65d8569f56f0)](../images/technical/appendix-d/d-01.svg?v=65d8569f56f0)
+[![Convert a memory-interface specification into a bound](../images/technical/appendix-d/d-01.svg?v=550e80bfc258)](../images/technical/appendix-d/d-01.svg?v=550e80bfc258)
 
 <figcaption>Check whether the published data rate already includes multiple transfers per clock. Do not count that factor twice.</figcaption>
 </figure>
@@ -172,7 +172,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-D.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A bandwidth benchmark needs a declared byte count](../images/technical/appendix-d/d-02.svg?v=a6d24ffe7611)](../images/technical/appendix-d/d-02.svg?v=a6d24ffe7611)
+[![A bandwidth benchmark needs a declared byte count](../images/technical/appendix-d/d-02.svg?v=67090653237b)](../images/technical/appendix-d/d-02.svg?v=67090653237b)
 
 <figcaption>Report the actual read/write traffic definition and repeated measurements. The theoretical bound is not an achieved result.</figcaption>
 </figure>
@@ -392,7 +392,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-D.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Budget the entire request path](../images/technical/appendix-d/d-03.svg?v=02539cadae82)](../images/technical/appendix-d/d-03.svg?v=02539cadae82)
+[![Budget the entire request path](../images/technical/appendix-d/d-03.svg?v=87d1fa13e230)](../images/technical/appendix-d/d-03.svg?v=87d1fa13e230)
 
 <figcaption>Keep all terms in the same units. A fast kernel can still miss an end-to-end deadline.</figcaption>
 </figure>
@@ -612,7 +612,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-D.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Separate a failed profiler run from a measured result](../images/technical/appendix-d/d-04.svg?v=95318bec0116)](../images/technical/appendix-d/d-04.svg?v=95318bec0116)
+[![Separate a failed profiler run from a measured result](../images/technical/appendix-d/d-04.svg?v=65f4c2811125)](../images/technical/appendix-d/d-04.svg?v=65f4c2811125)
 
 <figcaption>Unavailable counters or denied permissions are not zero-cost measurements. Preserve the actual diagnostic.</figcaption>
 </figure>

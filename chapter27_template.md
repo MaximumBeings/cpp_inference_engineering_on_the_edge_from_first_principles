@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 27: Fit inference into a market-data latency budget](../images/chapter-openers/27.svg?v=3c9abbbcd915)](../images/chapter-openers/27.svg?v=3c9abbbcd915)
+[![Chapter 27: Fit inference into a market-data latency budget](../images/chapter-openers/27.svg?v=512ee6ac3473)](../images/chapter-openers/27.svg?v=512ee6ac3473)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Chapter 26 turned to a bank branch or back office processing checks and invoices
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Fit inference into a market-data latency budget. Deadline handling is part of the decision path.](../images/27-overview.svg?v=94e7dbb23f65){: loading="lazy" width="760" }
+![Fit inference into a market-data latency budget. Deadline handling is part of the decision path.](../images/27-overview.svg?v=76ed6fd393d5){: loading="lazy" width="760" }
 
   <figcaption>An offline accuracy score does not establish live latency or trading performance.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Chapter 26 turned to a bank branch or back office processing checks and invoices
 <!-- edge:concept-27.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A small book imbalance example](../images/technical/ch27/27-01.svg?v=1d6c3f7b1c47)](../images/technical/ch27/27-01.svg?v=1d6c3f7b1c47)
+[![A small book imbalance example](../images/technical/ch27/27-01.svg?v=45b1766f8962)](../images/technical/ch27/27-01.svg?v=45b1766f8962)
 
 <figcaption>Illustrative feature arithmetic only. Handle a zero denominator and stale or incomplete market data.</figcaption>
 </figure>
@@ -80,7 +80,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_order_book_microstructure_features.cpp -o 01
 <!-- edge:concept-27.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A deadline is an end-to-end constraint](../images/technical/ch27/27-02.svg?v=aac5ec9c9aaa)](../images/technical/ch27/27-02.svg?v=aac5ec9c9aaa)
+[![A deadline is an end-to-end constraint](../images/technical/ch27/27-02.svg?v=2d1bd633b554)](../images/technical/ch27/27-02.svg?v=2d1bd633b554)
 
 <figcaption>No latency numbers are implied. Measure the complete path under the intended system load.</figcaption>
 </figure>
@@ -120,7 +120,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_tick_to_trade_deadline_enforcement.cpp -o 02
 <!-- edge:concept-27.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Text becomes a time-stamped sentiment signal](../images/technical/ch27/27-03.svg?v=a0561c011cbf)](../images/technical/ch27/27-03.svg?v=a0561c011cbf)
+[![Text becomes a time-stamped sentiment signal](../images/technical/ch27/27-03.svg?v=a176d13ec5cf)](../images/technical/ch27/27-03.svg?v=a176d13ec5cf)
 
 <figcaption>A sentiment score is an uncertain feature, not a prediction of a guaranteed price move.</figcaption>
 </figure>
@@ -160,7 +160,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_financial_news_sentiment_scoring.cpp -o 03_f
 <!-- edge:concept-27.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Signal fusion still needs execution controls](../images/technical/ch27/27-04.svg?v=dffb83ceb43e)](../images/technical/ch27/27-04.svg?v=dffb83ceb43e)
+[![Signal fusion still needs execution controls](../images/technical/ch27/27-04.svg?v=a8acfb851e39)](../images/technical/ch27/27-04.svg?v=a8acfb851e39)
 
 <figcaption>Backtest and deployment controls are separate from computing an inference result.</figcaption>
 </figure>

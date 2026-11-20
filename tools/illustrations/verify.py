@@ -48,10 +48,10 @@ for asset in assets:
     assert root.get('viewBox').split()[2]=='760',asset
     assert root.get('aria-labelledby')=='title desc',asset
     rectangles=root.findall('.//{http://www.w3.org/2000/svg}rect')
-    assert rectangles[0].get('fill')=='#181e30',asset
+    assert rectangles[0].get('fill')=='#0b2e63',asset
     assert root.find('{http://www.w3.org/2000/svg}title').text,asset
     assert root.find('{http://www.w3.org/2000/svg}desc').text,asset
-print('All 234 figures use the shared dark style and 760-unit canvas; all appendix sections are covered.')
+print('All 234 figures use the shared deep-blue style and 760-unit canvas; all appendix sections are covered.')
 assert count==171,count
 print('31 chapter openers and 140 section figures pass coverage, XML and accessible-label checks.')
 

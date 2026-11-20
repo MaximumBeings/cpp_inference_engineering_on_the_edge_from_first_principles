@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 13: The KV cache preserves attention history](../images/chapter-openers/13.svg?v=b1747019f886)](../images/chapter-openers/13.svg?v=b1747019f886)
+[![Chapter 13: The KV cache preserves attention history](../images/chapter-openers/13.svg?v=8fe494d6524b)](../images/chapter-openers/13.svg?v=8fe494d6524b)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![The KV cache preserves attention history. New tokens append keys and values; each query reads the retained history.](../images/13-overview.svg?v=7e5219e55dcf){: loading="lazy" width="760" }
+![The KV cache preserves attention history. New tokens append keys and values; each query reads the retained history.](../images/13-overview.svg?v=ecc17cf6b16b){: loading="lazy" width="760" }
 
   <figcaption>KV bytes = layers * tokens * KV heads * head dimension * 2 * bytes per element</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 <!-- edge:concept-13.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The logical cache size grows with retained tokens](../images/technical/ch13/13-01.svg?v=8f71853c9777)](../images/technical/ch13/13-01.svg?v=8f71853c9777)
+[![The logical cache size grows with retained tokens](../images/technical/ch13/13-01.svg?v=e05db4becb21)](../images/technical/ch13/13-01.svg?v=e05db4becb21)
 
 <figcaption>This counts logical KV payload. Allocation, page metadata and quantization scales are additional.</figcaption>
 </figure>
@@ -79,7 +79,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_kv_cache_bandwidth_estimator.cpp -o 01_kv_ca
 <!-- edge:concept-13.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A block table maps logical pages to physical blocks](../images/technical/ch13/13-02.svg?v=1d412eba77bf)](../images/technical/ch13/13-02.svg?v=1d412eba77bf)
+[![A block table maps logical pages to physical blocks](../images/technical/ch13/13-02.svg?v=4b288ba7a185)](../images/technical/ch13/13-02.svg?v=4b288ba7a185)
 
 <figcaption>Logical ordering need not equal physical ordering. Attention resolves each token through the table.</figcaption>
 </figure>
@@ -117,7 +117,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_paged_attention_block_manager.cpp -o 02_page
 <!-- edge:concept-13.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A ring slot and a RoPE position are different](../images/technical/ch13/13-03.svg?v=7559c86a98b1)](../images/technical/ch13/13-03.svg?v=7559c86a98b1)
+[![A ring slot and a RoPE position are different](../images/technical/ch13/13-03.svg?v=b8ae428444d0)](../images/technical/ch13/13-03.svg?v=b8ae428444d0)
 
 <figcaption>Wrapping a buffer must not silently reset token positions.</figcaption>
 </figure>
@@ -155,7 +155,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_ring_buffer_sink_tokens.cpp -o 03_ring_buffe
 <!-- edge:concept-13.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![An eviction policy ranks retained information](../images/technical/ch13/13-04.svg?v=285231ed72d4)](../images/technical/ch13/13-04.svg?v=285231ed72d4)
+[![An eviction policy ranks retained information](../images/technical/ch13/13-04.svg?v=5d8d9cce2fab)](../images/technical/ch13/13-04.svg?v=5d8d9cce2fab)
 
 <figcaption>Schematic policy scores. Cumulative attention and recency protections define which entries may be evicted.</figcaption>
 </figure>
@@ -193,7 +193,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_h2o_eviction.cpp -o 04_h2o_eviction
 <!-- edge:concept-13.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The manager owns allocation and validity](../images/technical/ch13/13-05.svg?v=0577129c39c5)](../images/technical/ch13/13-05.svg?v=0577129c39c5)
+[![The manager owns allocation and validity](../images/technical/ch13/13-05.svg?v=6669ae75fea1)](../images/technical/ch13/13-05.svg?v=6669ae75fea1)
 
 <figcaption>Do not release storage while an attention operation still reads it.</figcaption>
 </figure>

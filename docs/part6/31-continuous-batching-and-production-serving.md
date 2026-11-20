@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 31: Continuous batching schedules active requests](../images/chapter-openers/31.svg?v=0f0a1c4378ab)](../images/chapter-openers/31.svg?v=0f0a1c4378ab)
+[![Chapter 31: Continuous batching schedules active requests](../images/chapter-openers/31.svg?v=aab23ea4c5ec)](../images/chapter-openers/31.svg?v=aab23ea4c5ec)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every chapter before this one built one real piece of an inference engine and ve
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries.](../images/31-overview.svg?v=d5de28bfcf20){: loading="lazy" width="760" }
+![Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries.](../images/31-overview.svg?v=0cc40d8755ad){: loading="lazy" width="760" }
 
   <figcaption>KV capacity, per-step work and fairness constrain admission.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every chapter before this one built one real piece of an inference engine and ve
 <!-- edge:concept-31.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Static batches wait for their slowest member](../images/technical/ch31/31-01.svg?v=770c1f675434)](../images/technical/ch31/31-01.svg?v=770c1f675434)
+[![Static batches wait for their slowest member](../images/technical/ch31/31-01.svg?v=cd98b790cd2f)](../images/technical/ch31/31-01.svg?v=cd98b790cd2f)
 
 <figcaption>Scheduling improves resource use only within the actual compute, memory and latency constraints.</figcaption>
 </figure>
@@ -349,7 +349,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-31.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chunked prefill creates scheduling boundaries](../images/technical/ch31/31-02.svg?v=582ba8cef017)](../images/technical/ch31/31-02.svg?v=582ba8cef017)
+[![Chunked prefill creates scheduling boundaries](../images/technical/ch31/31-02.svg?v=e6067c3b16be)](../images/technical/ch31/31-02.svg?v=e6067c3b16be)
 
 <figcaption>Chunk size trades prefill progress against decode delay. The schedule is illustrative.</figcaption>
 </figure>
@@ -593,7 +593,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-31.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![An iteration explicitly updates active state](../images/technical/ch31/31-03.svg?v=250d0636ecf9)](../images/technical/ch31/31-03.svg?v=250d0636ecf9)
+[![An iteration explicitly updates active state](../images/technical/ch31/31-03.svg?v=4a8eb77a881f)](../images/technical/ch31/31-03.svg?v=4a8eb77a881f)
 
 <figcaption>Do not exceed KV capacity merely because compute slots are available.</figcaption>
 </figure>
@@ -927,7 +927,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-31.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Find the first divergent or nonfinite tensor](../images/technical/ch31/31-04.svg?v=981af281a177)](../images/technical/ch31/31-04.svg?v=981af281a177)
+[![Find the first divergent or nonfinite tensor](../images/technical/ch31/31-04.svg?v=282382e8a7da)](../images/technical/ch31/31-04.svg?v=282382e8a7da)
 
 <figcaption>A final-output mismatch does not identify its cause. Use absolute and relative tolerances explicitly.</figcaption>
 </figure>

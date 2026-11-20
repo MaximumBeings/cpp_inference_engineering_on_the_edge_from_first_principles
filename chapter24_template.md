@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 24: Translate an edit request into image operations](../images/chapter-openers/24.svg?v=479f0468f904)](../images/chapter-openers/24.svg?v=479f0468f904)
+[![Chapter 24: Translate an edit request into image operations](../images/chapter-openers/24.svg?v=e3f38e91767e)](../images/chapter-openers/24.svg?v=e3f38e91767e)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Every chapter since Chapter 18 has built a real technique that turns an unstruct
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Translate an edit request into image operations. A validated operation plan connects natural language with the image processor.](../images/24-overview.svg?v=8e010dddc246){: loading="lazy" width="760" }
+![Translate an edit request into image operations. A validated operation plan connects natural language with the image processor.](../images/24-overview.svg?v=f87636525f88){: loading="lazy" width="760" }
 
   <figcaption>Validate the plan before it reaches cv::Mat operations.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Every chapter since Chapter 18 has built a real technique that turns an unstruct
 <!-- edge:concept-24.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Translate a request into a bounded edit plan](../images/technical/ch24/24-01.svg?v=f9107088b011)](../images/technical/ch24/24-01.svg?v=f9107088b011)
+[![Translate a request into a bounded edit plan](../images/technical/ch24/24-01.svg?v=49d32d4b5780)](../images/technical/ch24/24-01.svg?v=49d32d4b5780)
 
 <figcaption>Reject unsupported operations and out-of-range parameters before applying an edit.</figcaption>
 </figure>
@@ -80,7 +80,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_edit_interpretation_prompt_and_plan_parser.c
 <!-- edge:concept-24.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Execute edits with known image semantics](../images/technical/ch24/24-02.svg?v=8f6515c8b4aa)](../images/technical/ch24/24-02.svg?v=8f6515c8b4aa)
+[![Execute edits with known image semantics](../images/technical/ch24/24-02.svg?v=bb85b965da72)](../images/technical/ch24/24-02.svg?v=bb85b965da72)
 
 <figcaption>Check channel order, numeric range and dimensions. Displayed colors depend on the input convention.</figcaption>
 </figure>
@@ -120,7 +120,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_opencv_edit_processing_engine.cpp -isystem /
 <!-- edge:concept-24.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![An operation table is an allowlist](../images/technical/ch24/24-03.svg?v=c04652ee2569)](../images/technical/ch24/24-03.svg?v=c04652ee2569)
+[![An operation table is an allowlist](../images/technical/ch24/24-03.svg?v=51ebc4c58ae4)](../images/technical/ch24/24-03.svg?v=51ebc4c58ae4)
 
 <figcaption>The table makes supported behavior explicit rather than executing arbitrary model-generated code.</figcaption>
 </figure>
@@ -160,7 +160,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_request_to_operation_mapping_table.cpp -o 03
 <!-- edge:concept-24.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A conversation carries edit state forward](../images/technical/ch24/24-04.svg?v=68e256528930)](../images/technical/ch24/24-04.svg?v=68e256528930)
+[![A conversation carries edit state forward](../images/technical/ch24/24-04.svg?v=70d178e96a9a)](../images/technical/ch24/24-04.svg?v=70d178e96a9a)
 
 <figcaption>Keep the source image and version identity so a follow-up applies to the intended result.</figcaption>
 </figure>

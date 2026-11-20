@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 19: Turn shelf images into inventory evidence](../images/chapter-openers/19.svg?v=37741b33e291)](../images/chapter-openers/19.svg?v=37741b33e291)
+[![Chapter 19: Turn shelf images into inventory evidence](../images/chapter-openers/19.svg?v=290cc09d3ce4)](../images/chapter-openers/19.svg?v=290cc09d3ce4)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapter 18 taught a vision-language model to inspect a single manufactured part 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram.](../images/19-overview.svg?v=9e871bc5f8ef){: loading="lazy" width="760" }
+![Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram.](../images/19-overview.svg?v=e467b0c6e19f){: loading="lazy" width="760" }
 
   <figcaption>Separate observed image evidence from inferred stock availability.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapter 18 taught a vision-language model to inspect a single manufactured part 
 <!-- edge:concept-19.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A planogram provides an explicit comparison target](../images/technical/ch19/19-01.svg?v=4491aed8c83f)](../images/technical/ch19/19-01.svg?v=4491aed8c83f)
+[![A planogram provides an explicit comparison target](../images/technical/ch19/19-01.svg?v=a00d14d102de)](../images/technical/ch19/19-01.svg?v=a00d14d102de)
 
 <figcaption>The prompt supplies structured expectations. The image remains uncertain evidence.</figcaption>
 </figure>
@@ -83,7 +83,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_planogram_and_system_prompt.cpp -o 01_planog
 <!-- edge:concept-19.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Batch processing keeps images and results paired](../images/technical/ch19/19-02.svg?v=0efbebd7d0c1)](../images/technical/ch19/19-02.svg?v=0efbebd7d0c1)
+[![Batch processing keeps images and results paired](../images/technical/ch19/19-02.svg?v=bf44d9551002)](../images/technical/ch19/19-02.svg?v=bf44d9551002)
 
 <figcaption>Partial failures must not cause results to be assigned to the wrong shelf.</figcaption>
 </figure>
@@ -123,7 +123,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESP
 <!-- edge:concept-19.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Inventory suggestions pass through an API boundary](../images/technical/ch19/19-03.svg?v=223ba11c750d)](../images/technical/ch19/19-03.svg?v=223ba11c750d)
+[![Inventory suggestions pass through an API boundary](../images/technical/ch19/19-03.svg?v=e802243f5c9a)](../images/technical/ch19/19-03.svg?v=e802243f5c9a)
 
 <figcaption>Use stable identifiers and retry-safe operations; do not assume every retry should add stock again.</figcaption>
 </figure>
@@ -163,7 +163,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_erp_wms_rest_integration.cpp -o 03_erp_wms_r
 <!-- edge:concept-19.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Aggregation must retain denominators](../images/technical/ch19/19-04.svg?v=3d9a48814a8c)](../images/technical/ch19/19-04.svg?v=3d9a48814a8c)
+[![Aggregation must retain denominators](../images/technical/ch19/19-04.svg?v=686bd0d55984)](../images/technical/ch19/19-04.svg?v=686bd0d55984)
 
 <figcaption>Illustrative sample counts. Compare rates using observation volume and time windows, not raw totals alone.</figcaption>
 </figure>
@@ -203,7 +203,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_multistore_aggregation_and_trends.cpp -o 04_
 <!-- edge:concept-19.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A visual discrepancy has several explanations](../images/technical/ch19/19-05.svg?v=ba2f4aaf3141)](../images/technical/ch19/19-05.svg?v=ba2f4aaf3141)
+[![A visual discrepancy has several explanations](../images/technical/ch19/19-05.svg?v=c392f6b7445d)](../images/technical/ch19/19-05.svg?v=c392f6b7445d)
 
 <figcaption>A shelf image alone does not establish theft or shrinkage causation.</figcaption>
 </figure>

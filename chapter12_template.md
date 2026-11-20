@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 12: From text to model token IDs](../images/chapter-openers/12.svg?v=fe2998157a76)](../images/chapter-openers/12.svg?v=fe2998157a76)
+[![Chapter 12: From text to model token IDs](../images/chapter-openers/12.svg?v=6279664d4607)](../images/chapter-openers/12.svg?v=6279664d4607)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every chapter so far has assumed tokens already exist as small integers flowing 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![From text to model token IDs. Pre-tokenization and BPE must match the vocabulary used to train the model.](../images/12-overview.svg?v=c62eb790f19c){: loading="lazy" width="760" }
+![From text to model token IDs. Pre-tokenization and BPE must match the vocabulary used to train the model.](../images/12-overview.svg?v=df01092b269c){: loading="lazy" width="760" }
 
   <figcaption>Decoding can span multiple tokens for one UTF-8 character.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every chapter so far has assumed tokens already exist as small integers flowing 
 <!-- edge:concept-12.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![BPE repeatedly chooses an eligible merge](../images/technical/ch12/12-01.svg?v=9fba9f731fad)](../images/technical/ch12/12-01.svg?v=9fba9f731fad)
+[![BPE repeatedly chooses an eligible merge](../images/technical/ch12/12-01.svg?v=98227b1f43d2)](../images/technical/ch12/12-01.svg?v=98227b1f43d2)
 
 <figcaption>Actual merges follow vocabulary ranks and tokenization rules, not arbitrary pair concatenation.</figcaption>
 </figure>
@@ -79,7 +79,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_bpe_merge_engine.cpp -o 01_bpe_merge_engine
 <!-- edge:concept-12.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Pre-tokenization sets merge boundaries](../images/technical/ch12/12-02.svg?v=c6e34c8ec078)](../images/technical/ch12/12-02.svg?v=c6e34c8ec078)
+[![Pre-tokenization sets merge boundaries](../images/technical/ch12/12-02.svg?v=efaff9d230cb)](../images/technical/ch12/12-02.svg?v=efaff9d230cb)
 
 <figcaption>Whitespace, punctuation and byte handling are model-specific conventions.</figcaption>
 </figure>
@@ -117,7 +117,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_pretokenizer.cpp -o 02_pretokenizer
 <!-- edge:concept-12.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A chat template is part of the input format](../images/technical/ch12/12-03.svg?v=54b236866972)](../images/technical/ch12/12-03.svg?v=54b236866972)
+[![A chat template is part of the input format](../images/technical/ch12/12-03.svg?v=7e1e06dc4c33)](../images/technical/ch12/12-03.svg?v=7e1e06dc4c33)
 
 <figcaption>Use the model vocabulary IDs and exact template. Similar-looking text is not the same token sequence.</figcaption>
 </figure>
@@ -155,7 +155,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_special_tokens_chat_template.cpp -o 03_speci
 <!-- edge:concept-12.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Streaming bytes must end at UTF-8 boundaries](../images/technical/ch12/12-04.svg?v=34f2b3fbd9d3)](../images/technical/ch12/12-04.svg?v=34f2b3fbd9d3)
+[![Streaming bytes must end at UTF-8 boundaries](../images/technical/ch12/12-04.svg?v=1934c98b8f4a)](../images/technical/ch12/12-04.svg?v=1934c98b8f4a)
 
 <figcaption>A token boundary is not necessarily a Unicode character boundary.</figcaption>
 </figure>
@@ -193,7 +193,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_token_decoder.cpp -o 04_token_decoder
 <!-- edge:concept-12.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Load tokenization conventions with the weights](../images/technical/ch12/12-05.svg?v=7020fcafd208)](../images/technical/ch12/12-05.svg?v=7020fcafd208)
+[![Load tokenization conventions with the weights](../images/technical/ch12/12-05.svg?v=2ae88000b4a8)](../images/technical/ch12/12-05.svg?v=2ae88000b4a8)
 
 <figcaption>Test known prompts and byte sequences against the intended model conventions.</figcaption>
 </figure>

@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 10: Share work without racing on state](../images/chapter-openers/10.svg?v=46b7b2030b9b)](../images/chapter-openers/10.svg?v=46b7b2030b9b)
+[![Chapter 10: Share work without racing on state](../images/chapter-openers/10.svg?v=457aacb9e247)](../images/chapter-openers/10.svg?v=457aacb9e247)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Chapter 9 showed how a single core reaches its peak compute, one SIMD instructio
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization.](../images/10-overview.svg?v=0e7061a66ca8){: loading="lazy" width="760" }
+![Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization.](../images/10-overview.svg?v=559d7ddf68ca){: loading="lazy" width="760" }
 
   <figcaption>A data race is undefined behavior; volatile does not provide thread synchronization.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Chapter 9 showed how a single core reaches its peak compute, one SIMD instructio
 <!-- edge:concept-10.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Amdahl limits parallel speedup](../images/technical/ch10/10-01.svg?v=782313664f02)](../images/technical/ch10/10-01.svg?v=782313664f02)
+[![Amdahl limits parallel speedup](../images/technical/ch10/10-01.svg?v=984d84ed57f2)](../images/technical/ch10/10-01.svg?v=984d84ed57f2)
 
 <figcaption>Illustrative upper bound with no synchronization or scheduling cost.</figcaption>
 </figure>
@@ -330,7 +330,7 @@ Chapter 10.1: The Latency Budget and Amdahl's Ceiling
 <!-- edge:concept-10.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Synchronization establishes a happens-before relation](../images/technical/ch10/10-02.svg?v=b2f26345e580)](../images/technical/ch10/10-02.svg?v=b2f26345e580)
+[![Synchronization establishes a happens-before relation](../images/technical/ch10/10-02.svg?v=0dfe71a106ed)](../images/technical/ch10/10-02.svg?v=0dfe71a106ed)
 
 <figcaption>A data race is not merely a performance issue; the language does not define the program behavior.</figcaption>
 </figure>
@@ -610,7 +610,7 @@ Chapter 10.2: Atomics, Mutexes, and Why Synchronization Is Not Optional
 <!-- edge:concept-10.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Workers share phase boundaries](../images/technical/ch10/10-03.svg?v=577b92ac0a8e)](../images/technical/ch10/10-03.svg?v=577b92ac0a8e)
+[![Workers share phase boundaries](../images/technical/ch10/10-03.svg?v=f8388211a279)](../images/technical/ch10/10-03.svg?v=f8388211a279)
 
 <figcaption>A barrier separates dependent phases. Workers can write disjoint output rows concurrently.</figcaption>
 </figure>
@@ -960,7 +960,7 @@ Chapter 10.3: A Barrier-Synchronized Thread Pool for a Partitioned GEMV
 <!-- edge:concept-10.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Independent counters can occupy one cache line](../images/technical/ch10/10-04.svg?v=f23f6a9795be)](../images/technical/ch10/10-04.svg?v=f23f6a9795be)
+[![Independent counters can occupy one cache line](../images/technical/ch10/10-04.svg?v=7600c5d69ec2)](../images/technical/ch10/10-04.svg?v=7600c5d69ec2)
 
 <figcaption>False sharing causes coherence traffic even when threads update different variables.</figcaption>
 </figure>
@@ -1262,7 +1262,7 @@ Chapter 10.4: False Sharing -- a Memory-Layout Hazard, Not a Race
 <!-- edge:concept-10.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Work ownership can move without duplicating work](../images/technical/ch10/10-05.svg?v=b2573f35bcdf)](../images/technical/ch10/10-05.svg?v=b2573f35bcdf)
+[![Work ownership can move without duplicating work](../images/technical/ch10/10-05.svg?v=d093b94fd239)](../images/technical/ch10/10-05.svg?v=d093b94fd239)
 
 <figcaption>Scheduling order is nondeterministic. The correctness check must not depend on one task order.</figcaption>
 </figure>

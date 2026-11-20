@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 8: The roofline bounds attainable throughput](../images/chapter-openers/08.svg?v=63dbbccd7950)](../images/chapter-openers/08.svg?v=63dbbccd7950)
+[![Chapter 8: The roofline bounds attainable throughput](../images/chapter-openers/08.svg?v=0dd383abb4f8)](../images/chapter-openers/08.svg?v=0dd383abb4f8)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Every kernel in this book so far has been judged by what it computes and how acc
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel.](../images/08-overview.svg?v=ad02297a2d9d){: loading="lazy" width="760" }
+![The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel.](../images/08-overview.svg?v=3ffcc9eb8b6b){: loading="lazy" width="760" }
 
   <figcaption>Decode GEMV often has low intensity; batching can improve weight reuse.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Every kernel in this book so far has been judged by what it computes and how acc
 <!-- edge:concept-8.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A roofline bound combines two limits](../images/technical/ch08/08-01.svg?v=ce52d0be01cf)](../images/technical/ch08/08-01.svg?v=ce52d0be01cf)
+[![A roofline bound combines two limits](../images/technical/ch08/08-01.svg?v=e7d9e3ea13ee)](../images/technical/ch08/08-01.svg?v=e7d9e3ea13ee)
 
 <figcaption>Use consistent units. This is an upper bound, not a prediction of achieved throughput.</figcaption>
 </figure>
@@ -80,7 +80,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_roofline_and_ridge_point.cpp -o 01_roofline_
 <!-- edge:concept-8.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Count work and traffic for one kernel](../images/technical/ch08/08-02.svg?v=352ef5fd54b7)](../images/technical/ch08/08-02.svg?v=352ef5fd54b7)
+[![Count work and traffic for one kernel](../images/technical/ch08/08-02.svg?v=98314eaac288)](../images/technical/ch08/08-02.svg?v=98314eaac288)
 
 <figcaption>Cache reuse, packing and fused operations affect the traffic actually observed at each memory level.</figcaption>
 </figure>
@@ -118,7 +118,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_kernel_arithmetic_intensity.cpp -o 02_kernel
 <!-- edge:concept-8.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Prefill reuses weights across prompt tokens](../images/technical/ch08/08-03.svg?v=248456ee2de7)](../images/technical/ch08/08-03.svg?v=248456ee2de7)
+[![Prefill reuses weights across prompt tokens](../images/technical/ch08/08-03.svg?v=1128e3bb4ed8)](../images/technical/ch08/08-03.svg?v=1128e3bb4ed8)
 
 <figcaption>The dominant bottleneck depends on shape, precision, hardware and implementation.</figcaption>
 </figure>
@@ -156,7 +156,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_I
 <!-- edge:concept-8.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Batching changes the work per weight read](../images/technical/ch08/08-04.svg?v=36b5f389cf9d)](../images/technical/ch08/08-04.svg?v=36b5f389cf9d)
+[![Batching changes the work per weight read](../images/technical/ch08/08-04.svg?v=19ce2f82815f)](../images/technical/ch08/08-04.svg?v=19ce2f82815f)
 
 <figcaption>KV traffic and scheduling overhead still matter. Larger batches can also increase latency.</figcaption>
 </figure>
@@ -194,7 +194,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_continuous_batching.cpp -o 04_continuous_bat
 <!-- edge:concept-8.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A layer has several memory consumers](../images/technical/ch08/08-05.svg?v=9ead8b8cc2c9)](../images/technical/ch08/08-05.svg?v=9ead8b8cc2c9)
+[![A layer has several memory consumers](../images/technical/ch08/08-05.svg?v=21c7f00bc4e5)](../images/technical/ch08/08-05.svg?v=21c7f00bc4e5)
 
 <figcaption>Illustrative relative traffic only. Replace these schematic bars with measured byte counts for a model.</figcaption>
 </figure>

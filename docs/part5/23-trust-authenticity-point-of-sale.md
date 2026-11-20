@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 23: Verify a point-of-sale claim against evidence](../images/chapter-openers/23.svg?v=0b602517e8dc)](../images/chapter-openers/23.svg?v=0b602517e8dc)
+[![Chapter 23: Verify a point-of-sale claim against evidence](../images/chapter-openers/23.svg?v=b5c6a8c3bd21)](../images/chapter-openers/23.svg?v=b5c6a8c3bd21)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Chapter 22 turned a continuous stream into a structured, auditable narrative. Th
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Verify a point-of-sale claim against evidence. Reconciliation compares independent signals before making a disposition.](../images/23-overview.svg?v=3dd3f1b05bb8){: loading="lazy" width="760" }
+![Verify a point-of-sale claim against evidence. Reconciliation compares independent signals before making a disposition.](../images/23-overview.svg?v=57cae98c24c3){: loading="lazy" width="760" }
 
   <figcaption>An anomaly is a review signal; it does not by itself prove counterfeit or fraud.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Chapter 22 turned a continuous stream into a structured, auditable narrative. Th
 <!-- edge:concept-23.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A visual reference can support screening](../images/technical/ch23/23-01.svg?v=7e0f8fdad8b4)](../images/technical/ch23/23-01.svg?v=7e0f8fdad8b4)
+[![A visual reference can support screening](../images/technical/ch23/23-01.svg?v=78a09190527c)](../images/technical/ch23/23-01.svg?v=78a09190527c)
 
 <figcaption>Screening flags require review. Similar appearance does not prove authenticity or counterfeiting.</figcaption>
 </figure>
@@ -563,7 +563,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-23.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Reconcile on fields and tolerances](../images/technical/ch23/23-02.svg?v=ba5880e67fbb)](../images/technical/ch23/23-02.svg?v=ba5880e67fbb)
+[![Reconcile on fields and tolerances](../images/technical/ch23/23-02.svg?v=01985b222bce)](../images/technical/ch23/23-02.svg?v=01985b222bce)
 
 <figcaption>An ambiguous match should remain ambiguous rather than selecting an arbitrary transaction.</figcaption>
 </figure>
@@ -921,7 +921,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-23.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Policy enforcement follows validated extraction](../images/technical/ch23/23-03.svg?v=d1d829e2750f)](../images/technical/ch23/23-03.svg?v=d1d829e2750f)
+[![Policy enforcement follows validated extraction](../images/technical/ch23/23-03.svg?v=0b71bae68791)](../images/technical/ch23/23-03.svg?v=0b71bae68791)
 
 <figcaption>A rule hit is a policy signal, not proof of intentional misuse.</figcaption>
 </figure>
@@ -1297,7 +1297,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-23.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A resale decision needs evidence beyond pixels](../images/technical/ch23/23-04.svg?v=25496631a6d4)](../images/technical/ch23/23-04.svg?v=25496631a6d4)
+[![A resale decision needs evidence beyond pixels](../images/technical/ch23/23-04.svg?v=5b7ac3f8137f)](../images/technical/ch23/23-04.svg?v=5b7ac3f8137f)
 
 <figcaption>Keep screening confidence separate from a final authenticity claim.</figcaption>
 </figure>
