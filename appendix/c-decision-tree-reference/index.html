@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2185,7 +2185,7 @@
 <h1 id="appendix-c-a-decision-tree-reference-quantization-threading-and-cache-strategies-at-a-glance">Appendix C: A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance<a class="headerlink" href="#appendix-c-a-decision-tree-reference-quantization-threading-and-cache-strategies-at-a-glance" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/appendix-c.svg?v=fa546142921c"><img alt="Appendix C: Choose an optimization from the limiting resource" src="../../images/chapter-openers/appendix-c.svg?v=fa546142921c" /></a></p>
+<p><a href="../../images/chapter-openers/appendix-c.svg?v=c7a51538b106"><img alt="Appendix C: Choose an optimization from the limiting resource" src="../../images/chapter-openers/appendix-c.svg?v=c7a51538b106" /></a></p>
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2194,7 +2194,7 @@
 <hr />
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation." loading="lazy" src="../../images/c-overview.svg?v=ccfd92d27b4a" width="760" /></p>
+<p><img alt="Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation." loading="lazy" src="../../images/c-overview.svg?v=61d54411efd6" width="760" /></p>
 <figcaption>Each optimization must preserve the model&#x27;s numerical and state contracts.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2202,7 +2202,7 @@
 <h2 id="c1-choosing-a-quantization-strategy">C.1 Choosing a Quantization Strategy<a class="headerlink" href="#c1-choosing-a-quantization-strategy" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-C.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-c/c-01.svg?v=269d997c5ff0"><img alt="Choose precision under an explicit budget" src="../../images/technical/appendix-c/c-01.svg?v=269d997c5ff0" /></a></p>
+<p><a href="../../images/technical/appendix-c/c-01.svg?v=0e1ec7781f50"><img alt="Choose precision under an explicit budget" src="../../images/technical/appendix-c/c-01.svg?v=0e1ec7781f50" /></a></p>
 <figcaption>The smallest format is not automatically the best choice. The stored type must have a supported kernel.</figcaption>
 </figure>
 <!-- edge:concept-C.1:end -->
@@ -2550,7 +2550,7 @@
 <h2 id="c2-choosing-a-threading-and-parallelization-strategy">C.2 Choosing a Threading and Parallelization Strategy<a class="headerlink" href="#c2-choosing-a-threading-and-parallelization-strategy" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-C.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-c/c-02.svg?v=944be25500b6"><img alt="Choose parallel work from the dependency structure" src="../../images/technical/appendix-c/c-02.svg?v=944be25500b6" /></a></p>
+<p><a href="../../images/technical/appendix-c/c-02.svg?v=c8153769e0eb"><img alt="Choose parallel work from the dependency structure" src="../../images/technical/appendix-c/c-02.svg?v=c8153769e0eb" /></a></p>
 <figcaption>Measure overhead and bandwidth limits before adding workers. More threads do not remove a serial dependency.</figcaption>
 </figure>
 <!-- edge:concept-C.2:end -->
@@ -2824,7 +2824,7 @@
 <h2 id="c3-choosing-a-kv-cache-strategy">C.3 Choosing a KV Cache Strategy<a class="headerlink" href="#c3-choosing-a-kv-cache-strategy" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-C.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-c/c-03.svg?v=2e24160f6b89"><img alt="Select the cache policy for the actual constraint" src="../../images/technical/appendix-c/c-03.svg?v=2e24160f6b89" /></a></p>
+<p><a href="../../images/technical/appendix-c/c-03.svg?v=fe7d70ac51b4"><img alt="Select the cache policy for the actual constraint" src="../../images/technical/appendix-c/c-03.svg?v=fe7d70ac51b4" /></a></p>
 <figcaption>Every policy must preserve the supported model behavior, logical positions and storage lifetime contract.</figcaption>
 </figure>
 <!-- edge:concept-C.3:end -->

@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2395,7 +2395,7 @@
 <h1 id="chapter-25-body-worn-and-personal-cameras-evidence-documentation-and-health-tracking">Chapter 25: Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking<a class="headerlink" href="#chapter-25-body-worn-and-personal-cameras-evidence-documentation-and-health-tracking" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/25.svg?v=c1707c856590"><img alt="Chapter 25: Sample camera streams into reviewable evidence" src="../../images/chapter-openers/25.svg?v=c1707c856590" /></a></p>
+<p><a href="../../images/chapter-openers/25.svg?v=6620ce66d042"><img alt="Chapter 25: Sample camera streams into reviewable evidence" src="../../images/chapter-openers/25.svg?v=6620ce66d042" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2417,7 +2417,7 @@
 <p>This chapter closes Part 5 with two cameras that see far more of a person's life than any system this book has built so far, and that fact shapes every design choice in it. A police body camera records members of the public who never consented to being recorded, in circumstances where an identification error carries real legal weight -- so Section 25.1 and Section 25.2 build a real evidentiary pipeline whose own types make facial recognition impossible to add by accident, not merely discouraged by policy. A personal fitness or nutrition camera records its own owner, continuously, in their own home -- so Section 25.3 and Section 25.4 build real, useful health-tracking techniques that run entirely on-device, with no image or personal health data ever needing to leave it. Both halves of this chapter are united by the same real principle: a genuinely privacy-respecting camera system is not a promise layered on top of the architecture, it is the architecture.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording." loading="lazy" src="../../images/25-overview.svg?v=546f4b714db4" width="760" /></p>
+<p><img alt="Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording." loading="lazy" src="../../images/25-overview.svg?v=9395e36b4767" width="760" /></p>
 <figcaption>Keep the original recording and its provenance alongside generated descriptions.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2425,7 +2425,7 @@
 <h2 id="251-body-camera-frame-sampling-and-scene-tagging-under-a-no-facial-recognition-boundary">25.1 Body-Camera Frame Sampling and Scene Tagging Under a No-Facial-Recognition Boundary<a class="headerlink" href="#251-body-camera-frame-sampling-and-scene-tagging-under-a-no-facial-recognition-boundary" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-25.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch25/25-01.svg?v=eea36ac0ec59"><img alt="Sample frames under a declared privacy boundary" src="../../images/technical/ch25/25-01.svg?v=eea36ac0ec59" /></a></p>
+<p><a href="../../images/technical/ch25/25-01.svg?v=793c8d715118"><img alt="Sample frames under a declared privacy boundary" src="../../images/technical/ch25/25-01.svg?v=793c8d715118" /></a></p>
 <figcaption>The chapter boundary excludes facial recognition. Identity must not be inferred from scene tags.</figcaption>
 </figure>
 <!-- edge:concept-25.1:end -->
@@ -2797,7 +2797,7 @@
 <h2 id="252-incident-report-drafting-and-chain-of-custody">25.2 Incident Report Drafting and Chain of Custody<a class="headerlink" href="#252-incident-report-drafting-and-chain-of-custody" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-25.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch25/25-02.svg?v=d3ca323da5d2"><img alt="Evidence handling preserves source identity" src="../../images/technical/ch25/25-02.svg?v=d3ca323da5d2" /></a></p>
+<p><a href="../../images/technical/ch25/25-02.svg?v=87578f6bc009"><img alt="Evidence handling preserves source identity" src="../../images/technical/ch25/25-02.svg?v=87578f6bc009" /></a></p>
 <figcaption>A generated narrative is derived material. Retain the original and an auditable derivation trail.</figcaption>
 </figure>
 <!-- edge:concept-25.2:end -->
@@ -3165,7 +3165,7 @@
 <h2 id="253-exercise-form-analysis-and-rep-counting">25.3 Exercise-Form Analysis and Rep Counting<a class="headerlink" href="#253-exercise-form-analysis-and-rep-counting" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-25.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch25/25-03.svg?v=bcae84820bb9"><img alt="Rep counting follows a defined state transition" src="../../images/technical/ch25/25-03.svg?v=bcae84820bb9" /></a></p>
+<p><a href="../../images/technical/ch25/25-03.svg?v=400fea3be040"><img alt="Rep counting follows a defined state transition" src="../../images/technical/ch25/25-03.svg?v=400fea3be040" /></a></p>
 <figcaption>Occlusion and camera angle can invalidate pose estimates; provide an uncertain state.</figcaption>
 </figure>
 <!-- edge:concept-25.3:end -->
@@ -3439,7 +3439,7 @@
 <h2 id="254-camera-based-nutrition-tracking-via-a-usda-style-offline-reference">25.4 Camera-Based Nutrition Tracking via a USDA-Style Offline Reference<a class="headerlink" href="#254-camera-based-nutrition-tracking-via-a-usda-style-offline-reference" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-25.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch25/25-04.svg?v=30346495b5d5"><img alt="Nutrition estimates depend on several uncertain links" src="../../images/technical/ch25/25-04.svg?v=30346495b5d5" /></a></p>
+<p><a href="../../images/technical/ch25/25-04.svg?v=82d39537a343"><img alt="Nutrition estimates depend on several uncertain links" src="../../images/technical/ch25/25-04.svg?v=82d39537a343" /></a></p>
 <figcaption>An image cannot reliably determine ingredients or exact portion mass on its own.</figcaption>
 </figure>
 <!-- edge:concept-25.4:end -->

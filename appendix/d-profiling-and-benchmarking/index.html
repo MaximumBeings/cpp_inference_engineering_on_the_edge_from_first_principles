@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2263,7 +2263,7 @@
 <h1 id="appendix-d-profiling-and-benchmarking-on-edge-hardware">Appendix D: Profiling and Benchmarking on Edge Hardware<a class="headerlink" href="#appendix-d-profiling-and-benchmarking-on-edge-hardware" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/appendix-d.svg?v=cb6e0795f8f8"><img alt="Appendix D: Profile a controlled workload" src="../../images/chapter-openers/appendix-d.svg?v=cb6e0795f8f8" /></a></p>
+<p><a href="../../images/chapter-openers/appendix-d.svg?v=5148b044bb87"><img alt="Appendix D: Profile a controlled workload" src="../../images/chapter-openers/appendix-d.svg?v=5148b044bb87" /></a></p>
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2272,7 +2272,7 @@
 <hr />
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Profile a controlled workload. A measurement only answers the question defined by its boundaries." loading="lazy" src="../../images/d-overview.svg?v=d5db56645f58" width="760" /></p>
+<p><img alt="Profile a controlled workload. A measurement only answers the question defined by its boundaries." loading="lazy" src="../../images/d-overview.svg?v=85044dd5c8e1" width="760" /></p>
 <figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2280,7 +2280,7 @@
 <h2 id="d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet">D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet<a class="headerlink" href="#d1-computing-theoretical-peak-bandwidth-from-a-real-spec-sheet" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-D.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-d/d-01.svg?v=65d8569f56f0"><img alt="Convert a memory-interface specification into a bound" src="../../images/technical/appendix-d/d-01.svg?v=65d8569f56f0" /></a></p>
+<p><a href="../../images/technical/appendix-d/d-01.svg?v=550e80bfc258"><img alt="Convert a memory-interface specification into a bound" src="../../images/technical/appendix-d/d-01.svg?v=550e80bfc258" /></a></p>
 <figcaption>Check whether the published data rate already includes multiple transfers per clock. Do not count that factor twice.</figcaption>
 </figure>
 <!-- edge:concept-D.1:end -->
@@ -2425,7 +2425,7 @@
 <h2 id="d2-a-real-bandwidth-micro-benchmark-and-why-its-own-timing-can-never-be-locked">D.2 A Real Bandwidth Micro-Benchmark, and Why Its Own Timing Can Never Be Locked<a class="headerlink" href="#d2-a-real-bandwidth-micro-benchmark-and-why-its-own-timing-can-never-be-locked" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-D.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-d/d-02.svg?v=a6d24ffe7611"><img alt="A bandwidth benchmark needs a declared byte count" src="../../images/technical/appendix-d/d-02.svg?v=a6d24ffe7611" /></a></p>
+<p><a href="../../images/technical/appendix-d/d-02.svg?v=67090653237b"><img alt="A bandwidth benchmark needs a declared byte count" src="../../images/technical/appendix-d/d-02.svg?v=67090653237b" /></a></p>
 <figcaption>Report the actual read/write traffic definition and repeated measurements. The theoretical bound is not an achieved result.</figcaption>
 </figure>
 <!-- edge:concept-D.2:end -->
@@ -2623,7 +2623,7 @@
 <h2 id="d3-latency-budget-arithmetic">D.3 Latency-Budget Arithmetic<a class="headerlink" href="#d3-latency-budget-arithmetic" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-D.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-d/d-03.svg?v=02539cadae82"><img alt="Budget the entire request path" src="../../images/technical/appendix-d/d-03.svg?v=02539cadae82" /></a></p>
+<p><a href="../../images/technical/appendix-d/d-03.svg?v=87d1fa13e230"><img alt="Budget the entire request path" src="../../images/technical/appendix-d/d-03.svg?v=87d1fa13e230" /></a></p>
 <figcaption>Keep all terms in the same units. A fast kernel can still miss an end-to-end deadline.</figcaption>
 </figure>
 <!-- edge:concept-D.3:end -->
@@ -2844,7 +2844,7 @@
 <h2 id="d4-profiling-with-perf-the-flags-that-actually-work-and-where-they-genuinely-dont">D.4 Profiling With <code>perf</code>: The Flags That Actually Work, and Where They Genuinely Don't<a class="headerlink" href="#d4-profiling-with-perf-the-flags-that-actually-work-and-where-they-genuinely-dont" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-D.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-d/d-04.svg?v=95318bec0116"><img alt="Separate a failed profiler run from a measured result" src="../../images/technical/appendix-d/d-04.svg?v=95318bec0116" /></a></p>
+<p><a href="../../images/technical/appendix-d/d-04.svg?v=65f4c2811125"><img alt="Separate a failed profiler run from a measured result" src="../../images/technical/appendix-d/d-04.svg?v=65f4c2811125" /></a></p>
 <figcaption>Unavailable counters or denied permissions are not zero-cost measurements. Preserve the actual diagnostic.</figcaption>
 </figure>
 <!-- edge:concept-D.4:end -->

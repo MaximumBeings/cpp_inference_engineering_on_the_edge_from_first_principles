@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2395,7 +2395,7 @@
 <h1 id="chapter-24-natural-language-photo-editing-from-prompt-to-cvmat-on-edge-hardware">Chapter 24: Natural Language Photo Editing: From Prompt to <code>cv::Mat</code> on Edge Hardware<a class="headerlink" href="#chapter-24-natural-language-photo-editing-from-prompt-to-cvmat-on-edge-hardware" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/24.svg?v=479f0468f904"><img alt="Chapter 24: Translate an edit request into image operations" src="../../images/chapter-openers/24.svg?v=479f0468f904" /></a></p>
+<p><a href="../../images/chapter-openers/24.svg?v=e3f38e91767e"><img alt="Chapter 24: Translate an edit request into image operations" src="../../images/chapter-openers/24.svg?v=e3f38e91767e" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2417,7 +2417,7 @@
 <p>Every chapter since Chapter 18 has built a real technique that turns an unstructured visual input into a structured, checkable output. This chapter turns that direction around: it takes a structured request and turns it into unstructured pixels, via a real, verifiable pipeline the whole way through. Section 24.1 builds the closed vocabulary and the strict parser that keep an ambiguous natural-language request from ever reaching an image-processing engine as anything other than a small, named, checkable set of operations. Section 24.2 builds the real engine, linking against actual OpenCV rather than a hand-rolled equivalent -- a deliberate, honestly-documented departure from every other file in this book, which depends on nothing but the C++ standard library. Section 24.3 builds the deterministic table connecting the two, plus a real conflict check. Section 24.4 closes the loop with the real conversational state a genuine photo-editing session needs: the ability to ask for "a bit more," to undo, and to change one's mind without the system holding two contradictory instructions at once.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Translate an edit request into image operations. A validated operation plan connects natural language with the image processor." loading="lazy" src="../../images/24-overview.svg?v=8e010dddc246" width="760" /></p>
+<p><img alt="Translate an edit request into image operations. A validated operation plan connects natural language with the image processor." loading="lazy" src="../../images/24-overview.svg?v=f87636525f88" width="760" /></p>
 <figcaption>Validate the plan before it reaches cv::Mat operations.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2425,7 +2425,7 @@
 <h2 id="241-an-edit-interpretation-prompt-and-structured-plan-parser">24.1 An Edit-Interpretation Prompt and Structured Plan Parser<a class="headerlink" href="#241-an-edit-interpretation-prompt-and-structured-plan-parser" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-24.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch24/24-01.svg?v=f9107088b011"><img alt="Translate a request into a bounded edit plan" src="../../images/technical/ch24/24-01.svg?v=f9107088b011" /></a></p>
+<p><a href="../../images/technical/ch24/24-01.svg?v=49d32d4b5780"><img alt="Translate a request into a bounded edit plan" src="../../images/technical/ch24/24-01.svg?v=49d32d4b5780" /></a></p>
 <figcaption>Reject unsupported operations and out-of-range parameters before applying an edit.</figcaption>
 </figure>
 <!-- edge:concept-24.1:end -->
@@ -2785,7 +2785,7 @@
 <h2 id="242-a-complete-opencv-processing-engine">24.2 A Complete OpenCV Processing Engine<a class="headerlink" href="#242-a-complete-opencv-processing-engine" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-24.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch24/24-02.svg?v=8f6515c8b4aa"><img alt="Execute edits with known image semantics" src="../../images/technical/ch24/24-02.svg?v=8f6515c8b4aa" /></a></p>
+<p><a href="../../images/technical/ch24/24-02.svg?v=bb85b965da72"><img alt="Execute edits with known image semantics" src="../../images/technical/ch24/24-02.svg?v=bb85b965da72" /></a></p>
 <figcaption>Check channel order, numeric range and dimensions. Displayed colors depend on the input convention.</figcaption>
 </figure>
 <!-- edge:concept-24.2:end -->
@@ -3243,7 +3243,7 @@
 <h2 id="243-a-request-to-operation-mapping-table">24.3 A Request-to-Operation Mapping Table<a class="headerlink" href="#243-a-request-to-operation-mapping-table" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-24.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch24/24-03.svg?v=c04652ee2569"><img alt="An operation table is an allowlist" src="../../images/technical/ch24/24-03.svg?v=c04652ee2569" /></a></p>
+<p><a href="../../images/technical/ch24/24-03.svg?v=51ebc4c58ae4"><img alt="An operation table is an allowlist" src="../../images/technical/ch24/24-03.svg?v=51ebc4c58ae4" /></a></p>
 <figcaption>The table makes supported behavior explicit rather than executing arbitrary model-generated code.</figcaption>
 </figure>
 <!-- edge:concept-24.3:end -->
@@ -3593,7 +3593,7 @@
 <h2 id="244-iterative-refinement-through-conversation">24.4 Iterative Refinement Through Conversation<a class="headerlink" href="#244-iterative-refinement-through-conversation" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-24.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch24/24-04.svg?v=68e256528930"><img alt="A conversation carries edit state forward" src="../../images/technical/ch24/24-04.svg?v=68e256528930" /></a></p>
+<p><a href="../../images/technical/ch24/24-04.svg?v=70d178e96a9a"><img alt="A conversation carries edit state forward" src="../../images/technical/ch24/24-04.svg?v=70d178e96a9a" /></a></p>
 <figcaption>Keep the source image and version identity so a follow-up applies to the intended result.</figcaption>
 </figure>
 <!-- edge:concept-24.4:end -->

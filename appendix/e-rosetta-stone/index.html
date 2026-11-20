@@ -55,7 +55,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2339,7 +2339,7 @@
 <h1 id="appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone">Appendix E: From PyTorch and llama.cpp to C++: A Rosetta Stone<a class="headerlink" href="#appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/appendix-e.svg?v=1ef213965711"><img alt="Appendix E: Translate familiar framework concepts into engine parts" src="../../images/chapter-openers/appendix-e.svg?v=1ef213965711" /></a></p>
+<p><a href="../../images/chapter-openers/appendix-e.svg?v=01cef464d2a2"><img alt="Appendix E: Translate familiar framework concepts into engine parts" src="../../images/chapter-openers/appendix-e.svg?v=01cef464d2a2" /></a></p>
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2348,7 +2348,7 @@
 <hr />
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain." loading="lazy" src="../../images/e-overview.svg?v=ba462feaf787" width="760" /></p>
+<p><img alt="Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain." loading="lazy" src="../../images/e-overview.svg?v=8185ec811596" width="760" /></p>
 <figcaption>Check the book&#x27;s implemented scope before assuming framework feature parity.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2356,7 +2356,7 @@
 <h2 id="e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained">E.1 Tensors: <code>std::mdspan</code> and GGUF/SafeTensors vs. <code>torch.Tensor</code> and <code>AutoModel.from_pretrained</code><a class="headerlink" href="#e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-E.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-e/e-01.svg?v=2e7741b6498b"><img alt="Storage ownership differs from an indexed view" src="../../images/technical/appendix-e/e-01.svg?v=2e7741b6498b" /></a></p>
+<p><a href="../../images/technical/appendix-e/e-01.svg?v=b492bc5f8608"><img alt="Storage ownership differs from an indexed view" src="../../images/technical/appendix-e/e-01.svg?v=b492bc5f8608" /></a></p>
 <figcaption>A similar indexing API does not imply matching ownership, automatic differentiation or device support.</figcaption>
 </figure>
 <!-- edge:concept-E.1:end -->
@@ -2409,7 +2409,7 @@
 <h2 id="e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers">E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace's <code>tokenizers</code><a class="headerlink" href="#e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-E.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-e/e-02.svg?v=4b380f75ad46"><img alt="Tokenizer compatibility is a complete contract" src="../../images/technical/appendix-e/e-02.svg?v=4b380f75ad46" /></a></p>
+<p><a href="../../images/technical/appendix-e/e-02.svg?v=3ebe2e250731"><img alt="Tokenizer compatibility is a complete contract" src="../../images/technical/appendix-e/e-02.svg?v=3ebe2e250731" /></a></p>
 <figcaption>Compare known token sequences and byte handling. Sharing a BPE algorithm name is not enough for compatibility.</figcaption>
 </figure>
 <!-- edge:concept-E.2:end -->
@@ -2461,7 +2461,7 @@
 <h2 id="e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention">E.3 KV Cache and PagedAttention: This Book's <code>BlockManager</code> vs. vLLM's Real PagedAttention and SGLang's RadixAttention<a class="headerlink" href="#e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-E.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-e/e-03.svg?v=293a259f73c4"><img alt="A teaching cache manager has a smaller scope" src="../../images/technical/appendix-e/e-03.svg?v=293a259f73c4" /></a></p>
+<p><a href="../../images/technical/appendix-e/e-03.svg?v=ce540baff215"><img alt="A teaching cache manager has a smaller scope" src="../../images/technical/appendix-e/e-03.svg?v=ce540baff215" /></a></p>
 <figcaption>Compare mechanisms explicitly. Do not infer production feature parity from similar terminology.</figcaption>
 </figure>
 <!-- edge:concept-E.3:end -->
@@ -2518,7 +2518,7 @@
 <h2 id="e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack">E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack<a class="headerlink" href="#e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-E.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-e/e-04.svg?v=0dab315afca3"><img alt="A serving stack has several distinct responsibilities" src="../../images/technical/appendix-e/e-04.svg?v=0dab315afca3" /></a></p>
+<p><a href="../../images/technical/appendix-e/e-04.svg?v=52f59b0f0aa3"><img alt="A serving stack has several distinct responsibilities" src="../../images/technical/appendix-e/e-04.svg?v=52f59b0f0aa3" /></a></p>
 <figcaption>The book engine exposes the core path. A production service adds transport, isolation, observability and operating controls.</figcaption>
 </figure>
 <!-- edge:concept-E.4:end -->
@@ -2568,7 +2568,7 @@
 <h2 id="e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching">E.5 Continuous Batching: This Book's Scheduler vs. Orca's Iteration-Level Scheduling and vLLM's Real Continuous Batching<a class="headerlink" href="#e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-E.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-e/e-05.svg?v=8666f8c86a10"><img alt="Iteration boundaries enable continuous admission" src="../../images/technical/appendix-e/e-05.svg?v=8666f8c86a10" /></a></p>
+<p><a href="../../images/technical/appendix-e/e-05.svg?v=683b69b44001"><img alt="Iteration boundaries enable continuous admission" src="../../images/technical/appendix-e/e-05.svg?v=683b69b44001" /></a></p>
 <figcaption>The conceptual similarity is iteration-level scheduling; actual batching policies and kernels differ across systems.</figcaption>
 </figure>
 <!-- edge:concept-E.5:end -->

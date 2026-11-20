@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2395,7 +2395,7 @@
 <h1 id="chapter-27-low-latency-market-signal-inference-near-the-exchange">Chapter 27: Low-Latency Market-Signal Inference Near the Exchange<a class="headerlink" href="#chapter-27-low-latency-market-signal-inference-near-the-exchange" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/27.svg?v=3c9abbbcd915"><img alt="Chapter 27: Fit inference into a market-data latency budget" src="../../images/chapter-openers/27.svg?v=3c9abbbcd915" /></a></p>
+<p><a href="../../images/chapter-openers/27.svg?v=512ee6ac3473"><img alt="Chapter 27: Fit inference into a market-data latency budget" src="../../images/chapter-openers/27.svg?v=512ee6ac3473" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2417,7 +2417,7 @@
 <p>Chapter 26 turned to a bank branch or back office processing checks and invoices, where a fraud pattern -- once caught -- has no real time pressure attached to catching it a few seconds later. This chapter turns to a related but genuinely different real financial setting: inference on live market-signal data near the exchange, where the central constraint is not pattern detection at all, but a hard, real-time deadline measured in microseconds. Each of this chapter's four sections builds one real, independent piece of that pipeline -- order-book features, a deadline enforcement mechanism, a finance-specific sentiment score -- and closes with a capstone that fuses all three into one auditable trading decision, where a signal that arrived too late to act on safely is treated as no signal at all.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Fit inference into a market-data latency budget. Deadline handling is part of the decision path." loading="lazy" src="../../images/27-overview.svg?v=94e7dbb23f65" width="760" /></p>
+<p><img alt="Fit inference into a market-data latency budget. Deadline handling is part of the decision path." loading="lazy" src="../../images/27-overview.svg?v=76ed6fd393d5" width="760" /></p>
 <figcaption>An offline accuracy score does not establish live latency or trading performance.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2425,7 +2425,7 @@
 <h2 id="271-order-book-microstructure-features">27.1 Order Book Microstructure Features<a class="headerlink" href="#271-order-book-microstructure-features" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-27.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch27/27-01.svg?v=1d6c3f7b1c47"><img alt="A small book imbalance example" src="../../images/technical/ch27/27-01.svg?v=1d6c3f7b1c47" /></a></p>
+<p><a href="../../images/technical/ch27/27-01.svg?v=45b1766f8962"><img alt="A small book imbalance example" src="../../images/technical/ch27/27-01.svg?v=45b1766f8962" /></a></p>
 <figcaption>Illustrative feature arithmetic only. Handle a zero denominator and stale or incomplete market data.</figcaption>
 </figure>
 <!-- edge:concept-27.1:end -->
@@ -2677,7 +2677,7 @@
 <h2 id="272-the-latency-budget-tick-to-trade-deadline-enforcement">27.2 The Latency Budget: Tick-to-Trade Deadline Enforcement<a class="headerlink" href="#272-the-latency-budget-tick-to-trade-deadline-enforcement" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-27.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch27/27-02.svg?v=aac5ec9c9aaa"><img alt="A deadline is an end-to-end constraint" src="../../images/technical/ch27/27-02.svg?v=aac5ec9c9aaa" /></a></p>
+<p><a href="../../images/technical/ch27/27-02.svg?v=2d1bd633b554"><img alt="A deadline is an end-to-end constraint" src="../../images/technical/ch27/27-02.svg?v=2d1bd633b554" /></a></p>
 <figcaption>No latency numbers are implied. Measure the complete path under the intended system load.</figcaption>
 </figure>
 <!-- edge:concept-27.2:end -->
@@ -2944,7 +2944,7 @@
 <h2 id="273-financial-news-sentiment-scoring">27.3 Financial News Sentiment Scoring<a class="headerlink" href="#273-financial-news-sentiment-scoring" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-27.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch27/27-03.svg?v=a0561c011cbf"><img alt="Text becomes a time-stamped sentiment signal" src="../../images/technical/ch27/27-03.svg?v=a0561c011cbf" /></a></p>
+<p><a href="../../images/technical/ch27/27-03.svg?v=a176d13ec5cf"><img alt="Text becomes a time-stamped sentiment signal" src="../../images/technical/ch27/27-03.svg?v=a176d13ec5cf" /></a></p>
 <figcaption>A sentiment score is an uncertain feature, not a prediction of a guaranteed price move.</figcaption>
 </figure>
 <!-- edge:concept-27.3:end -->
@@ -3233,7 +3233,7 @@
 <h2 id="274-signal-fusion-and-the-trading-decision-engine">27.4 Signal Fusion and the Trading Decision Engine<a class="headerlink" href="#274-signal-fusion-and-the-trading-decision-engine" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-27.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch27/27-04.svg?v=dffb83ceb43e"><img alt="Signal fusion still needs execution controls" src="../../images/technical/ch27/27-04.svg?v=dffb83ceb43e" /></a></p>
+<p><a href="../../images/technical/ch27/27-04.svg?v=a8acfb851e39"><img alt="Signal fusion still needs execution controls" src="../../images/technical/ch27/27-04.svg?v=a8acfb851e39" /></a></p>
 <figcaption>Backtest and deployment controls are separate from computing an inference result.</figcaption>
 </figure>
 <!-- edge:concept-27.4:end -->

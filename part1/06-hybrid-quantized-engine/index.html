@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2495,7 +2495,7 @@
 <h1 id="chapter-6-the-hybrid-quantized-engine-mixing-precisions-for-different-jobs">Chapter 6: The Hybrid Quantized Engine -- Mixing Precisions for Different Jobs<a class="headerlink" href="#chapter-6-the-hybrid-quantized-engine-mixing-precisions-for-different-jobs" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/06.svg?v=1530c73bfe07"><img alt="Chapter 6: Use precision where it matters" src="../../images/chapter-openers/06.svg?v=1530c73bfe07" /></a></p>
+<p><a href="../../images/chapter-openers/06.svg?v=5a3f9de7ff09"><img alt="Chapter 6: Use precision where it matters" src="../../images/chapter-openers/06.svg?v=5a3f9de7ff09" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2517,7 +2517,7 @@
 <p>Chapter 5 built one quantization pipeline and applied it the same way to every tensor in a GGUF file. A real inference engine does not do this: it routes different weight classes through different formats, on purpose, because different classes fail differently when quantized and cost different amounts of memory to protect. This chapter builds that routing from first principles rather than asserting it. Section 6.1 verifies, by actually measuring it, that the case for hybrid quantization is about consequences rather than raw quantizability. Section 6.2 turns that case into a policy encoded the way GGUF already supports — a per-tensor type tag, dispatched on correctly. Section 6.3 prices the policy in real bytes for a large model, and corrects a mistake in its own first draft when the numbers do not support it. Sections 6.4 and 6.5 wire the corrected policy into a genuine forward pass and then a complete multi-layer, multi-token engine, reading real weights from a memory-mapped GGUF file — the culmination of Chapters 3 through 5, with the KV cache still at plain FP32 until Chapter 7 gives it a reason to change.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Use precision where it matters. Different tensor classes have different error sensitivity and storage cost." loading="lazy" src="../../images/06-overview.svg?v=6e33202a1f8f" width="760" /></p>
+<p><img alt="Use precision where it matters. Different tensor classes have different error sensitivity and storage cost." loading="lazy" src="../../images/06-overview.svg?v=d854104361a9" width="760" /></p>
 <figcaption>The memory budget is the sum of each tensor&#x27;s actual encoded size.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2525,7 +2525,7 @@
 <h2 id="61-why-hybrid-same-format-different-consequences">6.1 Why Hybrid: Same Format, Different Consequences<a class="headerlink" href="#61-why-hybrid-same-format-different-consequences" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-6.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch06/06-01.svg?v=5d74ece120a1"><img alt="Equal byte savings can have unequal model effects" src="../../images/technical/ch06/06-01.svg?v=5d74ece120a1" /></a></p>
+<p><a href="../../images/technical/ch06/06-01.svg?v=f88c8808d8a7"><img alt="Equal byte savings can have unequal model effects" src="../../images/technical/ch06/06-01.svg?v=f88c8808d8a7" /></a></p>
 <figcaption>Sensitivity is a policy input. The diagram does not claim measured model-quality improvements.</figcaption>
 </figure>
 <!-- edge:concept-6.1:end -->
@@ -3025,7 +3025,7 @@
 <h2 id="62-a-per-tensor-quantization-policy-encoded-in-the-gguf-type-tag">6.2 A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag<a class="headerlink" href="#62-a-per-tensor-quantization-policy-encoded-in-the-gguf-type-tag" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-6.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch06/06-02.svg?v=1dd48473e758"><img alt="A type tag drives format-specific dispatch" src="../../images/technical/ch06/06-02.svg?v=1dd48473e758" /></a></p>
+<p><a href="../../images/technical/ch06/06-02.svg?v=67fe6c5c7d6e"><img alt="A type tag drives format-specific dispatch" src="../../images/technical/ch06/06-02.svg?v=67fe6c5c7d6e" /></a></p>
 <figcaption>The policy is persisted in tensor metadata so loading and computation agree on representation.</figcaption>
 </figure>
 <!-- edge:concept-6.2:end -->
@@ -3608,7 +3608,7 @@
 <h2 id="63-the-memory-budget-uniform-vs-hybrid-quantization">6.3 The Memory Budget: Uniform vs. Hybrid Quantization<a class="headerlink" href="#63-the-memory-budget-uniform-vs-hybrid-quantization" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-6.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch06/06-03.svg?v=e7d5f392fa11"><img alt="Account for every tensor, including metadata" src="../../images/technical/ch06/06-03.svg?v=e7d5f392fa11" /></a></p>
+<p><a href="../../images/technical/ch06/06-03.svg?v=9d110b41e26a"><img alt="Account for every tensor, including metadata" src="../../images/technical/ch06/06-03.svg?v=9d110b41e26a" /></a></p>
 <figcaption>Hybrid memory usage is a sum of encoded sizes, not a single nominal bits-per-weight number.</figcaption>
 </figure>
 <!-- edge:concept-6.3:end -->
@@ -3845,7 +3845,7 @@
 <h2 id="64-a-hybrid-forward-pass-loaded-via-mmap-from-a-real-gguf-file">6.4 A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File<a class="headerlink" href="#64-a-hybrid-forward-pass-loaded-via-mmap-from-a-real-gguf-file" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-6.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch06/06-04.svg?v=b79b91340579"><img alt="The mapped file selects the forward-pass kernels" src="../../images/technical/ch06/06-04.svg?v=b79b91340579" /></a></p>
+<p><a href="../../images/technical/ch06/06-04.svg?v=d99394866d0a"><img alt="The mapped file selects the forward-pass kernels" src="../../images/technical/ch06/06-04.svg?v=d99394866d0a" /></a></p>
 <figcaption>The runtime must not interpret a Q4 block using a Q8 or floating-point kernel.</figcaption>
 </figure>
 <!-- edge:concept-6.4:end -->
@@ -4488,7 +4488,7 @@
 <h2 id="65-the-complete-hybrid-engine-multi-layer-multi-token-end-to-end">6.5 The Complete Hybrid Engine: Multi-Layer, Multi-Token, End to End<a class="headerlink" href="#65-the-complete-hybrid-engine-multi-layer-multi-token-end-to-end" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-6.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch06/06-05.svg?v=64ef9e4f542a"><img alt="Carry the same policy through every layer" src="../../images/technical/ch06/06-05.svg?v=64ef9e4f542a" /></a></p>
+<p><a href="../../images/technical/ch06/06-05.svg?v=ea0c60cde819"><img alt="Carry the same policy through every layer" src="../../images/technical/ch06/06-05.svg?v=ea0c60cde819" /></a></p>
 <figcaption>Per-layer execution must preserve the tensor format, activation shape and residual dependencies.</figcaption>
 </figure>
 <!-- edge:concept-6.5:end -->

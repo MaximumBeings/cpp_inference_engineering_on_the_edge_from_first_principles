@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2495,7 +2495,7 @@
 <h1 id="chapter-5-model-file-formats-gguf-safetensors-and-memory-mapped-loading">Chapter 5: Model File Formats -- GGUF, SafeTensors, and Memory-Mapped Loading<a class="headerlink" href="#chapter-5-model-file-formats-gguf-safetensors-and-memory-mapped-loading" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/05.svg?v=b37bf23e6eaf"><img alt="Chapter 5: Load model tensors without copying their payload" src="../../images/chapter-openers/05.svg?v=b37bf23e6eaf" /></a></p>
+<p><a href="../../images/chapter-openers/05.svg?v=3b672889ae26"><img alt="Chapter 5: Load model tensors without copying their payload" src="../../images/chapter-openers/05.svg?v=3b672889ae26" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2517,7 +2517,7 @@
 <p>Chapters 2 through 4 built every mechanism a transformer's forward pass needs — tensors, kernels, quantized blocks — but every one of those chapters generated its own weights in-process with a seeded random number generator. Real deployment starts from a file: five billion real, trained parameters that have to get from disk into a running engine without wasting time, memory, or correctness. This chapter builds the two file formats that matter for that step. GGUF (the format used by llama.cpp, Ollama, LM Studio, and every quantized model on HuggingFace's GGUF repositories) is built byte by byte, written, read back, and then read again through a zero-copy <code>mmap</code> view that turns Chapter 4's Q8/Q4 blocks into <code>std::span</code>s pointing straight into mapped file pages. SafeTensors — the format nearly every model ships in before quantization — gets its own hand-rolled JSON header parser and its own zero-copy round trip. The chapter closes by correcting an arithmetic slip in the kind of quantization-format documentation this material is drawn from, and using the corrected numbers to show what production "K-quant" formats actually trade for their better quality: not a smaller file, but a smarter way of spending the same number of bits.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Load model tensors without copying their payload. The file reader validates metadata before exposing mapped tensor ranges." loading="lazy" src="../../images/05-overview.svg?v=9ec3884244ed" width="760" /></p>
+<p><img alt="Load model tensors without copying their payload. The file reader validates metadata before exposing mapped tensor ranges." loading="lazy" src="../../images/05-overview.svg?v=4253c73c5fa8" width="760" /></p>
 <figcaption>Validate every size and byte range before reading a tensor.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2525,7 +2525,7 @@
 <h2 id="51-the-gguf-binary-format-header-metadata-and-tensor-descriptors">5.1 The GGUF Binary Format: Header, Metadata, and Tensor Descriptors<a class="headerlink" href="#51-the-gguf-binary-format-header-metadata-and-tensor-descriptors" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-5.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch05/05-01.svg?v=0645b0640d66"><img alt="A model file separates descriptors from payloads" src="../../images/technical/ch05/05-01.svg?v=0645b0640d66" /></a></p>
+<p><a href="../../images/technical/ch05/05-01.svg?v=f2984ad36114"><img alt="A model file separates descriptors from payloads" src="../../images/technical/ch05/05-01.svg?v=f2984ad36114" /></a></p>
 <figcaption>Offsets, dimensions and encoded byte counts must be checked against the actual file length.</figcaption>
 </figure>
 <!-- edge:concept-5.1:end -->
@@ -2779,7 +2779,7 @@
 <h2 id="52-a-gguf-writer-and-reader-a-full-round-trip">5.2 A GGUF Writer and Reader: A Full Round Trip<a class="headerlink" href="#52-a-gguf-writer-and-reader-a-full-round-trip" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-5.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch05/05-02.svg?v=37d5d7dffabf"><img alt="A file-format round trip has a semantic check" src="../../images/technical/ch05/05-02.svg?v=37d5d7dffabf" /></a></p>
+<p><a href="../../images/technical/ch05/05-02.svg?v=bee8559579f9"><img alt="A file-format round trip has a semantic check" src="../../images/technical/ch05/05-02.svg?v=bee8559579f9" /></a></p>
 <figcaption>The test checks the decoded contents and metadata, not just whether a file could be opened.</figcaption>
 </figure>
 <!-- edge:concept-5.2:end -->
@@ -3199,7 +3199,7 @@
 <h2 id="53-tensor-descriptor-tables-and-zero-copy-weight-access">5.3 Tensor Descriptor Tables and Zero-Copy Weight Access<a class="headerlink" href="#53-tensor-descriptor-tables-and-zero-copy-weight-access" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-5.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch05/05-03.svg?v=d662927efb4b"><img alt="Descriptors resolve to mapped tensor views" src="../../images/technical/ch05/05-03.svg?v=d662927efb4b" /></a></p>
+<p><a href="../../images/technical/ch05/05-03.svg?v=a719a34e4c00"><img alt="Descriptors resolve to mapped tensor views" src="../../images/technical/ch05/05-03.svg?v=a719a34e4c00" /></a></p>
 <figcaption>The resolved tensor range must remain inside the mapping, including alignment and block metadata.</figcaption>
 </figure>
 <!-- edge:concept-5.3:end -->
@@ -3653,7 +3653,7 @@
 <h2 id="54-the-safetensors-format-json-metadata-and-a-hand-rolled-parser">5.4 The SafeTensors Format: JSON Metadata and a Hand-Rolled Parser<a class="headerlink" href="#54-the-safetensors-format-json-metadata-and-a-hand-rolled-parser" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-5.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch05/05-04.svg?v=0769fdd0d303"><img alt="SafeTensors locates data through a JSON header" src="../../images/technical/ch05/05-04.svg?v=0769fdd0d303" /></a></p>
+<p><a href="../../images/technical/ch05/05-04.svg?v=6cc67d5e8902"><img alt="SafeTensors locates data through a JSON header" src="../../images/technical/ch05/05-04.svg?v=6cc67d5e8902" /></a></p>
 <figcaption>Tensor offsets refer to the data buffer after the header. Validate JSON and byte ranges before use.</figcaption>
 </figure>
 <!-- edge:concept-5.4:end -->
@@ -4008,7 +4008,7 @@
 <h2 id="55-gguf-vs-safetensors-and-a-peek-at-production-k-quants">5.5 GGUF vs. SafeTensors, and a Peek at Production K-Quants<a class="headerlink" href="#55-gguf-vs-safetensors-and-a-peek-at-production-k-quants" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-5.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch05/05-05.svg?v=479af44cfbba"><img alt="File metadata is not the quantization kernel" src="../../images/technical/ch05/05-05.svg?v=479af44cfbba" /></a></p>
+<p><a href="../../images/technical/ch05/05-05.svg?v=113344b7c9fe"><img alt="File metadata is not the quantization kernel" src="../../images/technical/ch05/05-05.svg?v=113344b7c9fe" /></a></p>
 <figcaption>A reader must explicitly support each encoded type. Recognizing a container is not full format support.</figcaption>
 </figure>
 <!-- edge:concept-5.5:end -->

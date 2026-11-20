@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2595,7 +2595,7 @@
 <h1 id="chapter-30-mathematical-foundations-for-kernel-authors-flops-the-roofline-and-the-hessian">Chapter 30: Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian<a class="headerlink" href="#chapter-30-mathematical-foundations-for-kernel-authors-flops-the-roofline-and-the-hessian" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/30.svg?v=4224f04ba7a0"><img alt="Chapter 30: Connect the math to kernel behavior" src="../../images/chapter-openers/30.svg?v=4224f04ba7a0" /></a></p>
+<p><a href="../../images/chapter-openers/30.svg?v=e78f3c0919e1"><img alt="Chapter 30: Connect the math to kernel behavior" src="../../images/chapter-openers/30.svg?v=e78f3c0919e1" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2619,7 +2619,7 @@
 <p>Every chapter before this one built a working system and verified it against the correct answer. This chapter asks a different question of the same material: not "does it work," but "why does it work, and what does that explain about its own real limits." A dot product's own arithmetic intensity explains why decode is slow no matter how fast the GPU is. A rotation matrix's own algebra explains why RoPE encodes relative position at all. A Hessian explains why GPTQ beats naive rounding, not just that it does. Part 6 exists to give the kernel-level intuition Parts 1 through 5 relied on without deriving, and this chapter is where that derivation happens -- entirely in real, checkable, from-scratch C++, exactly like every chapter before it.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures." loading="lazy" src="../../images/30-overview.svg?v=f0b429fb9cbe" width="760" /></p>
+<p><img alt="Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures." loading="lazy" src="../../images/30-overview.svg?v=be188a137db6" width="760" /></p>
 <figcaption>Use the mathematical assumptions explicitly when interpreting measurements.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2627,7 +2627,7 @@
 <h2 id="301-the-dot-product-as-inferences-atomic-unit-and-the-real-gemvgemm-crossover">30.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover<a class="headerlink" href="#301-the-dot-product-as-inferences-atomic-unit-and-the-real-gemvgemm-crossover" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-30.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch30/30-01.svg?v=5b989a4578c2"><img alt="GEMV and GEMM reuse the same weights differently" src="../../images/technical/ch30/30-01.svg?v=5b989a4578c2" /></a></p>
+<p><a href="../../images/technical/ch30/30-01.svg?v=808646cf55b2"><img alt="GEMV and GEMM reuse the same weights differently" src="../../images/technical/ch30/30-01.svg?v=808646cf55b2" /></a></p>
 <figcaption>The crossover depends on shape and memory traffic, not just peak arithmetic rate.</figcaption>
 </figure>
 <!-- edge:concept-30.1:end -->
@@ -2859,7 +2859,7 @@
 <h2 id="302-numerically-stable-softmax-the-log-sum-exp-fix">30.2 Numerically Stable Softmax: The Log-Sum-Exp Fix<a class="headerlink" href="#302-numerically-stable-softmax-the-log-sum-exp-fix" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-30.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch30/30-02.svg?v=56d956d7060c"><img alt="Subtracting the maximum stabilizes softmax" src="../../images/technical/ch30/30-02.svg?v=56d956d7060c" /></a></p>
+<p><a href="../../images/technical/ch30/30-02.svg?v=205108e39a1a"><img alt="Subtracting the maximum stabilizes softmax" src="../../images/technical/ch30/30-02.svg?v=205108e39a1a" /></a></p>
 <figcaption>The shift preserves exact softmax ratios while avoiding exponentiation of very large positive logits.</figcaption>
 </figure>
 <!-- edge:concept-30.2:end -->
@@ -3079,7 +3079,7 @@
 <h2 id="303-ropes-rotation-math">30.3 RoPE's Rotation Math<a class="headerlink" href="#303-ropes-rotation-math" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-30.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch30/30-03.svg?v=9cfc63eae9ca"><img alt="A two-coordinate rotation preserves squared length" src="../../images/technical/ch30/30-03.svg?v=9cfc63eae9ca" /></a></p>
+<p><a href="../../images/technical/ch30/30-03.svg?v=c5418edffb5d"><img alt="A two-coordinate rotation preserves squared length" src="../../images/technical/ch30/30-03.svg?v=c5418edffb5d" /></a></p>
 <figcaption>This illustrative angle explains the geometry. RoPE uses position- and frequency-dependent angles.</figcaption>
 </figure>
 <!-- edge:concept-30.3:end -->
@@ -3287,7 +3287,7 @@
 <h2 id="304-quantization-as-affine-algebra-real-error-bounds-and-the-optimal-scale">30.4 Quantization as Affine Algebra: Real Error Bounds and the Optimal Scale<a class="headerlink" href="#304-quantization-as-affine-algebra-real-error-bounds-and-the-optimal-scale" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-30.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch30/30-04.svg?v=a841c6151326"><img alt="Rounding error has a scale-dependent bound" src="../../images/technical/ch30/30-04.svg?v=a841c6151326" /></a></p>
+<p><a href="../../images/technical/ch30/30-04.svg?v=a6b035c7cb3f"><img alt="Rounding error has a scale-dependent bound" src="../../images/technical/ch30/30-04.svg?v=a6b035c7cb3f" /></a></p>
 <figcaption>Clipping introduces an additional error not covered by the in-range rounding bound.</figcaption>
 </figure>
 <!-- edge:concept-30.4:end -->
@@ -3485,7 +3485,7 @@
 <h2 id="305-the-hessians-role-in-gptq-second-order-error-compensation">30.5 The Hessian's Role in GPTQ: Second-Order Error Compensation<a class="headerlink" href="#305-the-hessians-role-in-gptq-second-order-error-compensation" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-30.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch30/30-05.svg?v=5758d08e22b1"><img alt="Second-order sensitivity weights errors unequally" src="../../images/technical/ch30/30-05.svg?v=5758d08e22b1" /></a></p>
+<p><a href="../../images/technical/ch30/30-05.svg?v=40c9477d1bb5"><img alt="Second-order sensitivity weights errors unequally" src="../../images/technical/ch30/30-05.svg?v=40c9477d1bb5" /></a></p>
 <figcaption>The quadratic approximation is local and depends on the calibration data and objective.</figcaption>
 </figure>
 <!-- edge:concept-30.5:end -->
@@ -3780,7 +3780,7 @@
 <h2 id="306-a-full-roofline-analysis-of-a-transformer-layer">30.6 A Full Roofline Analysis of a Transformer Layer<a class="headerlink" href="#306-a-full-roofline-analysis-of-a-transformer-layer" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-30.6:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch30/30-06.svg?v=a920b309d624"><img alt="Combine arithmetic and traffic for the layer" src="../../images/technical/ch30/30-06.svg?v=a920b309d624" /></a></p>
+<p><a href="../../images/technical/ch30/30-06.svg?v=cbd8ce23e592"><img alt="Combine arithmetic and traffic for the layer" src="../../images/technical/ch30/30-06.svg?v=cbd8ce23e592" /></a></p>
 <figcaption>State sequence length, batch, precision, cache assumptions and the memory level being modeled.</figcaption>
 </figure>
 <!-- edge:concept-30.6:end -->

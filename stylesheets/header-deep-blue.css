@@ -1,11 +1,11 @@
 /* Match the navigation header to the illustration background in both modes. */
 .md-header,
 .md-tabs {
-  background-color: #181e30;
+  background-color: #0b2e63;
   color: #f5f4fa;
 }
 .md-header .md-search__form {
-  background-color: #26324a;
+  background-color: #16457e;
 }
 .md-header .md-search__input,
 .md-header .md-search__input::placeholder,

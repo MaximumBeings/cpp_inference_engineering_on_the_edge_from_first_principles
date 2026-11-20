@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2263,7 +2263,7 @@
 <h1 id="appendix-a-installation-and-setup-cross-compiling-for-the-edge">Appendix A: Installation and Setup -- Cross-Compiling for the Edge<a class="headerlink" href="#appendix-a-installation-and-setup-cross-compiling-for-the-edge" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/appendix-a.svg?v=c528b4916f43"><img alt="Appendix A: Cross-compile, then execute the target binary" src="../../images/chapter-openers/appendix-a.svg?v=c528b4916f43" /></a></p>
+<p><a href="../../images/chapter-openers/appendix-a.svg?v=921db5ee106b"><img alt="Appendix A: Cross-compile, then execute the target binary" src="../../images/chapter-openers/appendix-a.svg?v=921db5ee106b" /></a></p>
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2285,7 +2285,7 @@
 <p>Every chapter in this book compiled and ran identically on an x86_64 development machine and real aarch64 hardware, using a real cross-compilation toolchain invoked directly with <code>g++</code> and specific flags. This appendix documents that same real toolchain on its own, as a standalone, working CMake project a reader can copy directly: how to install it, how to structure a CMake project around it so cross-compiling is a single flag rather than a hand-maintained command line, and -- in the same honest spirit as every chapter before it -- five real failures this book's own pipeline actually hit while building this exact setup, captured verbatim, with the real fix for each one.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation." loading="lazy" src="../../images/a-overview.svg?v=e24ce3eb414e" width="760" /></p>
+<p><img alt="Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation." loading="lazy" src="../../images/a-overview.svg?v=910457733a4c" width="760" /></p>
 <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2293,7 +2293,7 @@
 <h2 id="a1-toolchain-setup-on-the-development-machine">A.1 Toolchain Setup on the Development Machine<a class="headerlink" href="#a1-toolchain-setup-on-the-development-machine" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-A.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-a/a-01.svg?v=1087e96beae9"><img alt="Verify the development toolchain before building" src="../../images/technical/appendix-a/a-01.svg?v=1087e96beae9" /></a></p>
+<p><a href="../../images/technical/appendix-a/a-01.svg?v=a9acf5355e9e"><img alt="Verify the development toolchain before building" src="../../images/technical/appendix-a/a-01.svg?v=a9acf5355e9e" /></a></p>
 <figcaption>A compiler version alone does not guarantee every library feature. Verify the headers and flags used by the book.</figcaption>
 </figure>
 <!-- edge:concept-A.1:end -->
@@ -2319,7 +2319,7 @@
 <h2 id="a2-a-working-cmake-project-layout">A.2 A Working CMake Project Layout<a class="headerlink" href="#a2-a-working-cmake-project-layout" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-A.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-a/a-02.svg?v=64338f816bdc"><img alt="A CMake project separates sources from build outputs" src="../../images/technical/appendix-a/a-02.svg?v=64338f816bdc" /></a></p>
+<p><a href="../../images/technical/appendix-a/a-02.svg?v=dda37ca4dec1"><img alt="A CMake project separates sources from build outputs" src="../../images/technical/appendix-a/a-02.svg?v=dda37ca4dec1" /></a></p>
 <figcaption>Use an out-of-source build so generated artifacts do not overwrite project sources.</figcaption>
 </figure>
 <!-- edge:concept-A.2:end -->
@@ -2527,7 +2527,7 @@
 <h2 id="a3-cross-compiling-for-armneon-edge-targets">A.3 Cross-Compiling for Arm/NEON Edge Targets<a class="headerlink" href="#a3-cross-compiling-for-armneon-edge-targets" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-A.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-a/a-03.svg?v=f9d34ce14615"><img alt="Cross-compilation has two distinct machines" src="../../images/technical/appendix-a/a-03.svg?v=f9d34ce14615" /></a></p>
+<p><a href="../../images/technical/appendix-a/a-03.svg?v=6a7609927340"><img alt="Cross-compilation has two distinct machines" src="../../images/technical/appendix-a/a-03.svg?v=6a7609927340" /></a></p>
 <figcaption>Compilation checks the target code path. It does not prove native execution or performance on the edge device.</figcaption>
 </figure>
 <!-- edge:concept-A.3:end -->
@@ -2626,7 +2626,7 @@
 <h2 id="a4-diagnostics-reference">A.4 Diagnostics Reference<a class="headerlink" href="#a4-diagnostics-reference" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-A.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/appendix-a/a-04.svg?v=fe0037c180ac"><img alt="Classify the failure before changing the code" src="../../images/technical/appendix-a/a-04.svg?v=fe0037c180ac" /></a></p>
+<p><a href="../../images/technical/appendix-a/a-04.svg?v=937992857662"><img alt="Classify the failure before changing the code" src="../../images/technical/appendix-a/a-04.svg?v=937992857662" /></a></p>
 <figcaption>Read the first relevant diagnostic and reproduce it with the documented command before applying a fix.</figcaption>
 </figure>
 <!-- edge:concept-A.4:end -->

@@ -57,7 +57,7 @@
     
       <link rel="stylesheet" href="../../stylesheets/figures.css">
     
-      <link rel="stylesheet" href="../../stylesheets/header.css">
+      <link rel="stylesheet" href="../../stylesheets/header-deep-blue.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -2395,7 +2395,7 @@
 <h1 id="chapter-28-insurance-claims-photo-assessment-with-fraud-flagging">Chapter 28: Insurance Claims Photo Assessment with Fraud Flagging<a class="headerlink" href="#chapter-28-insurance-claims-photo-assessment-with-fraud-flagging" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/28.svg?v=211680c1e033"><img alt="Chapter 28: Assess a claim using multiple consistency checks" src="../../images/chapter-openers/28.svg?v=211680c1e033" /></a></p>
+<p><a href="../../images/chapter-openers/28.svg?v=6902d6649b76"><img alt="Chapter 28: Assess a claim using multiple consistency checks" src="../../images/chapter-openers/28.svg?v=6902d6649b76" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2417,7 +2417,7 @@
 <p>Chapter 27 turned to a hard, real-time deadline. This chapter turns to a genuinely different real constraint once more: an insurance claim, where the fraud-relevant signals are photographic and temporal rather than numeric, and where a false accusation carries real consequences for a genuine claimant. Each of this chapter's four sections builds one real, independent fraud signal -- reused photo detection, timestamp forensics -- and closes by extending Chapter 21.3's own cost-range engine with those signals, ending in a capstone disposition engine that routes a claim toward more or less human scrutiny, but never toward an automatic denial.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition." loading="lazy" src="../../images/28-overview.svg?v=b857c0372a2b" width="760" /></p>
+<p><img alt="Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition." loading="lazy" src="../../images/28-overview.svg?v=91d27c976f88" width="760" /></p>
 <figcaption>A fraud flag is an uncertainty-bearing signal for review.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2425,7 +2425,7 @@
 <h2 id="281-insurance-claim-duplicate-photo-detection">28.1 Insurance Claim Duplicate Photo Detection<a class="headerlink" href="#281-insurance-claim-duplicate-photo-detection" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-28.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch28/28-01.svg?v=998fa940e0a7"><img alt="Identical and similar photos need different checks" src="../../images/technical/ch28/28-01.svg?v=998fa940e0a7" /></a></p>
+<p><a href="../../images/technical/ch28/28-01.svg?v=b2a2d7283de2"><img alt="Identical and similar photos need different checks" src="../../images/technical/ch28/28-01.svg?v=b2a2d7283de2" /></a></p>
 <figcaption>Photo reuse can be legitimate. A duplicate candidate is not proof of fraud.</figcaption>
 </figure>
 <!-- edge:concept-28.1:end -->
@@ -2689,7 +2689,7 @@
 <h2 id="282-photo-timestamp-vs-incident-date-consistency">28.2 Photo Timestamp vs. Incident Date Consistency<a class="headerlink" href="#282-photo-timestamp-vs-incident-date-consistency" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-28.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch28/28-02.svg?v=bbd380e447fb"><img alt="Compare claimed timing with available evidence" src="../../images/technical/ch28/28-02.svg?v=bbd380e447fb" /></a></p>
+<p><a href="../../images/technical/ch28/28-02.svg?v=d365652df241"><img alt="Compare claimed timing with available evidence" src="../../images/technical/ch28/28-02.svg?v=d365652df241" /></a></p>
 <figcaption>Editable metadata is evidence with limits. A mismatch requires explanation, not an automatic accusation.</figcaption>
 </figure>
 <!-- edge:concept-28.2:end -->
@@ -2922,7 +2922,7 @@
 <h2 id="283-extending-the-cost-range-engine-with-a-fraud-likelihood-signal">28.3 Extending the Cost-Range Engine with a Fraud-Likelihood Signal<a class="headerlink" href="#283-extending-the-cost-range-engine-with-a-fraud-likelihood-signal" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-28.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch28/28-03.svg?v=af8ac1f0b4b3"><img alt="Cost estimation and fraud screening are separate outputs" src="../../images/technical/ch28/28-03.svg?v=af8ac1f0b4b3" /></a></p>
+<p><a href="../../images/technical/ch28/28-03.svg?v=53bc35707bb6"><img alt="Cost estimation and fraud screening are separate outputs" src="../../images/technical/ch28/28-03.svg?v=53bc35707bb6" /></a></p>
 <figcaption>A high estimate does not itself imply fraud. Keep both outputs independently reviewable.</figcaption>
 </figure>
 <!-- edge:concept-28.3:end -->
@@ -3256,7 +3256,7 @@
 <h2 id="284-the-claims-disposition-engine">28.4 The Claims Disposition Engine<a class="headerlink" href="#284-the-claims-disposition-engine" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-28.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch28/28-04.svg?v=5133a36abbb1"><img alt="The claims engine reports a disposition with reasons" src="../../images/technical/ch28/28-04.svg?v=5133a36abbb1" /></a></p>
+<p><a href="../../images/technical/ch28/28-04.svg?v=1c10be1d606d"><img alt="The claims engine reports a disposition with reasons" src="../../images/technical/ch28/28-04.svg?v=1c10be1d606d" /></a></p>
 <figcaption>Retain source photos, triggered checks and uncertainty with the resulting case record.</figcaption>
 </figure>
 <!-- edge:concept-28.4:end -->
