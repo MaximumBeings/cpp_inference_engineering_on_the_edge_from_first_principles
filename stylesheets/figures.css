@@ -1,20 +1,40 @@
-.chapter-figure {
+/* Material's default figure uses fit-content sizing. Every book illustration
+   should instead align with both edges of the article heading and body. */
+.md-typeset figure.chapter-figure {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   margin: 2rem 0;
   padding: 0;
 }
-.chapter-figure img {
+.md-typeset .chapter-figure > p {
+  width: 100%;
+  margin: 0;
+}
+.md-typeset .chapter-figure a {
   display: block;
   width: 100%;
+}
+.md-typeset .chapter-figure img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   height: auto;
   border-radius: 0.7rem;
 }
-.chapter-figure figcaption {
+.md-typeset .chapter-figure figcaption {
   margin-top: 0.65rem;
   color: var(--md-default-fg-color--light);
   font-size: 0.78rem;
   line-height: 1.6;
 }
-
-.chapter-figure a { display: block; }
-.chapter-figure a:hover img { outline: 2px solid var(--md-accent-fg-color); outline-offset: 3px; }
-.chapter-figure a:focus-visible { outline: 3px solid var(--md-accent-fg-color); outline-offset: 4px; }
+.md-typeset .chapter-figure a:hover img {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 3px;
+}
+.md-typeset .chapter-figure a:focus-visible {
+  outline: 3px solid var(--md-accent-fg-color);
+  outline-offset: 4px;
+}
