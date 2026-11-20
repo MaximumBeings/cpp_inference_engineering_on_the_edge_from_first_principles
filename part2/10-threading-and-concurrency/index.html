@@ -2493,7 +2493,7 @@
 <h1 id="chapter-10-threading-and-concurrency-real-threads-verified-without-a-clock">Chapter 10: Threading and Concurrency -- Real Threads, Verified Without a Clock<a class="headerlink" href="#chapter-10-threading-and-concurrency-real-threads-verified-without-a-clock" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/10.svg?v=9ca4b909de73"><img alt="Chapter 10: Share work without racing on state" src="../../images/chapter-openers/10.svg?v=9ca4b909de73" /></a></p>
+<p><a href="../../images/chapter-openers/10.svg?v=46b7b2030b9b"><img alt="Chapter 10: Share work without racing on state" src="../../images/chapter-openers/10.svg?v=46b7b2030b9b" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2517,7 +2517,7 @@
 <p>Chapter 9 showed how a single core reaches its peak compute, one SIMD instruction at a time. This chapter reaches for the resource no single core has any more of to give: additional cores, coordinated by real threads. Section 10.1 derives why that coordination is necessary at all — a single core's real decode-step FLOP total, measured back in Chapter 8.5, is put through Chapter 8.1's own achievable-throughput formula, and comes out several times over a realistic interactive latency budget — and then derives the ceiling Amdahl's law puts on how much any number of additional cores can close that gap. Section 10.2 introduces this book's first real <code>std::thread</code>, and with it the two primitives, <code>std::atomic</code> and <code>std::mutex</code>, that make sharing mutable state across threads well-defined rather than undefined behavior, verified by running real concurrent code and checking an exact result rather than a fabricated one. Section 10.3 builds a persistent, <code>std::barrier</code>-synchronized thread pool and partitions a real GEMV across it by output row, verified bit-for-bit against a serial reference. Section 10.4 finds a hazard that changes no thread's computed value at all — two independent per-thread counters sharing one cache line — and verifies it the only honest way available without a clock: as address arithmetic. Section 10.5 closes the chapter with a work-stealing scheduler, and with it this chapter's central methodological point: a scheduler whose exact execution order is deliberately nondeterministic can still be verified with complete rigor, by checking the invariant its contract actually promises instead of the schedule it never did.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization." loading="lazy" src="../../images/10-overview.svg?v=579709fc05d1" width="760" /></p>
+<p><img alt="Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization." loading="lazy" src="../../images/10-overview.svg?v=0e7061a66ca8" width="760" /></p>
 <figcaption>A data race is undefined behavior; volatile does not provide thread synchronization.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2525,7 +2525,7 @@
 <h2 id="101-the-latency-budget-and-amdahls-ceiling">10.1 The Latency Budget and Amdahl's Ceiling<a class="headerlink" href="#101-the-latency-budget-and-amdahls-ceiling" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-10.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch10/10-01.svg?v=a858ed0c529c"><img alt="Amdahl limits parallel speedup" src="../../images/technical/ch10/10-01.svg?v=a858ed0c529c" /></a></p>
+<p><a href="../../images/technical/ch10/10-01.svg?v=782313664f02"><img alt="Amdahl limits parallel speedup" src="../../images/technical/ch10/10-01.svg?v=782313664f02" /></a></p>
 <figcaption>Illustrative upper bound with no synchronization or scheduling cost.</figcaption>
 </figure>
 <!-- edge:concept-10.1:end -->
@@ -2797,7 +2797,7 @@
 <h2 id="102-atomics-mutexes-and-why-synchronization-is-not-optional">10.2 Atomics, Mutexes, and Why Synchronization Is Not Optional<a class="headerlink" href="#102-atomics-mutexes-and-why-synchronization-is-not-optional" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-10.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch10/10-02.svg?v=ff38f075cae5"><img alt="Synchronization establishes a happens-before relation" src="../../images/technical/ch10/10-02.svg?v=ff38f075cae5" /></a></p>
+<p><a href="../../images/technical/ch10/10-02.svg?v=b2f26345e580"><img alt="Synchronization establishes a happens-before relation" src="../../images/technical/ch10/10-02.svg?v=b2f26345e580" /></a></p>
 <figcaption>A data race is not merely a performance issue; the language does not define the program behavior.</figcaption>
 </figure>
 <!-- edge:concept-10.2:end -->
@@ -3061,7 +3061,7 @@
 <h2 id="103-a-barrier-synchronized-thread-pool-for-a-partitioned-gemv">10.3 A Barrier-Synchronized Thread Pool for a Partitioned GEMV<a class="headerlink" href="#103-a-barrier-synchronized-thread-pool-for-a-partitioned-gemv" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-10.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch10/10-03.svg?v=8220299dd75c"><img alt="Workers share phase boundaries" src="../../images/technical/ch10/10-03.svg?v=8220299dd75c" /></a></p>
+<p><a href="../../images/technical/ch10/10-03.svg?v=577b92ac0a8e"><img alt="Workers share phase boundaries" src="../../images/technical/ch10/10-03.svg?v=577b92ac0a8e" /></a></p>
 <figcaption>A barrier separates dependent phases. Workers can write disjoint output rows concurrently.</figcaption>
 </figure>
 <!-- edge:concept-10.3:end -->
@@ -3395,7 +3395,7 @@
 <h2 id="104-false-sharing-a-memory-layout-hazard-not-a-race">10.4 False Sharing: A Memory-Layout Hazard, Not a Race<a class="headerlink" href="#104-false-sharing-a-memory-layout-hazard-not-a-race" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-10.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch10/10-04.svg?v=6554e36f985b"><img alt="Independent counters can occupy one cache line" src="../../images/technical/ch10/10-04.svg?v=6554e36f985b" /></a></p>
+<p><a href="../../images/technical/ch10/10-04.svg?v=f23f6a9795be"><img alt="Independent counters can occupy one cache line" src="../../images/technical/ch10/10-04.svg?v=f23f6a9795be" /></a></p>
 <figcaption>False sharing causes coherence traffic even when threads update different variables.</figcaption>
 </figure>
 <!-- edge:concept-10.4:end -->
@@ -3681,7 +3681,7 @@
 <h2 id="105-work-stealing-verifying-correctness-under-a-nondeterministic-schedule">10.5 Work Stealing: Verifying Correctness Under a Nondeterministic Schedule<a class="headerlink" href="#105-work-stealing-verifying-correctness-under-a-nondeterministic-schedule" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-10.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch10/10-05.svg?v=a0c648ce2094"><img alt="Work ownership can move without duplicating work" src="../../images/technical/ch10/10-05.svg?v=a0c648ce2094" /></a></p>
+<p><a href="../../images/technical/ch10/10-05.svg?v=b2573f35bcdf"><img alt="Work ownership can move without duplicating work" src="../../images/technical/ch10/10-05.svg?v=b2573f35bcdf" /></a></p>
 <figcaption>Scheduling order is nondeterministic. The correctness check must not depend on one task order.</figcaption>
 </figure>
 <!-- edge:concept-10.5:end -->

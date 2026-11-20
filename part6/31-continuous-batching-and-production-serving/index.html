@@ -2393,7 +2393,7 @@
 <h1 id="chapter-31-continuous-batching-and-production-serving-architecture">Chapter 31: Continuous Batching and Production Serving Architecture<a class="headerlink" href="#chapter-31-continuous-batching-and-production-serving-architecture" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/31.svg?v=6f7390498025"><img alt="Chapter 31: Continuous batching schedules active requests" src="../../images/chapter-openers/31.svg?v=6f7390498025" /></a></p>
+<p><a href="../../images/chapter-openers/31.svg?v=0f0a1c4378ab"><img alt="Chapter 31: Continuous batching schedules active requests" src="../../images/chapter-openers/31.svg?v=0f0a1c4378ab" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2416,7 +2416,7 @@
 <p>Every chapter before this one built one real piece of an inference engine and verified it in isolation. A real serving system has to run many of those pieces at once, for many concurrent real users, whose requests arrive at unpredictable times and need unpredictable amounts of work -- and the scheduling decisions that follow from that are not optional engineering polish, they are the actual difference between a system that serves real traffic efficiently and one that does not serve it at all. This chapter builds that scheduling layer from scratch: first by understanding, with real hand-traceable numbers, exactly what goes wrong with the naive approach; then by resolving the specific real conflict between the two fundamentally different kinds of work a serving step can do; then by building the real scheduler that puts both fixes to work; and finally by building the real numerical debugging tools a system running at this scale actually needs when something goes wrong.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries." loading="lazy" src="../../images/31-overview.svg?v=673697ce4b7c" width="760" /></p>
+<p><img alt="Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries." loading="lazy" src="../../images/31-overview.svg?v=d5de28bfcf20" width="760" /></p>
 <figcaption>KV capacity, per-step work and fairness constrain admission.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2424,7 +2424,7 @@
 <h2 id="311-the-static-batching-problem-and-head-of-line-blocking">31.1 The Static-Batching Problem and Head-of-Line Blocking<a class="headerlink" href="#311-the-static-batching-problem-and-head-of-line-blocking" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-31.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch31/31-01.svg?v=c24d4446c0fb"><img alt="Static batches wait for their slowest member" src="../../images/technical/ch31/31-01.svg?v=c24d4446c0fb" /></a></p>
+<p><a href="../../images/technical/ch31/31-01.svg?v=770c1f675434"><img alt="Static batches wait for their slowest member" src="../../images/technical/ch31/31-01.svg?v=770c1f675434" /></a></p>
 <figcaption>Scheduling improves resource use only within the actual compute, memory and latency constraints.</figcaption>
 </figure>
 <!-- edge:concept-31.1:end -->
@@ -2715,7 +2715,7 @@
 <h2 id="312-the-prefilldecode-conflict-and-chunked-prefill">31.2 The Prefill/Decode Conflict and Chunked Prefill<a class="headerlink" href="#312-the-prefilldecode-conflict-and-chunked-prefill" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-31.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch31/31-02.svg?v=97ae4f23644a"><img alt="Chunked prefill creates scheduling boundaries" src="../../images/technical/ch31/31-02.svg?v=97ae4f23644a" /></a></p>
+<p><a href="../../images/technical/ch31/31-02.svg?v=582ba8cef017"><img alt="Chunked prefill creates scheduling boundaries" src="../../images/technical/ch31/31-02.svg?v=582ba8cef017" /></a></p>
 <figcaption>Chunk size trades prefill progress against decode delay. The schedule is illustrative.</figcaption>
 </figure>
 <!-- edge:concept-31.2:end -->
@@ -2942,7 +2942,7 @@
 <h2 id="313-a-continuous-batching-scheduler-built-from-scratch">31.3 A Continuous-Batching Scheduler Built From Scratch<a class="headerlink" href="#313-a-continuous-batching-scheduler-built-from-scratch" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-31.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch31/31-03.svg?v=e542b33b9265"><img alt="An iteration explicitly updates active state" src="../../images/technical/ch31/31-03.svg?v=e542b33b9265" /></a></p>
+<p><a href="../../images/technical/ch31/31-03.svg?v=250d0636ecf9"><img alt="An iteration explicitly updates active state" src="../../images/technical/ch31/31-03.svg?v=250d0636ecf9" /></a></p>
 <figcaption>Do not exceed KV capacity merely because compute slots are available.</figcaption>
 </figure>
 <!-- edge:concept-31.3:end -->
@@ -3259,7 +3259,7 @@
 <h2 id="314-numerical-debugging-tools-nan-propagation-tracing-and-floating-point-drift-detection">31.4 Numerical Debugging Tools: NaN-Propagation Tracing and Floating-Point Drift Detection<a class="headerlink" href="#314-numerical-debugging-tools-nan-propagation-tracing-and-floating-point-drift-detection" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-31.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch31/31-04.svg?v=d68903628046"><img alt="Find the first divergent or nonfinite tensor" src="../../images/technical/ch31/31-04.svg?v=d68903628046" /></a></p>
+<p><a href="../../images/technical/ch31/31-04.svg?v=981af281a177"><img alt="Find the first divergent or nonfinite tensor" src="../../images/technical/ch31/31-04.svg?v=981af281a177" /></a></p>
 <figcaption>A final-output mismatch does not identify its cause. Use absolute and relative tolerances explicitly.</figcaption>
 </figure>
 <!-- edge:concept-31.4:end -->

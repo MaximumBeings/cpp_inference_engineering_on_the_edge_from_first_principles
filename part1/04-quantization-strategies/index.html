@@ -2593,7 +2593,7 @@
 <h1 id="chapter-4-quantization-strategies-affine-math-symmetric-vs-asymmetric-blockwise-scales">Chapter 4: Quantization Strategies -- Affine Math, Symmetric vs. Asymmetric, Blockwise Scales<a class="headerlink" href="#chapter-4-quantization-strategies-affine-math-symmetric-vs-asymmetric-blockwise-scales" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/04.svg?v=b4a743112889"><img alt="Chapter 4: Represent a floating value with an integer" src="../../images/chapter-openers/04.svg?v=b4a743112889" /></a></p>
+<p><a href="../../images/chapter-openers/04.svg?v=e128075a7f49"><img alt="Chapter 4: Represent a floating value with an integer" src="../../images/chapter-openers/04.svg?v=e128075a7f49" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2616,7 +2616,7 @@
 <p>Chapters 2 and 3 built and ran a transformer block in full precision. This chapter exists because full precision does not fit: a 70-billion-parameter model stored as FP32 needs 280GB of RAM before a single token generates, and even on server-class hardware, every one of those bytes has to be read from memory for every token produced, at whatever the memory bus's bandwidth ceiling happens to be. Quantization is the answer — storing weights (and, at runtime, activations) as small integers with a shared floating-point scale — and this chapter builds that answer from first principles: the single affine formula every scheme reduces to, why blocks of 32 values need their own independent scale rather than sharing one, how to pack 4-bit values into bytes by hand, how to fuse dequantization directly into a dot product's inner loop, and how a model can be trained to expect the quantization noise it will eventually run under, using a technique — the Straight-Through Estimator — that fixes a broken gradient by simply pretending it isn't broken.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Represent a floating value with an integer. The scale and zero point define the affine mapping." loading="lazy" src="../../images/04-overview.svg?v=10fb49c9fe87" width="760" /></p>
+<p><img alt="Represent a floating value with an integer. The scale and zero point define the affine mapping." loading="lazy" src="../../images/04-overview.svg?v=8b2b78368914" width="760" /></p>
 <figcaption>Quantization error depends on scale, clipping and the distribution of values.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2624,7 +2624,7 @@
 <h2 id="41-the-memory-wall-and-affine-quantization">4.1 The Memory Wall and Affine Quantization<a class="headerlink" href="#41-the-memory-wall-and-affine-quantization" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-4.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch04/04-01.svg?v=819ac97e8b0e"><img alt="Affine quantization is a scale and a shift" src="../../images/technical/ch04/04-01.svg?v=819ac97e8b0e" /></a></p>
+<p><a href="../../images/technical/ch04/04-01.svg?v=42b36dbafcdf"><img alt="Affine quantization is a scale and a shift" src="../../images/technical/ch04/04-01.svg?v=42b36dbafcdf" /></a></p>
 <figcaption>Reconstruction uses scale * (q - zero_point). Values outside the chosen range are clipped.</figcaption>
 </figure>
 <!-- edge:concept-4.1:end -->
@@ -2896,7 +2896,7 @@
 <h2 id="42-symmetric-blockwise-q8-taming-the-outlier-problem">4.2 Symmetric Blockwise Q8: Taming the Outlier Problem<a class="headerlink" href="#42-symmetric-blockwise-q8-taming-the-outlier-problem" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-4.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch04/04-02.svg?v=775b3b2e05c7"><img alt="Local scales isolate an outlier" src="../../images/technical/ch04/04-02.svg?v=775b3b2e05c7" /></a></p>
+<p><a href="../../images/technical/ch04/04-02.svg?v=7184ef4f80ea"><img alt="Local scales isolate an outlier" src="../../images/technical/ch04/04-02.svg?v=7184ef4f80ea" /></a></p>
 <figcaption>Illustrative grouping only. The actual Q8 block size and metadata are defined by the file format.</figcaption>
 </figure>
 <!-- edge:concept-4.2:end -->
@@ -3295,7 +3295,7 @@
 <h2 id="43-q4_0-packing-two-weights-into-one-byte">4.3 Q4_0: Packing Two Weights Into One Byte<a class="headerlink" href="#43-q4_0-packing-two-weights-into-one-byte" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-4.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch04/04-03.svg?v=2547440117c9"><img alt="Two four-bit codes share one byte" src="../../images/technical/ch04/04-03.svg?v=2547440117c9" /></a></p>
+<p><a href="../../images/technical/ch04/04-03.svg?v=9d2f2426174f"><img alt="Two four-bit codes share one byte" src="../../images/technical/ch04/04-03.svg?v=9d2f2426174f" /></a></p>
 <figcaption>Nibble order and the signed-value offset are format contracts; they must match the encoder.</figcaption>
 </figure>
 <!-- edge:concept-4.3:end -->
@@ -3606,7 +3606,7 @@
 <h2 id="44-the-fused-dequantize-dot-product">4.4 The Fused Dequantize-Dot-Product<a class="headerlink" href="#44-the-fused-dequantize-dot-product" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-4.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch04/04-04.svg?v=e00f883faa02"><img alt="Reconstruct only what the dot product needs" src="../../images/technical/ch04/04-04.svg?v=e00f883faa02" /></a></p>
+<p><a href="../../images/technical/ch04/04-04.svg?v=e3d1d1c7952a"><img alt="Reconstruct only what the dot product needs" src="../../images/technical/ch04/04-04.svg?v=e3d1d1c7952a" /></a></p>
 <figcaption>Fusing these stages avoids materializing a full floating-point weight matrix.</figcaption>
 </figure>
 <!-- edge:concept-4.4:end -->
@@ -3932,7 +3932,7 @@
 <h2 id="45-dynamic-activation-quantization-and-int8-x-int8-matmul">4.5 Dynamic Activation Quantization and INT8 x INT8 MatMul<a class="headerlink" href="#45-dynamic-activation-quantization-and-int8-x-int8-matmul" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-4.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch04/04-05.svg?v=d24baa87cefc"><img alt="Separate integer accumulation from scaling" src="../../images/technical/ch04/04-05.svg?v=d24baa87cefc" /></a></p>
+<p><a href="../../images/technical/ch04/04-05.svg?v=14f45fe8ab97"><img alt="Separate integer accumulation from scaling" src="../../images/technical/ch04/04-05.svg?v=14f45fe8ab97" /></a></p>
 <figcaption>This simplified symmetric case has zero point zero. Nonzero zero points require correction terms.</figcaption>
 </figure>
 <!-- edge:concept-4.5:end -->
@@ -4187,7 +4187,7 @@
 <h2 id="46-quantization-aware-training-and-the-straight-through-estimator">4.6 Quantization-Aware Training and the Straight-Through Estimator<a class="headerlink" href="#46-quantization-aware-training-and-the-straight-through-estimator" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-4.6:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch04/04-06.svg?v=1e93563baad9"><img alt="The forward and backward passes use different rules" src="../../images/technical/ch04/04-06.svg?v=1e93563baad9" /></a></p>
+<p><a href="../../images/technical/ch04/04-06.svg?v=2e05a20cd424"><img alt="The forward and backward passes use different rules" src="../../images/technical/ch04/04-06.svg?v=2e05a20cd424" /></a></p>
 <figcaption>The straight-through estimator is a training approximation, not the exact derivative of rounding.</figcaption>
 </figure>
 <!-- edge:concept-4.6:end -->

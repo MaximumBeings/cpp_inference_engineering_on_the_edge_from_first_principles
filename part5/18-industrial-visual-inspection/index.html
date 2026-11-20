@@ -2493,7 +2493,7 @@
 <h1 id="chapter-18-industrial-visual-inspection-edge-deployed-defect-detection-on-manufacturing-lines">Chapter 18: Industrial Visual Inspection: Edge-Deployed Defect Detection on Manufacturing Lines<a class="headerlink" href="#chapter-18-industrial-visual-inspection-edge-deployed-defect-detection-on-manufacturing-lines" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/18.svg?v=833b5ccdd943"><img alt="Chapter 18: A manufacturing inspection decision path" src="../../images/chapter-openers/18.svg?v=833b5ccdd943" /></a></p>
+<p><a href="../../images/chapter-openers/18.svg?v=3e546248ce45"><img alt="Chapter 18: A manufacturing inspection decision path" src="../../images/chapter-openers/18.svg?v=3e546248ce45" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2516,7 +2516,7 @@
 <p>Every earlier chapter's real file was already sitting on disk before this book's own code ever touched it -- a GGUF checkpoint, a conversation's own text. A manufacturing line is a different kind of deployment target entirely: its camera produces frames over a network in real time, its inspection model has to fuse what it sees with what it is told, its verdict has to become an action a conveyor's gate can act on within milliseconds, and its every decision has to be durably logged and reported upward to the SCADA system that runs the rest of the plant. This chapter builds all five of those pieces from scratch, in order -- frame acquisition, vision encoding, multimodal fusion, disposition and logging, and SCADA integration -- stating exactly where each one is a real, verifiable implementation and where it is an honest, clearly labeled simplification of a real industrial protocol this environment has no hardware to check byte-for-byte.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="A manufacturing inspection decision path. Model output is one input to a disposition policy." loading="lazy" src="../../images/18-overview.svg?v=ec505004ef3b" width="760" /></p>
+<p><img alt="A manufacturing inspection decision path. Model output is one input to a disposition policy." loading="lazy" src="../../images/18-overview.svg?v=8855e94fee9b" width="760" /></p>
 <figcaption>Confidence and model output require validation before actuating a production workflow.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2524,7 +2524,7 @@
 <h2 id="181-gige-vision-frame-acquisition-and-hardware-triggering">18.1 GigE Vision Frame Acquisition and Hardware Triggering<a class="headerlink" href="#181-gige-vision-frame-acquisition-and-hardware-triggering" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-18.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch18/18-01.svg?v=1835c6b5bacd"><img alt="Acquisition begins with a capture event" src="../../images/technical/ch18/18-01.svg?v=1835c6b5bacd" /></a></p>
+<p><a href="../../images/technical/ch18/18-01.svg?v=0d36b9c17b7d"><img alt="Acquisition begins with a capture event" src="../../images/technical/ch18/18-01.svg?v=0d36b9c17b7d" /></a></p>
 <figcaption>A missing or late frame must have a defined handling path rather than silently shifting inspection order.</figcaption>
 </figure>
 <!-- edge:concept-18.1:end -->
@@ -2973,7 +2973,7 @@
 <h2 id="182-image-preprocessing-and-the-qwen25-vl-vision-encoder">18.2 Image Preprocessing and the Qwen2.5-VL Vision Encoder<a class="headerlink" href="#182-image-preprocessing-and-the-qwen25-vl-vision-encoder" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-18.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch18/18-02.svg?v=f4e50bb542c8"><img alt="Pixels become model features" src="../../images/technical/ch18/18-02.svg?v=f4e50bb542c8" /></a></p>
+<p><a href="../../images/technical/ch18/18-02.svg?v=c324f96df302"><img alt="Pixels become model features" src="../../images/technical/ch18/18-02.svg?v=c324f96df302" /></a></p>
 <figcaption>Use the model-specific preprocessing contract. A generic resize is not a universal encoder input.</figcaption>
 </figure>
 <!-- edge:concept-18.2:end -->
@@ -3526,7 +3526,7 @@
 <h2 id="183-wiring-the-vision-encoder-into-the-qwen2-decoder">18.3 Wiring the Vision Encoder into the Qwen2 Decoder<a class="headerlink" href="#183-wiring-the-vision-encoder-into-the-qwen2-decoder" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-18.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch18/18-03.svg?v=8061ae657f88"><img alt="Vision features join the language input" src="../../images/technical/ch18/18-03.svg?v=8061ae657f88" /></a></p>
+<p><a href="../../images/technical/ch18/18-03.svg?v=0130b3f80243"><img alt="Vision features join the language input" src="../../images/technical/ch18/18-03.svg?v=0130b3f80243" /></a></p>
 <figcaption>The supported model determines the feature insertion and positional conventions.</figcaption>
 </figure>
 <!-- edge:concept-18.3:end -->
@@ -4650,7 +4650,7 @@
 <h2 id="184-confidence-threshold-disposition-and-sqlite-defect-logging">18.4 Confidence-Threshold Disposition and SQLite Defect Logging<a class="headerlink" href="#184-confidence-threshold-disposition-and-sqlite-defect-logging" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-18.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch18/18-04.svg?v=67a8b74fb263"><img alt="A model suggestion is not a line disposition" src="../../images/technical/ch18/18-04.svg?v=67a8b74fb263" /></a></p>
+<p><a href="../../images/technical/ch18/18-04.svg?v=8c039a8f15c8"><img alt="A model suggestion is not a line disposition" src="../../images/technical/ch18/18-04.svg?v=8c039a8f15c8" /></a></p>
 <figcaption>A schema-valid response still needs task validation and a safe uncertain-result path.</figcaption>
 </figure>
 <!-- edge:concept-18.4:end -->
@@ -5023,7 +5023,7 @@
 <h2 id="185-opc-ua-integration-into-the-messcada-line">18.5 OPC UA Integration into the MES/SCADA Line<a class="headerlink" href="#185-opc-ua-integration-into-the-messcada-line" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-18.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch18/18-05.svg?v=dfbfd76e2cf6"><img alt="Bridge inspection results to the line system" src="../../images/technical/ch18/18-05.svg?v=dfbfd76e2cf6" /></a></p>
+<p><a href="../../images/technical/ch18/18-05.svg?v=20f652b6298f"><img alt="Bridge inspection results to the line system" src="../../images/technical/ch18/18-05.svg?v=20f652b6298f" /></a></p>
 <figcaption>Integration code must distinguish proposed results, accepted records and confirmed downstream actions.</figcaption>
 </figure>
 <!-- edge:concept-18.5:end -->

@@ -2493,7 +2493,7 @@
 <h1 id="chapter-19-retail-inventory-and-supply-chain-intelligence-shelf-photography-to-action">Chapter 19: Retail Inventory and Supply Chain Intelligence: Shelf Photography to Action<a class="headerlink" href="#chapter-19-retail-inventory-and-supply-chain-intelligence-shelf-photography-to-action" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/19.svg?v=e72828f2a64a"><img alt="Chapter 19: Turn shelf images into inventory evidence" src="../../images/chapter-openers/19.svg?v=e72828f2a64a" /></a></p>
+<p><a href="../../images/chapter-openers/19.svg?v=37741b33e291"><img alt="Chapter 19: Turn shelf images into inventory evidence" src="../../images/chapter-openers/19.svg?v=37741b33e291" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2516,7 +2516,7 @@
 <p>Chapter 18 taught a vision-language model to inspect a single manufactured part in isolation and decide, from what it saw, whether the part was good. A retail shelf asks a related but genuinely different question: not "what is this," but "is this where it is supposed to be, and if it is missing, has it been missing long enough to matter." This chapter builds every piece that question requires, in the order a real retail deployment would need them -- encoding what SHOULD be on a shelf, observing what actually is there across a batch of real photographs, reporting both into the ERP and WMS systems a retailer already runs its business on, aggregating that reporting honestly across every store in a chain, and finally reconciling expectation against observation into the two real findings -- misplacement and shrinkage -- a store operator can actually act on.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram." loading="lazy" src="../../images/19-overview.svg?v=1668e392f2eb" width="760" /></p>
+<p><img alt="Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram." loading="lazy" src="../../images/19-overview.svg?v=9e871bc5f8ef" width="760" /></p>
 <figcaption>Separate observed image evidence from inferred stock availability.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2524,7 +2524,7 @@
 <h2 id="191-encoding-a-planogram-directly-into-the-system-prompt">19.1 Encoding a Planogram Directly into the System Prompt<a class="headerlink" href="#191-encoding-a-planogram-directly-into-the-system-prompt" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-19.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch19/19-01.svg?v=87038b7c769a"><img alt="A planogram provides an explicit comparison target" src="../../images/technical/ch19/19-01.svg?v=87038b7c769a" /></a></p>
+<p><a href="../../images/technical/ch19/19-01.svg?v=4491aed8c83f"><img alt="A planogram provides an explicit comparison target" src="../../images/technical/ch19/19-01.svg?v=4491aed8c83f" /></a></p>
 <figcaption>The prompt supplies structured expectations. The image remains uncertain evidence.</figcaption>
 </figure>
 <!-- edge:concept-19.1:end -->
@@ -2958,7 +2958,7 @@
 <h2 id="192-a-batch-shelf-photo-processor">19.2 A Batch Shelf-Photo Processor<a class="headerlink" href="#192-a-batch-shelf-photo-processor" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-19.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch19/19-02.svg?v=d176daf1fdfc"><img alt="Batch processing keeps images and results paired" src="../../images/technical/ch19/19-02.svg?v=d176daf1fdfc" /></a></p>
+<p><a href="../../images/technical/ch19/19-02.svg?v=0efbebd7d0c1"><img alt="Batch processing keeps images and results paired" src="../../images/technical/ch19/19-02.svg?v=0efbebd7d0c1" /></a></p>
 <figcaption>Partial failures must not cause results to be assigned to the wrong shelf.</figcaption>
 </figure>
 <!-- edge:concept-19.2:end -->
@@ -4275,7 +4275,7 @@
 <h2 id="193-rest-integration-into-erpwms-systems">19.3 REST Integration into ERP/WMS Systems<a class="headerlink" href="#193-rest-integration-into-erpwms-systems" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-19.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch19/19-03.svg?v=608ba3705cac"><img alt="Inventory suggestions pass through an API boundary" src="../../images/technical/ch19/19-03.svg?v=608ba3705cac" /></a></p>
+<p><a href="../../images/technical/ch19/19-03.svg?v=223ba11c750d"><img alt="Inventory suggestions pass through an API boundary" src="../../images/technical/ch19/19-03.svg?v=223ba11c750d" /></a></p>
 <figcaption>Use stable identifiers and retry-safe operations; do not assume every retry should add stock again.</figcaption>
 </figure>
 <!-- edge:concept-19.3:end -->
@@ -4691,7 +4691,7 @@
 <h2 id="194-multi-store-aggregation-and-trend-detection">19.4 Multi-Store Aggregation and Trend Detection<a class="headerlink" href="#194-multi-store-aggregation-and-trend-detection" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-19.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch19/19-04.svg?v=9a7ed52fbb3b"><img alt="Aggregation must retain denominators" src="../../images/technical/ch19/19-04.svg?v=9a7ed52fbb3b" /></a></p>
+<p><a href="../../images/technical/ch19/19-04.svg?v=3d9a48814a8c"><img alt="Aggregation must retain denominators" src="../../images/technical/ch19/19-04.svg?v=3d9a48814a8c" /></a></p>
 <figcaption>Illustrative sample counts. Compare rates using observation volume and time windows, not raw totals alone.</figcaption>
 </figure>
 <!-- edge:concept-19.4:end -->
@@ -5005,7 +5005,7 @@
 <h2 id="195-shrinkage-and-misplacement-detection-from-ordinary-shelf-photographs">19.5 Shrinkage and Misplacement Detection from Ordinary Shelf Photographs<a class="headerlink" href="#195-shrinkage-and-misplacement-detection-from-ordinary-shelf-photographs" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-19.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch19/19-05.svg?v=65c517e8c158"><img alt="A visual discrepancy has several explanations" src="../../images/technical/ch19/19-05.svg?v=65c517e8c158" /></a></p>
+<p><a href="../../images/technical/ch19/19-05.svg?v=ba2f4aaf3141"><img alt="A visual discrepancy has several explanations" src="../../images/technical/ch19/19-05.svg?v=ba2f4aaf3141" /></a></p>
 <figcaption>A shelf image alone does not establish theft or shrinkage causation.</figcaption>
 </figure>
 <!-- edge:concept-19.5:end -->

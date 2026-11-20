@@ -2593,7 +2593,7 @@
 <h1 id="chapter-3-the-computational-graph-rmsnorm-swiglu-rope-and-attention">Chapter 3: The Computational Graph -- RMSNorm, SwiGLU, RoPE, and Attention<a class="headerlink" href="#chapter-3-the-computational-graph-rmsnorm-swiglu-rope-and-attention" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/03.svg?v=6e79f565d538"><img alt="Chapter 3: Inside a transformer block" src="../../images/chapter-openers/03.svg?v=6e79f565d538" /></a></p>
+<p><a href="../../images/chapter-openers/03.svg?v=c03c6ae117b8"><img alt="Chapter 3: Inside a transformer block" src="../../images/chapter-openers/03.svg?v=c03c6ae117b8" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2613,7 +2613,7 @@
 <p>Chapter 2 gave this book the tools to describe and allocate tensors; this chapter gives it something to compute with them. Every operation here is a genuine piece of a modern transformer block, in the order it actually runs: RMSNorm before attention and before the feed-forward network, RoPE applied to Q and K right after their projections, Grouped-Query Attention reading a KV cache that grows by one position per generated token, and a SwiGLU feed-forward network that alone accounts for roughly two-thirds of a forward pass's total FLOPs. The chapter closes by assembling these into a static compute graph — recorded once, replayed cheaply every token, with a liveness-aware memory plan — and by loading the weights that graph reads through <code>mmap</code>, so that a multi-gigabyte checkpoint never has to be copied wholesale into RAM before the first token can generate.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Inside a transformer block. Residual paths carry the input around attention and the feed-forward network." loading="lazy" src="../../images/03-overview.svg?v=e20452a63b7e" width="760" /></p>
+<p><img alt="Inside a transformer block. Residual paths carry the input around attention and the feed-forward network." loading="lazy" src="../../images/03-overview.svg?v=0afffcab91a9" width="760" /></p>
 <figcaption>Attention(Q, K, V) = softmax(QK^T / sqrt d) V</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2621,7 +2621,7 @@
 <h2 id="31-rmsnorm-cheap-memory-bound-normalization">3.1 RMSNorm: Cheap, Memory-Bound Normalization<a class="headerlink" href="#31-rmsnorm-cheap-memory-bound-normalization" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-3.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch03/03-01.svg?v=938a4dc7d65c"><img alt="Normalize by the root mean square" src="../../images/technical/ch03/03-01.svg?v=938a4dc7d65c" /></a></p>
+<p><a href="../../images/technical/ch03/03-01.svg?v=e69b46ab88f1"><img alt="Normalize by the root mean square" src="../../images/technical/ch03/03-01.svg?v=e69b46ab88f1" /></a></p>
 <figcaption>The same scalar denominator normalizes the feature vector. The learned gain is per feature.</figcaption>
 </figure>
 <!-- edge:concept-3.1:end -->
@@ -2783,7 +2783,7 @@
 <h2 id="32-swiglu-the-gated-feed-forward-network">3.2 SwiGLU: The Gated Feed-Forward Network<a class="headerlink" href="#32-swiglu-the-gated-feed-forward-network" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-3.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch03/03-02.svg?v=64a44644c138"><img alt="Two projections form a gated feed-forward path" src="../../images/technical/ch03/03-02.svg?v=64a44644c138" /></a></p>
+<p><a href="../../images/technical/ch03/03-02.svg?v=a2e96df04df6"><img alt="Two projections form a gated feed-forward path" src="../../images/technical/ch03/03-02.svg?v=a2e96df04df6" /></a></p>
 <figcaption>The gate and up projections both read x. The gate modulates the up branch element by element.</figcaption>
 </figure>
 <!-- edge:concept-3.2:end -->
@@ -2928,7 +2928,7 @@
 <h2 id="33-rope-encoding-position-through-rotation">3.3 RoPE: Encoding Position Through Rotation<a class="headerlink" href="#33-rope-encoding-position-through-rotation" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-3.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch03/03-03.svg?v=4c7c4e79420b"><img alt="RoPE rotates pairs of coordinates" src="../../images/technical/ch03/03-03.svg?v=4c7c4e79420b" /></a></p>
+<p><a href="../../images/technical/ch03/03-03.svg?v=bb52e42d2b7f"><img alt="RoPE rotates pairs of coordinates" src="../../images/technical/ch03/03-03.svg?v=bb52e42d2b7f" /></a></p>
 <figcaption>Each pair has its own frequency. Rotation preserves its norm before finite-precision rounding.</figcaption>
 </figure>
 <!-- edge:concept-3.3:end -->
@@ -3090,7 +3090,7 @@
 <h2 id="34-grouped-query-attention-with-a-kv-cache">3.4 Grouped-Query Attention with a KV Cache<a class="headerlink" href="#34-grouped-query-attention-with-a-kv-cache" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-3.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch03/03-04.svg?v=c2e915a0c6e4"><img alt="Several query heads can share one KV head" src="../../images/technical/ch03/03-04.svg?v=c2e915a0c6e4" /></a></p>
+<p><a href="../../images/technical/ch03/03-04.svg?v=79901ff2c485"><img alt="Several query heads can share one KV head" src="../../images/technical/ch03/03-04.svg?v=79901ff2c485" /></a></p>
 <figcaption>Illustrative GQA ratio 2:1. Query heads remain distinct while cached keys and values are shared.</figcaption>
 </figure>
 <!-- edge:concept-3.4:end -->
@@ -3316,7 +3316,7 @@
 <h2 id="35-the-static-compute-graph-record-once-replay-cheaply">3.5 The Static Compute Graph: Record Once, Replay Cheaply<a class="headerlink" href="#35-the-static-compute-graph-record-once-replay-cheaply" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-3.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch03/03-05.svg?v=6bbbcada2369"><img alt="Record dependencies once, execute repeatedly" src="../../images/technical/ch03/03-05.svg?v=6bbbcada2369" /></a></p>
+<p><a href="../../images/technical/ch03/03-05.svg?v=593b2ce6415d"><img alt="Record dependencies once, execute repeatedly" src="../../images/technical/ch03/03-05.svg?v=593b2ce6415d" /></a></p>
 <figcaption>Replay must still respect data dependencies and the lifetime of every referenced allocation.</figcaption>
 </figure>
 <!-- edge:concept-3.5:end -->
@@ -3563,7 +3563,7 @@
 <h2 id="36-mmap-weight-loading-zero-copy-access-to-a-multi-gigabyte-file">3.6 mmap Weight Loading: Zero-Copy Access to a Multi-Gigabyte File<a class="headerlink" href="#36-mmap-weight-loading-zero-copy-access-to-a-multi-gigabyte-file" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-3.6:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch03/03-06.svg?v=a04ab1c07259"><img alt="Map file bytes and expose bounded tensor ranges" src="../../images/technical/ch03/03-06.svg?v=a04ab1c07259" /></a></p>
+<p><a href="../../images/technical/ch03/03-06.svg?v=fe100fe6c4a6"><img alt="Map file bytes and expose bounded tensor ranges" src="../../images/technical/ch03/03-06.svg?v=fe100fe6c4a6" /></a></p>
 <figcaption>File offsets identify tensor payloads. Views must not outlive the file mapping.</figcaption>
 </figure>
 <!-- edge:concept-3.6:end -->

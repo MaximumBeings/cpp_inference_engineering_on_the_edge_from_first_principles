@@ -2115,7 +2115,7 @@
 <h1 id="appendix-b-practice-quiz">Appendix B: Practice Quiz<a class="headerlink" href="#appendix-b-practice-quiz" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/appendix-b.svg?v=a30d81ea53d6"><img alt="Appendix B: Use the quiz to test a chain of reasoning" src="../../images/chapter-openers/appendix-b.svg?v=a30d81ea53d6" /></a></p>
+<p><a href="../../images/chapter-openers/appendix-b.svg?v=e0a2377a17de"><img alt="Appendix B: Use the quiz to test a chain of reasoning" src="../../images/chapter-openers/appendix-b.svg?v=e0a2377a17de" /></a></p>
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2123,14 +2123,28 @@
 <p>Every chapter in this book already ends with its own self-check questions and worked solutions, testing that chapter's own material in isolation. This appendix is different: it tests whether the ideas actually connect across Parts -- whether you can look at a KV cache eviction problem and recognize the same underlying shape a re-quantization bug has, or say why a diagnosis-incapable medical report schema and a compile-time no-facial-recognition guarantee are solving the same kind of problem in different domains. B.2 asks fourteen conceptual questions, two from each of this book's seven Parts, with answers in B.3. B.4 raises the stakes: three short, genuinely compiled programs, each built around a specific real mistake this book warned about somewhere -- read the code, commit to a prediction, then compile and run it yourself before reading the revealed output.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision." loading="lazy" src="../../images/b-overview.svg?v=93d17283ba7c" width="760" /></p>
+<p><img alt="Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision." loading="lazy" src="../../images/b-overview.svg?v=e73a9e520cf9" width="760" /></p>
 <figcaption>Explain why an answer follows from the constraints.</figcaption>
 </figure>
 <!-- /chapter-figure -->
 
 <h2 id="b1-how-to-use-this-quiz">B.1 How to Use This Quiz<a class="headerlink" href="#b1-how-to-use-this-quiz" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-B.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-b/b-01.svg?v=9ea35efcba35"><img alt="Use the quiz as a closed-loop learning check" src="../../images/technical/appendix-b/b-01.svg?v=9ea35efcba35" /></a></p>
+<figcaption>An explanation is more useful than a guessed result. Keep track of the assumptions behind each answer.</figcaption>
+</figure>
+<!-- edge:concept-B.1:end -->
+
 <p>Answer every question in B.2 in your own words -- out loud, or on paper -- before reading B.3's answer. For B.4, do the same with actual code: read the program, write down what you believe it will print, and only then compile it and compare. A prediction you get wrong tells you exactly which chapter to reread; a prediction you get right by guessing, without being able to explain why, is worth treating the same way. Every one of B.4's programs compiles and runs in seconds -- there is no reason to skip the "compile and run it yourself" half of the exercise, and every reason not to: this book's entire method has been "genuinely compiled, genuinely run, never assumed," and this quiz is not an exception.</p>
 <h2 id="b2-conceptual-review-questions">B.2 Conceptual Review Questions<a class="headerlink" href="#b2-conceptual-review-questions" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-B.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-b/b-02.svg?v=3e4c29f0caf2"><img alt="Connect each review question to an engineering contract" src="../../images/technical/appendix-b/b-02.svg?v=3e4c29f0caf2" /></a></p>
+<figcaption>A correct answer should explain the invariant and what would fail if that invariant were broken.</figcaption>
+</figure>
+<!-- edge:concept-B.2:end -->
+
 <p><strong>Part 0 -- Foundations (Chapters 2-3)</strong></p>
 <ol>
 <li>Why does <code>std::mdspan</code> improve on a raw pointer plus manual index arithmetic for representing a tensor, and what specific GCC-version constraint did this book have to work around for its own multi-dimensional subscript syntax?</li>
@@ -2167,6 +2181,13 @@
 <li>Chapter 32 could not launch its CUDA kernel on a real GPU anywhere in this book's own pipeline. What could a clean <code>nvcc</code> compile still prove about that kernel, and what could it NOT prove?</li>
 </ol>
 <h2 id="b3-conceptual-review-answers">B.3 Conceptual Review Answers<a class="headerlink" href="#b3-conceptual-review-answers" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-B.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-b/b-03.svg?v=98bce8a79d1d"><img alt="Compare the reasoning, not only the final answer" src="../../images/technical/appendix-b/b-03.svg?v=98bce8a79d1d" /></a></p>
+<figcaption>A matching final number does not establish that the intermediate reasoning is valid.</figcaption>
+</figure>
+<!-- edge:concept-B.3:end -->
+
 <p><strong>1.</strong> <code>std::mdspan</code> attaches a tensor's shape (extents) and layout policy directly to the view type, so indexing math is computed in one consistent place rather than re-derived by hand as <code>row * cols + col</code> at every call site, where a transposed dimension or an off-by-one is easy to introduce silently. This book's own real constraint: its actual aarch64 target device runs GCC 11.4.0, which predates GCC 12's support for C++23's multi-argument <code>operator[]</code> (<code>view[i, j]</code>) and ships no native <code>&lt;mdspan&gt;</code> header at all -- so every <code>mdspan</code>-based file in this book uses a vendored, header-only reference implementation plus an <code>idx2()</code>/<code>idx3()</code> helper that packages indices into the <code>std::array</code> overload GCC 11 does support, a convention established in Chapter 13's own appendix note and reused unchanged through Chapter 32.</p>
 <p><strong>2.</strong> Rotating the query and key vectors by their own absolute positions makes their dot product depend ONLY on the relative distance between them, not on either position alone -- exactly the property attention needs, since two tokens three positions apart near the start of a sequence should relate the same way as two tokens three positions apart near the end. This falls directly out of the rotation-composition identity <code>R(a)^T * R(b) = R(b-a)</code>. Adding a position vector directly has no equivalent algebraic guarantee: two tokens' additive position encodings don't combine into a clean function of relative distance when dotted together, so a model using additive position encoding has to learn that structure from data instead of getting it for free from the geometry.</p>
 <p><strong>3.</strong> A purely symmetric (scale-only) quantizer maps real zero to integer zero, which wastes representable range whenever the real distribution being quantized is not centered at zero -- activations after a ReLU, for instance, are all non-negative, so a symmetric int8 range of [-128, 127] would leave the entire negative half of that range completely unused. The zero-point shifts which integer value represents real zero, letting the quantizer's full integer range map onto the ACTUAL span of the data, at the cost of one extra offset to track and add back during dequantization.</p>
@@ -2182,6 +2203,13 @@
 <p><strong>13.</strong> <code>exp()</code> of a large real input overflows a float's or double's finite range and becomes infinity well before the division by the sum happens, and infinity divided by an infinity-containing sum evaluates to NaN, silently corrupting the entire softmax output rather than just its largest entry. The shift-invariant identity <code>softmax(x) == softmax(x - max(x))</code> fixes this WITHOUT changing the mathematical result: subtracting the input's own maximum guarantees the largest shifted value is exactly 0 (so <code>exp(0) = 1</code>, never overflowing) while every other shifted value is negative (so its <code>exp()</code> is a safe fraction below 1), and the algebra guarantees the final normalized probabilities come out identical to what the numerically-impossible unshifted computation would have produced had it not overflowed.</p>
 <p><strong>14.</strong> A clean compile across three real Jetson-class architectures proves the kernel is syntactically valid CUDA C++ and that the compiler could generate real device code implementing its stated logic for each target -- a genuine, meaningful fact about the kernel's correctness at the SOURCE level. It proves nothing about the kernel's actual RUNTIME behavior: a race condition in the shared-memory tile load, a tile-boundary off-by-one, or a genuine numerical error in the online-softmax update would all compile without any error, since none of them are visible from source code alone -- only actually launching the kernel on real hardware and comparing its output against the CPU golden reference, which this book's own pipeline was honest about never having a GPU available to do, could close that gap.</p>
 <h2 id="b4-predict-the-output-challenges">B.4 Predict-the-Output Challenges<a class="headerlink" href="#b4-predict-the-output-challenges" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-B.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-b/b-04.svg?v=8de15003f5f0"><img alt="Predict output before executing the program" src="../../images/technical/appendix-b/b-04.svg?v=8de15003f5f0" /></a></p>
+<figcaption>Account for integer versus floating-point arithmetic, state changes and explicitly specified output formatting.</figcaption>
+</figure>
+<!-- edge:concept-B.4:end -->
+
 <h3 id="challenge-1-the-softmax-overflow-trap">Challenge 1: The Softmax Overflow Trap<a class="headerlink" href="#challenge-1-the-softmax-overflow-trap" title="Permanent link">&para;</a></h3>
 <p>Chapter 30.2 warned that naive softmax (<code>exp(x_i) / sum(exp(x_j))</code>) silently overflows to NaN on large real inputs, and fixed it with the shift-invariant identity <code>softmax(x) == softmax(x - max(x))</code>. Before compiling and running the program below, predict: for the input <code>{1000.0, 1001.0, 1002.0}</code>, does the naive version produce NaN, and does the shifted version still produce the mathematically correct probabilities?</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Appendix B, Challenge 1 -- Chapter 30.2 warned that naive softmax</span>

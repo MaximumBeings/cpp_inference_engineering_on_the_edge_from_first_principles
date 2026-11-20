@@ -2261,7 +2261,7 @@
 <h1 id="appendix-a-installation-and-setup-cross-compiling-for-the-edge">Appendix A: Installation and Setup -- Cross-Compiling for the Edge<a class="headerlink" href="#appendix-a-installation-and-setup-cross-compiling-for-the-edge" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/appendix-a.svg?v=5acf65575590"><img alt="Appendix A: Cross-compile, then execute the target binary" src="../../images/chapter-openers/appendix-a.svg?v=5acf65575590" /></a></p>
+<p><a href="../../images/chapter-openers/appendix-a.svg?v=c528b4916f43"><img alt="Appendix A: Cross-compile, then execute the target binary" src="../../images/chapter-openers/appendix-a.svg?v=c528b4916f43" /></a></p>
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2283,12 +2283,19 @@
 <p>Every chapter in this book compiled and ran identically on an x86_64 development machine and real aarch64 hardware, using a real cross-compilation toolchain invoked directly with <code>g++</code> and specific flags. This appendix documents that same real toolchain on its own, as a standalone, working CMake project a reader can copy directly: how to install it, how to structure a CMake project around it so cross-compiling is a single flag rather than a hand-maintained command line, and -- in the same honest spirit as every chapter before it -- five real failures this book's own pipeline actually hit while building this exact setup, captured verbatim, with the real fix for each one.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation." loading="lazy" src="../../images/a-overview.svg?v=70f3db8a0035" width="760" /></p>
+<p><img alt="Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation." loading="lazy" src="../../images/a-overview.svg?v=e24ce3eb414e" width="760" /></p>
 <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
 </figure>
 <!-- /chapter-figure -->
 
 <h2 id="a1-toolchain-setup-on-the-development-machine">A.1 Toolchain Setup on the Development Machine<a class="headerlink" href="#a1-toolchain-setup-on-the-development-machine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-A.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-a/a-01.svg?v=1087e96beae9"><img alt="Verify the development toolchain before building" src="../../images/technical/appendix-a/a-01.svg?v=1087e96beae9" /></a></p>
+<figcaption>A compiler version alone does not guarantee every library feature. Verify the headers and flags used by the book.</figcaption>
+</figure>
+<!-- edge:concept-A.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Cross-compiling means the compiler producing the binary runs on one architecture (the development machine, here x86_64) while the binary itself runs on another (the edge target, here 64-bit Arm). That requires a real cross-compiler that knows how to emit aarch64 machine code, and, to actually run and test the result without a physical board on hand, a real user-mode emulator.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2308,6 +2315,13 @@
 <p>Installing <code>aarch64-linux-gnu-g++</code> produces real aarch64 machine code, but an x86_64 CPU cannot execute that machine code directly -- attempting to run a cross-compiled binary as a normal x86_64 program fails immediately with "cannot execute binary file: Exec format error." <code>qemu-user</code>'s <code>qemu-aarch64</code> is what actually closes that gap on a development machine with no physical Arm board attached, and Section A.3 below documents a further real, non-obvious step needed before CMake's own <code>ctest</code> will use it automatically.</p>
 </div>
 <h2 id="a2-a-working-cmake-project-layout">A.2 A Working CMake Project Layout<a class="headerlink" href="#a2-a-working-cmake-project-layout" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-A.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-a/a-02.svg?v=64338f816bdc"><img alt="A CMake project separates sources from build outputs" src="../../images/technical/appendix-a/a-02.svg?v=64338f816bdc" /></a></p>
+<figcaption>Use an out-of-source build so generated artifacts do not overwrite project sources.</figcaption>
+</figure>
+<!-- edge:concept-A.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A single real CMake project can build the identical, unmodified source file once for the native development machine and once for a cross-compiled edge target, using target-architecture-conditional compiler flags where the two targets genuinely differ.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2509,6 +2523,13 @@
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>ALL CHECKS PASSED
 </code></pre></div>
 <h2 id="a3-cross-compiling-for-armneon-edge-targets">A.3 Cross-Compiling for Arm/NEON Edge Targets<a class="headerlink" href="#a3-cross-compiling-for-armneon-edge-targets" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-A.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-a/a-03.svg?v=f9d34ce14615"><img alt="Cross-compilation has two distinct machines" src="../../images/technical/appendix-a/a-03.svg?v=f9d34ce14615" /></a></p>
+<figcaption>Compilation checks the target code path. It does not prove native execution or performance on the edge device.</figcaption>
+</figure>
+<!-- edge:concept-A.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Building the identical source tree for a 64-bit Arm target needs only a real CMake toolchain file passed on the configure line -- no changes to <code>CMakeLists.txt</code> or the source itself -- plus two real, non-obvious settings that make the cross-compiled binary actually runnable and testable on the development machine.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -2601,6 +2622,13 @@
 <p>A clean <code>cmake --build build-aarch64</code> only confirms <code>aarch64-linux-gnu-g++</code> accepted the source and produced a real aarch64 ELF binary -- it says nothing about whether that binary will actually execute correctly on a real board. <code>qemu-aarch64</code> narrows that gap considerably by genuinely executing the real aarch64 instructions rather than merely confirming they exist, which is why this section's own Test 2 result matching the native build exactly is meaningful and not assumed. It still is not a full substitute for running on the real target hardware: a real edge board's own specific libc version, kernel version, or hardware capabilities (a NEON extension <code>qemu-aarch64</code>'s own CPU emulation does not model, for instance) could still behave differently. This book's own pipeline closes that remaining gap the only way it honestly can -- by also running its own self-tests directly on real aarch64 hardware, not only under emulation.</p>
 </div>
 <h2 id="a4-diagnostics-reference">A.4 Diagnostics Reference<a class="headerlink" href="#a4-diagnostics-reference" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-A.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-a/a-04.svg?v=fe0037c180ac"><img alt="Classify the failure before changing the code" src="../../images/technical/appendix-a/a-04.svg?v=fe0037c180ac" /></a></p>
+<figcaption>Read the first relevant diagnostic and reproduce it with the documented command before applying a fix.</figcaption>
+</figure>
+<!-- edge:concept-A.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Every diagnostic in this section is a real, verbatim failure this book's own pipeline actually triggered while building the exact setup documented above -- captured directly from a real terminal, not paraphrased from memory -- paired with the real fix that resolved it.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

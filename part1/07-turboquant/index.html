@@ -2493,7 +2493,7 @@
 <h1 id="chapter-7-turboquant-online-vector-quantization-with-near-optimal-distortion">Chapter 7: TurboQuant -- Online Vector Quantization with Near-Optimal Distortion<a class="headerlink" href="#chapter-7-turboquant-online-vector-quantization-with-near-optimal-distortion" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/07.svg?v=b577b185fa6a"><img alt="Chapter 7: Quantize a vector in a rotated coordinate system" src="../../images/chapter-openers/07.svg?v=b577b185fa6a" /></a></p>
+<p><a href="../../images/chapter-openers/07.svg?v=b46c406fd162"><img alt="Chapter 7: Quantize a vector in a rotated coordinate system" src="../../images/chapter-openers/07.svg?v=b46c406fd162" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2516,7 +2516,7 @@
 <p>Every quantizer built so far in this book has worked one 32-element block at a time: find the block's largest magnitude, pick a scale, round each of the 32 values independently. That approach makes no use of the fact that those 32 values are part of a much longer vector living somewhere specific in space — it treats each block as an isolated signal with no relationship to its neighbors. TurboQuant, the subject of this chapter, throws that assumption away. It treats an entire vector as one geometric object on a high-dimensional sphere, applies a single principled transformation to that whole object, and only then quantizes coordinate by coordinate — but with a quantizer that has been custom-built for the exact statistical shape those coordinates are now guaranteed to have. Section 7.1 builds and verifies the rotation step that makes this possible. Section 7.2 builds the optimal per-coordinate quantizer the rotation sets up, combining the two into TurboQuant's reconstruction-optimal "MSE mode." Section 7.3 shows that MSE mode, despite being optimal for reconstruction, is quietly biased for a different and equally important task — estimating inner products — and derives the 1-bit correction that fixes it. Section 7.4 puts the resulting quantizer to work on the KV cache, the online, uncalibrated, ever-growing structure that blockwise quantization was never well matched to. Section 7.5 closes the chapter by comparing TurboQuant against Chapters 2-6's blockwise approach directly, on the same vectors, and checks TurboQuant's own distortion against the information-theoretic floor no quantizer of any kind can beat.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products." loading="lazy" src="../../images/07-overview.svg?v=27dd76778d61" width="760" /></p>
+<p><img alt="Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products." loading="lazy" src="../../images/07-overview.svg?v=aa049940ba36" width="760" /></p>
 <figcaption>Keep the MSE reconstruction, residual and query in compatible coordinates.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2524,7 +2524,7 @@
 <h2 id="71-random-rotation-turning-worst-case-vectors-into-average-case-ones">7.1 Random Rotation: Turning Worst-Case Vectors into Average-Case Ones<a class="headerlink" href="#71-random-rotation-turning-worst-case-vectors-into-average-case-ones" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-7.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch07/07-01.svg?v=7616be598893"><img alt="An orthogonal transform preserves geometry" src="../../images/technical/ch07/07-01.svg?v=7616be598893" /></a></p>
+<p><a href="../../images/technical/ch07/07-01.svg?v=0f23b5572532"><img alt="An orthogonal transform preserves geometry" src="../../images/technical/ch07/07-01.svg?v=0f23b5572532" /></a></p>
 <figcaption>Rotation redistributes coordinates before quantization. Quantization itself introduces approximation.</figcaption>
 </figure>
 <!-- edge:concept-7.1:end -->
@@ -2921,7 +2921,7 @@
 <h2 id="72-lloyd-max-optimal-codebooks-and-the-mse-quantizer">7.2 Lloyd-Max Optimal Codebooks and the MSE Quantizer<a class="headerlink" href="#72-lloyd-max-optimal-codebooks-and-the-mse-quantizer" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-7.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch07/07-02.svg?v=683a1cc14fa3"><img alt="A codebook alternates assignments and centroids" src="../../images/technical/ch07/07-02.svg?v=683a1cc14fa3" /></a></p>
+<p><a href="../../images/technical/ch07/07-02.svg?v=fd3679bee822"><img alt="A codebook alternates assignments and centroids" src="../../images/technical/ch07/07-02.svg?v=fd3679bee822" /></a></p>
 <figcaption>The codebook is optimized for an assumed distribution. A mismatched distribution changes the error.</figcaption>
 </figure>
 <!-- edge:concept-7.2:end -->
@@ -3359,7 +3359,7 @@
 <h2 id="73-the-inner-product-bias-problem-and-the-qjl-fix">7.3 The Inner-Product Bias Problem and the QJL Fix<a class="headerlink" href="#73-the-inner-product-bias-problem-and-the-qjl-fix" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-7.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch07/07-03.svg?v=ee7610151d7a"><img alt="Reconstruction error and dot-product bias differ" src="../../images/technical/ch07/07-03.svg?v=ee7610151d7a" /></a></p>
+<p><a href="../../images/technical/ch07/07-03.svg?v=fd319cc8814e"><img alt="Reconstruction error and dot-product bias differ" src="../../images/technical/ch07/07-03.svg?v=fd319cc8814e" /></a></p>
 <figcaption>Low MSE alone is not a proof that an estimated attention score is unbiased.</figcaption>
 </figure>
 <!-- edge:concept-7.3:end -->
@@ -3852,7 +3852,7 @@
 <h2 id="74-compressing-the-kv-cache-with-turboquant">7.4 Compressing the KV Cache with TurboQuant<a class="headerlink" href="#74-compressing-the-kv-cache-with-turboquant" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-7.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch07/07-04.svg?v=97081782837f"><img alt="Compressed KV must still support attention" src="../../images/technical/ch07/07-04.svg?v=97081782837f" /></a></p>
+<p><a href="../../images/technical/ch07/07-04.svg?v=76306a237ea8"><img alt="Compressed KV must still support attention" src="../../images/technical/ch07/07-04.svg?v=76306a237ea8" /></a></p>
 <figcaption>Query and cache transforms must use compatible conventions and the same logical positions.</figcaption>
 </figure>
 <!-- edge:concept-7.4:end -->
@@ -4288,7 +4288,7 @@
 <h2 id="75-turboquant-vs-blockwise-quantization-and-the-distortion-bounds">7.5 TurboQuant vs. Blockwise Quantization, and the Distortion Bounds<a class="headerlink" href="#75-turboquant-vs-blockwise-quantization-and-the-distortion-bounds" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-7.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch07/07-05.svg?v=17ec5eb72fe7"><img alt="Two compression families use different metadata" src="../../images/technical/ch07/07-05.svg?v=17ec5eb72fe7" /></a></p>
+<p><a href="../../images/technical/ch07/07-05.svg?v=0b2b93a333c9"><img alt="Two compression families use different metadata" src="../../images/technical/ch07/07-05.svg?v=0b2b93a333c9" /></a></p>
 <figcaption>Compare total bytes and task error under the same workload. No measured speedup is implied.</figcaption>
 </figure>
 <!-- edge:concept-7.5:end -->

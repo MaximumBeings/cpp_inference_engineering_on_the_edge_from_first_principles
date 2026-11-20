@@ -2393,7 +2393,7 @@
 <h1 id="chapter-15-running-real-models-from-huggingface-to-first-token-with-qwen25">Chapter 15: Running Real Models -- From HuggingFace to First Token with Qwen2.5<a class="headerlink" href="#chapter-15-running-real-models-from-huggingface-to-first-token-with-qwen25" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/15.svg?v=14cfc026cfff"><img alt="Chapter 15: Produce a token from a real checkpoint" src="../../images/chapter-openers/15.svg?v=14cfc026cfff" /></a></p>
+<p><a href="../../images/chapter-openers/15.svg?v=1fba079a3e48"><img alt="Chapter 15: Produce a token from a real checkpoint" src="../../images/chapter-openers/15.svg?v=1fba079a3e48" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2417,7 +2417,7 @@
 <p>Every chapter so far has proven its code correct against data this book's own tools produced: a writer this book wrote, read back by a reader this book wrote, checked against values this book's own test computed. That symmetry is exactly what makes those chapters' cross-architecture verification possible, and exactly what this chapter breaks on purpose. A real, published model file was produced by someone else's tooling, encodes someone else's architecture choices, and makes no promise that this book's prior assumptions hold. Section 15.1 builds a GGUF reader that survives contact with such a file -- closing gaps (an unsupported metadata value type, wrong assumptions about a magic number's exact bytes) that no self-consistent round-trip test could ever have surfaced. Section 15.2 puts that reader to work identifying exactly where a real Qwen2.5 checkpoint's architecture diverges from the Llama-style choices this book built Part 0 and Part 3 against: five differences, each checked against the real file's own bytes rather than assumed from a spec sheet or carried forward from an unverified claim. Section 15.3 adapts the actual forward-pass and tokenizer code for those five differences and proves the adaptation correct against a small synthetic model shaped like the real one. Section 15.4, the chapter's capstone, wires every piece -- the reader, the dequantizer, the BPE engine, the adapted transformer block -- together, points the result at the actual 644 MB file, and produces one real, computed, decoded token. Getting that one token right required finding and fixing four genuine bugs that no synthetic self-test, however careful, could have caught -- and this chapter documents each one as it was actually found, not as though the correct answer were obvious from the start.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass." loading="lazy" src="../../images/15-overview.svg?v=09c0d9bb2c7d" width="760" /></p>
+<p><img alt="Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass." loading="lazy" src="../../images/15-overview.svg?v=4f0696c36497" width="760" /></p>
 <figcaption>A synthetic self-test and a real checkpoint run validate different contracts.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2425,7 +2425,7 @@
 <h2 id="151-a-reader-that-survives-contact-with-a-real-file">15.1 A Reader That Survives Contact With a Real File<a class="headerlink" href="#151-a-reader-that-survives-contact-with-a-real-file" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-15.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch15/15-01.svg?v=b028a4b2ff21"><img alt="Validate before trusting model-file metadata" src="../../images/technical/ch15/15-01.svg?v=b028a4b2ff21" /></a></p>
+<p><a href="../../images/technical/ch15/15-01.svg?v=203ab52b3c2e"><img alt="Validate before trusting model-file metadata" src="../../images/technical/ch15/15-01.svg?v=203ab52b3c2e" /></a></p>
 <figcaption>Reject unsupported formats and malformed dimensions before allocating or reading tensor data.</figcaption>
 </figure>
 <!-- edge:concept-15.1:end -->
@@ -3080,7 +3080,7 @@
 <h2 id="152-five-ways-a-real-qwen2-checkpoint-differs-from-llama">15.2 Five Ways a Real Qwen2 Checkpoint Differs From Llama<a class="headerlink" href="#152-five-ways-a-real-qwen2-checkpoint-differs-from-llama" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-15.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch15/15-02.svg?v=5b5237478c00"><img alt="Architecture names do not imply identical tensors" src="../../images/technical/ch15/15-02.svg?v=5b5237478c00" /></a></p>
+<p><a href="../../images/technical/ch15/15-02.svg?v=8365124fc252"><img alt="Architecture names do not imply identical tensors" src="../../images/technical/ch15/15-02.svg?v=8365124fc252" /></a></p>
 <figcaption>Use the checkpoint metadata and supported architecture implementation together.</figcaption>
 </figure>
 <!-- edge:concept-15.2:end -->
@@ -3704,7 +3704,7 @@
 <h2 id="153-adapting-the-forward-pass-and-tokenizer-for-qwen2">15.3 Adapting the Forward Pass and Tokenizer for Qwen2<a class="headerlink" href="#153-adapting-the-forward-pass-and-tokenizer-for-qwen2" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-15.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch15/15-03.svg?v=2b49b5c05151"><img alt="Adapt the complete path, not only the weights" src="../../images/technical/ch15/15-03.svg?v=2b49b5c05151" /></a></p>
+<p><a href="../../images/technical/ch15/15-03.svg?v=bc373ee0e988"><img alt="Adapt the complete path, not only the weights" src="../../images/technical/ch15/15-03.svg?v=bc373ee0e988" /></a></p>
 <figcaption>A numerically valid tensor load can still produce wrong text if the surrounding conventions differ.</figcaption>
 </figure>
 <!-- edge:concept-15.3:end -->
@@ -4236,7 +4236,7 @@
 <h2 id="154-a-first-real-token-from-qwen25-05b-instruct">15.4 A First Real Token From Qwen2.5-0.5B-Instruct<a class="headerlink" href="#154-a-first-real-token-from-qwen25-05b-instruct" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-15.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch15/15-04.svg?v=a9c9b747d432"><img alt="A first token has traceable intermediate stages" src="../../images/technical/ch15/15-04.svg?v=a9c9b747d432" /></a></p>
+<p><a href="../../images/technical/ch15/15-04.svg?v=b3eecd1858ea"><img alt="A first token has traceable intermediate stages" src="../../images/technical/ch15/15-04.svg?v=b3eecd1858ea" /></a></p>
 <figcaption>Verify shapes and finite values along the path before interpreting the output as model quality.</figcaption>
 </figure>
 <!-- edge:concept-15.4:end -->

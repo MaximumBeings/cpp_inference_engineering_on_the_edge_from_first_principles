@@ -2493,7 +2493,7 @@
 <h1 id="chapter-20-medical-imaging-triage-preliminary-radiology-reads-and-human-in-the-loop-workflow">Chapter 20: Medical Imaging Triage: Preliminary Radiology Reads and Human-in-the-Loop Workflow<a class="headerlink" href="#chapter-20-medical-imaging-triage-preliminary-radiology-reads-and-human-in-the-loop-workflow" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/20.svg?v=b4e46028f7e0"><img alt="Chapter 20: Medical triage with a human review gate" src="../../images/chapter-openers/20.svg?v=b4e46028f7e0" /></a></p>
+<p><a href="../../images/chapter-openers/20.svg?v=0674a0e1403d"><img alt="Chapter 20: Medical triage with a human review gate" src="../../images/chapter-openers/20.svg?v=0674a0e1403d" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2516,7 +2516,7 @@
 <p>Chapter 18 taught a vision-language model to inspect a manufactured part and decide, on its own, whether the part passed. Chapter 19 taught the same core to reconcile a shelf against a planogram and raise its own findings. Medical imaging triage cannot work either way. A system that reads a scan and suggests how urgently a human should look at it is assisting a clinical decision, never making one, and this chapter states why that difference is not a matter of policy wording but of what a piece of software is structurally CAPABLE of doing on its own. This chapter builds every real piece that discipline requires, in the order a real triage pipeline would need them -- a state machine that cannot reach a final disposition without a real clinician's own sign-off, a real parser for the DICOM files a scan actually arrives in, a report format structurally incapable of smuggling a diagnosis into a queue-priority field, a worklist queue that extends the same sign-off discipline across many radiologists and many cases at once, and, finally, an honest account of how far a real explainability technique can see into the model's own reasoning, and exactly where it stops.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Medical triage with a human review gate. The examples illustrate workflow plumbing; clinical deployment requires separate validation." loading="lazy" src="../../images/20-overview.svg?v=e4de49742072" width="760" /></p>
+<p><img alt="Medical triage with a human review gate. The examples illustrate workflow plumbing; clinical deployment requires separate validation." loading="lazy" src="../../images/20-overview.svg?v=1602f06bd2d7" width="760" /></p>
 <figcaption>Automated triage output requires clinical review and deployment-specific validation.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2524,7 +2524,7 @@
 <h2 id="201-a-structural-human-in-the-loop-triage-state-machine">20.1 A Structural Human-in-the-Loop Triage State Machine<a class="headerlink" href="#201-a-structural-human-in-the-loop-triage-state-machine" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-20.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch20/20-01.svg?v=8282731e2fce"><img alt="A triage suggestion stays inside human review" src="../../images/technical/ch20/20-01.svg?v=8282731e2fce" /></a></p>
+<p><a href="../../images/technical/ch20/20-01.svg?v=712aa2526ff2"><img alt="A triage suggestion stays inside human review" src="../../images/technical/ch20/20-01.svg?v=712aa2526ff2" /></a></p>
 <figcaption>This is a workflow illustration, not a clinically validated diagnostic system.</figcaption>
 </figure>
 <!-- edge:concept-20.1:end -->
@@ -2831,7 +2831,7 @@
 <h2 id="202-dicom-ingestion-and-windowing-for-display">20.2 DICOM Ingestion and Windowing for Display<a class="headerlink" href="#202-dicom-ingestion-and-windowing-for-display" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-20.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch20/20-02.svg?v=c7673452db0f"><img alt="Windowing maps a selected intensity interval" src="../../images/technical/ch20/20-02.svg?v=c7673452db0f" /></a></p>
+<p><a href="../../images/technical/ch20/20-02.svg?v=b442792a93c7"><img alt="Windowing maps a selected intensity interval" src="../../images/technical/ch20/20-02.svg?v=b442792a93c7" /></a></p>
 <figcaption>Display windowing changes visible contrast. Preserve source pixel values and medical metadata.</figcaption>
 </figure>
 <!-- edge:concept-20.2:end -->
@@ -3331,7 +3331,7 @@
 <h2 id="203-a-structured-triage-reporting-prompt-and-parser">20.3 A Structured Triage-Reporting Prompt and Parser<a class="headerlink" href="#203-a-structured-triage-reporting-prompt-and-parser" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-20.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch20/20-03.svg?v=67a2163a00f7"><img alt="Structured output needs parsing and validation" src="../../images/technical/ch20/20-03.svg?v=67a2163a00f7" /></a></p>
+<p><a href="../../images/technical/ch20/20-03.svg?v=13a46304d9b3"><img alt="Structured output needs parsing and validation" src="../../images/technical/ch20/20-03.svg?v=13a46304d9b3" /></a></p>
 <figcaption>A valid schema does not prove a finding is medically correct.</figcaption>
 </figure>
 <!-- edge:concept-20.3:end -->
@@ -3733,7 +3733,7 @@
 <h2 id="204-pacs-worklist-integration-with-a-human-in-the-loop-queue">20.4 PACS Worklist Integration with a Human-in-the-Loop Queue<a class="headerlink" href="#204-pacs-worklist-integration-with-a-human-in-the-loop-queue" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-20.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch20/20-04.svg?v=a9746b9c377e"><img alt="Worklist states make ownership visible" src="../../images/technical/ch20/20-04.svg?v=a9746b9c377e" /></a></p>
+<p><a href="../../images/technical/ch20/20-04.svg?v=987d94544728"><img alt="Worklist states make ownership visible" src="../../images/technical/ch20/20-04.svg?v=987d94544728" /></a></p>
 <figcaption>Urgency suggestions and final clinical decisions must remain distinguishable.</figcaption>
 </figure>
 <!-- edge:concept-20.4:end -->
@@ -4172,7 +4172,7 @@
 <h2 id="205-occlusion-based-saliency-and-the-honest-limits-of-explainability">20.5 Occlusion-Based Saliency and the Honest Limits of Explainability<a class="headerlink" href="#205-occlusion-based-saliency-and-the-honest-limits-of-explainability" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-20.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch20/20-05.svg?v=e304deb8e705"><img alt="Occlusion reveals sensitivity, not causal truth" src="../../images/technical/ch20/20-05.svg?v=e304deb8e705" /></a></p>
+<p><a href="../../images/technical/ch20/20-05.svg?v=930275e18b05"><img alt="Occlusion reveals sensitivity, not causal truth" src="../../images/technical/ch20/20-05.svg?v=930275e18b05" /></a></p>
 <figcaption>A changed output indicates sensitivity to the perturbation. It does not establish clinical explainability.</figcaption>
 </figure>
 <!-- edge:concept-20.5:end -->

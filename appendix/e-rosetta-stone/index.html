@@ -2337,7 +2337,7 @@
 <h1 id="appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone">Appendix E: From PyTorch and llama.cpp to C++: A Rosetta Stone<a class="headerlink" href="#appendix-e-from-pytorch-and-llamacpp-to-c-a-rosetta-stone" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/appendix-e.svg?v=57699d7d1569"><img alt="Appendix E: Translate familiar framework concepts into engine parts" src="../../images/chapter-openers/appendix-e.svg?v=57699d7d1569" /></a></p>
+<p><a href="../../images/chapter-openers/appendix-e.svg?v=1ef213965711"><img alt="Appendix E: Translate familiar framework concepts into engine parts" src="../../images/chapter-openers/appendix-e.svg?v=1ef213965711" /></a></p>
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2346,12 +2346,19 @@
 <hr />
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain." loading="lazy" src="../../images/e-overview.svg?v=c0af2881682d" width="760" /></p>
+<p><img alt="Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain." loading="lazy" src="../../images/e-overview.svg?v=ba462feaf787" width="760" /></p>
 <figcaption>Check the book&#x27;s implemented scope before assuming framework feature parity.</figcaption>
 </figure>
 <!-- /chapter-figure -->
 
 <h2 id="e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained">E.1 Tensors: <code>std::mdspan</code> and GGUF/SafeTensors vs. <code>torch.Tensor</code> and <code>AutoModel.from_pretrained</code><a class="headerlink" href="#e1-tensors-stdmdspan-and-ggufsafetensors-vs-torchtensor-and-automodelfrom_pretrained" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-E.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-e/e-01.svg?v=2e7741b6498b"><img alt="Storage ownership differs from an indexed view" src="../../images/technical/appendix-e/e-01.svg?v=2e7741b6498b" /></a></p>
+<figcaption>A similar indexing API does not imply matching ownership, automatic differentiation or device support.</figcaption>
+</figure>
+<!-- edge:concept-E.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A reader arriving from PyTorch has never had to think about a tensor's memory apart from the tensor itself -- <code>torch.Tensor</code> bundles a reference-counted block of storage together with the shape and stride metadata that describes how to read it, and the object stays alive for as long as anything holds a reference to it. Chapter 2 built something narrower and, in one specific way, more dangerous to use carelessly: <code>std::mdspan</code> is a pure view -- shape and stride metadata with no storage of its own, no reference count, and no say at all in how long the memory underneath it survives. Neither design is wrong; they are solving different problems. <code>torch.Tensor</code> manages memory so a Python program using it doesn't have to. <code>std::mdspan</code> refuses to manage memory at all, on the theory that a C++ program in control of its own allocations should decide that separately, once, rather than pay a reference count on every tensor operation in a real-time inference loop.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2398,6 +2405,13 @@
 </div>
 <hr />
 <h2 id="e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers">E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace's <code>tokenizers</code><a class="headerlink" href="#e2-tokenization-a-from-scratch-bpe-pipeline-vs-huggingfaces-tokenizers" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-E.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-e/e-02.svg?v=4b380f75ad46"><img alt="Tokenizer compatibility is a complete contract" src="../../images/technical/appendix-e/e-02.svg?v=4b380f75ad46" /></a></p>
+<figcaption>Compare known token sequences and byte handling. Sharing a BPE algorithm name is not enough for compatibility.</figcaption>
+</figure>
+<!-- edge:concept-E.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>The single most useful thing to understand, arriving from HuggingFace's <code>tokenizers</code> library, is that this book's own <code>BPEEncoder::encode</code> is not a simplified approximation of real byte-pair encoding -- it is real byte-pair encoding. Production BPE, including the byte-level BPE GPT-2 and RoBERTa use, tokenizes new text by applying merge rules in the order they were learned during training, greedily, with no lookahead.<sup id="fnref:bpe"><a class="footnote-ref" href="#fn:bpe">5</a></sup> Chapter 12.1's own worked example -- a merge table where <code>(l,o)</code> has a lower (earlier) priority than the full chain needed to reach the whole word "Hello," so encoding "Hello" yields <code>["He","l","lo"]</code> rather than the seemingly more sensible <code>["Hello"]</code> -- is not a bug this book introduced. It is exactly how real production tokenizers behave, and the appendix's job here is to say that plainly rather than let a reader assume the surprising result is this book's own shortcut.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2443,6 +2457,13 @@
 </div>
 <hr />
 <h2 id="e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention">E.3 KV Cache and PagedAttention: This Book's <code>BlockManager</code> vs. vLLM's Real PagedAttention and SGLang's RadixAttention<a class="headerlink" href="#e3-kv-cache-and-pagedattention-this-books-blockmanager-vs-vllms-real-pagedattention-and-sglangs-radixattention" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-E.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-e/e-03.svg?v=293a259f73c4"><img alt="A teaching cache manager has a smaller scope" src="../../images/technical/appendix-e/e-03.svg?v=293a259f73c4" /></a></p>
+<figcaption>Compare mechanisms explicitly. Do not infer production feature parity from similar terminology.</figcaption>
+</figure>
+<!-- edge:concept-E.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Chapter 13.2 does not merely resemble vLLM's PagedAttention -- it says so directly in its own code comments: "PagedAttention (the technique vLLM popularized) borrows virtual-memory paging's own idea... 16 is the size real systems like vLLM settle on." This is the one section in this whole book that already names its own real-world correspondence outright, which makes it the natural place to check that correspondence against vLLM's own paper rather than merely repeat the book's own claim.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -2493,6 +2514,13 @@
 </div>
 <hr />
 <h2 id="e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack">E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack<a class="headerlink" href="#e4-model-loading-and-serving-the-production-engine-vs-a-real-python-serving-stack" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-E.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-e/e-04.svg?v=0dab315afca3"><img alt="A serving stack has several distinct responsibilities" src="../../images/technical/appendix-e/e-04.svg?v=0dab315afca3" /></a></p>
+<figcaption>The book engine exposes the core path. A production service adds transport, isolation, observability and operating controls.</figcaption>
+</figure>
+<!-- edge:concept-E.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Chapter 15's own real value was never the code it started with -- it was the four real bugs found only once that code met a real, downloaded 644 MB Qwen2.5-0.5B-Instruct GGUF file, each one invisible to every synthetic self-test that came before it, including Section 15.3's own 25/25-passing suite. That is the single strongest argument this book makes anywhere for why comparing against an independent second real implementation (here, an independently built <code>llama.cpp</code>) beats re-reading your own code more carefully -- a lesson equally true whether the "second implementation" is llama.cpp or, for a Python-ecosystem reader, a reference HuggingFace <code>generate()</code> run.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -2536,6 +2564,13 @@
 </table>
 <hr />
 <h2 id="e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching">E.5 Continuous Batching: This Book's Scheduler vs. Orca's Iteration-Level Scheduling and vLLM's Real Continuous Batching<a class="headerlink" href="#e5-continuous-batching-this-books-scheduler-vs-orcas-iteration-level-scheduling-and-vllms-real-continuous-batching" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-E.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/appendix-e/e-05.svg?v=8666f8c86a10"><img alt="Iteration boundaries enable continuous admission" src="../../images/technical/appendix-e/e-05.svg?v=8666f8c86a10" /></a></p>
+<figcaption>The conceptual similarity is iteration-level scheduling; actual batching policies and kernels differ across systems.</figcaption>
+</figure>
+<!-- edge:concept-E.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Chapter 31 never once names vLLM, and never once uses the phrase "iteration-level scheduling" -- unlike Chapter 13.2, which credits vLLM by name for PagedAttention. This is not an oversight to route around quietly; it means the correspondence drawn in this section is genuinely new material contributed by this appendix, checked directly against the real research this idea traces to, rather than a restatement of something the book already said about itself.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

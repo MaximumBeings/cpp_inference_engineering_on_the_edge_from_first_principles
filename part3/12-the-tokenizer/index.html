@@ -2493,7 +2493,7 @@
 <h1 id="chapter-12-the-tokenizer-bpe-sentencepiece-and-the-vocabulary-pipeline">Chapter 12: The Tokenizer -- BPE, SentencePiece, and the Vocabulary Pipeline<a class="headerlink" href="#chapter-12-the-tokenizer-bpe-sentencepiece-and-the-vocabulary-pipeline" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/12.svg?v=644f4179202f"><img alt="Chapter 12: From text to model token IDs" src="../../images/chapter-openers/12.svg?v=644f4179202f" /></a></p>
+<p><a href="../../images/chapter-openers/12.svg?v=fe2998157a76"><img alt="Chapter 12: From text to model token IDs" src="../../images/chapter-openers/12.svg?v=fe2998157a76" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2516,7 +2516,7 @@
 <p>Every chapter so far has assumed tokens already exist as small integers flowing into an embedding table. This chapter builds the thing that produces them. Section 12.1 implements byte-pair encoding's actual merge loop — the algorithm that turns a stream of raw bytes into the hierarchical, always-representable vocabulary a real model was trained on — and traces a genuinely counterintuitive case by hand to show that merge PRIORITY, not merge OPPORTUNITY, decides the result. Section 12.2 builds the pre-tokenizer that runs before BPE ever sees a byte, so a merge rule can never accidentally fuse two words together. Section 12.3 turns to special tokens and the chat template that assembles a real multi-turn conversation, and makes concrete a security property this book has not needed to state before: special tokens are inserted by ID at fixed positions, never discovered by pattern-matching user text, so a user cannot inject a fake end-of-turn signal just by typing its literal string. Section 12.4 reverses the whole process with a token decoder, handling byte-fallback and control tokens correctly enough that a real multi-byte UTF-8 codepoint falls out of it with no Unicode-specific code at all. Section 12.5 closes the chapter by extending Chapter 5's real GGUF reader and writer with array support, writing an actual tokenizer vocabulary to a real file, and loading a complete, working tokenizer back out of it — proving the whole pipeline with a lossless round trip on ordinary text.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="From text to model token IDs. Pre-tokenization and BPE must match the vocabulary used to train the model." loading="lazy" src="../../images/12-overview.svg?v=89f0f61fc3e1" width="760" /></p>
+<p><img alt="From text to model token IDs. Pre-tokenization and BPE must match the vocabulary used to train the model." loading="lazy" src="../../images/12-overview.svg?v=c62eb790f19c" width="760" /></p>
 <figcaption>Decoding can span multiple tokens for one UTF-8 character.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2524,7 +2524,7 @@
 <h2 id="121-byte-pair-encoding-the-merge-algorithm">12.1 Byte-Pair Encoding: The Merge Algorithm<a class="headerlink" href="#121-byte-pair-encoding-the-merge-algorithm" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-12.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch12/12-01.svg?v=be71c2b163cb"><img alt="BPE repeatedly chooses an eligible merge" src="../../images/technical/ch12/12-01.svg?v=be71c2b163cb" /></a></p>
+<p><a href="../../images/technical/ch12/12-01.svg?v=9fba9f731fad"><img alt="BPE repeatedly chooses an eligible merge" src="../../images/technical/ch12/12-01.svg?v=9fba9f731fad" /></a></p>
 <figcaption>Actual merges follow vocabulary ranks and tokenization rules, not arbitrary pair concatenation.</figcaption>
 </figure>
 <!-- edge:concept-12.1:end -->
@@ -2871,7 +2871,7 @@
 <h2 id="122-pre-tokenization-splitting-text-before-bpe">12.2 Pre-Tokenization: Splitting Text Before BPE<a class="headerlink" href="#122-pre-tokenization-splitting-text-before-bpe" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-12.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch12/12-02.svg?v=fdb76594a802"><img alt="Pre-tokenization sets merge boundaries" src="../../images/technical/ch12/12-02.svg?v=fdb76594a802" /></a></p>
+<p><a href="../../images/technical/ch12/12-02.svg?v=c6e34c8ec078"><img alt="Pre-tokenization sets merge boundaries" src="../../images/technical/ch12/12-02.svg?v=c6e34c8ec078" /></a></p>
 <figcaption>Whitespace, punctuation and byte handling are model-specific conventions.</figcaption>
 </figure>
 <!-- edge:concept-12.2:end -->
@@ -3104,7 +3104,7 @@
 <h2 id="123-special-tokens-and-the-chat-template">12.3 Special Tokens and the Chat Template<a class="headerlink" href="#123-special-tokens-and-the-chat-template" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-12.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch12/12-03.svg?v=986cc2bac0fb"><img alt="A chat template is part of the input format" src="../../images/technical/ch12/12-03.svg?v=986cc2bac0fb" /></a></p>
+<p><a href="../../images/technical/ch12/12-03.svg?v=54b236866972"><img alt="A chat template is part of the input format" src="../../images/technical/ch12/12-03.svg?v=54b236866972" /></a></p>
 <figcaption>Use the model vocabulary IDs and exact template. Similar-looking text is not the same token sequence.</figcaption>
 </figure>
 <!-- edge:concept-12.3:end -->
@@ -3452,7 +3452,7 @@
 <h2 id="124-the-token-decoder-ids-back-to-utf-8">12.4 The Token Decoder: IDs Back to UTF-8<a class="headerlink" href="#124-the-token-decoder-ids-back-to-utf-8" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-12.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch12/12-04.svg?v=61ae9890d30b"><img alt="Streaming bytes must end at UTF-8 boundaries" src="../../images/technical/ch12/12-04.svg?v=61ae9890d30b" /></a></p>
+<p><a href="../../images/technical/ch12/12-04.svg?v=34f2b3fbd9d3"><img alt="Streaming bytes must end at UTF-8 boundaries" src="../../images/technical/ch12/12-04.svg?v=34f2b3fbd9d3" /></a></p>
 <figcaption>A token boundary is not necessarily a Unicode character boundary.</figcaption>
 </figure>
 <!-- edge:concept-12.4:end -->
@@ -3720,7 +3720,7 @@
 <h2 id="125-a-complete-tokenizer-pipeline-loaded-from-a-real-gguf-file">12.5 A Complete Tokenizer Pipeline Loaded from a Real GGUF File<a class="headerlink" href="#125-a-complete-tokenizer-pipeline-loaded-from-a-real-gguf-file" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-12.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch12/12-05.svg?v=6fcc639e147f"><img alt="Load tokenization conventions with the weights" src="../../images/technical/ch12/12-05.svg?v=6fcc639e147f" /></a></p>
+<p><a href="../../images/technical/ch12/12-05.svg?v=7020fcafd208"><img alt="Load tokenization conventions with the weights" src="../../images/technical/ch12/12-05.svg?v=7020fcafd208" /></a></p>
 <figcaption>Test known prompts and byte sequences against the intended model conventions.</figcaption>
 </figure>
 <!-- edge:concept-12.5:end -->

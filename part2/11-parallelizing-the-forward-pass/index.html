@@ -2493,7 +2493,7 @@
 <h1 id="chapter-11-parallelizing-the-forward-pass-row-parallel-head-parallel-and-reproducible-across-thread-counts">Chapter 11: Parallelizing the Forward Pass -- Row-Parallel, Head-Parallel, and Reproducible Across Thread Counts<a class="headerlink" href="#chapter-11-parallelizing-the-forward-pass-row-parallel-head-parallel-and-reproducible-across-thread-counts" title="Permanent link">&para;</a></h1>
 <!-- edge:opener:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/chapter-openers/11.svg?v=cc13c74de9f9"><img alt="Chapter 11: Parallelize the forward pass at independent outputs" src="../../images/chapter-openers/11.svg?v=cc13c74de9f9" /></a></p>
+<p><a href="../../images/chapter-openers/11.svg?v=bdc0d55276b0"><img alt="Chapter 11: Parallelize the forward pass at independent outputs" src="../../images/chapter-openers/11.svg?v=bdc0d55276b0" /></a></p>
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
 <!-- edge:opener:end -->
@@ -2517,7 +2517,7 @@
 <p>Chapter 10 built the primitives — atomics, mutexes, a barrier-synchronized thread pool, an awareness of false sharing, a work-stealing scheduler — and verified a single GEMV split across them. This chapter spends those primitives on the actual forward pass this book has built one real kernel at a time since Part 0. Section 11.1 names the two fundamental ways to split a matrix-vector product and shows exactly what each one costs and guarantees. Section 11.2 generalizes Chapter 10.3's fixed-shape thread pool into one that can run an entire layer's several different matmul phases, and documents a genuine, hard-won lesson about floating-point reproducibility across CPU architectures along the way. Section 11.3 parallelizes GQA attention itself, across query heads, and finds a real memory-locality hazard in how naively that parallelization is usually done. Section 11.4 confronts a harder version of this book's reproducibility standard: not merely "the same answer on a rerun," but "the same answer no matter how many threads happen to be available." Section 11.5 closes the chapter, and Part 2, by combining every one of these techniques into one complete, real, multi-layer decode step — verified bit-for-bit identical across a change in thread count, and verified just as rigorously to break the moment even one piece of it does not honor that standard.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result." loading="lazy" src="../../images/11-overview.svg?v=b6ae6bdee47e" width="760" /></p>
+<p><img alt="Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result." loading="lazy" src="../../images/11-overview.svg?v=459ffa159231" width="760" /></p>
 <figcaption>Keep reduction order fixed when bitwise reproducibility is required.</figcaption>
 </figure>
 <!-- /chapter-figure -->
@@ -2525,7 +2525,7 @@
 <h2 id="111-row-parallel-vs-column-parallel-matmul">11.1 Row-Parallel vs. Column-Parallel Matmul<a class="headerlink" href="#111-row-parallel-vs-column-parallel-matmul" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-11.1:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch11/11-01.svg?v=1b90eaed87b7"><img alt="Partitioning output and partitioning reduction differ" src="../../images/technical/ch11/11-01.svg?v=1b90eaed87b7" /></a></p>
+<p><a href="../../images/technical/ch11/11-01.svg?v=0f8315e5f93b"><img alt="Partitioning output and partitioning reduction differ" src="../../images/technical/ch11/11-01.svg?v=0f8315e5f93b" /></a></p>
 <figcaption>The partition determines both ownership and synchronization.</figcaption>
 </figure>
 <!-- edge:concept-11.1:end -->
@@ -2832,7 +2832,7 @@
 <h2 id="112-a-persistent-pool-across-a-full-layers-phases">11.2 A Persistent Pool Across a Full Layer's Phases<a class="headerlink" href="#112-a-persistent-pool-across-a-full-layers-phases" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-11.2:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch11/11-02.svg?v=07322914cd27"><img alt="Keep worker threads across layer phases" src="../../images/technical/ch11/11-02.svg?v=07322914cd27" /></a></p>
+<p><a href="../../images/technical/ch11/11-02.svg?v=f468cdaaec78"><img alt="Keep worker threads across layer phases" src="../../images/technical/ch11/11-02.svg?v=f468cdaaec78" /></a></p>
 <figcaption>Persistent threads avoid repeated creation. They do not remove dependencies between phases.</figcaption>
 </figure>
 <!-- edge:concept-11.2:end -->
@@ -3387,7 +3387,7 @@
 <h2 id="113-head-parallel-attention">11.3 Head-Parallel Attention<a class="headerlink" href="#113-head-parallel-attention" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-11.3:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch11/11-03.svg?v=bceefa00ae03"><img alt="Head parallelism gives each task distinct outputs" src="../../images/technical/ch11/11-03.svg?v=bceefa00ae03" /></a></p>
+<p><a href="../../images/technical/ch11/11-03.svg?v=f315f4f15f9f"><img alt="Head parallelism gives each task distinct outputs" src="../../images/technical/ch11/11-03.svg?v=f315f4f15f9f" /></a></p>
 <figcaption>Grouped-query heads may share read-only KV storage while writing separate query-head outputs.</figcaption>
 </figure>
 <!-- edge:concept-11.3:end -->
@@ -3803,7 +3803,7 @@
 <h2 id="114-deterministic-floating-point-reduction-independent-of-thread-count">11.4 Deterministic Floating-Point Reduction, Independent of Thread Count<a class="headerlink" href="#114-deterministic-floating-point-reduction-independent-of-thread-count" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-11.4:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch11/11-04.svg?v=a53527975ea0"><img alt="A fixed reduction tree makes ordering explicit" src="../../images/technical/ch11/11-04.svg?v=a53527975ea0" /></a></p>
+<p><a href="../../images/technical/ch11/11-04.svg?v=1b037fe464c4"><img alt="A fixed reduction tree makes ordering explicit" src="../../images/technical/ch11/11-04.svg?v=1b037fe464c4" /></a></p>
 <figcaption>Floating-point addition is not associative. Determinism requires controlling operation order.</figcaption>
 </figure>
 <!-- edge:concept-11.4:end -->
@@ -4147,7 +4147,7 @@
 <h2 id="115-a-fully-multi-threaded-decode-step">11.5 A Fully Multi-Threaded Decode Step<a class="headerlink" href="#115-a-fully-multi-threaded-decode-step" title="Permanent link">&para;</a></h2>
 <!-- edge:concept-11.5:start -->
 <figure class="chapter-figure">
-<p><a href="../../images/technical/ch11/11-05.svg?v=78277c40ca73"><img alt="One decode step is a dependency chain" src="../../images/technical/ch11/11-05.svg?v=78277c40ca73" /></a></p>
+<p><a href="../../images/technical/ch11/11-05.svg?v=a7e560fae0e9"><img alt="One decode step is a dependency chain" src="../../images/technical/ch11/11-05.svg?v=a7e560fae0e9" /></a></p>
 <figcaption>Parallelize inside the phases and wait before a later phase consumes their outputs.</figcaption>
 </figure>
 <!-- edge:concept-11.5:end -->
