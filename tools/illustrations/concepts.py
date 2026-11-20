@@ -204,3 +204,36 @@ CONCEPTS = {
 ('flow','Validate kernels on real device work',['Check device and CUDA calls','Run varied shapes and tails','Compare finite outputs to CPU','Run memory/race/sync checks'],'A skipped device run is not a pass. Partial tiles and block tails need explicit coverage.'),
 ],
 }
+
+APPENDIX_CONCEPTS = {
+'a': [
+('flow','Verify the development toolchain before building',['Install a C++23 compiler','Check required headers','Resolve project dependencies','Compile and run a smoke test'],'A compiler version alone does not guarantee every library feature. Verify the headers and flags used by the book.'),
+('mapping','A CMake project separates sources from build outputs',['CMakeLists.txt|targets and dependency rules','src/ and include/|implementation and interfaces','build/|generated files and binaries','configure -> build|then execute verification'],'Use an out-of-source build so generated artifacts do not overwrite project sources.'),
+('flow','Cross-compilation has two distinct machines',['Development host','Arm compiler + target sysroot','Arm executable','Run on target or emulator'],'Compilation checks the target code path. It does not prove native execution or performance on the edge device.'),
+('mapping','Classify the failure before changing the code',['Missing header|include path or dependency','Compile error|language feature or source','Link error|library symbols and link flags','Runtime failure|inputs, environment or logic'],'Read the first relevant diagnostic and reproduce it with the documented command before applying a fix.'),
+],
+'b': [
+('flow','Use the quiz as a closed-loop learning check',['Attempt without the answer','Write the reasoning','Check the worked explanation','Revisit the relevant section'],'An explanation is more useful than a guessed result. Keep track of the assumptions behind each answer.'),
+('compare','Connect each review question to an engineering contract',['Memory and arithmetic|tensor ownership and strides|quantization and error|bandwidth and work counts','Execution and serving|synchronization and ordering|tokenization and positions|cache lifetime and scheduling'],'A correct answer should explain the invariant and what would fail if that invariant were broken.'),
+('flow','Compare the reasoning, not only the final answer',['Read the worked answer','Find its governing rule','Compare with your assumptions','Correct the mistaken step'],'A matching final number does not establish that the intermediate reasoning is valid.'),
+('flow','Predict output before executing the program',['Identify inputs and types','Trace state and arithmetic','Write the expected output','Run and explain differences'],'Account for integer versus floating-point arithmetic, state changes and explicitly specified output formatting.'),
+],
+'c': [
+('compare','Choose precision under an explicit budget',['Capacity constraint|count encoded tensor bytes|include scales and metadata|check acceptable task error','Sensitivity constraint|identify sensitive tensors|keep more precision there|validate the hybrid policy'],'The smallest format is not automatically the best choice. The stored type must have a supported kernel.'),
+('compare','Choose parallel work from the dependency structure',['Independent outputs|partition rows or heads|write disjoint output ranges|synchronize dependent phases','Shared reductions|define partial ownership|reduce in a known order|check determinism requirements'],'Measure overhead and bandwidth limits before adding workers. More threads do not remove a serial dependency.'),
+('mapping','Select the cache policy for the actual constraint',['Capacity pressure|windowing or compression','Repeated prompts|prefix sharing','Variable request lengths|paged allocation','Token importance|explicit eviction policy'],'Every policy must preserve the supported model behavior, logical positions and storage lifetime contract.'),
+],
+'d': [
+('math','Convert a memory-interface specification into a bound',['effective transfers per second','* bytes transferred per channel','* active memory channels','= theoretical bytes per second'],'Check whether the published data rate already includes multiple transfers per clock. Do not count that factor twice.'),
+('flow','A bandwidth benchmark needs a declared byte count',['Allocate and initialize buffers','Warm up the measured operation','Time completed work','Compute bytes / elapsed time'],'Report the actual read/write traffic definition and repeated measurements. The theoretical bound is not an achieved result.'),
+('math','Budget the entire request path',['capture or input time','+ preprocessing + inference','+ transfer and response time','<= end-to-end latency budget'],'Keep all terms in the same units. A fast kernel can still miss an end-to-end deadline.'),
+('flow','Separate a failed profiler run from a measured result',['Check platform and permissions','Run the documented perf command','Inspect exit status and counters','Report result or explicit limit'],'Unavailable counters or denied permissions are not zero-cost measurements. Preserve the actual diagnostic.'),
+],
+'e': [
+('compare','Storage ownership differs from an indexed view',['PyTorch tensor|framework-managed storage|shape, dtype and device|framework operations','Book tensor view|non-owning mdspan|explicit backing allocation|explicit layout and kernel'],'A similar indexing API does not imply matching ownership, automatic differentiation or device support.'),
+('flow','Tokenizer compatibility is a complete contract',['Vocabulary and merge rules','Pre-tokenization conventions','Special tokens and template','Encode/decode verification'],'Compare known token sequences and byte handling. Sharing a BPE algorithm name is not enough for compatibility.'),
+('compare','A teaching cache manager has a smaller scope',['Book implementation|explicit block ownership|logical-to-physical lookup|verified local behavior','Production serving systems|broader allocation policies|prefix reuse and scheduling|deployment-specific integration'],'Compare mechanisms explicitly. Do not infer production feature parity from similar terminology.'),
+('mapping','A serving stack has several distinct responsibilities',['Model loading|validated weights and metadata','Tokenization|request-to-token conventions','Execution|forward pass and KV state','Request service|admission, streaming and errors'],'The book engine exposes the core path. A production service adds transport, isolation, observability and operating controls.'),
+('timeline','Iteration boundaries enable continuous admission',['Request A|prefill|decode|finish','Request B|waiting|admitted|decode','Scheduler|apply budget|update active set|next iteration'],'The conceptual similarity is iteration-level scheduling; actual batching policies and kernels differ across systems.'),
+],
+}

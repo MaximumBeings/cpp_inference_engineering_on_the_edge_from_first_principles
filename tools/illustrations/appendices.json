@@ -1,22 +1,112 @@
 [
   {
     "page": "docs/appendix/a-installation-and-setup.md",
-    "opener": "docs/images/chapter-openers/appendix-a.svg"
+    "opener": "docs/images/chapter-openers/appendix-a.svg",
+    "concepts": [
+      {
+        "section": "A.1",
+        "asset": "docs/images/technical/appendix-a/a-01.svg"
+      },
+      {
+        "section": "A.2",
+        "asset": "docs/images/technical/appendix-a/a-02.svg"
+      },
+      {
+        "section": "A.3",
+        "asset": "docs/images/technical/appendix-a/a-03.svg"
+      },
+      {
+        "section": "A.4",
+        "asset": "docs/images/technical/appendix-a/a-04.svg"
+      }
+    ]
   },
   {
     "page": "docs/appendix/b-practice-quiz.md",
-    "opener": "docs/images/chapter-openers/appendix-b.svg"
+    "opener": "docs/images/chapter-openers/appendix-b.svg",
+    "concepts": [
+      {
+        "section": "B.1",
+        "asset": "docs/images/technical/appendix-b/b-01.svg"
+      },
+      {
+        "section": "B.2",
+        "asset": "docs/images/technical/appendix-b/b-02.svg"
+      },
+      {
+        "section": "B.3",
+        "asset": "docs/images/technical/appendix-b/b-03.svg"
+      },
+      {
+        "section": "B.4",
+        "asset": "docs/images/technical/appendix-b/b-04.svg"
+      }
+    ]
   },
   {
     "page": "docs/appendix/c-decision-tree-reference.md",
-    "opener": "docs/images/chapter-openers/appendix-c.svg"
+    "opener": "docs/images/chapter-openers/appendix-c.svg",
+    "concepts": [
+      {
+        "section": "C.1",
+        "asset": "docs/images/technical/appendix-c/c-01.svg"
+      },
+      {
+        "section": "C.2",
+        "asset": "docs/images/technical/appendix-c/c-02.svg"
+      },
+      {
+        "section": "C.3",
+        "asset": "docs/images/technical/appendix-c/c-03.svg"
+      }
+    ]
   },
   {
     "page": "docs/appendix/d-profiling-and-benchmarking.md",
-    "opener": "docs/images/chapter-openers/appendix-d.svg"
+    "opener": "docs/images/chapter-openers/appendix-d.svg",
+    "concepts": [
+      {
+        "section": "D.1",
+        "asset": "docs/images/technical/appendix-d/d-01.svg"
+      },
+      {
+        "section": "D.2",
+        "asset": "docs/images/technical/appendix-d/d-02.svg"
+      },
+      {
+        "section": "D.3",
+        "asset": "docs/images/technical/appendix-d/d-03.svg"
+      },
+      {
+        "section": "D.4",
+        "asset": "docs/images/technical/appendix-d/d-04.svg"
+      }
+    ]
   },
   {
     "page": "docs/appendix/e-rosetta-stone.md",
-    "opener": "docs/images/chapter-openers/appendix-e.svg"
+    "opener": "docs/images/chapter-openers/appendix-e.svg",
+    "concepts": [
+      {
+        "section": "E.1",
+        "asset": "docs/images/technical/appendix-e/e-01.svg"
+      },
+      {
+        "section": "E.2",
+        "asset": "docs/images/technical/appendix-e/e-02.svg"
+      },
+      {
+        "section": "E.3",
+        "asset": "docs/images/technical/appendix-e/e-03.svg"
+      },
+      {
+        "section": "E.4",
+        "asset": "docs/images/technical/appendix-e/e-04.svg"
+      },
+      {
+        "section": "E.5",
+        "asset": "docs/images/technical/appendix-e/e-05.svg"
+      }
+    ]
   }
 ]

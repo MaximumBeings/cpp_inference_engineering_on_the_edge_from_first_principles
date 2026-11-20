@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix D: Profile a controlled workload](../images/chapter-openers/appendix-d.svg?v=57b10ed77421)](../images/chapter-openers/appendix-d.svg?v=57b10ed77421)
+[![Appendix D: Profile a controlled workload](../images/chapter-openers/appendix-d.svg?v=cb6e0795f8f8)](../images/chapter-openers/appendix-d.svg?v=cb6e0795f8f8)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,13 +16,23 @@ Chapter 32's own opening line makes a promise this appendix now keeps: "this boo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg?v=e1a4284a463a){: loading="lazy" width="760" }
+![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg?v=d5db56645f58){: loading="lazy" width="760" }
 
   <figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
 </figure>
 <!-- /chapter-figure -->
 
 ## D.1 Computing Theoretical Peak Bandwidth From a Real Spec Sheet
+
+<!-- edge:concept-D.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Convert a memory-interface specification into a bound](../images/technical/appendix-d/d-01.svg?v=65d8569f56f0)](../images/technical/appendix-d/d-01.svg?v=65d8569f56f0)
+
+<figcaption>Check whether the published data rate already includes multiple transfers per clock. Do not count that factor twice.</figcaption>
+</figure>
+<!-- edge:concept-D.1:end -->
+
 
 ### Intuition
 
@@ -60,6 +70,16 @@ g++ -std=c++23 -Wall -Wextra -O2 d1_peak_bandwidth_formula.cpp -o d1_peak_bandwi
 ---
 
 ## D.2 A Real Bandwidth Micro-Benchmark, and Why Its Own Timing Can Never Be Locked
+
+<!-- edge:concept-D.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A bandwidth benchmark needs a declared byte count](../images/technical/appendix-d/d-02.svg?v=a6d24ffe7611)](../images/technical/appendix-d/d-02.svg?v=a6d24ffe7611)
+
+<figcaption>Report the actual read/write traffic definition and repeated measurements. The theoretical bound is not an achieved result.</figcaption>
+</figure>
+<!-- edge:concept-D.2:end -->
+
 
 ### Intuition
 
@@ -100,6 +120,16 @@ g++ -std=c++23 -Wall -Wextra -O2 d2_bandwidth_microbenchmark.cpp -o d2_bandwidth
 
 ## D.3 Latency-Budget Arithmetic
 
+<!-- edge:concept-D.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Budget the entire request path](../images/technical/appendix-d/d-03.svg?v=02539cadae82)](../images/technical/appendix-d/d-03.svg?v=02539cadae82)
+
+<figcaption>Keep all terms in the same units. A fast kernel can still miss an end-to-end deadline.</figcaption>
+</figure>
+<!-- edge:concept-D.3:end -->
+
+
 ### Intuition
 
 Every deployment eventually asks the same question in a different costume: given a hard latency target, what does the rest of the system need to look like to hit it? Chapter 27.2 already answered a version of this question for a trading system's own tick-to-trade deadline. Chapter 4.1 already answered a version of it for tokens-per-second as a function of memory bandwidth. Neither chapter needed a clock to answer it -- both worked entirely from stated costs and a formula. This section reuses both, unchanged, and for the first time combines one of them with a real, cited hardware number instead of a stated illustrative one.
@@ -134,6 +164,16 @@ g++ -std=c++23 -Wall -Wextra -O2 d3_latency_budget_calculator.cpp -o d3_latency_
 ---
 
 ## D.4 Profiling With `perf`: The Flags That Actually Work, and Where They Genuinely Don't
+
+<!-- edge:concept-D.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Separate a failed profiler run from a measured result](../images/technical/appendix-d/d-04.svg?v=95318bec0116)](../images/technical/appendix-d/d-04.svg?v=95318bec0116)
+
+<figcaption>Unavailable counters or denied permissions are not zero-cost measurements. Preserve the actual diagnostic.</figcaption>
+</figure>
+<!-- edge:concept-D.4:end -->
+
 
 ### Intuition
 

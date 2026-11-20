@@ -11,7 +11,7 @@ import textwrap
 import xml.etree.ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from concepts import CONCEPTS
+from concepts import CONCEPTS, APPENDIX_CONCEPTS
 ROOT = Path(__file__).resolve().parents[2]
 SPECS = runpy.run_path(str(ROOT / 'tools/build_diagrams.py'))['SPECS']
 INK, MUTED, TEAL, ORANGE = '#182d38', '#526674', '#0e756d', '#b94c27'
@@ -32,11 +32,25 @@ def arrow(x1,y1,x2,y2):
     return f'<path d="M{x1} {y1} L{x2} {y2}" fill="none" stroke="#738993" stroke-width="2" marker-end="url(#arrow)"/>'
 
 def svg(title,description,body,height=610,dark=False):
-    bg='#181e30' if dark else '#fbfaf7'
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="760" height="{height}" viewBox="0 0 760 {height}" role="img" aria-labelledby="title desc">
+    bg='#181e30'
+    result=f'''<svg xmlns="http://www.w3.org/2000/svg" width="760" height="{height}" viewBox="0 0 760 {height}" role="img" aria-labelledby="title desc">
 <title id="title">{esc(title)}</title><desc id="desc">{esc(description)}</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#738993"/></marker></defs>
 <g font-family="Arial, Helvetica, sans-serif">{rect(1,1,758,height-2,bg,'#d8dedb' if not dark else '#3a455c',16)}{body}</g></svg>'''
+    # Apply the same dark palette to every figure, including overview cards.
+    node=ET.fromstring(result)
+    ns='{http://www.w3.org/2000/svg}'
+    text_colors={'#182d38':'#f5f4fa','#526674':'#bdc9df','#0e756d':'#8ed5c4','#b94c27':'#f3b486'}
+    fills={'#fff':'#26324a','#ffffff':'#26324a','#fbfaf7':'#181e30','#e8f1ed':'#253d40','#faeee6':'#44332e','#eaf2ef':'#253d40','#eef0ed':'#303b50','#0e756d':'#245650'}
+    strokes={'#cbd5d8':'#5c6c88','#d8dedb':'#3a455c','#d2e1db':'#426b66','#eef0ed':'#303b50'}
+    for element in node.iter():
+        if element.tag==ns+'text':
+            element.set('fill',text_colors.get(element.get('fill'),element.get('fill','#f5f4fa')))
+        elif element.tag==ns+'rect':
+            element.set('fill',fills.get(element.get('fill'),element.get('fill','#26324a')))
+        if element.get('stroke') in strokes:element.set('stroke',strokes[element.get('stroke')])
+    ET.register_namespace('', 'http://www.w3.org/2000/svg')
+    return ET.tostring(node,encoding='unicode')
 
 def heading(title,section):
     count=len(textwrap.wrap(title,46))
@@ -294,23 +308,35 @@ def main():
             target.write_text(value)
         manifest.append({'chapter':key,'page':str(page.relative_to(ROOT)),'opener':str(opener_path.relative_to(ROOT)),'concepts':[{'section':section,'asset':str(path.relative_to(ROOT)),'layout':spec[0]} for section,_,spec,path in paths]})
     appendices=[]
+    appendix_count=0
     for page in sorted((ROOT/'docs/appendix').glob('*.md')):
         key=page.name[0]
         path=ROOT/f'docs/images/chapter-openers/appendix-{key}.svg'
         path.write_text(opener(key,page));assets.append(path)
+        headers=re.findall(r'^## ([A-E]\.\d+) (.+)$',page.read_text(),re.M)
+        assert len(headers)==len(APPENDIX_CONCEPTS[key]),key
+        paths=[]
+        for i,((section,label),spec) in enumerate(zip(headers,APPENDIX_CONCEPTS[key]),1):
+            asset=ROOT/f'docs/images/technical/appendix-{key}/{key}-{i:02}.svg'
+            asset.parent.mkdir(parents=True,exist_ok=True)
+            asset.write_text(render(spec,section));assets.append(asset)
+            paths.append((section,label,spec,asset));appendix_count+=1
         template=ROOT/f'appendix_{key}_template.md'
         for target in [page,template]:
-            content=re.sub(r'<!-- edge:opener:start -->.*?<!-- edge:opener:end -->\s*','',target.read_text(),flags=re.S)
+            content=re.sub(r'<!-- edge:.*?:start -->.*?<!-- edge:.*?:end -->\s*','',target.read_text(),flags=re.S)
             at=content.index('\n')
             content=content[:at]+'\n\n'+figure(f'../images/chapter-openers/appendix-{key}.svg',f'Appendix {key.upper()}: '+SPECS[key][0],'Appendix roadmap. Open the image for a full-size view.','opener')+'\n'+content[at:].lstrip('\n')
+            for section,label,spec,asset in paths:
+                header=f'## {section} {label}'
+                content=content.replace(header+'\n',header+'\n\n'+figure(f'../images/technical/appendix-{key}/{asset.name}',spec[1],spec[3],f'concept-{section}')+'\n',1)
             target.write_text(content)
-        appendices.append({'page':str(page.relative_to(ROOT)),'opener':str(path.relative_to(ROOT))})
+        appendices.append({'page':str(page.relative_to(ROOT)),'opener':str(path.relative_to(ROOT)),'concepts':[{'section':section,'asset':str(asset.relative_to(ROOT))} for section,_,_,asset in paths]})
     (ROOT/'tools/illustrations/appendices.json').write_text(json.dumps(appendices,indent=2)+'\n')
     for path in assets:
         root=ET.parse(path).getroot()
         assert root.find('{http://www.w3.org/2000/svg}title') is not None
         assert root.find('{http://www.w3.org/2000/svg}desc') is not None
     (ROOT/'tools/illustrations/manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
-    print(f'Generated {len(chapters)} chapter openers and {len(assets)-len(chapters)-len(appendices)} section diagrams, plus {len(appendices)} appendix openers.')
+    print(f'Generated {len(chapters)} chapter openers and {len(assets)-len(chapters)-len(appendices)-appendix_count} section diagrams, plus {len(appendices)} appendix openers and {appendix_count} appendix concepts.')
 
 if __name__=='__main__':main()

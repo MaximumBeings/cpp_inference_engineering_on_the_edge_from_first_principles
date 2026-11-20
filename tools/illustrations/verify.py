@@ -31,9 +31,27 @@ for chapter in manifest:
     template=ROOT/f"chapter{chapter['chapter']}_template.md"
     if template.exists():
         assert re.findall(r'<!-- edge:.*?:start -->.*?<!-- edge:.*?:end -->',content,re.S)==re.findall(r'<!-- edge:.*?:start -->.*?<!-- edge:.*?:end -->',template.read_text(),re.S),template
+appendix_count=0
 for entry in json.loads((ROOT/'tools/illustrations/appendices.json').read_text()):
     assert (ROOT/entry['opener']).is_file()
-    assert (ROOT/entry['page']).read_text().count('<!-- edge:opener:start -->')==1
+    content=(ROOT/entry['page']).read_text()
+    assert content.count('<!-- edge:opener:start -->')==1
+    assert re.findall(r'^## ([A-E]\.\d+) ',content,re.M)==[c['section'] for c in entry['concepts']]
+    for concept in entry['concepts']:
+        assert (ROOT/concept['asset']).is_file()
+        appendix_count+=1
+assert appendix_count==20
+assets=list((ROOT/'docs/images').rglob('*.svg'))
+assert len(assets)==234
+for asset in assets:
+    root=ET.parse(asset).getroot()
+    assert root.get('viewBox').split()[2]=='760',asset
+    assert root.get('aria-labelledby')=='title desc',asset
+    rectangles=root.findall('.//{http://www.w3.org/2000/svg}rect')
+    assert rectangles[0].get('fill')=='#181e30',asset
+    assert root.find('{http://www.w3.org/2000/svg}title').text,asset
+    assert root.find('{http://www.w3.org/2000/svg}desc').text,asset
+print('All 234 figures use the shared dark style and 760-unit canvas; all appendix sections are covered.')
 assert count==171,count
 print('31 chapter openers and 140 section figures pass coverage, XML and accessible-label checks.')
 
@@ -55,5 +73,5 @@ if len(sys.argv)>1:
             assert path.is_relative_to(site) and path.is_file(),(page,image)
             assert image.get('alt'),(page,image)
             found+=1
-    assert found==214,found
-    print('All 214 SVG embeds resolve in the built book and have alt text.')
+    assert found==234,found
+    print('All 234 SVG embeds resolve in the built book and have alt text.')

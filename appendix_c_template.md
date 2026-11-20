@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix C: Choose an optimization from the limiting resource](../images/chapter-openers/appendix-c.svg?v=cd29cb2d7ecc)](../images/chapter-openers/appendix-c.svg?v=cd29cb2d7ecc)
+[![Appendix C: Choose an optimization from the limiting resource](../images/chapter-openers/appendix-c.svg?v=fa546142921c)](../images/chapter-openers/appendix-c.svg?v=fa546142921c)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,13 +16,23 @@ This appendix builds nothing new. Every format, every partitioning rule, every c
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg?v=3390cfd02be4){: loading="lazy" width="760" }
+![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg?v=ccfd92d27b4a){: loading="lazy" width="760" }
 
   <figcaption>Each optimization must preserve the model&#x27;s numerical and state contracts.</figcaption>
 </figure>
 <!-- /chapter-figure -->
 
 ## C.1 Choosing a Quantization Strategy
+
+<!-- edge:concept-C.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Choose precision under an explicit budget](../images/technical/appendix-c/c-01.svg?v=269d997c5ff0)](../images/technical/appendix-c/c-01.svg?v=269d997c5ff0)
+
+<figcaption>The smallest format is not automatically the best choice. The stored type must have a supported kernel.</figcaption>
+</figure>
+<!-- edge:concept-C.1:end -->
+
 
 ### Intuition
 
@@ -89,6 +99,16 @@ g++ -std=c++23 -Wall -Wextra -O2 c1_quantization_format_advisor.cpp -o c1_quanti
 
 ## C.2 Choosing a Threading and Parallelization Strategy
 
+<!-- edge:concept-C.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Choose parallel work from the dependency structure](../images/technical/appendix-c/c-02.svg?v=944be25500b6)](../images/technical/appendix-c/c-02.svg?v=944be25500b6)
+
+<figcaption>Measure overhead and bandwidth limits before adding workers. More threads do not remove a serial dependency.</figcaption>
+</figure>
+<!-- edge:concept-C.2:end -->
+
+
 ### Intuition
 
 Chapters 8 through 11 answer three genuinely separate questions that are easy to collapse into one: whether a given operation is memory-bound or compute-bound at all (which decides whether quantization even helps), whether adding more threads is still worth doing (which Amdahl's law bounds, not intuition), and which axis to actually split an operation across (which decides whether the parallel result is correct and reproducible at all, not merely fast). None of these three questions has a single "use more threads" answer -- each has its own real formula or rule this book already derived and verified.
@@ -154,6 +174,16 @@ g++ -std=c++23 -Wall -Wextra -O2 c2_threading_strategy_advisor.cpp -o c2_threadi
 ---
 
 ## C.3 Choosing a KV Cache Strategy
+
+<!-- edge:concept-C.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Select the cache policy for the actual constraint](../images/technical/appendix-c/c-03.svg?v=2e24160f6b89)](../images/technical/appendix-c/c-03.svg?v=2e24160f6b89)
+
+<figcaption>Every policy must preserve the supported model behavior, logical positions and storage lifetime contract.</figcaption>
+</figure>
+<!-- edge:concept-C.3:end -->
+
 
 ### Intuition
 

@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 18: A manufacturing inspection decision path](../images/chapter-openers/18.svg?v=833b5ccdd943)](../images/chapter-openers/18.svg?v=833b5ccdd943)
+[![Chapter 18: A manufacturing inspection decision path](../images/chapter-openers/18.svg?v=3e546248ce45)](../images/chapter-openers/18.svg?v=3e546248ce45)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every earlier chapter's real file was already sitting on disk before this book's
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![A manufacturing inspection decision path. Model output is one input to a disposition policy.](../images/18-overview.svg?v=ec505004ef3b){: loading="lazy" width="760" }
+![A manufacturing inspection decision path. Model output is one input to a disposition policy.](../images/18-overview.svg?v=8855e94fee9b){: loading="lazy" width="760" }
 
   <figcaption>Confidence and model output require validation before actuating a production workflow.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every earlier chapter's real file was already sitting on disk before this book's
 <!-- edge:concept-18.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Acquisition begins with a capture event](../images/technical/ch18/18-01.svg?v=1835c6b5bacd)](../images/technical/ch18/18-01.svg?v=1835c6b5bacd)
+[![Acquisition begins with a capture event](../images/technical/ch18/18-01.svg?v=0d36b9c17b7d)](../images/technical/ch18/18-01.svg?v=0d36b9c17b7d)
 
 <figcaption>A missing or late frame must have a defined handling path rather than silently shifting inspection order.</figcaption>
 </figure>
@@ -509,7 +509,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-18.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Pixels become model features](../images/technical/ch18/18-02.svg?v=f4e50bb542c8)](../images/technical/ch18/18-02.svg?v=f4e50bb542c8)
+[![Pixels become model features](../images/technical/ch18/18-02.svg?v=c324f96df302)](../images/technical/ch18/18-02.svg?v=c324f96df302)
 
 <figcaption>Use the model-specific preprocessing contract. A generic resize is not a universal encoder input.</figcaption>
 </figure>
@@ -1081,7 +1081,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-18.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Vision features join the language input](../images/technical/ch18/18-03.svg?v=8061ae657f88)](../images/technical/ch18/18-03.svg?v=8061ae657f88)
+[![Vision features join the language input](../images/technical/ch18/18-03.svg?v=0130b3f80243)](../images/technical/ch18/18-03.svg?v=0130b3f80243)
 
 <figcaption>The supported model determines the feature insertion and positional conventions.</figcaption>
 </figure>
@@ -2224,7 +2224,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-18.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A model suggestion is not a line disposition](../images/technical/ch18/18-04.svg?v=67a8b74fb263)](../images/technical/ch18/18-04.svg?v=67a8b74fb263)
+[![A model suggestion is not a line disposition](../images/technical/ch18/18-04.svg?v=8c039a8f15c8)](../images/technical/ch18/18-04.svg?v=8c039a8f15c8)
 
 <figcaption>A schema-valid response still needs task validation and a safe uncertain-result path.</figcaption>
 </figure>
@@ -2616,7 +2616,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-18.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Bridge inspection results to the line system](../images/technical/ch18/18-05.svg?v=dfbfd76e2cf6)](../images/technical/ch18/18-05.svg?v=dfbfd76e2cf6)
+[![Bridge inspection results to the line system](../images/technical/ch18/18-05.svg?v=20f652b6298f)](../images/technical/ch18/18-05.svg?v=20f652b6298f)
 
 <figcaption>Integration code must distinguish proposed results, accepted records and confirmed downstream actions.</figcaption>
 </figure>

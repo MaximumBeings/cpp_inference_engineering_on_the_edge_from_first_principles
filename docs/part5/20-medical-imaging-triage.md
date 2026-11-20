@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 20: Medical triage with a human review gate](../images/chapter-openers/20.svg?v=b4e46028f7e0)](../images/chapter-openers/20.svg?v=b4e46028f7e0)
+[![Chapter 20: Medical triage with a human review gate](../images/chapter-openers/20.svg?v=0674a0e1403d)](../images/chapter-openers/20.svg?v=0674a0e1403d)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapter 18 taught a vision-language model to inspect a manufactured part and dec
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Medical triage with a human review gate. The examples illustrate workflow plumbing; clinical deployment requires separate validation.](../images/20-overview.svg?v=e4de49742072){: loading="lazy" width="760" }
+![Medical triage with a human review gate. The examples illustrate workflow plumbing; clinical deployment requires separate validation.](../images/20-overview.svg?v=1602f06bd2d7){: loading="lazy" width="760" }
 
   <figcaption>Automated triage output requires clinical review and deployment-specific validation.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapter 18 taught a vision-language model to inspect a manufactured part and dec
 <!-- edge:concept-20.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A triage suggestion stays inside human review](../images/technical/ch20/20-01.svg?v=8282731e2fce)](../images/technical/ch20/20-01.svg?v=8282731e2fce)
+[![A triage suggestion stays inside human review](../images/technical/ch20/20-01.svg?v=712aa2526ff2)](../images/technical/ch20/20-01.svg?v=712aa2526ff2)
 
 <figcaption>This is a workflow illustration, not a clinically validated diagnostic system.</figcaption>
 </figure>
@@ -365,7 +365,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-20.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Windowing maps a selected intensity interval](../images/technical/ch20/20-02.svg?v=c7673452db0f)](../images/technical/ch20/20-02.svg?v=c7673452db0f)
+[![Windowing maps a selected intensity interval](../images/technical/ch20/20-02.svg?v=b442792a93c7)](../images/technical/ch20/20-02.svg?v=b442792a93c7)
 
 <figcaption>Display windowing changes visible contrast. Preserve source pixel values and medical metadata.</figcaption>
 </figure>
@@ -883,7 +883,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-20.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Structured output needs parsing and validation](../images/technical/ch20/20-03.svg?v=67a2163a00f7)](../images/technical/ch20/20-03.svg?v=67a2163a00f7)
+[![Structured output needs parsing and validation](../images/technical/ch20/20-03.svg?v=13a46304d9b3)](../images/technical/ch20/20-03.svg?v=13a46304d9b3)
 
 <figcaption>A valid schema does not prove a finding is medically correct.</figcaption>
 </figure>
@@ -1302,7 +1302,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-20.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Worklist states make ownership visible](../images/technical/ch20/20-04.svg?v=a9746b9c377e)](../images/technical/ch20/20-04.svg?v=a9746b9c377e)
+[![Worklist states make ownership visible](../images/technical/ch20/20-04.svg?v=987d94544728)](../images/technical/ch20/20-04.svg?v=987d94544728)
 
 <figcaption>Urgency suggestions and final clinical decisions must remain distinguishable.</figcaption>
 </figure>
@@ -1758,7 +1758,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-20.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Occlusion reveals sensitivity, not causal truth](../images/technical/ch20/20-05.svg?v=e304deb8e705)](../images/technical/ch20/20-05.svg?v=e304deb8e705)
+[![Occlusion reveals sensitivity, not causal truth](../images/technical/ch20/20-05.svg?v=930275e18b05)](../images/technical/ch20/20-05.svg?v=930275e18b05)
 
 <figcaption>A changed output indicates sensitivity to the perturbation. It does not establish clinical explainability.</figcaption>
 </figure>

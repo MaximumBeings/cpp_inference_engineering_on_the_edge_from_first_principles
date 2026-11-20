@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 9: A dot product across SIMD lanes](../images/chapter-openers/09.svg?v=9a6bf5e11f17)](../images/chapter-openers/09.svg?v=9a6bf5e11f17)
+[![Chapter 9: A dot product across SIMD lanes](../images/chapter-openers/09.svg?v=86a5b8edafa3)](../images/chapter-openers/09.svg?v=86a5b8edafa3)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Chapter 8 established that a kernel's speed is capped by two independent resourc
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![A dot product across SIMD lanes. Accumulate independent products in a vector register before reducing them.](../images/09-overview.svg?v=5408113b5442){: loading="lazy" width="760" }
+![A dot product across SIMD lanes. Accumulate independent products in a vector register before reducing them.](../images/09-overview.svg?v=7ab678fa72fb){: loading="lazy" width="760" }
 
   <figcaption>Vector width, alignment, tail elements and ISA support all matter.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Chapter 8 established that a kernel's speed is capped by two independent resourc
 <!-- edge:concept-9.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Register width determines lane count](../images/technical/ch09/09-01.svg?v=fcf36eae9c07)](../images/technical/ch09/09-01.svg?v=fcf36eae9c07)
+[![Register width determines lane count](../images/technical/ch09/09-01.svg?v=8d5566bafca1)](../images/technical/ch09/09-01.svg?v=8d5566bafca1)
 
 <figcaption>These are storage lane counts; instruction semantics and accumulator width must be checked separately.</figcaption>
 </figure>
@@ -271,7 +271,7 @@ Chapter 9.1: The SIMD Register Model, Derived From Register Width
 <!-- edge:concept-9.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A quantized vector dot product widens before summing](../images/technical/ch09/09-02.svg?v=b304524ac886)](../images/technical/ch09/09-02.svg?v=b304524ac886)
+[![A quantized vector dot product widens before summing](../images/technical/ch09/09-02.svg?v=caf3112d882a)](../images/technical/ch09/09-02.svg?v=caf3112d882a)
 
 <figcaption>Accumulators must be wide enough. Packed signedness and saturation rules cannot be inferred from lane count.</figcaption>
 </figure>
@@ -629,7 +629,7 @@ Chapter 9.2: AVX2 Integer Dot Products -- Q8_0 and Q4_0, Vectorized
 <!-- edge:concept-9.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The algorithm stays, the intrinsic sequence changes](../images/technical/ch09/09-03.svg?v=687d07762822)](../images/technical/ch09/09-03.svg?v=687d07762822)
+[![The algorithm stays, the intrinsic sequence changes](../images/technical/ch09/09-03.svg?v=da7516f3c14e)](../images/technical/ch09/09-03.svg?v=da7516f3c14e)
 
 <figcaption>Compare both implementations against the same scalar reference on all supported lengths.</figcaption>
 </figure>
@@ -983,7 +983,7 @@ Chapter 9.3: Arm NEON -- The Mobile/Edge Path
 <!-- edge:concept-9.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A no-alias promise is a correctness contract](../images/technical/ch09/09-04.svg?v=7a31660669ed)](../images/technical/ch09/09-04.svg?v=7a31660669ed)
+[![A no-alias promise is a correctness contract](../images/technical/ch09/09-04.svg?v=3823da5564b1)](../images/technical/ch09/09-04.svg?v=3823da5564b1)
 
 <figcaption>Only assert non-aliasing when the calling code guarantees it for every supported invocation.</figcaption>
 </figure>
@@ -1264,7 +1264,7 @@ Chapter 9.4: Auto-Vectorization and the Restrict Promise
 <!-- edge:concept-9.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Select only an instruction set the machine supports](../images/technical/ch09/09-05.svg?v=6bce0f8abda0)](../images/technical/ch09/09-05.svg?v=6bce0f8abda0)
+[![Select only an instruction set the machine supports](../images/technical/ch09/09-05.svg?v=3371199578c7)](../images/technical/ch09/09-05.svg?v=3371199578c7)
 
 <figcaption>Building a binary with an instruction set is different from safely dispatching to it at runtime.</figcaption>
 </figure>

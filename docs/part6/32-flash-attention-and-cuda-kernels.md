@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 32: Tiled attention keeps the score matrix out of global memory](../images/chapter-openers/32.svg?v=2f55589f8651)](../images/chapter-openers/32.svg?v=2f55589f8651)
+[![Chapter 32: Tiled attention keeps the score matrix out of global memory](../images/chapter-openers/32.svg?v=fca7e25e0fb1)](../images/chapter-openers/32.svg?v=fca7e25e0fb1)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ This book has built one real inference engine, from `std::mdspan` tensors throug
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory.](../images/32-overview.svg?v=9cc1065a0768){: loading="lazy" width="760" }
+![Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory.](../images/32-overview.svg?v=0dda03d14028){: loading="lazy" width="760" }
 
   <figcaption>Validate partial tiles and query blocks against the CPU reference on a physical GPU.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ This book has built one real inference engine, from `std::mdspan` tensors throug
 <!-- edge:concept-32.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Online softmax rescales old and new contributions](../images/technical/ch32/32-01.svg?v=b8a55023321d)](../images/technical/ch32/32-01.svg?v=b8a55023321d)
+[![Online softmax rescales old and new contributions](../images/technical/ch32/32-01.svg?v=eb7ba302c370)](../images/technical/ch32/32-01.svg?v=eb7ba302c370)
 
 <figcaption>Tile sums and weighted values use the same new maximum. Normalize o by l after the final tile.</figcaption>
 </figure>
@@ -353,7 +353,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-32.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Tiling changes intermediate storage, not the target result](../images/technical/ch32/32-02.svg?v=a1f1c2702c0e)](../images/technical/ch32/32-02.svg?v=a1f1c2702c0e)
+[![Tiling changes intermediate storage, not the target result](../images/technical/ch32/32-02.svg?v=17859444801c)](../images/technical/ch32/32-02.svg?v=17859444801c)
 
 <figcaption>The tiled path avoids storing the full score matrix but remains subject to finite-precision differences.</figcaption>
 </figure>
@@ -719,7 +719,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-32.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Validate kernels on real device work](../images/technical/ch32/32-03.svg?v=8750210e8bef)](../images/technical/ch32/32-03.svg?v=8750210e8bef)
+[![Validate kernels on real device work](../images/technical/ch32/32-03.svg?v=922843a70e74)](../images/technical/ch32/32-03.svg?v=922843a70e74)
 
 <figcaption>A skipped device run is not a pass. Partial tiles and block tails need explicit coverage.</figcaption>
 </figure>

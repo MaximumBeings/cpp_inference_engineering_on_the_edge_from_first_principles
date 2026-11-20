@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix B: Use the quiz to test a chain of reasoning](../images/chapter-openers/appendix-b.svg?v=a30d81ea53d6)](../images/chapter-openers/appendix-b.svg?v=a30d81ea53d6)
+[![Appendix B: Use the quiz to test a chain of reasoning](../images/chapter-openers/appendix-b.svg?v=e0a2377a17de)](../images/chapter-openers/appendix-b.svg?v=e0a2377a17de)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -14,7 +14,7 @@ Every chapter in this book already ends with its own self-check questions and wo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg?v=93d17283ba7c){: loading="lazy" width="760" }
+![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg?v=e73a9e520cf9){: loading="lazy" width="760" }
 
   <figcaption>Explain why an answer follows from the constraints.</figcaption>
 </figure>
@@ -22,9 +22,29 @@ Every chapter in this book already ends with its own self-check questions and wo
 
 ## B.1 How to Use This Quiz
 
+<!-- edge:concept-B.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Use the quiz as a closed-loop learning check](../images/technical/appendix-b/b-01.svg?v=9ea35efcba35)](../images/technical/appendix-b/b-01.svg?v=9ea35efcba35)
+
+<figcaption>An explanation is more useful than a guessed result. Keep track of the assumptions behind each answer.</figcaption>
+</figure>
+<!-- edge:concept-B.1:end -->
+
+
 Answer every question in B.2 in your own words -- out loud, or on paper -- before reading B.3's answer. For B.4, do the same with actual code: read the program, write down what you believe it will print, and only then compile it and compare. A prediction you get wrong tells you exactly which chapter to reread; a prediction you get right by guessing, without being able to explain why, is worth treating the same way. Every one of B.4's programs compiles and runs in seconds -- there is no reason to skip the "compile and run it yourself" half of the exercise, and every reason not to: this book's entire method has been "genuinely compiled, genuinely run, never assumed," and this quiz is not an exception.
 
 ## B.2 Conceptual Review Questions
+
+<!-- edge:concept-B.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Connect each review question to an engineering contract](../images/technical/appendix-b/b-02.svg?v=3e4c29f0caf2)](../images/technical/appendix-b/b-02.svg?v=3e4c29f0caf2)
+
+<figcaption>A correct answer should explain the invariant and what would fail if that invariant were broken.</figcaption>
+</figure>
+<!-- edge:concept-B.2:end -->
+
 
 **Part 0 -- Foundations (Chapters 2-3)**
 
@@ -63,6 +83,16 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 
 ## B.3 Conceptual Review Answers
 
+<!-- edge:concept-B.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Compare the reasoning, not only the final answer](../images/technical/appendix-b/b-03.svg?v=98bce8a79d1d)](../images/technical/appendix-b/b-03.svg?v=98bce8a79d1d)
+
+<figcaption>A matching final number does not establish that the intermediate reasoning is valid.</figcaption>
+</figure>
+<!-- edge:concept-B.3:end -->
+
+
 **1.** `std::mdspan` attaches a tensor's shape (extents) and layout policy directly to the view type, so indexing math is computed in one consistent place rather than re-derived by hand as `row * cols + col` at every call site, where a transposed dimension or an off-by-one is easy to introduce silently. This book's own real constraint: its actual aarch64 target device runs GCC 11.4.0, which predates GCC 12's support for C++23's multi-argument `operator[]` (`view[i, j]`) and ships no native `<mdspan>` header at all -- so every `mdspan`-based file in this book uses a vendored, header-only reference implementation plus an `idx2()`/`idx3()` helper that packages indices into the `std::array` overload GCC 11 does support, a convention established in Chapter 13's own appendix note and reused unchanged through Chapter 32.
 
 **2.** Rotating the query and key vectors by their own absolute positions makes their dot product depend ONLY on the relative distance between them, not on either position alone -- exactly the property attention needs, since two tokens three positions apart near the start of a sequence should relate the same way as two tokens three positions apart near the end. This falls directly out of the rotation-composition identity `R(a)^T * R(b) = R(b-a)`. Adding a position vector directly has no equivalent algebraic guarantee: two tokens' additive position encodings don't combine into a clean function of relative distance when dotted together, so a model using additive position encoding has to learn that structure from data instead of getting it for free from the geometry.
@@ -92,6 +122,16 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 **14.** A clean compile across three real Jetson-class architectures proves the kernel is syntactically valid CUDA C++ and that the compiler could generate real device code implementing its stated logic for each target -- a genuine, meaningful fact about the kernel's correctness at the SOURCE level. It proves nothing about the kernel's actual RUNTIME behavior: a race condition in the shared-memory tile load, a tile-boundary off-by-one, or a genuine numerical error in the online-softmax update would all compile without any error, since none of them are visible from source code alone -- only actually launching the kernel on real hardware and comparing its output against the CPU golden reference, which this book's own pipeline was honest about never having a GPU available to do, could close that gap.
 
 ## B.4 Predict-the-Output Challenges
+
+<!-- edge:concept-B.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Predict output before executing the program](../images/technical/appendix-b/b-04.svg?v=8de15003f5f0)](../images/technical/appendix-b/b-04.svg?v=8de15003f5f0)
+
+<figcaption>Account for integer versus floating-point arithmetic, state changes and explicitly specified output formatting.</figcaption>
+</figure>
+<!-- edge:concept-B.4:end -->
+
 
 ### Challenge 1: The Softmax Overflow Trap
 

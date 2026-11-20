@@ -30,7 +30,7 @@ Set `CXX=clang++` for the regression script when using Apple Clang. Historical t
 
 ## Regenerate illustrations
 
-The book includes 31 chapter-opening graphics, five matching appendix openers, 140 concept diagrams (one per numbered section), and 38 overview/setup figures. The SVGs are accessible, responsive, and stored in `docs/images/`. Click a section figure to open it at full size.
+The book includes 31 chapter-opening graphics, five matching appendix openers, 140 chapter concept diagrams and 20 appendix concept diagrams (one per numbered section), and 38 overview/setup figures. All 234 SVGs share a dark palette and a 760-unit canvas. They are accessible, responsive, and stored in `docs/images/`. Click a section figure to open it at full size.
 
 ```sh
 python3 tools/build_diagrams.py

@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix E: Translate familiar framework concepts into engine parts](../images/chapter-openers/appendix-e.svg?v=57699d7d1569)](../images/chapter-openers/appendix-e.svg?v=57699d7d1569)
+[![Appendix E: Translate familiar framework concepts into engine parts](../images/chapter-openers/appendix-e.svg?v=1ef213965711)](../images/chapter-openers/appendix-e.svg?v=1ef213965711)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,13 +16,23 @@ This appendix builds nothing new in the sense Appendix C did -- there is no fres
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain.](../images/e-overview.svg?v=c0af2881682d){: loading="lazy" width="760" }
+![Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain.](../images/e-overview.svg?v=ba462feaf787){: loading="lazy" width="760" }
 
   <figcaption>Check the book&#x27;s implemented scope before assuming framework feature parity.</figcaption>
 </figure>
 <!-- /chapter-figure -->
 
 ## E.1 Tensors: `std::mdspan` and GGUF/SafeTensors vs. `torch.Tensor` and `AutoModel.from_pretrained`
+
+<!-- edge:concept-E.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Storage ownership differs from an indexed view](../images/technical/appendix-e/e-01.svg?v=2e7741b6498b)](../images/technical/appendix-e/e-01.svg?v=2e7741b6498b)
+
+<figcaption>A similar indexing API does not imply matching ownership, automatic differentiation or device support.</figcaption>
+</figure>
+<!-- edge:concept-E.1:end -->
+
 
 ### Intuition
 
@@ -47,6 +57,16 @@ A reader arriving from PyTorch has never had to think about a tensor's memory ap
 
 ## E.2 Tokenization: A From-Scratch BPE Pipeline vs. HuggingFace's `tokenizers`
 
+<!-- edge:concept-E.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Tokenizer compatibility is a complete contract](../images/technical/appendix-e/e-02.svg?v=4b380f75ad46)](../images/technical/appendix-e/e-02.svg?v=4b380f75ad46)
+
+<figcaption>Compare known token sequences and byte handling. Sharing a BPE algorithm name is not enough for compatibility.</figcaption>
+</figure>
+<!-- edge:concept-E.2:end -->
+
+
 ### Intuition
 
 The single most useful thing to understand, arriving from HuggingFace's `tokenizers` library, is that this book's own `BPEEncoder::encode` is not a simplified approximation of real byte-pair encoding -- it is real byte-pair encoding. Production BPE, including the byte-level BPE GPT-2 and RoBERTa use, tokenizes new text by applying merge rules in the order they were learned during training, greedily, with no lookahead.[^bpe] Chapter 12.1's own worked example -- a merge table where `(l,o)` has a lower (earlier) priority than the full chain needed to reach the whole word "Hello," so encoding "Hello" yields `["He","l","lo"]` rather than the seemingly more sensible `["Hello"]` -- is not a bug this book introduced. It is exactly how real production tokenizers behave, and the appendix's job here is to say that plainly rather than let a reader assume the surprising result is this book's own shortcut.
@@ -67,6 +87,16 @@ The single most useful thing to understand, arriving from HuggingFace's `tokeniz
 ---
 
 ## E.3 KV Cache and PagedAttention: This Book's `BlockManager` vs. vLLM's Real PagedAttention and SGLang's RadixAttention
+
+<!-- edge:concept-E.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A teaching cache manager has a smaller scope](../images/technical/appendix-e/e-03.svg?v=293a259f73c4)](../images/technical/appendix-e/e-03.svg?v=293a259f73c4)
+
+<figcaption>Compare mechanisms explicitly. Do not infer production feature parity from similar terminology.</figcaption>
+</figure>
+<!-- edge:concept-E.3:end -->
+
 
 ### Intuition
 
@@ -89,6 +119,16 @@ Chapter 13.2 does not merely resemble vLLM's PagedAttention -- it says so direct
 ---
 
 ## E.4 Model Loading and Serving: The Production Engine vs. a Real Python Serving Stack
+
+<!-- edge:concept-E.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A serving stack has several distinct responsibilities](../images/technical/appendix-e/e-04.svg?v=0dab315afca3)](../images/technical/appendix-e/e-04.svg?v=0dab315afca3)
+
+<figcaption>The book engine exposes the core path. A production service adds transport, isolation, observability and operating controls.</figcaption>
+</figure>
+<!-- edge:concept-E.4:end -->
+
 
 ### Intuition
 
@@ -113,6 +153,16 @@ The four real bugs, found only against real weights (Chapter 15.4, capstone file
 ---
 
 ## E.5 Continuous Batching: This Book's Scheduler vs. Orca's Iteration-Level Scheduling and vLLM's Real Continuous Batching
+
+<!-- edge:concept-E.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Iteration boundaries enable continuous admission](../images/technical/appendix-e/e-05.svg?v=8666f8c86a10)](../images/technical/appendix-e/e-05.svg?v=8666f8c86a10)
+
+<figcaption>The conceptual similarity is iteration-level scheduling; actual batching policies and kernels differ across systems.</figcaption>
+</figure>
+<!-- edge:concept-E.5:end -->
+
 
 ### Intuition
 

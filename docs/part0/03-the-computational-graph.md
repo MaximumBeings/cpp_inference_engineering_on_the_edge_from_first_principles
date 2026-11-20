@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 3: Inside a transformer block](../images/chapter-openers/03.svg?v=6e79f565d538)](../images/chapter-openers/03.svg?v=6e79f565d538)
+[![Chapter 3: Inside a transformer block](../images/chapter-openers/03.svg?v=c03c6ae117b8)](../images/chapter-openers/03.svg?v=c03c6ae117b8)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -27,7 +27,7 @@ Chapter 2 gave this book the tools to describe and allocate tensors; this chapte
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Inside a transformer block. Residual paths carry the input around attention and the feed-forward network.](../images/03-overview.svg?v=e20452a63b7e){: loading="lazy" width="760" }
+![Inside a transformer block. Residual paths carry the input around attention and the feed-forward network.](../images/03-overview.svg?v=0afffcab91a9){: loading="lazy" width="760" }
 
   <figcaption>Attention(Q, K, V) = softmax(QK^T / sqrt d) V</figcaption>
 </figure>
@@ -38,7 +38,7 @@ Chapter 2 gave this book the tools to describe and allocate tensors; this chapte
 <!-- edge:concept-3.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Normalize by the root mean square](../images/technical/ch03/03-01.svg?v=938a4dc7d65c)](../images/technical/ch03/03-01.svg?v=938a4dc7d65c)
+[![Normalize by the root mean square](../images/technical/ch03/03-01.svg?v=e69b46ab88f1)](../images/technical/ch03/03-01.svg?v=e69b46ab88f1)
 
 <figcaption>The same scalar denominator normalizes the feature vector. The learned gain is per feature.</figcaption>
 </figure>
@@ -217,7 +217,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-3.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Two projections form a gated feed-forward path](../images/technical/ch03/03-02.svg?v=64a44644c138)](../images/technical/ch03/03-02.svg?v=64a44644c138)
+[![Two projections form a gated feed-forward path](../images/technical/ch03/03-02.svg?v=a2e96df04df6)](../images/technical/ch03/03-02.svg?v=a2e96df04df6)
 
 <figcaption>The gate and up projections both read x. The gate modulates the up branch element by element.</figcaption>
 </figure>
@@ -379,7 +379,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-3.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![RoPE rotates pairs of coordinates](../images/technical/ch03/03-03.svg?v=4c7c4e79420b)](../images/technical/ch03/03-03.svg?v=4c7c4e79420b)
+[![RoPE rotates pairs of coordinates](../images/technical/ch03/03-03.svg?v=bb52e42d2b7f)](../images/technical/ch03/03-03.svg?v=bb52e42d2b7f)
 
 <figcaption>Each pair has its own frequency. Rotation preserves its norm before finite-precision rounding.</figcaption>
 </figure>
@@ -558,7 +558,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-3.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Several query heads can share one KV head](../images/technical/ch03/03-04.svg?v=c2e915a0c6e4)](../images/technical/ch03/03-04.svg?v=c2e915a0c6e4)
+[![Several query heads can share one KV head](../images/technical/ch03/03-04.svg?v=79901ff2c485)](../images/technical/ch03/03-04.svg?v=79901ff2c485)
 
 <figcaption>Illustrative GQA ratio 2:1. Query heads remain distinct while cached keys and values are shared.</figcaption>
 </figure>
@@ -801,7 +801,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-3.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Record dependencies once, execute repeatedly](../images/technical/ch03/03-05.svg?v=6bbbcada2369)](../images/technical/ch03/03-05.svg?v=6bbbcada2369)
+[![Record dependencies once, execute repeatedly](../images/technical/ch03/03-05.svg?v=593b2ce6415d)](../images/technical/ch03/03-05.svg?v=593b2ce6415d)
 
 <figcaption>Replay must still respect data dependencies and the lifetime of every referenced allocation.</figcaption>
 </figure>
@@ -1065,7 +1065,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-3.6:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Map file bytes and expose bounded tensor ranges](../images/technical/ch03/03-06.svg?v=a04ab1c07259)](../images/technical/ch03/03-06.svg?v=a04ab1c07259)
+[![Map file bytes and expose bounded tensor ranges](../images/technical/ch03/03-06.svg?v=fe100fe6c4a6)](../images/technical/ch03/03-06.svg?v=fe100fe6c4a6)
 
 <figcaption>File offsets identify tensor payloads. Views must not outlive the file mapping.</figcaption>
 </figure>

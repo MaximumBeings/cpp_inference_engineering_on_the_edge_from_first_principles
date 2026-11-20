@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 17: Measure the full request lifecycle](../images/chapter-openers/17.svg?v=8cbb5df28267)](../images/chapter-openers/17.svg?v=8cbb5df28267)
+[![Chapter 17: Measure the full request lifecycle](../images/chapter-openers/17.svg?v=c8eeb848b574)](../images/chapter-openers/17.svg?v=c8eeb848b574)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapter 16 produced a complete, working, self-contained production engine -- a r
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated.](../images/17-overview.svg?v=e353806f7502){: loading="lazy" width="760" }
+![Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated.](../images/17-overview.svg?v=9622cc9e6b28){: loading="lazy" width="760" }
 
   <figcaption>Report model, hardware, flags and measurement boundaries with every comparison.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapter 16 produced a complete, working, self-contained production engine -- a r
 <!-- edge:concept-17.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Latency and throughput answer different questions](../images/technical/ch17/17-01.svg?v=a118c07b3237)](../images/technical/ch17/17-01.svg?v=a118c07b3237)
+[![Latency and throughput answer different questions](../images/technical/ch17/17-01.svg?v=d9d4da453c32)](../images/technical/ch17/17-01.svg?v=d9d4da453c32)
 
 <figcaption>Declare workload, token counts, batch size and timing boundaries for every reported number.</figcaption>
 </figure>
@@ -355,7 +355,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-17.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A benchmark must control its measurement scope](../images/technical/ch17/17-02.svg?v=716dc13dce09)](../images/technical/ch17/17-02.svg?v=716dc13dce09)
+[![A benchmark must control its measurement scope](../images/technical/ch17/17-02.svg?v=784c4bcee319)](../images/technical/ch17/17-02.svg?v=784c4bcee319)
 
 <figcaption>Asynchronous GPU work needs completion before timing ends. Include or exclude setup consistently.</figcaption>
 </figure>
@@ -1234,7 +1234,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-17.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A comparison needs the same work on both sides](../images/technical/ch17/17-03.svg?v=0d194f7fd0b9)](../images/technical/ch17/17-03.svg?v=0d194f7fd0b9)
+[![A comparison needs the same work on both sides](../images/technical/ch17/17-03.svg?v=3bd09a5039a3)](../images/technical/ch17/17-03.svg?v=3bd09a5039a3)
 
 <figcaption>A schematic or analytical estimate must not be presented as a measured runtime comparison.</figcaption>
 </figure>

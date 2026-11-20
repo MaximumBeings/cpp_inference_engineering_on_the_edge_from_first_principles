@@ -9,7 +9,7 @@ This book is independent: it does not assume or reference any other book, and it
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![From model bytes to the next token. An edge engine must fit weights, live state and working memory on the device.](images/index-overview.svg?v=85ba1e4a1bbf){: loading="lazy" width="760" }
+![From model bytes to the next token. An edge engine must fit weights, live state and working memory on the device.](images/index-overview.svg?v=7819cbe82bd9){: loading="lazy" width="760" }
 
   <figcaption>Memory budget = weights + KV cache + activations + runtime overhead</figcaption>
 </figure>

@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix A: Cross-compile, then execute the target binary](../images/chapter-openers/appendix-a.svg?v=5acf65575590)](../images/chapter-openers/appendix-a.svg?v=5acf65575590)
+[![Appendix A: Cross-compile, then execute the target binary](../images/chapter-openers/appendix-a.svg?v=c528b4916f43)](../images/chapter-openers/appendix-a.svg?v=c528b4916f43)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,13 +29,23 @@ Every chapter in this book compiled and ran identically on an x86_64 development
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg?v=70f3db8a0035){: loading="lazy" width="760" }
+![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg?v=e24ce3eb414e){: loading="lazy" width="760" }
 
   <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
 </figure>
 <!-- /chapter-figure -->
 
 ## A.1 Toolchain Setup on the Development Machine
+
+<!-- edge:concept-A.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Verify the development toolchain before building](../images/technical/appendix-a/a-01.svg?v=1087e96beae9)](../images/technical/appendix-a/a-01.svg?v=1087e96beae9)
+
+<figcaption>A compiler version alone does not guarantee every library feature. Verify the headers and flags used by the book.</figcaption>
+</figure>
+<!-- edge:concept-A.1:end -->
+
 
 ### Intuition
 
@@ -66,6 +76,16 @@ This book's own pipeline verified only the Ubuntu 24.04 path directly; the AL202
     Installing `aarch64-linux-gnu-g++` produces real aarch64 machine code, but an x86_64 CPU cannot execute that machine code directly -- attempting to run a cross-compiled binary as a normal x86_64 program fails immediately with "cannot execute binary file: Exec format error." `qemu-user`'s `qemu-aarch64` is what actually closes that gap on a development machine with no physical Arm board attached, and Section A.3 below documents a further real, non-obvious step needed before CMake's own `ctest` will use it automatically.
 
 ## A.2 A Working CMake Project Layout
+
+<!-- edge:concept-A.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A CMake project separates sources from build outputs](../images/technical/appendix-a/a-02.svg?v=64338f816bdc)](../images/technical/appendix-a/a-02.svg?v=64338f816bdc)
+
+<figcaption>Use an out-of-source build so generated artifacts do not overwrite project sources.</figcaption>
+</figure>
+<!-- edge:concept-A.2:end -->
+
 
 ### Intuition
 
@@ -284,6 +304,16 @@ ALL CHECKS PASSED
 
 ## A.3 Cross-Compiling for Arm/NEON Edge Targets
 
+<!-- edge:concept-A.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Cross-compilation has two distinct machines](../images/technical/appendix-a/a-03.svg?v=f9d34ce14615)](../images/technical/appendix-a/a-03.svg?v=f9d34ce14615)
+
+<figcaption>Compilation checks the target code path. It does not prove native execution or performance on the edge device.</figcaption>
+</figure>
+<!-- edge:concept-A.3:end -->
+
+
 ### Intuition
 
 Building the identical source tree for a 64-bit Arm target needs only a real CMake toolchain file passed on the configure line -- no changes to `CMakeLists.txt` or the source itself -- plus two real, non-obvious settings that make the cross-compiled binary actually runnable and testable on the development machine.
@@ -389,6 +419,16 @@ The two real Test 2 values above -- the scalar and accelerated dot products of t
     A clean `cmake --build build-aarch64` only confirms `aarch64-linux-gnu-g++` accepted the source and produced a real aarch64 ELF binary -- it says nothing about whether that binary will actually execute correctly on a real board. `qemu-aarch64` narrows that gap considerably by genuinely executing the real aarch64 instructions rather than merely confirming they exist, which is why this section's own Test 2 result matching the native build exactly is meaningful and not assumed. It still is not a full substitute for running on the real target hardware: a real edge board's own specific libc version, kernel version, or hardware capabilities (a NEON extension `qemu-aarch64`'s own CPU emulation does not model, for instance) could still behave differently. This book's own pipeline closes that remaining gap the only way it honestly can -- by also running its own self-tests directly on real aarch64 hardware, not only under emulation.
 
 ## A.4 Diagnostics Reference
+
+<!-- edge:concept-A.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Classify the failure before changing the code](../images/technical/appendix-a/a-04.svg?v=fe0037c180ac)](../images/technical/appendix-a/a-04.svg?v=fe0037c180ac)
+
+<figcaption>Read the first relevant diagnostic and reproduce it with the documented command before applying a fix.</figcaption>
+</figure>
+<!-- edge:concept-A.4:end -->
+
 
 ### Intuition
 
