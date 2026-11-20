@@ -1,5 +1,14 @@
 # Chapter 24: Natural Language Photo Editing: From Prompt to `cv::Mat` on Edge Hardware
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 24: Translate an edit request into image operations](../images/chapter-openers/24.svg)](../images/chapter-openers/24.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to build a real, stated system prompt and a strict structural parser that translate any natural-language photo-edit request, however vague, into a closed, small vocabulary of named edit intents and strengths -- never a free-form description of "enhancements."
@@ -27,6 +36,16 @@ Every chapter since Chapter 18 has built a real technique that turns an unstruct
 <!-- /chapter-figure -->
 
 ## 24.1 An Edit-Interpretation Prompt and Structured Plan Parser
+
+<!-- edge:concept-24.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Translate a request into a bounded edit plan](../images/technical/ch24/24-01.svg)](../images/technical/ch24/24-01.svg)
+
+<figcaption>Reject unsupported operations and out-of-range parameters before applying an edit.</figcaption>
+</figure>
+<!-- edge:concept-24.1:end -->
+
 
 ### Intuition
 
@@ -394,6 +413,16 @@ ALL CHECKS PASSED
     It is tempting to let a vague request like "make it look better" pass through unconstrained -- have the parser accept any reasonable-looking completion the model produces, on the theory that a vague REQUEST justifies a flexible RESPONSE. Test 6 exists specifically to show why that gets the division of responsibility backwards: this section's own system prompt commits, in its own stated text, to one specific, conservative, named default plan for exactly this case, and the parser's own job is to verify that the model actually produced THAT plan (or another fully valid one), never to relax its own closed vocabulary just because the originating request happened to be unspecific. A vague request is a prompt-engineering problem to solve with a stated default, not a parsing problem to solve by accepting more.
 
 ## 24.2 A Complete OpenCV Processing Engine
+
+<!-- edge:concept-24.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Execute edits with known image semantics](../images/technical/ch24/24-02.svg)](../images/technical/ch24/24-02.svg)
+
+<figcaption>Check channel order, numeric range and dimensions. Displayed colors depend on the input convention.</figcaption>
+</figure>
+<!-- edge:concept-24.2:end -->
+
 
 ### Intuition
 
@@ -860,6 +889,16 @@ ALL CHECKS PASSED
 
 ## 24.3 A Request-to-Operation Mapping Table
 
+<!-- edge:concept-24.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![An operation table is an allowlist](../images/technical/ch24/24-03.svg)](../images/technical/ch24/24-03.svg)
+
+<figcaption>The table makes supported behavior explicit rather than executing arbitrary model-generated code.</figcaption>
+</figure>
+<!-- edge:concept-24.3:end -->
+
+
 ### Intuition
 
 Section 24.1's closed vocabulary and Section 24.2's real engine need a deterministic bridge: an explicit table mapping every (intent, strength) pair to one concrete numeric parameter, plus a real check that a plan asking for two directly opposing edits at once is caught before it ever reaches the engine.
@@ -1216,6 +1255,16 @@ ALL CHECKS PASSED
     It would be a real, meaningful test to confirm that STRONG produces a bigger effect than SUBTLE for a couple of intents chosen by hand -- brightness, say, and saturation -- and stop there. Test 3 is built specifically to do more: it iterates over EVERY strength-sensitive intent in the entire table and checks the identical real property for each one, catching a mistake in an intent nobody thought to hand-check individually (a copy-paste error in the `WARMTH_DECREASE` row, for instance, that a spot check of `BRIGHTNESS_INCREASE` and `SATURATION_INCREASE` would never have caught). A resolution table this size earns a real, general, whole-table property check precisely because a table is exactly the kind of structure where one silently wrong row hides behind nine correct ones.
 
 ## 24.4 Iterative Refinement Through Conversation
+
+<!-- edge:concept-24.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A conversation carries edit state forward](../images/technical/ch24/24-04.svg)](../images/technical/ch24/24-04.svg)
+
+<figcaption>Keep the source image and version identity so a follow-up applies to the intended result.</figcaption>
+</figure>
+<!-- edge:concept-24.4:end -->
+
 
 ### Intuition
 

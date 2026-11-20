@@ -1,5 +1,14 @@
 # Chapter 23: Trust and Authenticity at the Point of Sale: Counterfeits, Reconciliation, Expense Audits, and Luxury Goods
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 23: Verify a point-of-sale claim against evidence](../images/chapter-openers/23.svg)](../images/chapter-openers/23.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to build a real perceptual image hash (the "difference hash," dHash, algorithm used in production image-deduplication systems) that catches stolen stock photography reused across unrelated e-commerce sellers, and a fully auditable seller trust score whose own aggregate value can never suppress a single specific, named red flag.
@@ -27,6 +36,16 @@ Chapter 22 turned a continuous stream into a structured, auditable narrative. Th
 <!-- /chapter-figure -->
 
 ## 23.1 A Brand-Reference Database and Counterfeit-Screening Engine for E-Commerce Listings
+
+<!-- edge:concept-23.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A visual reference can support screening](../images/technical/ch23/23-01.svg)](../images/technical/ch23/23-01.svg)
+
+<figcaption>Screening flags require review. Similar appearance does not prove authenticity or counterfeiting.</figcaption>
+</figure>
+<!-- edge:concept-23.1:end -->
+
 
 ### Intuition
 
@@ -541,6 +560,16 @@ ALL CHECKS PASSED
 
 ## 23.2 Receipt-to-Transaction Reconciliation
 
+<!-- edge:concept-23.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Reconcile on fields and tolerances](../images/technical/ch23/23-02.svg)](../images/technical/ch23/23-02.svg)
+
+<figcaption>An ambiguous match should remain ambiguous rather than selecting an arbitrary transaction.</figcaption>
+</figure>
+<!-- edge:concept-23.2:end -->
+
+
 ### Intuition
 
 A receipt extracted by an OCR or vision-language pipeline, the same real kind of pipeline this book built in Chapter 21.1, can carry small per-character extraction errors; a bank or card network's own transaction record carries the true merchant name as the payment network itself recorded it. Reconciling the two needs a real fuzzy-matching algorithm for the merchant name, a real tolerance for an added tip in the settled amount, and a real settlement-date window -- and an honest refusal to guess when more than one transaction equally fits.
@@ -888,6 +917,16 @@ ALL CHECKS PASSED
     `merchant_names_fuzzy_match` is built and tuned specifically for the kind of noise a receipt's own OCR extraction introduces -- a single misread character on an otherwise-correct name. It is tempting to assume the same function would also handle the different real problem of payment-processor descriptor mangling, where a transaction descriptor reads "SQ *STARBUCKS COFFEE" for a receipt's own "Starbucks" -- a difference not of a few misread characters but of an entirely different real string, prefixed and suffixed by processor-specific codes this section's own edit-distance ratio was never tuned to absorb. A production reconciliation system needs a SEPARATE real technique -- token-based matching against a known table of processor prefixes, for instance -- for that different problem; treating one section's own narrow, real fix as a general solution to every real merchant-name mismatch would produce exactly the false confidence this book's own honesty discipline exists to prevent.
 
 ## 23.3 Automated Expense-Report Policy Enforcement
+
+<!-- edge:concept-23.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Policy enforcement follows validated extraction](../images/technical/ch23/23-03.svg)](../images/technical/ch23/23-03.svg)
+
+<figcaption>A rule hit is a policy signal, not proof of intentional misuse.</figcaption>
+</figure>
+<!-- edge:concept-23.3:end -->
+
 
 ### Intuition
 
@@ -1254,6 +1293,16 @@ ALL CHECKS PASSED
     Once an expense engine has computed a real, policy-compliant APPROVED figure for a line item, it is tempting to treat that figure as simply the CORRECTED version of what the employee claimed, and report only it going forward -- after all, the engine has already done the real work of figuring out what should actually be reimbursed. Test 6 is built specifically to rule that shortcut out: the report's own claimed total of $527 and its own approved total of $482 are both reported, side by side, for the same 4 items, with the $45 gap attributed by name to two specific line items' own specific violations. Collapsing to just the $482 approved figure would discard exactly the information an expense auditor, or the employee themselves, needs to understand WHY their own reimbursement came in lower than what they submitted -- the same discipline this book has applied to every flagged discrepancy since Section 21.3's own claim-consistency check.
 
 ## 23.4 A Real-Time Luxury-Goods Authentication Engine for Consignment and Resale Counters
+
+<!-- edge:concept-23.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A resale decision needs evidence beyond pixels](../images/technical/ch23/23-04.svg)](../images/technical/ch23/23-04.svg)
+
+<figcaption>Keep screening confidence separate from a final authenticity claim.</figcaption>
+</figure>
+<!-- edge:concept-23.4:end -->
+
 
 ### Intuition
 

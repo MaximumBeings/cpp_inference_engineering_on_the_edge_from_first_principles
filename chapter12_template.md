@@ -1,5 +1,14 @@
 # Chapter 12: The Tokenizer -- BPE, SentencePiece, and the Vocabulary Pipeline
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 12: From text to model token IDs](../images/chapter-openers/12.svg)](../images/chapter-openers/12.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Byte-pair encoding's core algorithm: how an ordered merge table turns individual bytes into a hierarchical vocabulary, and why the merge with the LOWEST priority number among all currently-adjacent pairs fires first at encode time — a rule where merge PRIORITY, not merge OPPORTUNITY, decides the outcome, sometimes in ways that look surprising until traced by hand.
@@ -29,6 +38,16 @@ Every chapter so far has assumed tokens already exist as small integers flowing 
 
 ## 12.1 Byte-Pair Encoding: The Merge Algorithm
 
+<!-- edge:concept-12.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![BPE repeatedly chooses an eligible merge](../images/technical/ch12/12-01.svg)](../images/technical/ch12/12-01.svg)
+
+<figcaption>Actual merges follow vocabulary ranks and tokenization rules, not arbitrary pair concatenation.</figcaption>
+</figure>
+<!-- edge:concept-12.1:end -->
+
+
 ### Intuition
 
 A BPE vocabulary is built once, offline, by repeatedly finding the most frequent adjacent pair of symbols in a training corpus and merging it into a new symbol, recording each merge in the order it was learned. That order becomes the vocabulary's most important property at encode time: it is not merely a training log, it is a priority list that determines, deterministically, which merge applies first whenever more than one is possible.
@@ -56,6 +75,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_bpe_merge_engine.cpp -o 01_bpe_merge_engine
     It is tempting to check whether a vocabulary CONTAINS a token like "Hello" — built from a real, valid chain of merge rules — and conclude that encoding the string "Hello" must produce it. The merge loop does not search for the longest reachable token or prefer chains that terminate in a token matching the whole input; at every step it applies whichever SINGLE applicable merge has the lowest priority number, with no lookahead at all. If some other pair in the current token sequence has a lower priority number than the next step of "Hello"'s own chain would need, that other pair merges first, and it can consume a byte "Hello"'s chain needed for itself — exactly what happens when `(l,o)`'s priority-0 rule consumes the second "l" and the "o" before `(He,ll)`'s priority-8 rule ever gets a turn. The vocabulary containing a token is necessary but never sufficient for encoding to produce it; only tracing the actual priority-ordered merge sequence tells you what a given input actually becomes.
 
 ## 12.2 Pre-Tokenization: Splitting Text Before BPE
+
+<!-- edge:concept-12.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Pre-tokenization sets merge boundaries](../images/technical/ch12/12-02.svg)](../images/technical/ch12/12-02.svg)
+
+<figcaption>Whitespace, punctuation and byte handling are model-specific conventions.</figcaption>
+</figure>
+<!-- edge:concept-12.2:end -->
+
 
 ### Intuition
 
@@ -85,6 +114,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_pretokenizer.cpp -o 02_pretokenizer
 
 ## 12.3 Special Tokens and the Chat Template
 
+<!-- edge:concept-12.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A chat template is part of the input format](../images/technical/ch12/12-03.svg)](../images/technical/ch12/12-03.svg)
+
+<figcaption>Use the model vocabulary IDs and exact template. Similar-looking text is not the same token sequence.</figcaption>
+</figure>
+<!-- edge:concept-12.3:end -->
+
+
 ### Intuition
 
 Special tokens tell a model where a prompt begins, whose turn it is, and where a turn ends — structural scaffolding no amount of BPE merging can produce, because they are never present as ordinary text for BPE to encode in the first place. A chat template assembles them, by integer ID, around ordinary BPE-encoded text.
@@ -113,6 +152,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_special_tokens_chat_template.cpp -o 03_speci
 
 ## 12.4 The Token Decoder: IDs Back to UTF-8
 
+<!-- edge:concept-12.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Streaming bytes must end at UTF-8 boundaries](../images/technical/ch12/12-04.svg)](../images/technical/ch12/12-04.svg)
+
+<figcaption>A token boundary is not necessarily a Unicode character boundary.</figcaption>
+</figure>
+<!-- edge:concept-12.4:end -->
+
+
 ### Intuition
 
 Decoding reverses encoding: given the integer IDs a model produces, reconstruct the text they represent. This looks like a plain table lookup, but byte-fallback tokens and control tokens both need handling beyond "look up the string and concatenate."
@@ -140,6 +189,16 @@ g++ -std=c++23 -Wall -Wextra -O2 04_token_decoder.cpp -o 04_token_decoder
     A byte-fallback token's vocabulary entry is commonly given a human-readable display string like "<0xC3>" purely so a developer inspecting the vocabulary can tell what it is. It is a real and easy mistake to decode that token by emitting its STORED STRING — literally the seven characters "<0xC3>" — instead of the single raw byte 0xC3 it represents. The bug is invisible for plain ASCII text, where display strings and intended output rarely collide in an obviously broken way, but it corrupts every multi-byte UTF-8 sequence and every byte value a model actually needs decoded as raw output: instead of two bytes reassembling into one accented character, the user sees the literal text "<0xC3><0xA9>" where a single letter belonged. The fix this section relies on is a single, explicit special case: for byte-fallback tokens with IDs 0-255, the numeric ID itself is the byte to emit, and the display string exists for debugging output only, never for the actual decoded byte stream.
 
 ## 12.5 A Complete Tokenizer Pipeline Loaded from a Real GGUF File
+
+<!-- edge:concept-12.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Load tokenization conventions with the weights](../images/technical/ch12/12-05.svg)](../images/technical/ch12/12-05.svg)
+
+<figcaption>Test known prompts and byte sequences against the intended model conventions.</figcaption>
+</figure>
+<!-- edge:concept-12.5:end -->
+
 
 ### Intuition
 

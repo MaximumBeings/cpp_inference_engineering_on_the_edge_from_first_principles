@@ -1,5 +1,14 @@
 # Chapter 16: The Production Engine -- Integrating Everything into a Single Binary
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 16: Turn the forward pass into a command-line engine](../images/chapter-openers/16.svg)](../images/chapter-openers/16.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why a production binary's command-line contract should promise nothing this book has not actually built and verified -- and why that means this chapter's CLI has no thread-count flag and no KV-quantization flag, even though Chapters 8, 13, and 14 built both of those subsystems.
@@ -29,6 +38,16 @@ Section 15.4 produced one real, correct, decoded token from a real forward pass 
 <!-- /chapter-figure -->
 
 ## 16.1 Engine Configuration and the Command Line
+
+<!-- edge:concept-16.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Validate configuration before execution](../images/technical/ch16/16-01.svg)](../images/technical/ch16/16-01.svg)
+
+<figcaption>Numeric parsing must consume the whole argument and enforce finite values and valid bounds.</figcaption>
+</figure>
+<!-- edge:concept-16.1:end -->
+
 
 ### Intuition
 
@@ -403,6 +422,16 @@ ALL CHECKS PASSED
     A command-line flag that this book's own thread pool or TurboQuant compressor could plausibly use is not the same thing as a flag this SPECIFIC binary should offer. If `-t <threads>` had been added here purely because Chapter 8 built a real thread pool somewhere in this book, it would parse without error, store a value, and do absolutely nothing with it -- the real forward pass it would need to hand that value to is single-threaded code that has never read a thread count from anywhere. A reader who passes `-t 8` expecting an 8x speedup would get identical performance and no error message telling them why. The fix is not a runtime warning about an ignored flag; it is not offering the flag at all until the subsystem behind it is actually wired in, exactly as `--kv-bits` waits for Chapter 17.
 
 ## 16.2 Sampling and a UTF-8-Safe Streaming Decoder
+
+<!-- edge:concept-16.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Sampling ends in a byte-safe stream](../images/technical/ch16/16-02.svg)](../images/technical/ch16/16-02.svg)
+
+<figcaption>Apply repetition penalties once per distinct history token under the documented policy.</figcaption>
+</figure>
+<!-- edge:concept-16.2:end -->
+
 
 ### Intuition
 
@@ -938,6 +967,16 @@ ALL CHECKS PASSED
     It is tempting to decode and print each generated token's text the moment `codec.decode()` returns it, since that is what "streaming" sounds like it should mean. For a byte-level BPE vocabulary, this is wrong specifically at multi-byte UTF-8 boundaries: `codec.decode()` faithfully returns whatever raw bytes that ONE token maps to, and if the real tokenizer happened to split a two-byte character across two tokens, decoding token one alone produces a single dangling continuation or leading byte that is not valid UTF-8 on its own -- printing it immediately corrupts the output, and no amount of correctly decoding the SECOND token afterward fixes a byte already written to a terminal or a socket. The fix is never per-token immediate printing; it is buffering every token's raw decoded bytes and only ever emitting the longest complete-character prefix, which is exactly what `StreamingDecoder` exists to do.
 
 ## 16.3 The Generation Loop and the Conversation Loop
+
+<!-- edge:concept-16.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Generation and conversation have nested lifetimes](../images/technical/ch16/16-03.svg)](../images/technical/ch16/16-03.svg)
+
+<figcaption>A turn boundary is not automatically a model reload or a complete state reset.</figcaption>
+</figure>
+<!-- edge:concept-16.3:end -->
+
 
 ### Intuition
 
@@ -2169,6 +2208,16 @@ ALL CHECKS PASSED
     `std::max(current, candidate)` looks like it should propagate a NaN candidate the same way it propagates any other extreme value -- a NaN is certainly not smaller than anything. But IEEE 754 defines every comparison against NaN, including `<`, as false, so the comparison `std::max` performs internally (`current < candidate ? candidate : current`) evaluates its condition to false whenever `candidate` is NaN, and returns `current` unchanged -- the NaN is compared against, found not to satisfy the comparison, and discarded, with no warning that anything unusual happened. Any reduction built on `std::max`, `std::min`, or a bare `<`/`>` comparison has this exact blind spot, which matters most precisely when the code being tested is a NaN-DETECTION mechanism: poisoning a value that will pass through such a reduction before the detector ever sees it can produce a test that appears to pass every other check while testing the failure path not at all. The fix is not a smarter `max` -- it is knowing which of a fixture's own data paths reduce their inputs before the check runs, and poisoning a path that does not.
 
 ## 16.4 The Complete Production Engine and Its Built-In Profiler
+
+<!-- edge:concept-16.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Production integration makes boundaries visible](../images/technical/ch16/16-04.svg)](../images/technical/ch16/16-04.svg)
+
+<figcaption>Timing scopes, ownership and failure paths remain explicit even inside one executable.</figcaption>
+</figure>
+<!-- edge:concept-16.4:end -->
+
 
 ### Intuition
 

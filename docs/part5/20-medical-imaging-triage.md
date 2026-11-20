@@ -1,5 +1,14 @@
 # Chapter 20: Medical Imaging Triage: Preliminary Radiology Reads and Human-in-the-Loop Workflow
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 20: Medical triage with a human review gate](../images/chapter-openers/20.svg)](../images/chapter-openers/20.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why a clinical triage system needs its human sign-off requirement built as a STRUCTURAL, type-system-enforced property of its own state machine, rather than a documented policy step a caller could forget or route around -- and how to build exactly one function capable of finalizing a case, gated on both the correct state and a real, non-empty clinician identifier.
@@ -28,6 +37,16 @@ Chapter 18 taught a vision-language model to inspect a manufactured part and dec
 <!-- /chapter-figure -->
 
 ## 20.1 A Structural Human-in-the-Loop Triage State Machine
+
+<!-- edge:concept-20.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A triage suggestion stays inside human review](../images/technical/ch20/20-01.svg)](../images/technical/ch20/20-01.svg)
+
+<figcaption>This is a workflow illustration, not a clinically validated diagnostic system.</figcaption>
+</figure>
+<!-- edge:concept-20.1:end -->
+
 
 ### Intuition
 
@@ -342,6 +361,16 @@ ALL CHECKS PASSED
     Chapter 18.4's `classify` auto-accepted or auto-rejected a manufactured part once its own confidence score crossed a stated threshold, and that design was the right one for a defect-detection line where a wrong call costs a discarded part. Reapplying that same pattern here -- auto-finalizing a triage case whenever the AI's own suggested priority carries a high enough confidence score -- would be a serious, substantive error, not a matter of degree: a manufactured part can be re-inspected, but a clinical prioritization decision this section's own docstrings state plainly is not this book's to make cannot be un-made by adding more confidence-threshold precision. `TriageCase`'s own private `final_disposition_` field, reachable from exactly one gated function, is what makes the difference structural rather than a matter of choosing the right threshold value -- there is no threshold high enough that this section's own code would ever let a case reach `FINALIZED` without a real clinician's own attributed sign-off.
 
 ## 20.2 DICOM Ingestion and Windowing for Display
+
+<!-- edge:concept-20.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Windowing maps a selected intensity interval](../images/technical/ch20/20-02.svg)](../images/technical/ch20/20-02.svg)
+
+<figcaption>Display windowing changes visible contrast. Preserve source pixel values and medical metadata.</figcaption>
+</figure>
+<!-- edge:concept-20.2:end -->
+
 
 ### Intuition
 
@@ -851,6 +880,16 @@ ALL CHECKS PASSED
 
 ## 20.3 A Structured Triage-Reporting Prompt and Parser
 
+<!-- edge:concept-20.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Structured output needs parsing and validation](../images/technical/ch20/20-03.svg)](../images/technical/ch20/20-03.svg)
+
+<figcaption>A valid schema does not prove a finding is medically correct.</figcaption>
+</figure>
+<!-- edge:concept-20.3:end -->
+
+
 ### Intuition
 
 Section 20.2 can now hand a real, windowed image to Chapter 18's vision-language pipeline. What that pipeline says back has to be constrained just as carefully as the state machine that gates its own finalization -- not merely by asking it nicely to avoid diagnosing, but by giving it a report SCHEMA that cannot represent a diagnosis even if a model's own text tried to write one into it.
@@ -1259,6 +1298,16 @@ ALL CHECKS PASSED
     A system prompt that tells a vision-language model not to diagnose is a real, worthwhile instruction, and `render_triage_prompt` states exactly that instruction directly in its own rendered text. But an instruction inside a prompt is advisory in exactly the same sense Section 20.1's AI-suggested priority is advisory -- nothing about a model FOLLOWING that instruction is structurally guaranteed the way `TriageCase`'s own sign-off gate is. This section's own real answer is not a better-worded instruction; it is a report schema `parse_finding_line` enforces at the PARSING layer, entirely independent of whether the underlying model happened to follow the prompt's own request. A diagnosis-shaped string written into the URGENCY field, or appended as an extra field entirely, is refused by a strict structural check, not by hoping the model read the instruction carefully -- exactly the same shift from "ask nicely" to "structurally cannot" that Section 20.1 already made for human sign-off.
 
 ## 20.4 PACS Worklist Integration with a Human-in-the-Loop Queue
+
+<!-- edge:concept-20.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Worklist states make ownership visible](../images/technical/ch20/20-04.svg)](../images/technical/ch20/20-04.svg)
+
+<figcaption>Urgency suggestions and final clinical decisions must remain distinguishable.</figcaption>
+</figure>
+<!-- edge:concept-20.4:end -->
+
 
 ### Intuition
 
@@ -1705,6 +1754,16 @@ ALL CHECKS PASSED
     It is tempting to treat `claim` as the whole of this section's own safety property -- once a radiologist has claimed a case, the thinking goes, the hard part (preventing a double-claim) is done. Test 3 exists specifically because that is not the whole property: a SECOND radiologist could, in a system that checked only the current state and not WHO is claiming it, still begin reviewing or even finalize a case someone else claimed, simply by knowing its accession number and finding it sitting in `ASSIGNED` or `IN_REVIEW`. Every one of `begin_review`, `finalize`, and `reject` in this section separately checks `radiologist_id == *claimed_by_`, not merely the state -- accountability, once established by a successful claim, has to be checked again at every single subsequent transition, not assumed to still hold just because the state looks right.
 
 ## 20.5 Occlusion-Based Saliency and the Honest Limits of Explainability
+
+<!-- edge:concept-20.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Occlusion reveals sensitivity, not causal truth](../images/technical/ch20/20-05.svg)](../images/technical/ch20/20-05.svg)
+
+<figcaption>A changed output indicates sensitivity to the perturbation. It does not establish clinical explainability.</figcaption>
+</figure>
+<!-- edge:concept-20.5:end -->
+
 
 ### Intuition
 

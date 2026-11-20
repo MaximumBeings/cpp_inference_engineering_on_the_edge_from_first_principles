@@ -1,5 +1,14 @@
 # Chapter 28: Insurance Claims Photo Assessment with Fraud Flagging
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 28: Assess a claim using multiple consistency checks](../images/chapter-openers/28.svg)](../images/chapter-openers/28.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to reapply Chapter 23.1's own real perceptual difference-hash (dHash) algorithm a third time -- after Chapter 23.1's own counterfeit product photos and Chapter 26.1's signature comparison -- to a new real fraud pattern: the identical photo submitted across two unrelated insurance claims.
@@ -27,6 +36,16 @@ Chapter 27 turned to a hard, real-time deadline. This chapter turns to a genuine
 <!-- /chapter-figure -->
 
 ## 28.1 Insurance Claim Duplicate Photo Detection
+
+<!-- edge:concept-28.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Identical and similar photos need different checks](../images/technical/ch28/28-01.svg)](../images/technical/ch28/28-01.svg)
+
+<figcaption>Photo reuse can be legitimate. A duplicate candidate is not proof of fraud.</figcaption>
+</figure>
+<!-- edge:concept-28.1:end -->
+
 
 ### Intuition
 
@@ -58,6 +77,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_insurance_claim_duplicate_photo_detection.cp
 
 ## 28.2 Photo Timestamp vs. Incident Date Consistency
 
+<!-- edge:concept-28.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Compare claimed timing with available evidence](../images/technical/ch28/28-02.svg)](../images/technical/ch28/28-02.svg)
+
+<figcaption>Editable metadata is evidence with limits. A mismatch requires explanation, not an automatic accusation.</figcaption>
+</figure>
+<!-- edge:concept-28.2:end -->
+
+
 ### Intuition
 
 A real, well-documented technique real insurance Special Investigations Units use is metadata timestamp analysis: a photo of damage cannot have been taken before the damage occurred, and a claim's own stated incident date gives a real, checkable boundary to test every submitted photo's own capture timestamp against.
@@ -88,6 +117,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_photo_timestamp_incident_consistency.cpp -o 
 
 ## 28.3 Extending the Cost-Range Engine with a Fraud-Likelihood Signal
 
+<!-- edge:concept-28.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Cost estimation and fraud screening are separate outputs](../images/technical/ch28/28-03.svg)](../images/technical/ch28/28-03.svg)
+
+<figcaption>A high estimate does not itself imply fraud. Keep both outputs independently reviewable.</figcaption>
+</figure>
+<!-- edge:concept-28.3:end -->
+
+
 ### Intuition
 
 This section directly extends Chapter 21.3's own real severity-to-cost-range engine and photo-consistency check -- both reused completely unchanged -- with a new per-zone fraud-likelihood signal built from Section 28.1's duplicate-photo flag, Section 28.2's timestamp-anomaly flag, and Chapter 21.3's own existing consistency verdict. The central discipline this section adds: a zone's own cost estimate and its own fraud likelihood are computed completely independently of each other.
@@ -117,6 +156,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_fraud_likelihood_cost_range_engine.cpp -o 03
     `assess_fraud_likelihood` is a real, transparent COUNT of how many named, independent real checks disagreed with a claim -- LOW, MEDIUM, or HIGH describes exactly that count, never a real, calibrated statistical probability that a specific claim is fraudulent. A zone with a `HIGH` fraud likelihood has two or three independently suspicious signals attached to it, which is real, actionable information worth a human's attention -- it is not, and was never built to be, a statement that this specific zone is "67% likely to be fraudulent" or any other precise number. Treating this section's own three-level, fully-named count as though it carried that kind of statistical precision would overstate exactly what this section's own honest, simple counting logic can support.
 
 ## 28.4 The Claims Disposition Engine
+
+<!-- edge:concept-28.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![The claims engine reports a disposition with reasons](../images/technical/ch28/28-04.svg)](../images/technical/ch28/28-04.svg)
+
+<figcaption>Retain source photos, triggered checks and uncertainty with the resulting case record.</figcaption>
+</figure>
+<!-- edge:concept-28.4:end -->
+
 
 ### Intuition
 

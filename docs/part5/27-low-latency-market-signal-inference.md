@@ -1,5 +1,14 @@
 # Chapter 27: Low-Latency Market-Signal Inference Near the Exchange
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 27: Fit inference into a market-data latency budget](../images/chapter-openers/27.svg)](../images/chapter-openers/27.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to compute a real order book's mid-price, size-weighted "microprice," and order-book imbalance from a Level 1 top-of-book snapshot -- the same real, published market-microstructure signals a real market-making or execution system computes on every book update.
@@ -27,6 +36,16 @@ Chapter 26 turned to a bank branch or back office processing checks and invoices
 <!-- /chapter-figure -->
 
 ## 27.1 Order Book Microstructure Features
+
+<!-- edge:concept-27.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A small book imbalance example](../images/technical/ch27/27-01.svg)](../images/technical/ch27/27-01.svg)
+
+<figcaption>Illustrative feature arithmetic only. Handle a zero denominator and stale or incomplete market data.</figcaption>
+</figure>
+<!-- edge:concept-27.1:end -->
+
 
 ### Intuition
 
@@ -286,6 +305,16 @@ ALL CHECKS PASSED
     Every function in this section operates on TOP-OF-BOOK ONLY -- the single best bid and best ask level. A real limit order book has many price levels beneath the top, and a large real order can be deliberately split into small "iceberg" slices so that only a fraction of its own true size is ever displayed at the top level at once -- exactly the kind of hidden liquidity this section's own `imbalance` and `microprice` formulas have no way to see, since they only ever read the displayed size at the best level. A market participant relying on this section's own signals alone, without also tracking how the top-of-book levels are refreshed over time, would be blind to a large resting order deliberately kept off the visible top of the book -- a real, well-documented limitation of any level-1-only signal, not a bug in this section's own arithmetic.
 
 ## 27.2 The Latency Budget: Tick-to-Trade Deadline Enforcement
+
+<!-- edge:concept-27.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A deadline is an end-to-end constraint](../images/technical/ch27/27-02.svg)](../images/technical/ch27/27-02.svg)
+
+<figcaption>No latency numbers are implied. Measure the complete path under the intended system load.</figcaption>
+</figure>
+<!-- edge:concept-27.2:end -->
+
 
 ### Intuition
 
@@ -560,6 +589,16 @@ ALL CHECKS PASSED
     Every microsecond value in this file -- each `PipelineStage`'s own cost, every event's own arrival timestamp -- is a STATED, illustrative architectural parameter, exactly like Chapter 8.1's own illustrative CPU peak-bandwidth figures, not a measurement of any specific real exchange's own real infrastructure. A real production system's actual tick-to-trade latency depends on real network jitter, real operating-system scheduling, real cache and TLB behavior, and real garbage-collection or memory-allocation pauses in whatever language it is written in -- none of which this section's own pure, deterministic arithmetic can predict. Treating this section's own stated-parameter pipeline as a substitute for actually instrumenting and measuring a real deployed system's own real latency would repeat the identical mistake Chapter 8's own roofline model warned against: an idealized derivation is a real, useful ceiling to reason about, never a stand-in for a real measurement.
 
 ## 27.3 Financial News Sentiment Scoring
+
+<!-- edge:concept-27.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Text becomes a time-stamped sentiment signal](../images/technical/ch27/27-03.svg)](../images/technical/ch27/27-03.svg)
+
+<figcaption>A sentiment score is an uncertain feature, not a prediction of a guaranteed price move.</figcaption>
+</figure>
+<!-- edge:concept-27.3:end -->
+
 
 ### Intuition
 
@@ -856,6 +895,16 @@ ALL CHECKS PASSED
     `POS_LEXICON` and `NEG_LEXICON` in this file are small, illustrative lists built to demonstrate the real methodology, not the actual published Loughran-McDonald dictionaries, which span several thousand words across seven real categories (negative, positive, uncertainty, litigious, strong modal, weak modal, and constraining language) developed and validated against real 10-K filings. Deploying this section's own narrow illustrative vocabulary against real production news flow would miss the large majority of real finance-relevant sentiment words entirely and silently score most real headlines as a hollow NEUTRAL -- the identical narrow-closed-vocabulary caution Chapter 12's own tokenizer, Chapter 24's own closed intent vocabulary, and Chapter 26.3's own amount-in-words parser each stated for their own real, fixed, and deliberately limited scope.
 
 ## 27.4 Signal Fusion and the Trading Decision Engine
+
+<!-- edge:concept-27.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Signal fusion still needs execution controls](../images/technical/ch27/27-04.svg)](../images/technical/ch27/27-04.svg)
+
+<figcaption>Backtest and deployment controls are separate from computing an inference result.</figcaption>
+</figure>
+<!-- edge:concept-27.4:end -->
+
 
 ### Intuition
 

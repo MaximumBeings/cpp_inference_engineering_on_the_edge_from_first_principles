@@ -1,5 +1,14 @@
 # Chapter 21: Document Intelligence, Insurance Claims, and Environmental Monitoring
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 21: Route evidence through a structured pipeline](../images/chapter-openers/21.svg)](../images/chapter-openers/21.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - The real, concrete failure mode a coordinate-based OCR extraction pipeline has that a semantic, position-independent extraction contract does not -- demonstrated with hand-verified numbers, not merely argued for, by running the identical rigid template against two real document layouts and counting exactly how many fields it silently gets wrong.
@@ -28,6 +37,16 @@ Chapter 20 handled a domain where a wrong call costs a delayed diagnosis. This c
 <!-- /chapter-figure -->
 
 ## 21.1 Why a Vision-Language Model Replaces a Traditional OCR Pipeline Outright
+
+<!-- edge:concept-21.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Document pixels can feed structured extraction](../images/technical/ch21/21-01.svg)](../images/technical/ch21/21-01.svg)
+
+<figcaption>Extraction must be evaluated for the actual document types, handwriting and image conditions.</figcaption>
+</figure>
+<!-- edge:concept-21.1:end -->
+
 
 ### Intuition
 
@@ -59,6 +78,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_ocr_pipeline_vs_vlm_extraction.cpp -o 01_ocr
 
 ## 21.2 A Document-Type Router with Handwriting-Aware Extraction
 
+<!-- edge:concept-21.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Route documents before applying their schema](../images/technical/ch21/21-02.svg)](../images/technical/ch21/21-02.svg)
+
+<figcaption>Document routing can be wrong; uncertain types should not be forced into a confident schema.</figcaption>
+</figure>
+<!-- edge:concept-21.2:end -->
+
+
 ### Intuition
 
 Before any extraction contract can be applied at all, a real pipeline first has to know what kind of document it is looking at. This section builds that routing decision as a real, explainable, priority-ordered set of rules over real structural features, and adds the one honest discipline this domain needs on top: a handwriting-recognition confidence score is real but genuinely less trustworthy than a printed-text score, and this section refuses to let one reach a downstream system unclamped.
@@ -89,6 +118,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_document_router_and_handwriting_confidence.c
 
 ## 21.3 Vehicle- and Property-Damage Assessment Engines for Insurance Claims
 
+<!-- edge:concept-21.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Damage evidence supports a reviewable estimate](../images/technical/ch21/21-03.svg)](../images/technical/ch21/21-03.svg)
+
+<figcaption>Images do not establish hidden damage, causation or a final settlement amount.</figcaption>
+</figure>
+<!-- edge:concept-21.3:end -->
+
+
 ### Intuition
 
 A repair estimate given from a photograph, before a shop has ever inspected the real damage, is honestly a RANGE, and a claimed severity that contradicts a claimant's own submitted photographs is a real, useful signal for a human adjuster -- in either direction, never a reason to decide the claim automatically.
@@ -118,6 +157,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_vehicle_damage_assessment_and_claim_consiste
     It is tempting, once a zone's own photo evidence is flagged inconsistent with its claimed severity, to have the assessment engine quietly substitute a "corrected" severity into the total -- after all, the engine has already computed a measured difference that disagrees with the claim. Test 5 is built specifically to rule that temptation out: DRIVER_DOOR's own claimed SEVERE tier is flagged as inconsistent with its measured difference, and the claim's own total cost range STILL includes DRIVER_DOOR's full SEVERE-tier range, exactly as claimed, with the inconsistency reported separately rather than silently resolved. Deciding which of the claim or the photograph is actually correct is a human adjuster's own real job -- an assessment engine that quietly substitutes its own guess for the claimed severity would be making that decision by itself, which is exactly the kind of unstructured authority this book's own human-in-the-loop discipline, since Chapter 20, has consistently refused to grant a piece of software.
 
 ## 21.4 Wildlife and Underwater Species Identification from Camera-Trap and Marine Imagery
+
+<!-- edge:concept-21.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Identification should retain uncertainty and context](../images/technical/ch21/21-04.svg)](../images/technical/ch21/21-04.svg)
+
+<figcaption>A camera image is not proof of species identity or population change without validation.</figcaption>
+</figure>
+<!-- edge:concept-21.4:end -->
+
 
 ### Intuition
 

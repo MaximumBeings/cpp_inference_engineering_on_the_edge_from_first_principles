@@ -1,5 +1,14 @@
 # Chapter 22: Security Surveillance, Accessibility Compliance, and Art Authentication
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 22: Combine visual findings with context](../images/chapter-openers/22.svg)](../images/chapter-openers/22.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to build a real presence-interval coalescing pipeline over raw per-frame detections, render a deterministic natural-language narration sentence from that structured state, and honestly report AMBIGUOUS rather than silently guessing when a multi-camera correlation genuinely has more than one equally plausible answer.
@@ -26,6 +35,16 @@ Chapter 21 turned a single photograph into a structured extraction, claim assess
 <!-- /chapter-figure -->
 
 ## 22.1 A Multi-Camera Surveillance Narration Engine with Temporal Correlation
+
+<!-- edge:concept-22.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Temporal correlation must preserve camera identity](../images/technical/ch22/22-01.svg)](../images/technical/ch22/22-01.svg)
+
+<figcaption>Correlated narration is an inference. Distinguish recorded events from inferred relationships.</figcaption>
+</figure>
+<!-- edge:concept-22.1:end -->
+
 
 ### Intuition
 
@@ -57,6 +76,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_surveillance_narration_and_multi_camera_corr
 
 ## 22.2 An Accessibility-Compliance Auditing Engine
 
+<!-- edge:concept-22.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A photographed feature is not a full compliance audit](../images/technical/ch22/22-02.svg)](../images/technical/ch22/22-02.svg)
+
+<figcaption>Perspective, hidden features and missing dimensions limit conclusions from a photo.</figcaption>
+</figure>
+<!-- edge:concept-22.2:end -->
+
+
 ### Intuition
 
 An accessibility audit is one of the few domains this book has reached where the structured extraction a vision-language model produces from a screenshot can be checked against a real, EXACT, publicly standardized formula rather than a stated policy choice of this book's own invention. This section builds that real math -- relative luminance, contrast ratio, and the AA/AAA pass thresholds -- from scratch, verified against a real, famous reference value.
@@ -86,6 +115,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_accessibility_compliance_audit.cpp -o 02_acc
     WCAG defines two real, separately useful conformance levels -- AA, the level most real accessibility regulations (including the ADA and Section 508) actually cite as their own required minimum, and the considerably stricter, optional AAA. It is tempting to have an audit engine flag any element failing EITHER level as a violation, on the theory that more strictness can only help -- but this section's own `audit_element` deliberately enforces only the AA bar, exactly as regulatory practice actually requires, and an element that fails AAA while still passing AA is not reported as a violation at all. Flagging every AAA shortfall as an urgent violation would flood a real report with a volume of noise that would make the genuinely required AA failures -- the ones with real regulatory and human-usability consequences -- harder, not easier, for a reviewer to find and act on.
 
 ## 22.3 An Art-Condition Assessment and Provenance-Verification Engine
+
+<!-- edge:concept-22.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Condition and provenance require different evidence](../images/technical/ch22/22-03.svg)](../images/technical/ch22/22-03.svg)
+
+<figcaption>A visual model cannot certify authenticity from appearance alone.</figcaption>
+</figure>
+<!-- edge:concept-22.3:end -->
+
 
 ### Intuition
 

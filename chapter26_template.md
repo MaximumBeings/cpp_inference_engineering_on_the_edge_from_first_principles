@@ -1,5 +1,14 @@
 # Chapter 26: Check and Invoice Fraud Detection at Bank Branches and Back Offices
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 26: Cross-check financial document fields](../images/chapter-openers/26.svg)](../images/chapter-openers/26.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to implement the real American Bankers Association routing-number checksum -- the identical published formula every US bank's own check-clearing system runs on every check -- and reapply Chapter 23.1's own real perceptual difference-hash (dHash) algorithm to signature comparison instead of product photography.
@@ -27,6 +36,16 @@ Chapter 25 closed Part 5's run of consumer- and field-facing vision-language dep
 <!-- /chapter-figure -->
 
 ## 26.1 MICR Checksum Validation and Signature Comparison
+
+<!-- edge:concept-26.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A checksum and a signature answer different questions](../images/technical/ch26/26-01.svg)](../images/technical/ch26/26-01.svg)
+
+<figcaption>Use signals as review inputs. Neither mechanism alone establishes that a payment is legitimate.</figcaption>
+</figure>
+<!-- edge:concept-26.1:end -->
+
 
 ### Intuition
 
@@ -58,6 +77,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_micr_checksum_and_signature_comparison.cpp -
 
 ## 26.2 Invoice Duplicate Detection
 
+<!-- edge:concept-26.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Duplicate detection combines stable fields](../images/technical/ch26/26-02.svg)](../images/technical/ch26/26-02.svg)
+
+<figcaption>Similar fields can occur legitimately. Explain which fields caused the duplicate flag.</figcaption>
+</figure>
+<!-- edge:concept-26.2:end -->
+
+
 ### Intuition
 
 A well-documented real invoice-fraud pattern is not a forged invoice at all, but the SAME real invoice submitted twice for payment, with its own invoice number altered by a single character specifically to dodge a naive exact-match duplicate check. Catching this requires the identical real fuzzy-matching algorithm Chapter 23.2 already built from scratch, applied to a different real signal.
@@ -88,6 +117,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_invoice_duplicate_detection.cpp -o 02_invoic
 
 ## 26.3 Amount-in-Words Cross-Validation
 
+<!-- edge:concept-26.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Two representations of an amount should agree](../images/technical/ch26/26-03.svg)](../images/technical/ch26/26-03.svg)
+
+<figcaption>Currency, locale and minor-unit rules must be explicit. Parse failures require review.</figcaption>
+</figure>
+<!-- edge:concept-26.3:end -->
+
+
 ### Intuition
 
 A US check states its own amount twice -- once in numerals, once spelled out in words -- specifically so that altering the numerals alone (the classic "check washing" fraud, chemically removing and rewriting a printed amount) does not silently succeed, provided something actually cross-checks the two fields against each other. This section builds that cross-check from scratch: a real English number-word parser reconstructing the exact cent value the words field claims.
@@ -117,6 +156,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_amount_in_words_cross_validation.cpp -o 03_a
     `parse_amount_words` implements one specific, real, stated convention: a US check's own whole-dollar amount in words, followed by an "and NN/100" cents suffix. It does not attempt to parse arbitrary English number phrasing -- a phrase using "and" in a different position, a non-US convention for grouping large numbers, or a currency whose own printed-check convention differs -- and Test 5 exists specifically to prove an unrecognized token produces an honest, explicit parse failure rather than a silently wrong guess. Deploying this exact parser against checks drawn on a different real convention without first confirming its own vocabulary covers that convention's own words would risk exactly the silent-wrong-answer failure this book's own honesty discipline exists to prevent -- the identical narrow-scope caveat Chapter 12's own tokenizer stated for its own real, fixed vocabulary.
 
 ## 26.4 Risk Scoring and Escalation
+
+<!-- edge:concept-26.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Disposition is a controlled policy step](../images/technical/ch26/26-04.svg)](../images/technical/ch26/26-04.svg)
+
+<figcaption>A risk score is not a finding of fraud. Preserve evidence and escalation reasons.</figcaption>
+</figure>
+<!-- edge:concept-26.4:end -->
+
 
 ### Intuition
 

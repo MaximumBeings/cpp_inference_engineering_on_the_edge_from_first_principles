@@ -1,5 +1,14 @@
 # Chapter 30: Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 30: Connect the math to kernel behavior](../images/chapter-openers/30.svg)](../images/chapter-openers/30.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why a dot product's own real arithmetic intensity is a fixed constant regardless of length, why GEMV (the operation autoregressive decode actually runs) is intrinsically memory-bound at any model size, and the exact real batch size at which GEMM crosses over from memory-bound to compute-bound on a given machine.
@@ -29,6 +38,16 @@ Every chapter before this one built a working system and verified it against the
 <!-- /chapter-figure -->
 
 ## 30.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover
+
+<!-- edge:concept-30.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![GEMV and GEMM reuse the same weights differently](../images/technical/ch30/30-01.svg)](../images/technical/ch30/30-01.svg)
+
+<figcaption>The crossover depends on shape and memory traffic, not just peak arithmetic rate.</figcaption>
+</figure>
+<!-- edge:concept-30.1:end -->
+
 
 ### Intuition
 
@@ -269,6 +288,16 @@ ALL CHECKS PASSED
 
 ## 30.2 Numerically Stable Softmax: The Log-Sum-Exp Fix
 
+<!-- edge:concept-30.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Subtracting the maximum stabilizes softmax](../images/technical/ch30/30-02.svg)](../images/technical/ch30/30-02.svg)
+
+<figcaption>The shift preserves exact softmax ratios while avoiding exponentiation of very large positive logits.</figcaption>
+</figure>
+<!-- edge:concept-30.2:end -->
+
+
 ### Intuition
 
 Softmax's own textbook definition is exactly correct mathematically and dangerously wrong to implement literally: a single sufficiently large real logit overflows a real floating-point exponential before the actual probability computation is finished.
@@ -496,6 +525,16 @@ ALL CHECKS PASSED
 
 ## 30.3 RoPE's Rotation Math
 
+<!-- edge:concept-30.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A two-coordinate rotation preserves squared length](../images/technical/ch30/30-03.svg)](../images/technical/ch30/30-03.svg)
+
+<figcaption>This illustrative angle explains the geometry. RoPE uses position- and frequency-dependent angles.</figcaption>
+</figure>
+<!-- edge:concept-30.3:end -->
+
+
 ### Intuition
 
 Chapter 3 implemented RoPE as working code. This section asks why rotating a query and a key by their own real, position-dependent angles before taking their dot product actually encodes relative position at all -- and the answer turns out to be a clean, provable real trigonometric identity, not a fortunate coincidence.
@@ -711,6 +750,16 @@ ALL CHECKS PASSED
 
 ## 30.4 Quantization as Affine Algebra: Real Error Bounds and the Optimal Scale
 
+<!-- edge:concept-30.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Rounding error has a scale-dependent bound](../images/technical/ch30/30-04.svg)](../images/technical/ch30/30-04.svg)
+
+<figcaption>Clipping introduces an additional error not covered by the in-range rounding bound.</figcaption>
+</figure>
+<!-- edge:concept-30.4:end -->
+
+
 ### Intuition
 
 Chapter 4 implemented affine quantization as working code. Treating it explicitly as an affine map -- `quantize(x) = round(x / scale) + zero_point` -- makes its own real error bound and its own real failure to compose across repeated quantization both directly provable rather than merely observed.
@@ -915,6 +964,16 @@ ALL CHECKS PASSED
     A system that dequantizes a value to re-scale it -- converting from one bit width to another, say, during a real re-quantization pass -- might assume the result is equivalent to having quantized the true original value directly at the new scale, since dequantization is "supposed to" recover the original. Test 4 shows this assumption is false in general: the intermediate fine-grained rounding step introduces its own small real error, and that error can be just enough to push the value across a coarser bin's own boundary, landing on a genuinely different final code than a direct quantization would have. Any real system that quantizes more than once -- exactly the situation Chapter 14's own streaming re-quantization is built to handle carefully -- has to treat this as a real, accumulating source of error, not something dequantization quietly undoes.
 
 ## 30.5 The Hessian's Role in GPTQ: Second-Order Error Compensation
+
+<!-- edge:concept-30.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Second-order sensitivity weights errors unequally](../images/technical/ch30/30-05.svg)](../images/technical/ch30/30-05.svg)
+
+<figcaption>The quadratic approximation is local and depends on the calibration data and objective.</figcaption>
+</figure>
+<!-- edge:concept-30.5:end -->
+
 
 ### Intuition
 
@@ -1217,6 +1276,16 @@ ALL CHECKS PASSED
     It is easy to read GPTQ's own compensation formula and assume its benefit is limited to the single, immediately adjacent weight it updates. Test 4's own real pipeline shows the mechanism is genuinely sequential and cumulative: quantizing weight 0 changes the value weight 1 is compensated toward, and in a layer with more than 2 weights, quantizing weight 1 (now itself already nudged once) would go on to compensate weight 2, and so on. Each real compensation step uses the CURRENT state of the not-yet-quantized weights, not the original ones -- which is exactly why GPTQ processes weights in a specific real sequence rather than computing every compensation independently up front from the unquantized original values.
 
 ## 30.6 A Full Roofline Analysis of a Transformer Layer
+
+<!-- edge:concept-30.6:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Combine arithmetic and traffic for the layer](../images/technical/ch30/30-06.svg)](../images/technical/ch30/30-06.svg)
+
+<figcaption>State sequence length, batch, precision, cache assumptions and the memory level being modeled.</figcaption>
+</figure>
+<!-- edge:concept-30.6:end -->
+
 
 ### Intuition
 

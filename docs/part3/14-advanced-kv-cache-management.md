@@ -1,5 +1,14 @@
 # Chapter 14: Advanced KV Cache Management -- Sliding Windows, Streaming Re-Quantization, and Prefix Caching
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 14: Reuse and limit live KV state](../images/chapter-openers/14.svg)](../images/chapter-openers/14.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Sliding-window attention as the same two-counter ring buffer mechanism Chapter 13.3 introduced, but with the sink-token protected region removed entirely — the window boundary itself becomes the eviction policy, with no case-by-case judgment about which tokens matter.
@@ -28,6 +37,16 @@ Chapter 13 gave every future chapter a KV cache that pages efficiently, wraps wi
 <!-- /chapter-figure -->
 
 ## 14.1 Sliding-Window Attention as a Ring Buffer at Scale
+
+<!-- edge:concept-14.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A sliding window reuses a bounded set of slots](../images/technical/ch14/14-01.svg)](../images/technical/ch14/14-01.svg)
+
+<figcaption>The retained sequence moves forward. Its logical positions do not wrap with the physical ring.</figcaption>
+</figure>
+<!-- edge:concept-14.1:end -->
+
 
 ### Intuition
 
@@ -267,6 +286,16 @@ Chapter 14.1: Sliding-Window Attention as a Ring Buffer at Scale
     Mistral 7B's sliding window is not an approximation at all for that specific model — the model was trained to expect exactly this restriction and learned to compress older context into its hidden state accordingly, so applying the window changes nothing about the model's own expectations. Applying the identical mechanism to a model trained with full, unrestricted attention is a genuinely different situation: that model never learned to compress anything into its hidden state, because during training it could always attend arbitrarily far back. The fact that this approximation tends to work well in practice — because attention weight empirically decays with distance regardless of training regime — is an empirical property of typical attention distributions, not a guarantee, and a task that genuinely depends on precise recall of something far outside the window (a specific number stated thousands of tokens earlier, for instance) can fail silently: no crash, no warning, just an answer computed as though that information were never there at all.
 
 ## 14.2 Streaming Re-Quantization: Tiered Precision as Entries Age
+
+<!-- edge:concept-14.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Age tiers trade bytes for representation error](../images/technical/ch14/14-02.svg)](../images/technical/ch14/14-02.svg)
+
+<figcaption>The precision tier must accompany each block so reads use the correct decoder.</figcaption>
+</figure>
+<!-- edge:concept-14.2:end -->
+
 
 ### Intuition
 
@@ -626,6 +655,16 @@ Chapter 14.2: Streaming Re-Quantization -- Tiered Precision as Entries Age
     A tiering scheme's savings depend on exactly how many live entries land in each tier at the moment memory is measured, which in turn depends on the age-threshold parameters, how often maintenance actually runs, and how long the cache has been running when the measurement is taken — none of which can be derived from the tier table alone without actually simulating the policy. A back-of-envelope estimate assuming a specific, round distribution across tiers (for instance, assuming exactly evenly-spaced buckets of tokens at each bit-width) will not generally match what a real, running cache produces, because real insertion and maintenance timing rarely aligns with round numbers — this chapter's own honestly-computed savings figure, obtained by actually running the maintenance loop over 500 simulated steps, differs from a simpler static-bucket estimate for exactly this reason, and the book's standing rule is to report the number the code actually produced rather than the more convenient one a table suggests.
 
 ## 14.3 Prefix Caching for Multi-Turn Conversations
+
+<!-- edge:concept-14.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A shared prefix can feed different continuations](../images/technical/ch14/14-03.svg)](../images/technical/ch14/14-03.svg)
+
+<figcaption>Cache identity includes the model and tokenization context. Shared pages require safe mutation rules.</figcaption>
+</figure>
+<!-- edge:concept-14.3:end -->
+
 
 ### Intuition
 
@@ -1050,6 +1089,16 @@ Chapter 14.3: Prefix Caching for Multi-Turn Conversations
     The longest common prefix between two token-ID sequences answers a purely textual question — how many leading tokens are identical — and says nothing on its own about whether those tokens' KV data can actually be reused, because reuse additionally requires that the match extends across an entire block boundary. A 9-token stretch that genuinely matches but sits inside a block that also contains 7 tokens past the divergence point is, in every sense that matters for reuse, indistinguishable from a stretch that never matched at all: it gets recomputed either way. Treating "tokens matched" and "tokens reused" as the same quantity overstates a prefix cache's real benefit by exactly the amount of block-granularity waste any given divergence point happens to produce, which is why this section reports both figures separately rather than only the more flattering one.
 
 ## 14.4 A Complete Cache Manager Combining Every Technique
+
+<!-- edge:concept-14.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Apply policy without losing cache identity](../images/technical/ch14/14-04.svg)](../images/technical/ch14/14-04.svg)
+
+<figcaption>Combining policies requires a single contract for validity, storage type and lifetime.</figcaption>
+</figure>
+<!-- edge:concept-14.4:end -->
+
 
 ### Intuition
 

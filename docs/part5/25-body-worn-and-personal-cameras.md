@@ -1,5 +1,14 @@
 # Chapter 25: Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 25: Sample camera streams into reviewable evidence](../images/chapter-openers/25.svg)](../images/chapter-openers/25.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to build a real frame-sampling strategy for continuous body-camera footage -- a fixed periodic rate unioned with real motion-triggered frames -- and a scene-tagging data model whose own types make facial recognition structurally impossible, proven at compile time rather than merely promised in a comment or a policy document.
@@ -27,6 +36,16 @@ This chapter closes Part 5 with two cameras that see far more of a person's life
 <!-- /chapter-figure -->
 
 ## 25.1 Body-Camera Frame Sampling and Scene Tagging Under a No-Facial-Recognition Boundary
+
+<!-- edge:concept-25.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Sample frames under a declared privacy boundary](../images/technical/ch25/25-01.svg)](../images/technical/ch25/25-01.svg)
+
+<figcaption>The chapter boundary excludes facial recognition. Identity must not be inferred from scene tags.</figcaption>
+</figure>
+<!-- edge:concept-25.1:end -->
+
 
 ### Intuition
 
@@ -407,6 +426,16 @@ ALL CHECKS PASSED
 
 ## 25.2 Incident Report Drafting and Chain of Custody
 
+<!-- edge:concept-25.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Evidence handling preserves source identity](../images/technical/ch25/25-02.svg)](../images/technical/ch25/25-02.svg)
+
+<figcaption>A generated narrative is derived material. Retain the original and an auditable derivation trail.</figcaption>
+</figure>
+<!-- edge:concept-25.2:end -->
+
+
 ### Intuition
 
 A body camera's own raw per-frame tags are not a report a human can read or a court can trust. This section turns them into a real chronological narrative, honestly labels any real gap in activity, and computes a real, tamper-evident checksum proving exactly what record a report was built from.
@@ -782,6 +811,16 @@ ALL CHECKS PASSED
 
 ## 25.3 Exercise-Form Analysis and Rep Counting
 
+<!-- edge:concept-25.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Rep counting follows a defined state transition](../images/technical/ch25/25-03.svg)](../images/technical/ch25/25-03.svg)
+
+<figcaption>Occlusion and camera angle can invalidate pose estimates; provide an uncertain state.</figcaption>
+</figure>
+<!-- edge:concept-25.3:end -->
+
+
 ### Intuition
 
 A camera coaching a squat needs a real number for how deep a joint bent, and a real, honest way to decide whether a full repetition actually happened -- not merely whether the person moved.
@@ -1062,6 +1101,16 @@ ALL CHECKS PASSED
     A naive rep counter watching for "went down, now going back up" would have counted Test 2's own partial rep -- the one that only reached 128 degrees before returning to standing -- as a real completed repetition, because motion reversed direction. `RepCounter`'s own `DESCENDING` state specifically distinguishes "started descending" from "actually reached `BOTTOM`," and a rep only counts on a full real cycle that passed through `BOTTOM` on the way. The distinction matters for exactly the reason a fitness application exists in the first place: an athlete relying on this system's own rep count to know whether they hit their real training target deserves a system that only counts a repetition that actually satisfied its own stated depth requirement, not one that rewards a shortcut the system itself was supposed to catch.
 
 ## 25.4 Camera-Based Nutrition Tracking via a USDA-Style Offline Reference
+
+<!-- edge:concept-25.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Nutrition estimates depend on several uncertain links](../images/technical/ch25/25-04.svg)](../images/technical/ch25/25-04.svg)
+
+<figcaption>An image cannot reliably determine ingredients or exact portion mass on its own.</figcaption>
+</figure>
+<!-- edge:concept-25.4:end -->
+
 
 ### Intuition
 

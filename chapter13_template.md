@@ -1,5 +1,14 @@
 # Chapter 13: The KV Cache Manager -- Paged Attention, Ring Buffers, and Smart Eviction
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 13: The KV cache preserves attention history](../images/chapter-openers/13.svg)](../images/chapter-openers/13.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why autoregressive decode is memory-bandwidth-bound rather than compute-bound, and the one equation — tokens/second is bounded by bandwidth divided by bytes read per token (model weights plus KV cache) — that makes this concrete enough to compute, not just assert.
@@ -29,6 +38,16 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 
 ## 13.1 The Memory Wall: Why the KV Cache Is the Real Bottleneck
 
+<!-- edge:concept-13.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![The logical cache size grows with retained tokens](../images/technical/ch13/13-01.svg)](../images/technical/ch13/13-01.svg)
+
+<figcaption>This counts logical KV payload. Allocation, page metadata and quantization scales are additional.</figcaption>
+</figure>
+<!-- edge:concept-13.1:end -->
+
+
 ### Intuition
 
 An autoregressive model is stateful: generating the Nth token requires attending over all N-1 tokens that came before it. Storing their Key and Value vectors instead of recomputing them every step turns an O(N^2) total-FLOP generation into O(N) per step — a genuinely good trade, but one that swaps compute for memory traffic, and memory traffic has its own, much harder, speed limit.
@@ -56,6 +75,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_kv_cache_bandwidth_estimator.cpp -o 01_kv_ca
     A CPU or GPU with dramatically more FLOPs per second generates decode tokens at the SAME speed as a slower one if the two have identical memory bandwidth, because decode's bottleneck is bytes moved per step, not arithmetic performed per step — the model's weights and KV cache must physically travel from RAM to the compute unit before a single multiply can happen, and no amount of extra ALU throughput makes that transfer faster. This is precisely why an H100 GPU (thousands of TFLOPS) and a desktop CPU (roughly one TFLOP) can show a far smaller decode-speed gap than their raw compute numbers would suggest, while showing close to the FULL gap in prefill, where compute rather than bandwidth is the limiting resource. Optimizing the wrong resource — adding compute throughput to a memory-bound workload — buys nothing measurable; the only levers that move decode speed are reducing bytes per token (quantization, a smaller KV cache) or increasing bandwidth itself.
 
 ## 13.2 PagedAttention: Block-Table Indirection
+
+<!-- edge:concept-13.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A block table maps logical pages to physical blocks](../images/technical/ch13/13-02.svg)](../images/technical/ch13/13-02.svg)
+
+<figcaption>Logical ordering need not equal physical ordering. Attention resolves each token through the table.</figcaption>
+</figure>
+<!-- edge:concept-13.2:end -->
+
 
 ### Intuition
 
@@ -85,6 +114,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_paged_attention_block_manager.cpp -o 02_page
 
 ## 13.3 Ring Buffer Contexts: RoPE Position Decoupling and Sink-Token Protection
 
+<!-- edge:concept-13.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A ring slot and a RoPE position are different](../images/technical/ch13/13-03.svg)](../images/technical/ch13/13-03.svg)
+
+<figcaption>Wrapping a buffer must not silently reset token positions.</figcaption>
+</figure>
+<!-- edge:concept-13.3:end -->
+
+
 ### Intuition
 
 PagedAttention solves fragmentation but not growth: total KV cache size still scales linearly with context length no matter how efficiently its blocks are packed. A Ring Buffer caps memory at a fixed size by overwriting the oldest entry once full — simple in concept, but hiding a correctness trap that produces no warning and no crash, only silently wrong attention.
@@ -113,6 +152,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_ring_buffer_sink_tokens.cpp -o 03_ring_buffe
 
 ## 13.4 Smart Eviction: The H2O Heavy-Hitter Policy
 
+<!-- edge:concept-13.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![An eviction policy ranks retained information](../images/technical/ch13/13-04.svg)](../images/technical/ch13/13-04.svg)
+
+<figcaption>Schematic policy scores. Cumulative attention and recency protections define which entries may be evicted.</figcaption>
+</figure>
+<!-- edge:concept-13.4:end -->
+
+
 ### Intuition
 
 The Ring Buffer's default eviction is FIFO: whichever token is oldest goes, no matter what it contains. That is fine for genuinely disposable streaming data, but a real conversation's early tokens are not uniformly disposable — a user's stated name matters for the rest of the session; idle filler three tokens later does not — and FIFO cannot tell the two apart.
@@ -140,6 +189,16 @@ g++ -std=c++23 -Wall -Wextra -O2 04_h2o_eviction.cpp -o 04_h2o_eviction
     A token that was just added to the cache has, by definition, accumulated at most one or two decode steps' worth of attention probability — nowhere near enough to reflect whether the model will actually rely on it going forward. Without a recent-window exemption, H2O's own importance-based eviction would systematically discriminate against every token the instant after it arrives, evicting genuinely important brand-new context (a name just stated, an instruction just given) simply because it has not yet had time to accumulate the score its true usefulness deserves — turning a smarter eviction policy into one that is, perversely, worse than FIFO for exactly the tokens that most need to survive their first few steps. The recent window's immunity is not a workaround for a limitation in the importance signal; it is a recognition that importance is a signal that needs TIME to become meaningful, and eviction must not judge a token before that time has passed.
 
 ## 13.5 A Complete KV Cache Manager
+
+<!-- edge:concept-13.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![The manager owns allocation and validity](../images/technical/ch13/13-05.svg)](../images/technical/ch13/13-05.svg)
+
+<figcaption>Do not release storage while an attention operation still reads it.</figcaption>
+</figure>
+<!-- edge:concept-13.5:end -->
+
 
 ### Intuition
 

@@ -1,5 +1,14 @@
 # Chapter 18: Industrial Visual Inspection: Edge-Deployed Defect Detection on Manufacturing Lines
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 18: A manufacturing inspection decision path](../images/chapter-openers/18.svg)](../images/chapter-openers/18.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How a real machine-vision camera's frame actually arrives at an inference engine -- not as a single, ready-made image file, but as an unreliable stream of UDP-sized packets that a frame-grabber protocol like GigE Vision Streaming Protocol (GVSP) must reassemble, in the right order or not, before a single pixel is usable.
@@ -28,6 +37,16 @@ Every earlier chapter's real file was already sitting on disk before this book's
 <!-- /chapter-figure -->
 
 ## 18.1 GigE Vision Frame Acquisition and Hardware Triggering
+
+<!-- edge:concept-18.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Acquisition begins with a capture event](../images/technical/ch18/18-01.svg)](../images/technical/ch18/18-01.svg)
+
+<figcaption>A missing or late frame must have a defined handling path rather than silently shifting inspection order.</figcaption>
+</figure>
+<!-- edge:concept-18.1:end -->
+
 
 ### Intuition
 
@@ -486,6 +505,16 @@ ALL CHECKS PASSED
     It is tempting to reassemble a frame by simply appending each arriving payload packet's bytes to a growing buffer, in the order they happen to arrive -- and on a quiet local test network, this often even appears to work, because packets frequently do arrive in order. Real UDP delivery offers no such guarantee, and a single out-of-order packet under that scheme corrupts the entire frame silently, with no error and no way downstream to detect it happened. The fix `FrameReassembler` applies is placing every payload chunk at the explicit byte offset its own header field states (`packet_id * CHUNK_BYTES`), independent of arrival order entirely -- proven correct here not by hoping a test network stays quiet, but by a self-test that deliberately shuffles delivery order and confirms the reassembled pixels are still byte-identical to the reference.
 
 ## 18.2 Image Preprocessing and the Qwen2.5-VL Vision Encoder
+
+<!-- edge:concept-18.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Pixels become model features](../images/technical/ch18/18-02.svg)](../images/technical/ch18/18-02.svg)
+
+<figcaption>Use the model-specific preprocessing contract. A generic resize is not a universal encoder input.</figcaption>
+</figure>
+<!-- edge:concept-18.2:end -->
+
 
 ### Intuition
 
@@ -1048,6 +1077,16 @@ ALL CHECKS PASSED
     On a grid exactly 2 patches wide, "four row-major-consecutive patches" and "one real 2x2 spatial block" happen to describe the SAME four indices, so a bug that merges by row-major order instead of by real spatial adjacency would pass a test built on a 2-wide grid without ever being exercised. This section's own Test 3 deliberately uses a 4x4 grid specifically because a 4-wide grid is where the two groupings first diverge -- block (0,0)'s real spatial neighborhood is `{0, 1, 4, 5}`, while four row-major-consecutive patches starting at index 0 would wrongly be `{0, 1, 2, 3}`, one entire row rather than a square. The general lesson: a geometric correctness property should be tested on the smallest input where the bug it is guarding against and the correct behavior would actually produce two DIFFERENT answers, not the smallest input where the code merely runs without crashing.
 
 ## 18.3 Wiring the Vision Encoder into the Qwen2 Decoder
+
+<!-- edge:concept-18.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Vision features join the language input](../images/technical/ch18/18-03.svg)](../images/technical/ch18/18-03.svg)
+
+<figcaption>The supported model determines the feature insertion and positional conventions.</figcaption>
+</figure>
+<!-- edge:concept-18.3:end -->
+
 
 ### Intuition
 
@@ -2182,6 +2221,16 @@ ALL CHECKS PASSED
 
 ## 18.4 Confidence-Threshold Disposition and SQLite Defect Logging
 
+<!-- edge:concept-18.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A model suggestion is not a line disposition](../images/technical/ch18/18-04.svg)](../images/technical/ch18/18-04.svg)
+
+<figcaption>A schema-valid response still needs task validation and a safe uncertain-result path.</figcaption>
+</figure>
+<!-- edge:concept-18.4:end -->
+
+
 ### Intuition
 
 Section 18.3 produced one real, finite hidden state per inspected part, but a hidden state is not a decision a factory line can act on. A real inspection station needs exactly two more things: a rule that turns the model's own stated verdict and confidence into one of three dispositions a conveyor's downstream gate actually understands, and a durable, queryable record of every decision this line ever made -- because "why did the line reject part #48213 at 2:14 this morning" is a real question a quality engineer eventually asks, and "the model said so" is not an answer without a logged confidence and defect type to point to.
@@ -2563,6 +2612,16 @@ ALL CHECKS PASSED
     A single, symmetric threshold applied to every reading -- "accept if confidence exceeds 0.70, reject otherwise" -- treats "the model thinks this is defective" and "the model thinks this is fine" as the same kind of claim needing the same bar of certainty, when a real line's two failure modes have very different real costs: auto-rejecting a genuinely good part on a shaky positive read wastes real material, while auto-accepting a genuinely defective part on a shaky negative read ships a real defect. This section's own asymmetric thresholds -- a HIGH bar to auto-reject, a LOWER bar to auto-accept, with the gap between them routed to REVIEW rather than forced into either extreme -- is not an approximation of the "correct" single threshold; it is the honest recognition that these are two different decisions with two different real costs, and pretending one number could correctly serve both is the actual bug a symmetric threshold would introduce.
 
 ## 18.5 OPC UA Integration into the MES/SCADA Line
+
+<!-- edge:concept-18.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Bridge inspection results to the line system](../images/technical/ch18/18-05.svg)](../images/technical/ch18/18-05.svg)
+
+<figcaption>Integration code must distinguish proposed results, accepted records and confirmed downstream actions.</figcaption>
+</figure>
+<!-- edge:concept-18.5:end -->
+
 
 ### Intuition
 

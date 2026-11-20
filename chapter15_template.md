@@ -1,5 +1,14 @@
 # Chapter 15: Running Real Models -- From HuggingFace to First Token with Qwen2.5
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 15: Produce a token from a real checkpoint](../images/chapter-openers/15.svg)](../images/chapter-openers/15.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why a GGUF reader verified only against files this book's own writer produced can still be wrong in ways its own tests could never catch -- and what changes once that reader is pointed at an actual downloaded model instead of a synthetic fixture.
@@ -29,6 +38,16 @@ Every chapter so far has proven its code correct against data this book's own to
 <!-- /chapter-figure -->
 
 ## 15.1 A Reader That Survives Contact With a Real File
+
+<!-- edge:concept-15.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Validate before trusting model-file metadata](../images/technical/ch15/15-01.svg)](../images/technical/ch15/15-01.svg)
+
+<figcaption>Reject unsupported formats and malformed dimensions before allocating or reading tensor data.</figcaption>
+</figure>
+<!-- edge:concept-15.1:end -->
+
 
 ### Intuition
 
@@ -61,6 +80,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_real_gguf_inspection.cpp -o 01_real_gguf_ins
 
 ## 15.2 Five Ways a Real Qwen2 Checkpoint Differs From Llama
 
+<!-- edge:concept-15.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Architecture names do not imply identical tensors](../images/technical/ch15/15-02.svg)](../images/technical/ch15/15-02.svg)
+
+<figcaption>Use the checkpoint metadata and supported architecture implementation together.</figcaption>
+</figure>
+<!-- edge:concept-15.2:end -->
+
+
 ### Intuition
 
 Section 15.1 built a reader that can survive an actual downloaded file. This section puts that reader to work answering a sharper question: which of this book's own Part 0 and Part 3 assumptions, all built and verified against Llama-style architecture choices, does a real Qwen2.5 checkpoint actually violate -- checked against the real file's bytes, not asserted from a spec sheet or carried forward from this chapter's own source material unverified.
@@ -92,6 +121,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_llama_vs_qwen2_diff.cpp -o 02_llama_vs_qwen2
 
 ## 15.3 Adapting the Forward Pass and Tokenizer for Qwen2
 
+<!-- edge:concept-15.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Adapt the complete path, not only the weights](../images/technical/ch15/15-03.svg)](../images/technical/ch15/15-03.svg)
+
+<figcaption>A numerically valid tensor load can still produce wrong text if the surrounding conventions differ.</figcaption>
+</figure>
+<!-- edge:concept-15.3:end -->
+
+
 ### Intuition
 
 Section 15.2 established five concrete differences as facts about the real file. This section changes actual forward-pass and tokenizer CODE to match them -- and the central claim worth being precise about is that four of Chapter 3's five building blocks needed no change at all.
@@ -121,6 +160,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESP
     RoPE's relative-position invariance -- that the dot product between a query at position `p+d` and a key at position `p` depends only on `d`, not on `p` itself -- is a property of rotating query and key vectors by a CONSISTENT, position-dependent angle, and it holds regardless of which of two internally-consistent pairing conventions (interleaved or split-half) is used to apply that rotation, as long as the same convention is used everywhere. A self-test built around that invariant can therefore pass 100% of its checks while using a convention that is nonetheless wrong for the specific real architecture the code is meant to model -- the test proves the rotation is being applied CONSISTENTLY, not that it is being applied the way the real model's own training expects. The only way to catch a wrong-but-internally-consistent convention is to compare against an independently produced ground truth -- a reference implementation, or, as in this book's case, a from-source build of `llama.cpp` run against the identical real file -- which is a fundamentally different kind of check than any property a synthetic self-test can assert about its own output alone.
 
 ## 15.4 A First Real Token From Qwen2.5-0.5B-Instruct
+
+<!-- edge:concept-15.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A first token has traceable intermediate stages](../images/technical/ch15/15-04.svg)](../images/technical/ch15/15-04.svg)
+
+<figcaption>Verify shapes and finite values along the path before interpreting the output as model quality.</figcaption>
+</figure>
+<!-- edge:concept-15.4:end -->
+
 
 ### Intuition
 

@@ -1,5 +1,14 @@
 # Chapter 19: Retail Inventory and Supply Chain Intelligence: Shelf Photography to Action
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 19: Turn shelf images into inventory evidence](../images/chapter-openers/19.svg)](../images/chapter-openers/19.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to encode a real retail planogram -- the diagram stating which SKU belongs in which shelf slot and how many facings it should have -- into a deterministic, VLM-ready system prompt, with real validation, a real run-length compression pass for large stores, and a conservative token-budget guard that refuses to silently truncate a planogram it cannot fit.
@@ -28,6 +37,16 @@ Chapter 18 taught a vision-language model to inspect a single manufactured part 
 <!-- /chapter-figure -->
 
 ## 19.1 Encoding a Planogram Directly into the System Prompt
+
+<!-- edge:concept-19.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A planogram provides an explicit comparison target](../images/technical/ch19/19-01.svg)](../images/technical/ch19/19-01.svg)
+
+<figcaption>The prompt supplies structured expectations. The image remains uncertain evidence.</figcaption>
+</figure>
+<!-- edge:concept-19.1:end -->
+
 
 ### Intuition
 
@@ -470,6 +489,16 @@ ALL CHECKS PASSED
     It is tempting to estimate a prompt's token cost by counting whitespace-delimited words directly, since that is the cheapest computation available without re-running a real tokenizer. Real BPE tokenizers typically split many English words into MULTIPLE sub-word tokens, so a plain word count systematically UNDER-estimates the real cost -- exactly backwards for a guard whose entire purpose is refusing a prompt that will not actually fit. This section's own `estimate_token_count` applies a stated, deliberately generous multiplier for exactly this reason: a budget guard that is sometimes too cautious wastes nothing but a little context-window headroom, while a budget guard that ever under-counts can let through a prompt a real model would truncate mid-instruction, with no warning to either the caller or the model that anything was cut off.
 
 ## 19.2 A Batch Shelf-Photo Processor
+
+<!-- edge:concept-19.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Batch processing keeps images and results paired](../images/technical/ch19/19-02.svg)](../images/technical/ch19/19-02.svg)
+
+<figcaption>Partial failures must not cause results to be assigned to the wrong shelf.</figcaption>
+</figure>
+<!-- edge:concept-19.2:end -->
+
 
 ### Intuition
 
@@ -1795,6 +1824,16 @@ ALL CHECKS PASSED
 
 ## 19.3 REST Integration into ERP/WMS Systems
 
+<!-- edge:concept-19.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Inventory suggestions pass through an API boundary](../images/technical/ch19/19-03.svg)](../images/technical/ch19/19-03.svg)
+
+<figcaption>Use stable identifiers and retry-safe operations; do not assume every retry should add stock again.</figcaption>
+</figure>
+<!-- edge:concept-19.3:end -->
+
+
 ### Intuition
 
 Sections 19.1 and 19.2 can now tell what a shelf should hold and what a photograph shows it actually holds. None of that reaches a retailer's own business systems until it crosses a real interface nearly every modern retail backend actually exposes: a REST API exchanging JSON over HTTP's own real methods and status codes.
@@ -2218,6 +2257,16 @@ ALL CHECKS PASSED
 
 ## 19.4 Multi-Store Aggregation and Trend Detection
 
+<!-- edge:concept-19.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Aggregation must retain denominators](../images/technical/ch19/19-04.svg)](../images/technical/ch19/19-04.svg)
+
+<figcaption>Illustrative sample counts. Compare rates using observation volume and time windows, not raw totals alone.</figcaption>
+</figure>
+<!-- edge:concept-19.4:end -->
+
+
 ### Intuition
 
 A single store's own inventory record answers "how much of this SKU does store 42 have right now." A retail chain needs a genuinely different question answered across every store at once: is this SKU trending toward a stockout, and by when -- and answering that honestly requires knowing which stores' numbers are even reflected in the total.
@@ -2538,6 +2587,16 @@ ALL CHECKS PASSED
     Summing on-hand quantity across "every store in my list" and simply not adding anything for a store with no snapshot LOOKS identical, in the resulting total, to correctly excluding that store -- until the very next question asked of that total is "how many units of this SKU exist across the chain," at which point a missing store's real, unknown, possibly-substantial inventory has silently become zero in every downstream calculation. `aggregate_by_sku`'s own `stores_missing` field exists specifically so a caller can distinguish "3 units total, all 3 stores reporting" from "3 units total, only 1 of 3 stores reporting" -- two totals that happen to share a number but mean completely different things about how much of the chain's real inventory that number actually reflects.
 
 ## 19.5 Shrinkage and Misplacement Detection from Ordinary Shelf Photographs
+
+<!-- edge:concept-19.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A visual discrepancy has several explanations](../images/technical/ch19/19-05.svg)](../images/technical/ch19/19-05.svg)
+
+<figcaption>A shelf image alone does not establish theft or shrinkage causation.</figcaption>
+</figure>
+<!-- edge:concept-19.5:end -->
+
 
 ### Intuition
 

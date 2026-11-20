@@ -30,4 +30,13 @@ Set `CXX=clang++` for the regression script when using Apple Clang. Historical t
 
 ## Regenerate illustrations
 
-Run `python3 tools/build_diagrams.py` to rebuild the 38 accessible SVG figures and their chapter/template embeds. Figures are stored in `docs/images/` and styled by `docs/stylesheets/figures.css`. Chapter templates retain the embeds when their code examples are regenerated.
+The book includes 31 chapter-opening graphics, 140 concept diagrams (one per numbered section), and 38 overview/setup figures. The SVGs are accessible, responsive, and stored in `docs/images/`. Click a section figure to open it at full size.
+
+```sh
+python3 tools/build_diagrams.py
+python3 tools/illustrations/build.py
+mkdocs build --strict
+python3 tools/illustrations/verify.py site
+```
+
+Section-specific content lives in `tools/illustrations/concepts.py`; the generated manifest records coverage. Both generators update chapter templates so rebuilding embedded code examples preserves the illustrations. `docs/stylesheets/figures.css` controls their presentation. Numerical examples and schematic bars are labeled separately from measured benchmarks.

@@ -1,5 +1,14 @@
 # Chapter 8: The Memory Wall and the Roofline Model -- Why Arithmetic Is Rarely the Bottleneck
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 8: The roofline bounds attainable throughput](../images/chapter-openers/08.svg)](../images/chapter-openers/08.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why "how many FLOPs does this kernel do" is the wrong first question to ask about performance, and "how many bytes does it move, relative to those FLOPs" is the right one — derived here as arithmetic intensity, not asserted as folklore.
@@ -30,6 +39,16 @@ Every kernel in this book so far has been judged by what it computes and how acc
 
 ## 8.1 The Roofline Model, Derived From First Principles
 
+<!-- edge:concept-8.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A roofline bound combines two limits](../images/technical/ch08/08-01.svg)](../images/technical/ch08/08-01.svg)
+
+<figcaption>Use consistent units. This is an upper bound, not a prediction of achieved throughput.</figcaption>
+</figure>
+<!-- edge:concept-8.1:end -->
+
+
 ### Intuition
 
 A kernel's speed is capped by two entirely different resources: how many arithmetic operations the processor can perform per second, and how many bytes it can move between memory and the processor per second. Whichever of the two a given kernel demands more of, relative to what it does with each byte it touches, is the one that actually limits it — and that ratio, FLOPs per byte, is a property of the KERNEL, while the two peaks are properties of the MACHINE. Neither number is worth much on its own; the useful question is always how they compare for one specific kernel on one specific machine.
@@ -57,6 +76,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_roofline_and_ridge_point.cpp -o 01_roofline_
     Peak compute and peak bandwidth are independent resources, and a kernel is only ever limited by whichever one it demands more of. For a memory-bound kernel — one whose arithmetic intensity sits below the ridge point — the achievable-throughput formula reduces to `arithmetic_intensity * peak_bandwidth`, which does not contain the peak-compute term at all. Quadrupling peak compute for such a kernel changes its achievable throughput by exactly zero, not approximately zero: bandwidth was the entire bottleneck, and no amount of additional arithmetic capacity relieves a constraint the kernel was never bound by. "Upgrade to a machine with more FLOPs" is sound advice for a compute-bound kernel and completely useless advice for a memory-bound one, and the roofline model is what tells the two situations apart before any hardware purchase is made.
 
 ## 8.2 Measuring Arithmetic Intensity in Real Kernels
+
+<!-- edge:concept-8.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Count work and traffic for one kernel](../images/technical/ch08/08-02.svg)](../images/technical/ch08/08-02.svg)
+
+<figcaption>Cache reuse, packing and fused operations affect the traffic actually observed at each memory level.</figcaption>
+</figure>
+<!-- edge:concept-8.2:end -->
+
 
 ### Intuition
 
@@ -86,6 +115,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_kernel_arithmetic_intensity.cpp -o 02_kernel
 
 ## 8.3 Prefill vs. Decode: The Same Weights, Different Arithmetic
 
+<!-- edge:concept-8.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Prefill reuses weights across prompt tokens](../images/technical/ch08/08-03.svg)](../images/technical/ch08/08-03.svg)
+
+<figcaption>The dominant bottleneck depends on shape, precision, hardware and implementation.</figcaption>
+</figure>
+<!-- edge:concept-8.3:end -->
+
+
 ### Intuition
 
 Prefill and decode use the identical weight matrix for the identical linear projection, and yet one is routinely described as compute-bound and the other as memory-bound. The difference is not the weights or the arithmetic — it is how many columns of input share that one weight read before it is done with. A GEMM (many token columns at once) and a GEMV (one column) are the same operation at two different points on the very same ridge point Section 8.1 derived, and the sequence length at which one becomes the other is a number this section finds by search, not by assumption.
@@ -114,6 +153,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_I
 
 ## 8.4 Continuous Batching: the Same Crossover, a Different Question
 
+<!-- edge:concept-8.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Batching changes the work per weight read](../images/technical/ch08/08-04.svg)](../images/technical/ch08/08-04.svg)
+
+<figcaption>KV traffic and scheduling overhead still matter. Larger batches can also increase latency.</figcaption>
+</figure>
+<!-- edge:concept-8.4:end -->
+
+
 ### Intuition
 
 A production inference server rarely runs one request's GEMV at a time. Continuous batching stacks many DIFFERENT requests' single decode tokens into one batched matrix multiply, sharing the same weight read across all of them — which is mathematically the identical GEMV-to-GEMM transition Section 8.3 analyzed for one request's own prompt tokens, just triggered by the scheduler instead of by prompt length. Reusing that section's own formula unchanged, with `seq` reinterpreted as batch size, this section asks the question prefill's analysis did not need to: what happens to each individual REQUEST's latency, not just the batch's aggregate throughput, on both sides of the same crossover.
@@ -141,6 +190,16 @@ g++ -std=c++23 -Wall -Wextra -O2 04_continuous_batching.cpp -o 04_continuous_bat
     Below the batch-size crossover, adding requests to a batch is close to free — batch time barely grows, so throughput grows almost proportionally with batch size, and it is tempting to extrapolate that relationship indefinitely. Past the crossover, the batch is compute-bound, and batch time grows roughly in step with batch size instead of staying flat — so throughput growth falls sharply behind batch-size growth, while every request's own per-token latency, tied to that now-growing batch time, gets measurably worse. A scheduler that keeps adding requests to an already compute-bound batch is not buying the throughput gain it bought earlier; it is trading request latency for a shrinking throughput return, the same trade a memory-bound-to-compute-bound crossover always forces once bytes stop being the bottleneck.
 
 ## 8.5 A Full Layer's Roofline Profile
+
+<!-- edge:concept-8.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A layer has several memory consumers](../images/technical/ch08/08-05.svg)](../images/technical/ch08/08-05.svg)
+
+<figcaption>Illustrative relative traffic only. Replace these schematic bars with measured byte counts for a model.</figcaption>
+</figure>
+<!-- edge:concept-8.5:end -->
+
 
 ### Intuition
 

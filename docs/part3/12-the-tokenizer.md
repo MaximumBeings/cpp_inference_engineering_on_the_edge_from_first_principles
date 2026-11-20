@@ -1,5 +1,14 @@
 # Chapter 12: The Tokenizer -- BPE, SentencePiece, and the Vocabulary Pipeline
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 12: From text to model token IDs](../images/chapter-openers/12.svg)](../images/chapter-openers/12.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Byte-pair encoding's core algorithm: how an ordered merge table turns individual bytes into a hierarchical vocabulary, and why the merge with the LOWEST priority number among all currently-adjacent pairs fires first at encode time — a rule where merge PRIORITY, not merge OPPORTUNITY, decides the outcome, sometimes in ways that look surprising until traced by hand.
@@ -28,6 +37,16 @@ Every chapter so far has assumed tokens already exist as small integers flowing 
 <!-- /chapter-figure -->
 
 ## 12.1 Byte-Pair Encoding: The Merge Algorithm
+
+<!-- edge:concept-12.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![BPE repeatedly chooses an eligible merge](../images/technical/ch12/12-01.svg)](../images/technical/ch12/12-01.svg)
+
+<figcaption>Actual merges follow vocabulary ranks and tokenization rules, not arbitrary pair concatenation.</figcaption>
+</figure>
+<!-- edge:concept-12.1:end -->
+
 
 ### Intuition
 
@@ -382,6 +401,16 @@ vocabulary: 270 tokens (256 bytes + 14 merge rules)
 
 ## 12.2 Pre-Tokenization: Splitting Text Before BPE
 
+<!-- edge:concept-12.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Pre-tokenization sets merge boundaries](../images/technical/ch12/12-02.svg)](../images/technical/ch12/12-02.svg)
+
+<figcaption>Whitespace, punctuation and byte handling are model-specific conventions.</figcaption>
+</figure>
+<!-- edge:concept-12.2:end -->
+
+
 ### Intuition
 
 If BPE ran directly on raw, unsplit text, nothing would stop a merge rule from fusing the last character of one word with the first character of the next — or with the space between them. A pre-tokenizer draws the boundaries BPE is never allowed to cross, splitting text into word-sized chunks before the merge loop ever runs, with BPE then operating independently inside each chunk.
@@ -620,6 +649,16 @@ Chapter 12.2: Pre-Tokenization -- Splitting Text Before BPE
     It is easy to write a pre-tokenizer that attaches trailing whitespace to the word BEFORE it — "the " then "cat" — because that is how splitting on whitespace naturally falls out of the most obvious scanning approach (consume a word, then consume the space that follows). Real tokenizers do the opposite on purpose: the space belongs to the word that FOLLOWS it. Getting this backwards does not merely produce a cosmetically different chunk boundary — it silently changes which token IDs BPE ends up producing for every word in a sentence except the first, because a token vocabulary trained on "word-with-leading-space" tokens has no matching entry for a "word-with-trailing-space" token, and the encoder falls back to a completely different (and much less efficient) tokenization for text that would otherwise have been a single common token.
 
 ## 12.3 Special Tokens and the Chat Template
+
+<!-- edge:concept-12.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A chat template is part of the input format](../images/technical/ch12/12-03.svg)](../images/technical/ch12/12-03.svg)
+
+<figcaption>Use the model vocabulary IDs and exact template. Similar-looking text is not the same token sequence.</figcaption>
+</figure>
+<!-- edge:concept-12.3:end -->
+
 
 ### Intuition
 
@@ -975,6 +1014,16 @@ Chapter 12.3: Special Tokens and the Chat Template
 
 ## 12.4 The Token Decoder: IDs Back to UTF-8
 
+<!-- edge:concept-12.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Streaming bytes must end at UTF-8 boundaries](../images/technical/ch12/12-04.svg)](../images/technical/ch12/12-04.svg)
+
+<figcaption>A token boundary is not necessarily a Unicode character boundary.</figcaption>
+</figure>
+<!-- edge:concept-12.4:end -->
+
+
 ### Intuition
 
 Decoding reverses encoding: given the integer IDs a model produces, reconstruct the text they represent. This looks like a plain table lookup, but byte-fallback tokens and control tokens both need handling beyond "look up the string and concatenate."
@@ -1248,6 +1297,16 @@ Chapter 12.4: The Token Decoder -- IDs Back to UTF-8
     A byte-fallback token's vocabulary entry is commonly given a human-readable display string like "<0xC3>" purely so a developer inspecting the vocabulary can tell what it is. It is a real and easy mistake to decode that token by emitting its STORED STRING — literally the seven characters "<0xC3>" — instead of the single raw byte 0xC3 it represents. The bug is invisible for plain ASCII text, where display strings and intended output rarely collide in an obviously broken way, but it corrupts every multi-byte UTF-8 sequence and every byte value a model actually needs decoded as raw output: instead of two bytes reassembling into one accented character, the user sees the literal text "<0xC3><0xA9>" where a single letter belonged. The fix this section relies on is a single, explicit special case: for byte-fallback tokens with IDs 0-255, the numeric ID itself is the byte to emit, and the display string exists for debugging output only, never for the actual decoded byte stream.
 
 ## 12.5 A Complete Tokenizer Pipeline Loaded from a Real GGUF File
+
+<!-- edge:concept-12.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Load tokenization conventions with the weights](../images/technical/ch12/12-05.svg)](../images/technical/ch12/12-05.svg)
+
+<figcaption>Test known prompts and byte sequences against the intended model conventions.</figcaption>
+</figure>
+<!-- edge:concept-12.5:end -->
+
 
 ### Intuition
 

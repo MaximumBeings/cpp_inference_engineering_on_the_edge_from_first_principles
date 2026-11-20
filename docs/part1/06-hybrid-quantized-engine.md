@@ -1,5 +1,14 @@
 # Chapter 6: The Hybrid Quantized Engine -- Mixing Precisions for Different Jobs
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 6: Use precision where it matters](../images/chapter-openers/06.svg)](../images/chapter-openers/06.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why giving every weight matrix the same quantization format is a mistake that has nothing to do with some matrices being harder to quantize than others — the raw rounding error a block format introduces depends only on the format's bit width, verified directly by quantizing an attention-shaped and an FFN-shaped matrix from the same distribution and finding statistically identical error.
@@ -27,6 +36,16 @@ Chapter 5 built one quantization pipeline and applied it the same way to every t
 <!-- /chapter-figure -->
 
 ## 6.1 Why Hybrid: Same Format, Different Consequences
+
+<!-- edge:concept-6.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Equal byte savings can have unequal model effects](../images/technical/ch06/06-01.svg)](../images/technical/ch06/06-01.svg)
+
+<figcaption>Sensitivity is a policy input. The diagram does not claim measured model-quality improvements.</figcaption>
+</figure>
+<!-- edge:concept-6.1:end -->
+
 
 ### Intuition
 
@@ -533,6 +552,16 @@ Weight Class Sensitivity: Same Format, Different Consequences
     This section's own first draft measured the total-variation distance between the FP32 and Q4-quantized softmax distributions, expecting a small raw score error to come out amplified into a larger distributional shift. It came out SMALLER instead: softmax's outputs live in a bounded probability simplex, which caps how far the bulk distribution can move no matter how large the input perturbation is. The real fragility was invisible in that number because total variation measures the WRONG thing — a small average shift across many possible outcomes, not whether the single outcome that gets acted on (the argmax) actually changed. Measuring the argmax flip rate across many independent trials instead of one distribution's total variation is what actually surfaces the effect this section is about.
 
 ## 6.2 A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag
+
+<!-- edge:concept-6.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A type tag drives format-specific dispatch](../images/technical/ch06/06-02.svg)](../images/technical/ch06/06-02.svg)
+
+<figcaption>The policy is persisted in tensor metadata so loading and computation agree on representation.</figcaption>
+</figure>
+<!-- edge:concept-6.2:end -->
+
 
 ### Intuition
 
@@ -1123,6 +1152,16 @@ A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag
 
 ## 6.3 The Memory Budget: Uniform vs. Hybrid Quantization
 
+<!-- edge:concept-6.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Account for every tensor, including metadata](../images/technical/ch06/06-03.svg)](../images/technical/ch06/06-03.svg)
+
+<figcaption>Hybrid memory usage is a sum of encoded sizes, not a single nominal bits-per-weight number.</figcaption>
+</figure>
+<!-- edge:concept-6.3:end -->
+
+
 ### Intuition
 
 A hybrid policy is only worth adopting if it is cheap. This section prices Section 6.2's policy in real bytes for a large-scale model, using Chapter 5.3's own tensor-count formula and Section 6.1's own per-layer element-count formulas — and it prices the WRONG policy first, on purpose, because that is what actually happened while writing this chapter: the first version of Section 6.2's policy kept both norm weights and the embedding table at F32, on the reasoning that both are "small and sensitive." That reasoning holds for norm weights, which really are small — tens of thousands of elements regardless of model size. It does not hold for the embedding table, whose size scales with VOCABULARY, not model depth, and a modern large-vocabulary embedding table is tens to hundreds of millions of elements, not tens of thousands.
@@ -1365,6 +1404,16 @@ The Memory Budget: Uniform vs. Hybrid Quantization
     Norm weights and the embedding table both sound like they belong in the same "small, sensitive, keep it exact" bucket — neither is a big square weight matrix, and both feed something that touches every token. But "small" is doing all the work in that sentence, and it is true for one of them and false for the other: norm weights total a few tens of thousands of elements per model regardless of scale, while an embedding table's element count is `vocabulary_size x hidden_dimension`, and a 128,000-token vocabulary at a 4096-dimensional hidden size alone is over half a billion elements. Grouping them by a shared adjective instead of checking their actual element counts is exactly how this chapter's own first-draft policy ended up costing 86% more than uniform Q4_0 — a mistake that a five-line calculation, run before committing to the policy rather than after, would have caught immediately.
 
 ## 6.4 A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File
+
+<!-- edge:concept-6.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![The mapped file selects the forward-pass kernels](../images/technical/ch06/06-04.svg)](../images/technical/ch06/06-04.svg)
+
+<figcaption>The runtime must not interpret a Q4 block using a Q8 or floating-point kernel.</figcaption>
+</figure>
+<!-- edge:concept-6.4:end -->
+
 
 ### Intuition
 
@@ -2014,6 +2063,16 @@ A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File
     `MappedGGUF::get_f32`, `get_q8`, and `get_q4` each reinterpret a tensor's raw bytes according to whichever format their NAME promises — none of them looks at the tensor descriptor's own recorded `type` field to confirm that promise is true. That is fine as long as every caller already knows the right format to ask for, which was true in Chapter 5.3 (the embedding table really was F32 there) and stopped being true the moment Section 6.2 changed the policy. Calling `get_f32("token_embd.weight")` after that change compiles, links, runs, and returns a `std::span<const float>` that looks completely normal — it just contains values reinterpreted from the wrong byte layout, off by up to 33 orders of magnitude in this section's own measurement, with nothing in the type system or the accessor itself to catch it. The fix is never to harden the accessors (they cannot know your intent); it is to check `TensorInfo::type` at the call site before deciding which accessor to call, exactly as Section 6.2's dispatcher already does.
 
 ## 6.5 The Complete Hybrid Engine: Multi-Layer, Multi-Token, End to End
+
+<!-- edge:concept-6.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Carry the same policy through every layer](../images/technical/ch06/06-05.svg)](../images/technical/ch06/06-05.svg)
+
+<figcaption>Per-layer execution must preserve the tensor format, activation shape and residual dependencies.</figcaption>
+</figure>
+<!-- edge:concept-6.5:end -->
+
 
 ### Intuition
 

@@ -1,5 +1,14 @@
 # Chapter 2: The Tensor Engine -- std::mdspan, Arena Allocators, and Mixed Precision
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 2: A tensor view describes existing storage](../images/chapter-openers/02.svg)](../images/chapter-openers/02.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How `std::mdspan` turns a raw pointer into a multi-dimensional, indexed view with zero copies and zero allocations, and how to read its three template parameters — element type, extents, and layout — to know exactly what shape and memory order any given `mdspan` describes.
@@ -25,6 +34,16 @@ Chapter 1 argued that edge inference is a different engineering problem from clo
 <!-- /chapter-figure -->
 
 ## 2.1 std::mdspan: A Zero-Copy View Over Flat Memory
+
+<!-- edge:concept-2.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A two-dimensional view over one allocation](../images/technical/ch02/02-01.svg)](../images/technical/ch02/02-01.svg)
+
+<figcaption>The view stores shape and strides; the arena owns the twelve elements.</figcaption>
+</figure>
+<!-- edge:concept-2.1:end -->
+
 
 ### Intuition
 
@@ -179,6 +198,16 @@ Every check above passes without a single heap allocation beyond the original `s
 
 ## 2.2 Zero-Copy Slicing With std::submdspan
 
+<!-- edge:concept-2.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Slicing changes the view, not the allocation](../images/technical/ch02/02-02.svg)](../images/technical/ch02/02-02.svg)
+
+<figcaption>A slice has a new origin and extents. Its lifetime cannot exceed the underlying storage.</figcaption>
+</figure>
+<!-- edge:concept-2.2:end -->
+
+
 ### Intuition
 
 Multi-head attention stores Q, K, and V projections as one tensor shaped `[Batch, Seq, Heads, HeadDim]`, but every head needs to operate on its own slice independently. Copying each head out into its own buffer before processing it would mean copying most of the tensor, every single step, purely to satisfy a shape requirement the data already satisfies — it is contiguous, it is already there, it just needs a different *view* of the same bytes. `std::submdspan` is that view.
@@ -318,6 +347,16 @@ ALL CHECKS PASSED
     Fixing `Heads` to a single index removes that dimension from the *shape*, but every other dimension keeps the exact stride it had in the original tensor — because the underlying bytes never moved. In this section's own trace, extracting head 1 leaves the sequence dimension's stride at 6 (the full `Heads * HeadDim` of the original tensor), not 2 (`HeadDim` alone, which is what a "the slice is now its own small tensor" assumption would predict). Code that reads a sub-view's `.stride()` values directly is safe; code that assumes a sliced tensor is as tightly packed as a freshly-allocated one of the same shape will silently compute wrong flat offsets the moment it bypasses `mdspan`'s own indexing.
 
 ## 2.3 Cache-Optimized Layouts: Why Loop Order Is Not Free
+
+<!-- edge:concept-2.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Loop order determines the traversal](../images/technical/ch02/02-03.svg)](../images/technical/ch02/02-03.svg)
+
+<figcaption>Row-major layout favors walking across columns in the inner loop. Measure the real kernel.</figcaption>
+</figure>
+<!-- edge:concept-2.3:end -->
+
 
 ### Intuition
 
@@ -476,6 +515,16 @@ On the machine this book was built on, the stride-2048 traversal ran roughly two
     Aggressive optimization flags can vectorize a stride-1 inner loop far more effectively than a stride-`N` one, which sometimes makes the *gap* between the two orderings even larger at higher optimization levels, not smaller — there is no compiler flag that turns a memory-bound, cache-hostile access pattern into a cache-friendly one after the fact. The fix is always in the loop order or the underlying layout choice itself, never in the optimizer being asked to work harder around it.
 
 ## 2.4 The Arena Allocator: O(1) Alloc and Reset for Per-Token Scratch
+
+<!-- edge:concept-2.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Scratch storage advances a cursor](../images/technical/ch02/02-04.svg)](../images/technical/ch02/02-04.svg)
+
+<figcaption>Aligned allocations advance the arena cursor. Reset reclaims scratch together after its users finish.</figcaption>
+</figure>
+<!-- edge:concept-2.4:end -->
+
 
 ### Intuition
 
@@ -691,6 +740,16 @@ ALL CHECKS PASSED
     `reset()` does not know, and cannot know, whether every pointer it previously handed out is actually done being used — it trusts the caller completely. Holding onto a pointer from before a `reset()` call and dereferencing it afterward is a use-after-free in exactly the same sense as a dangling pointer into `free()`'d memory, except the corruption can be far more confusing to debug: the memory is very likely to still contain *plausible-looking* data (quite possibly the same tensor, briefly, until the next `alloc()` overwrites it), rather than failing loudly. The arena's contract is strict and entirely on the caller: every allocation made since the last `reset()` must be provably dead — not merely unused for now — before `reset()` is called again.
 
 ## 2.5 Mixed Precision: Type-Safe Multi-Format Storage With std::variant
+
+<!-- edge:concept-2.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A format tag selects a typed representation](../images/technical/ch02/02-05.svg)](../images/technical/ch02/02-05.svg)
+
+<figcaption>std::variant makes the active storage alternative explicit. A tag does not convert the payload.</figcaption>
+</figure>
+<!-- edge:concept-2.5:end -->
+
 
 ### Intuition
 

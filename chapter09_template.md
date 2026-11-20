@@ -1,5 +1,14 @@
 # Chapter 9: SIMD Vectorization -- AVX2 on x86, NEON on Arm
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 9: A dot product across SIMD lanes](../images/chapter-openers/09.svg)](../images/chapter-openers/09.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - What a SIMD register actually is — a fixed number of bits divided into lanes of a stated element width — derived from that single fact rather than memorized as a vendor-specific rule, and why doubling a chip's peak compute this way still buys nothing for a memory-bound kernel, exactly per Chapter 8's own roofline model.
@@ -30,6 +39,16 @@ Chapter 8 established that a kernel's speed is capped by two independent resourc
 
 ## 9.1 The SIMD Register Model, Derived From Register Width
 
+<!-- edge:concept-9.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Register width determines lane count](../images/technical/ch09/09-01.svg)](../images/technical/ch09/09-01.svg)
+
+<figcaption>These are storage lane counts; instruction semantics and accumulator width must be checked separately.</figcaption>
+</figure>
+<!-- edge:concept-9.1:end -->
+
+
 ### Intuition
 
 A SIMD register is not a mysterious accelerator; it is a wider bucket that a fixed number of narrower values are poured into together. A 256-bit AVX2 register and a 128-bit NEON register both follow the identical rule — lanes equal register bits divided by element bits — and that one arithmetic fact, not a lookup table of vendor trivia, is enough to derive exactly how much peak compute a given register width is responsible for.
@@ -57,6 +76,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_simd_register_model.cpp -o 01_simd_register_
     Doubling a chip's SIMD lane count really does double its peak compute — that part of the arithmetic is not in dispute, and this section verifies it directly. But peak compute is only the ceiling a COMPUTE-bound kernel can approach; a memory-bound kernel's achievable throughput, per Chapter 8.1's own formula, is `arithmetic_intensity * peak_bandwidth`, an expression that does not mention SIMD width at all. At a representative decode-time arithmetic intensity, AVX2's eight lanes and NEON's four lanes produce identical achievable throughput, down to the last decimal place, because both machines hit the same bandwidth ceiling long before either one's compute ceiling becomes relevant. "This CPU has wider SIMD registers" is evidence of nothing for a kernel's real-world speed until the kernel's own arithmetic intensity relative to that machine's ridge point has been checked first.
 
 ## 9.2 AVX2: Vectorized Quantized Dot Products on x86
+
+<!-- edge:concept-9.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A quantized vector dot product widens before summing](../images/technical/ch09/09-02.svg)](../images/technical/ch09/09-02.svg)
+
+<figcaption>Accumulators must be wide enough. Packed signedness and saturation rules cannot be inferred from lane count.</figcaption>
+</figure>
+<!-- edge:concept-9.2:end -->
+
 
 ### Intuition
 
@@ -86,6 +115,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -mavx2 -mfma 02_avx2_quantized_dot_product.cpp 
 
 ## 9.3 Arm NEON: The Same Kernel, a Different Register
 
+<!-- edge:concept-9.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![The algorithm stays, the intrinsic sequence changes](../images/technical/ch09/09-03.svg)](../images/technical/ch09/09-03.svg)
+
+<figcaption>Compare both implementations against the same scalar reference on all supported lengths.</figcaption>
+</figure>
+<!-- edge:concept-9.3:end -->
+
+
 ### Intuition
 
 Every transformer that runs on a phone, a laptop's efficiency cores, or an Arm-based server needs the identical Q8_0 and Q4_0 dot product Section 9.2 just vectorized for AVX2 — and Arm NEON can vectorize it too, with the same lane-based reasoning Section 9.1 already established. But NEON is not AVX2 with the function names swapped: at least one operation Section 9.2 leaned on as a single instruction has no NEON equivalent at all, and finding that out empirically here is exactly the kind of asymmetry a chapter that only ever wrote AVX2 could never have surfaced.
@@ -114,6 +153,16 @@ qemu-aarch64 -L /usr/aarch64-linux-gnu ./03_neon_quantized_dot_product
 
 ## 9.4 Auto-Vectorization and the Restrict Promise
 
+<!-- edge:concept-9.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A no-alias promise is a correctness contract](../images/technical/ch09/09-04.svg)](../images/technical/ch09/09-04.svg)
+
+<figcaption>Only assert non-aliasing when the calling code guarantees it for every supported invocation.</figcaption>
+</figure>
+<!-- edge:concept-9.4:end -->
+
+
 ### Intuition
 
 Neither Section 9.2 nor Section 9.3 is the only way to get a vectorized loop: a modern compiler's `-O3` auto-vectorizer will widen a sufficiently simple elementwise loop on its own, with no intrinsics at all, PROVIDED it can prove doing so is safe. Two raw pointers are not provably safe to reorder in general, so the compiler's default is a runtime check; `__restrict` is the programmer's promise that removes it — and this section verifies both halves of that promise are real, including what happens the moment it is broken.
@@ -141,6 +190,16 @@ g++ -std=c++23 -Wall -Wextra -O3 -mavx2 -mfma 04_restrict_and_autovectorization.
     It is tempting to reason "the vector register is N-wide, so as long as my overlapping pointers are at least N elements apart, `__restrict` is safe" — but `__restrict` makes exactly one promise: NO aliasing, full stop, not "aliasing no closer than the register width." This section's own measurement shows the actual safe distance on this build is wider than the 8-lane AVX2 register alone, because the compiler chose to unroll the vectorized loop to handle more than one register's worth of data per iteration, a decision made by the optimizer, at this optimization level, on this compiler version — none of which the source code controls or can predict by inspection. A hand-derived "stay N elements apart" rule that happened to work on one build can silently break on a different compiler, a different flag, or a different unrolling decision on the very same compiler's next release. The only distance that is actually safe to rely on is the one `__restrict` itself promises: none of them alias, ever.
 
 ## 9.5 Runtime CPU Feature Detection and Dispatch
+
+<!-- edge:concept-9.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Select only an instruction set the machine supports](../images/technical/ch09/09-05.svg)](../images/technical/ch09/09-05.svg)
+
+<figcaption>Building a binary with an instruction set is different from safely dispatching to it at runtime.</figcaption>
+</figure>
+<!-- edge:concept-9.5:end -->
+
 
 ### Intuition
 

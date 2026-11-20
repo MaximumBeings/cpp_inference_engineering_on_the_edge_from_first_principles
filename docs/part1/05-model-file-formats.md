@@ -1,5 +1,14 @@
 # Chapter 5: Model File Formats -- GGUF, SafeTensors, and Memory-Mapped Loading
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 5: Load model tensors without copying their payload](../images/chapter-openers/05.svg)](../images/chapter-openers/05.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - The exact byte-level layout of a GGUF file — header, typed key-value metadata store, tensor descriptor table, and a 32-byte-aligned data section — and why that layout, not a JSON schema or a serialization library, is what makes zero-copy loading possible at all.
@@ -27,6 +36,16 @@ Chapters 2 through 4 built every mechanism a transformer's forward pass needs �
 <!-- /chapter-figure -->
 
 ## 5.1 The GGUF Binary Format: Header, Metadata, and Tensor Descriptors
+
+<!-- edge:concept-5.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A model file separates descriptors from payloads](../images/technical/ch05/05-01.svg)](../images/technical/ch05/05-01.svg)
+
+<figcaption>Offsets, dimensions and encoded byte counts must be checked against the actual file length.</figcaption>
+</figure>
+<!-- edge:concept-5.1:end -->
+
 
 ### Intuition
 
@@ -287,6 +306,16 @@ The GGUF Binary Format, Byte by Byte
     A hex-dump trace of a GGUF header is a genuinely useful way to build intuition for the format, but it is also exactly the kind of arithmetic where a single miscounted string length throws off every offset after it — silently, since the file still parses, it just parses the WRONG bytes as the next field. This section's own alignment padding (computed from this file's actual field lengths) does not match a hand-computed offset for a differently-worded worked example elsewhere in the quantization literature this chapter draws from — which is exactly the point: the two examples describe different strings of different lengths, and only the computed offset for THIS file is trustworthy for THIS file.
 
 ## 5.2 A GGUF Writer and Reader: A Full Round Trip
+
+<!-- edge:concept-5.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A file-format round trip has a semantic check](../images/technical/ch05/05-02.svg)](../images/technical/ch05/05-02.svg)
+
+<figcaption>The test checks the decoded contents and metadata, not just whether a file could be opened.</figcaption>
+</figure>
+<!-- edge:concept-5.2:end -->
+
 
 ### Intuition
 
@@ -713,6 +742,16 @@ A GGUF Writer and Reader: A Full Round Trip
     It is tempting to hardcode a tensor's on-disk byte size as `(n_elements / 32) * 36` for a Q8_0 tensor, following a reference table. If that block's actual scale field is 2 bytes (fp16) rather than 4 (float), the tensor's real size is `* 34`, and every tensor descriptor after the mismatched one now points at the wrong offset — silently, since arithmetic that is merely wrong still produces a number. This section's reader instead computes each block's size with `sizeof(BlockQ8)` and `sizeof(BlockQ4)` directly against the same struct definitions the writer used, so a change to either block's layout cannot desynchronize the two.
 
 ## 5.3 Tensor Descriptor Tables and Zero-Copy Weight Access
+
+<!-- edge:concept-5.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Descriptors resolve to mapped tensor views](../images/technical/ch05/05-03.svg)](../images/technical/ch05/05-03.svg)
+
+<figcaption>The resolved tensor range must remain inside the mapping, including alignment and block metadata.</figcaption>
+</figure>
+<!-- edge:concept-5.3:end -->
+
 
 ### Intuition
 
@@ -1174,6 +1213,16 @@ Tensor Descriptor Tables and Zero-Copy Weight Access
 
 ## 5.4 The SafeTensors Format: JSON Metadata and a Hand-Rolled Parser
 
+<!-- edge:concept-5.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![SafeTensors locates data through a JSON header](../images/technical/ch05/05-04.svg)](../images/technical/ch05/05-04.svg)
+
+<figcaption>Tensor offsets refer to the data buffer after the header. Validate JSON and byte ranges before use.</figcaption>
+</figure>
+<!-- edge:concept-5.4:end -->
+
+
 ### Intuition
 
 SafeTensors, introduced by Hugging Face in 2022, is the format nearly every model repository ships its raw weights in, for the same reason GGUF exists: PyTorch's pickle-based `.pt` files can execute arbitrary code on load, and SafeTensors is strictly data. Its binary prefix and mmap-compatible layout are close cousins of GGUF's, with one deliberate difference: its metadata header is JSON, not a binary type-tagged store — easy for a human (or any language with a JSON library) to inspect, at the cost of being slower to parse than GGUF's binary metadata.
@@ -1534,6 +1583,16 @@ The SafeTensors Format: JSON Header + mmap
     SafeTensors' `data_offsets: [start, end]` pair looks, at a glance, like it should be measured from byte 0 of the file — it is not. It is measured from the first byte AFTER the JSON header (`8 + header_length`), so a tensor's real file offset is `tensor_data_base + data_offsets[0]`, and computing it as `data_offsets[0]` alone reads from entirely the wrong place in a file that has any header at all — which every real SafeTensors file does.
 
 ## 5.5 GGUF vs. SafeTensors, and a Peek at Production K-Quants
+
+<!-- edge:concept-5.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![File metadata is not the quantization kernel](../images/technical/ch05/05-05.svg)](../images/technical/ch05/05-05.svg)
+
+<figcaption>A reader must explicitly support each encoded type. Recognizing a container is not full format support.</figcaption>
+</figure>
+<!-- edge:concept-5.5:end -->
+
 
 ### Intuition
 

@@ -1,5 +1,14 @@
 # Chapter 19: Retail Inventory and Supply Chain Intelligence: Shelf Photography to Action
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 19: Turn shelf images into inventory evidence](../images/chapter-openers/19.svg)](../images/chapter-openers/19.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to encode a real retail planogram -- the diagram stating which SKU belongs in which shelf slot and how many facings it should have -- into a deterministic, VLM-ready system prompt, with real validation, a real run-length compression pass for large stores, and a conservative token-budget guard that refuses to silently truncate a planogram it cannot fit.
@@ -28,6 +37,16 @@ Chapter 18 taught a vision-language model to inspect a single manufactured part 
 <!-- /chapter-figure -->
 
 ## 19.1 Encoding a Planogram Directly into the System Prompt
+
+<!-- edge:concept-19.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A planogram provides an explicit comparison target](../images/technical/ch19/19-01.svg)](../images/technical/ch19/19-01.svg)
+
+<figcaption>The prompt supplies structured expectations. The image remains uncertain evidence.</figcaption>
+</figure>
+<!-- edge:concept-19.1:end -->
+
 
 ### Intuition
 
@@ -61,6 +80,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_planogram_and_system_prompt.cpp -o 01_planog
 
 ## 19.2 A Batch Shelf-Photo Processor
 
+<!-- edge:concept-19.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Batch processing keeps images and results paired](../images/technical/ch19/19-02.svg)](../images/technical/ch19/19-02.svg)
+
+<figcaption>Partial failures must not cause results to be assigned to the wrong shelf.</figcaption>
+</figure>
+<!-- edge:concept-19.2:end -->
+
+
 ### Intuition
 
 Section 19.1 built the prompt; this section runs the actual inspection. A retail batch job processes many shelf photographs in one run, and this section's own real, stated discipline is that a single bad photo must never take the rest of the batch down with it.
@@ -90,6 +119,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESP
     A batch loop that lets one photo's exception propagate out of the whole function trades a small, specific, easily-diagnosed problem (photo `photo-bad` failed with a fusion count mismatch) for a large, vague one (the ENTIRE batch of photos this run was supposed to inspect produced no results at all). On a real production line running this batch job on a fixed schedule, that difference is the difference between one shelf going un-reconciled today and the ENTIRE STORE going un-reconciled today, from a single photo that was probably just corrupted or mis-captured. `process_batch`'s own per-photo isolation, tested directly in Test 2, is what keeps a real, specific failure from ever escalating into an unrelated, unnecessary one.
 
 ## 19.3 REST Integration into ERP/WMS Systems
+
+<!-- edge:concept-19.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Inventory suggestions pass through an API boundary](../images/technical/ch19/19-03.svg)](../images/technical/ch19/19-03.svg)
+
+<figcaption>Use stable identifiers and retry-safe operations; do not assume every retry should add stock again.</figcaption>
+</figure>
+<!-- edge:concept-19.3:end -->
+
 
 ### Intuition
 
@@ -121,6 +160,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_erp_wms_rest_integration.cpp -o 03_erp_wms_r
 
 ## 19.4 Multi-Store Aggregation and Trend Detection
 
+<!-- edge:concept-19.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Aggregation must retain denominators](../images/technical/ch19/19-04.svg)](../images/technical/ch19/19-04.svg)
+
+<figcaption>Illustrative sample counts. Compare rates using observation volume and time windows, not raw totals alone.</figcaption>
+</figure>
+<!-- edge:concept-19.4:end -->
+
+
 ### Intuition
 
 A single store's own inventory record answers "how much of this SKU does store 42 have right now." A retail chain needs a genuinely different question answered across every store at once: is this SKU trending toward a stockout, and by when -- and answering that honestly requires knowing which stores' numbers are even reflected in the total.
@@ -150,6 +199,16 @@ g++ -std=c++23 -Wall -Wextra -O2 04_multistore_aggregation_and_trends.cpp -o 04_
     Summing on-hand quantity across "every store in my list" and simply not adding anything for a store with no snapshot LOOKS identical, in the resulting total, to correctly excluding that store -- until the very next question asked of that total is "how many units of this SKU exist across the chain," at which point a missing store's real, unknown, possibly-substantial inventory has silently become zero in every downstream calculation. `aggregate_by_sku`'s own `stores_missing` field exists specifically so a caller can distinguish "3 units total, all 3 stores reporting" from "3 units total, only 1 of 3 stores reporting" -- two totals that happen to share a number but mean completely different things about how much of the chain's real inventory that number actually reflects.
 
 ## 19.5 Shrinkage and Misplacement Detection from Ordinary Shelf Photographs
+
+<!-- edge:concept-19.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A visual discrepancy has several explanations](../images/technical/ch19/19-05.svg)](../images/technical/ch19/19-05.svg)
+
+<figcaption>A shelf image alone does not establish theft or shrinkage causation.</figcaption>
+</figure>
+<!-- edge:concept-19.5:end -->
+
 
 ### Intuition
 

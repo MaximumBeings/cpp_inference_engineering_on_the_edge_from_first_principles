@@ -1,5 +1,14 @@
 # Chapter 27: Low-Latency Market-Signal Inference Near the Exchange
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 27: Fit inference into a market-data latency budget](../images/chapter-openers/27.svg)](../images/chapter-openers/27.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to compute a real order book's mid-price, size-weighted "microprice," and order-book imbalance from a Level 1 top-of-book snapshot -- the same real, published market-microstructure signals a real market-making or execution system computes on every book update.
@@ -27,6 +36,16 @@ Chapter 26 turned to a bank branch or back office processing checks and invoices
 <!-- /chapter-figure -->
 
 ## 27.1 Order Book Microstructure Features
+
+<!-- edge:concept-27.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A small book imbalance example](../images/technical/ch27/27-01.svg)](../images/technical/ch27/27-01.svg)
+
+<figcaption>Illustrative feature arithmetic only. Handle a zero denominator and stale or incomplete market data.</figcaption>
+</figure>
+<!-- edge:concept-27.1:end -->
+
 
 ### Intuition
 
@@ -58,6 +77,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_order_book_microstructure_features.cpp -o 01
 
 ## 27.2 The Latency Budget: Tick-to-Trade Deadline Enforcement
 
+<!-- edge:concept-27.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A deadline is an end-to-end constraint](../images/technical/ch27/27-02.svg)](../images/technical/ch27/27-02.svg)
+
+<figcaption>No latency numbers are implied. Measure the complete path under the intended system load.</figcaption>
+</figure>
+<!-- edge:concept-27.2:end -->
+
+
 ### Intuition
 
 A hard real-time deadline changes what "correct" means: a trading decision computed correctly but too late is not a weaker answer, it is an answer that may already be wrong, since the book it was computed from has likely moved on. Exactly like Chapter 10.1's own derivation of a single decode step's latency, every microsecond value in this section is a stated, labeled parameter -- never a value read from a wall clock -- so this section's own locked self-test output stays identical no matter how fast or slow the specific machine running it happens to be.
@@ -88,6 +117,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_tick_to_trade_deadline_enforcement.cpp -o 02
 
 ## 27.3 Financial News Sentiment Scoring
 
+<!-- edge:concept-27.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Text becomes a time-stamped sentiment signal](../images/technical/ch27/27-03.svg)](../images/technical/ch27/27-03.svg)
+
+<figcaption>A sentiment score is an uncertain feature, not a prediction of a guaranteed price move.</figcaption>
+</figure>
+<!-- edge:concept-27.3:end -->
+
+
 ### Intuition
 
 A real, well-documented finding in financial text analysis is that a generic English sentiment dictionary badly misclassifies financial text: ordinary business vocabulary such as "tax," "liability," and "cost" describes routine, expected line items, not bad news, yet a generic lexicon flags all three as negative. The real, published fix -- Loughran and McDonald's own finance-specific sentiment methodology -- deliberately excludes this routine vocabulary from its own negative word list. This section builds a small, explicitly illustrative lexicon modeled on that real methodology, and demonstrates the exact contrast it exists to fix.
@@ -117,6 +156,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_financial_news_sentiment_scoring.cpp -o 03_f
     `POS_LEXICON` and `NEG_LEXICON` in this file are small, illustrative lists built to demonstrate the real methodology, not the actual published Loughran-McDonald dictionaries, which span several thousand words across seven real categories (negative, positive, uncertainty, litigious, strong modal, weak modal, and constraining language) developed and validated against real 10-K filings. Deploying this section's own narrow illustrative vocabulary against real production news flow would miss the large majority of real finance-relevant sentiment words entirely and silently score most real headlines as a hollow NEUTRAL -- the identical narrow-closed-vocabulary caution Chapter 12's own tokenizer, Chapter 24's own closed intent vocabulary, and Chapter 26.3's own amount-in-words parser each stated for their own real, fixed, and deliberately limited scope.
 
 ## 27.4 Signal Fusion and the Trading Decision Engine
+
+<!-- edge:concept-27.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Signal fusion still needs execution controls](../images/technical/ch27/27-04.svg)](../images/technical/ch27/27-04.svg)
+
+<figcaption>Backtest and deployment controls are separate from computing an inference result.</figcaption>
+</figure>
+<!-- edge:concept-27.4:end -->
+
 
 ### Intuition
 

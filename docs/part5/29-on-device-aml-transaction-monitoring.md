@@ -1,5 +1,14 @@
 # Chapter 29: On-Device AML Transaction Anomaly Monitoring at ATMs and POS Terminals
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 29: Monitor transactions with explicit windows](../images/chapter-openers/29.svg)](../images/chapter-openers/29.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How to detect "structuring" (smurfing) -- a real, specifically named federal offense under the US Bank Secrecy Act -- by scanning a rolling window across a SEQUENCE of transactions, since no individual transaction in the pattern is suspicious on its own.
@@ -28,6 +37,16 @@ Chapter 28 turned to a claim's own photographic and temporal evidence. This chap
 <!-- /chapter-figure -->
 
 ## 29.1 AML Structuring (Smurfing) Detection
+
+<!-- edge:concept-29.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Windowed aggregation detects a pattern candidate](../images/technical/ch29/29-01.svg)](../images/technical/ch29/29-01.svg)
+
+<figcaption>Structuring rules depend on jurisdiction and context. A pattern flag is not proof of criminal conduct.</figcaption>
+</figure>
+<!-- edge:concept-29.1:end -->
+
 
 ### Intuition
 
@@ -272,6 +291,16 @@ ALL CHECKS PASSED
 
 ## 29.2 Transaction Velocity Anomaly Detection
 
+<!-- edge:concept-29.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Velocity counts need a defined time window](../images/technical/ch29/29-02.svg)](../images/technical/ch29/29-02.svg)
+
+<figcaption>Illustrative transaction counts. State the window, entity key and threshold before interpreting an alert.</figcaption>
+</figure>
+<!-- edge:concept-29.2:end -->
+
+
 ### Intuition
 
 A second, independent real signal has nothing to do with WHICH amounts moved, only how often. A real account suddenly transacting far more frequently than any ordinary customer would is a well-documented real signal for a compromised card or account being drained quickly, independent of whether any single amount looks unusual.
@@ -497,6 +526,16 @@ ALL CHECKS PASSED
     Section 29.1's structuring check and this section's own velocity check are deliberately independent: a burst of several small, ordinary purchases at different terminals is a real velocity anomaly with no structuring signal attached to it at all (no amount ever approaches the real CTR threshold), while a slow, patient structuring scheme spread across exactly the stated window with only two or three transactions total triggers Section 29.1's own check without ever coming close to this section's own frequency threshold. Treating either signal as a stand-in for the other -- assuming a clean velocity check means an account cannot be structuring, or the reverse -- would miss real, well-documented patterns that only this chapter's OTHER independent signal is actually built to catch.
 
 ## 29.3 Impossible Travel Geographic Detection
+
+<!-- edge:concept-29.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Travel consistency compares distance with elapsed time](../images/technical/ch29/29-03.svg)](../images/technical/ch29/29-03.svg)
+
+<figcaption>Check timestamp quality, location confidence and shared accounts. A rule hit can have benign causes.</figcaption>
+</figure>
+<!-- edge:concept-29.3:end -->
+
 
 ### Intuition
 
@@ -774,6 +813,16 @@ ALL CHECKS PASSED
     A tighter, less generous speed threshold would catch MORE real anomalies, but at a real, serious cost: a genuine customer who legitimately flew from one real city to another between two ordinary transactions would be flagged as fraudulent, purely for traveling normally. This section's own stated 900 km/h bound is deliberately set close to the real physical limit of ordinary human travel specifically so that ONLY a genuinely impossible required speed -- one no real commercial transportation could achieve -- is ever flagged, exactly the same "real, useful signal without an unacceptable false-positive cost" design tradeoff Section 26.1's own signature-comparison tolerance and Section 28.1's own duplicate-photo threshold already made in their own respective domains.
 
 ## 29.4 The Transaction Monitoring Disposition Engine
+
+<!-- edge:concept-29.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Monitoring produces an explainable review record](../images/technical/ch29/29-04.svg)](../images/technical/ch29/29-04.svg)
+
+<figcaption>Signals support a compliance workflow. The model does not determine guilt.</figcaption>
+</figure>
+<!-- edge:concept-29.4:end -->
+
 
 ### Intuition
 

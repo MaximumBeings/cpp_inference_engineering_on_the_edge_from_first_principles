@@ -1,5 +1,14 @@
 # Chapter 17: Benchmarking Against llama.cpp and the Broader Ecosystem
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 17: Measure the full request lifecycle](../images/chapter-openers/17.svg)](../images/chapter-openers/17.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why "how fast is it" is not one number but at least three genuinely different ones -- time-to-first-token, tokens-per-second, and time-per-output-token -- and why this book reports the MEDIAN of a run's per-step latencies rather than the mean.
@@ -28,6 +37,16 @@ Chapter 16 produced a complete, working, self-contained production engine -- a r
 <!-- /chapter-figure -->
 
 ## 17.1 What to Measure and Why
+
+<!-- edge:concept-17.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Latency and throughput answer different questions](../images/technical/ch17/17-01.svg)](../images/technical/ch17/17-01.svg)
+
+<figcaption>Declare workload, token counts, batch size and timing boundaries for every reported number.</figcaption>
+</figure>
+<!-- edge:concept-17.1:end -->
+
 
 ### Intuition
 
@@ -63,6 +82,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_benchmark_stats_and_definitions.cpp -o 01_be
 
 ## 17.2 A From-Scratch Benchmarking Harness
 
+<!-- edge:concept-17.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A benchmark must control its measurement scope](../images/technical/ch17/17-02.svg)](../images/technical/ch17/17-02.svg)
+
+<figcaption>Asynchronous GPU work needs completion before timing ends. Include or exclude setup consistently.</figcaption>
+</figure>
+<!-- edge:concept-17.2:end -->
+
+
 ### Intuition
 
 Section 17.1 defined what to measure. This section wires those definitions into a REAL benchmarking harness that runs Chapter 16's own `decode_step` and `prefill` -- not a simulated bandwidth model standing in for a forward pass, and not a placeholder assuming some other file will supply the real computation later. Benchmarking code that never runs the thing it claims to measure cannot actually measure it.
@@ -96,6 +125,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESP
     `get_f32`'s documented behavior for a missing metadata key -- returning 0.0 rather than throwing -- is a reasonable default for a KEY THIS BOOK'S OWN READER CHOSE not to write. It is a different claim entirely to assume that default is SAFE for every formula that might read it, and `RoPETables`'s own `1 / pow(base, exponent)` is exactly the kind of formula where a "reasonable-looking" default of zero drives a division by zero into an infinity, and where multiplying that infinity by a position of exactly zero produces NaN rather than the zero a reader might naively expect "no rotation at position zero" to mean. The general lesson: a default value's safety is a property of the specific formula consuming it, not of the value in isolation -- and the only way to know is to trace the formula, not to assume "it's just zero" settles the question.
 
 ## 17.3 An Honest Comparison Against llama.cpp
+
+<!-- edge:concept-17.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A comparison needs the same work on both sides](../images/technical/ch17/17-03.svg)](../images/technical/ch17/17-03.svg)
+
+<figcaption>A schematic or analytical estimate must not be presented as a measured runtime comparison.</figcaption>
+</figure>
+<!-- edge:concept-17.3:end -->
+
 
 ### Intuition
 

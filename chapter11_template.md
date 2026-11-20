@@ -1,5 +1,14 @@
 # Chapter 11: Parallelizing the Forward Pass -- Row-Parallel, Head-Parallel, and Reproducible Across Thread Counts
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 11: Parallelize the forward pass at independent outputs](../images/chapter-openers/11.svg)](../images/chapter-openers/11.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - The two structurally different ways to split a matrix-vector product across threads — row-parallel (partition the OUTPUT, no combination step, bit-for-bit reproducible against a serial reference) and column-parallel (partition the INPUT, requires a combination step whose order determines the result) — and a third, well-defined-but-not-reproducible way to combine column-parallel's partial sums that this book will not lock into its own checked output.
@@ -30,6 +39,16 @@ Chapter 10 built the primitives — atomics, mutexes, a barrier-synchronized thr
 
 ## 11.1 Row-Parallel vs. Column-Parallel Matmul
 
+<!-- edge:concept-11.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Partitioning output and partitioning reduction differ](../images/technical/ch11/11-01.svg)](../images/technical/ch11/11-01.svg)
+
+<figcaption>The partition determines both ownership and synchronization.</figcaption>
+</figure>
+<!-- edge:concept-11.1:end -->
+
+
 ### Intuition
 
 A matrix-vector product can be split across threads two structurally different ways: by OUTPUT row, or by INPUT column. Chapter 10.3 already used the first without naming it as a choice. This section names both, and shows precisely what each one guarantees and what each one costs — because the difference is not a matter of taste, it changes whether the result is bit-for-bit reproducible at all.
@@ -57,6 +76,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread -DMDSPAN_IMPL_STANDA
     `std::atomic<float>::fetch_add` on a shared output element, called by every thread directly during the parallel phase, looks like the simplest possible way to combine column-parallel's partial results — no separate combine step, no per-thread buffer. It is also completely well-defined: the C++ standard guarantees no lost updates and no data race. What it does NOT guarantee is which thread's `fetch_add` lands first, and because floating-point addition is not associative, a different arrival order can produce a different final bit pattern on a different run of the identical program on the identical machine. This is a genuinely different hazard from Chapter 10.2's data race — there is no undefined behavior here at all — and it is exactly why this section's checked, locked output uses the fixed-order combine instead: reproducibility, not just well-definedness, is the standard this book holds every locked number to.
 
 ## 11.2 A Persistent Pool Across a Full Layer's Phases
+
+<!-- edge:concept-11.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Keep worker threads across layer phases](../images/technical/ch11/11-02.svg)](../images/technical/ch11/11-02.svg)
+
+<figcaption>Persistent threads avoid repeated creation. They do not remove dependencies between phases.</figcaption>
+</figure>
+<!-- edge:concept-11.2:end -->
+
 
 ### Intuition
 
@@ -86,6 +115,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread -DMDSPAN_IMPL_STANDA
 
 ## 11.3 Head-Parallel Attention
 
+<!-- edge:concept-11.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Head parallelism gives each task distinct outputs](../images/technical/ch11/11-03.svg)](../images/technical/ch11/11-03.svg)
+
+<figcaption>Grouped-query heads may share read-only KV storage while writing separate query-head outputs.</figcaption>
+</figure>
+<!-- edge:concept-11.3:end -->
+
+
 ### Intuition
 
 Section 11.2 kept attention itself sequential. Attention is, in fact, the most embarrassingly parallel phase in the whole layer: GQA computes an entirely independent score vector, softmax, and weighted sum for every query head, writing to a disjoint slice of the output — no combination step, no shared mutable state between heads. The real design question is not whether attention can be parallelized by head, but how heads should be assigned to threads, given that GQA's whole premise is several query heads SHARING one KV head's cached rows.
@@ -114,6 +153,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread -DMDSPAN_IMPL_STANDA
 
 ## 11.4 Deterministic Floating-Point Reduction, Independent of Thread Count
 
+<!-- edge:concept-11.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A fixed reduction tree makes ordering explicit](../images/technical/ch11/11-04.svg)](../images/technical/ch11/11-04.svg)
+
+<figcaption>Floating-point addition is not associative. Determinism requires controlling operation order.</figcaption>
+</figure>
+<!-- edge:concept-11.4:end -->
+
+
 ### Intuition
 
 Combining per-thread-ID slots in fixed thread order — Section 11.1's own fixed-order combine, and the technique this book has relied on since Chapter 10 for "reproducible" — is reproducible run to run FOR A GIVEN thread count. This section asks the harder question that guarantee was never tested against: is it reproducible when the THREAD COUNT ITSELF changes? A real engine does not always run with the same thread count, and floating-point addition is not associative, so a different thread count means different chunk boundaries, which means a different summation order, which can mean a different final bit pattern — even though every run is still numerically correct.
@@ -141,6 +190,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread 04_deterministic_red
     A test that creates a pool with one fixed thread count, runs a reduction against it twice, and confirms the two results match — exactly what Chapter 11.1 checked, and exactly what this section's own Test 3 checks first — genuinely does verify something real: the reduction is not internally flaky. It does NOT verify that the SAME reduction would produce the SAME result if the deployment happened to run with a different thread count next time, and this section shows concretely that the per-thread-indexed technique does not have that stronger property, even though it passes every single-thread-count reproducibility check perfectly. Only a reduction whose intermediate boundaries are fixed independently of thread count — this section's block scheme — can honestly claim reproducibility across a configuration change, and the two claims should never be described with the same word without checking which one was actually tested.
 
 ## 11.5 A Fully Multi-Threaded Decode Step
+
+<!-- edge:concept-11.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![One decode step is a dependency chain](../images/technical/ch11/11-05.svg)](../images/technical/ch11/11-05.svg)
+
+<figcaption>Parallelize inside the phases and wait before a later phase consumes their outputs.</figcaption>
+</figure>
+<!-- edge:concept-11.5:end -->
+
 
 ### Intuition
 

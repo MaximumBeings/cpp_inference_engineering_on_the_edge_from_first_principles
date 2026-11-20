@@ -1,5 +1,14 @@
 # Chapter 4: Quantization Strategies -- Affine Math, Symmetric vs. Asymmetric, Blockwise Scales
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 4: Represent a floating value with an integer](../images/chapter-openers/04.svg)](../images/chapter-openers/04.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why LLM inference is memory-bandwidth-bound rather than compute-bound, and how that single fact turns "make the weights smaller" into "make inference faster" — not just cheaper to store.
@@ -28,6 +37,16 @@ Chapters 2 and 3 built and ran a transformer block in full precision. This chapt
 <!-- /chapter-figure -->
 
 ## 4.1 The Memory Wall and Affine Quantization
+
+<!-- edge:concept-4.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Affine quantization is a scale and a shift](../images/technical/ch04/04-01.svg)](../images/technical/ch04/04-01.svg)
+
+<figcaption>Reconstruction uses scale * (q - zero_point). Values outside the chosen range are clipped.</figcaption>
+</figure>
+<!-- edge:concept-4.1:end -->
+
 
 ### Intuition
 
@@ -307,6 +326,16 @@ Affine Quantization: the general formula
     It is tempting to always force the zero-point to 0 because the resulting math is simpler and faster. That is exactly right for weights, which cluster around zero — but applying it to a one-sided range (post-ReLU activations, for instance) throws away precision: half of the representable integer codes end up mapping to real values that never occur. Section 4.5's activation quantizer keeps `Z=0` because it targets a symmetric range by construction; a general-purpose activation quantizer over an arbitrary range would need the full asymmetric formula this section derives.
 
 ## 4.2 Symmetric Blockwise Q8: Taming the Outlier Problem
+
+<!-- edge:concept-4.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Local scales isolate an outlier](../images/technical/ch04/04-02.svg)](../images/technical/ch04/04-02.svg)
+
+<figcaption>Illustrative grouping only. The actual Q8 block size and metadata are defined by the file format.</figcaption>
+</figure>
+<!-- edge:concept-4.2:end -->
+
 
 ### Intuition
 
@@ -714,6 +743,16 @@ Symmetric Blockwise Q8 Quantization (fp16 scale)
 
 ## 4.3 Q4_0: Packing Two Weights Into One Byte
 
+<!-- edge:concept-4.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Two four-bit codes share one byte](../images/technical/ch04/04-03.svg)](../images/technical/ch04/04-03.svg)
+
+<figcaption>Nibble order and the signed-value offset are format contracts; they must match the encoder.</figcaption>
+</figure>
+<!-- edge:concept-4.3:end -->
+
+
 ### Intuition
 
 C++ has no 4-bit integer type — the smallest addressable unit any pointer can reference is a byte. Q4_0 packs two 4-bit values ("nibbles") into every byte: an unsigned range `[0, 15]`, reinterpreted as signed `[-8, +7]` by subtracting a fixed offset of 8. Halving int8's 8 bits per weight to 4 roughly doubles the compression again — and is the difference between a 70-billion-parameter model needing 140GB (FP16) versus needing about 20GB (Q4_0), which is the difference between "needs a server" and "runs on a laptop."
@@ -1031,6 +1070,16 @@ Q4_0 Bit Packing and Dequantization
     Since a 4-bit signed value after the offset spans `[-8, +7]`, it is easy to assume the scale should map the block's maximum magnitude to 8 — mirroring Q8's `alpha/127`. But `+8` is not an achievable positive code (the range tops out at `+7`), so `scale = alpha/8` would let the true maximum-magnitude weight round to a code one step past what the format can store, silently clamping it. Deriving the scale from `alpha/7` instead keeps the largest weight exactly representable, at the minor cost of `-8` being one code more precise than it strictly needs to be — an intentional, symmetric-quantization tradeoff, not an oversight.
 
 ## 4.4 The Fused Dequantize-Dot-Product
+
+<!-- edge:concept-4.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Reconstruct only what the dot product needs](../images/technical/ch04/04-04.svg)](../images/technical/ch04/04-04.svg)
+
+<figcaption>Fusing these stages avoids materializing a full floating-point weight matrix.</figcaption>
+</figure>
+<!-- edge:concept-4.4:end -->
+
 
 ### Intuition
 
@@ -1364,6 +1413,16 @@ Fused Q4/Q8 Dot Products
 
 ## 4.5 Dynamic Activation Quantization and INT8 x INT8 MatMul
 
+<!-- edge:concept-4.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Separate integer accumulation from scaling](../images/technical/ch04/04-05.svg)](../images/technical/ch04/04-05.svg)
+
+<figcaption>This simplified symmetric case has zero point zero. Nonzero zero points require correction terms.</figcaption>
+</figure>
+<!-- edge:concept-4.5:end -->
+
+
 ### Intuition
 
 Weights are quantized once, offline, with unlimited time to get the scale right. Activations are the opposite: a new set of values arrives with every token, so they must be quantized on the critical path of every forward pass, in microseconds, using the simplest algorithm that works. The payoff for doing this at all is substantial: INT8 x INT8 multiply-accumulate runs at roughly 4x the throughput of FP32 SIMD on CPUs with VNNI-style integer dot-product instructions (standard on server and modern desktop hardware since Intel Ice Lake) — quantizing both operands trades a little rounding overhead for a much faster inner loop.
@@ -1624,6 +1683,16 @@ Dynamic Activation Quantization (INT8)
     Section 4.2's block scale is computed once and written to a file — shaving it down to `fp16_t` was worth the small added rounding because it is paid for exactly once, ever, per block. An activation's scale is the opposite: recomputed fresh every token, held only in a scratch buffer, and never persisted. Spending effort compressing it would save nothing (there is no file it needs to shrink) while adding real per-token overhead, which is why this section's `QuantAct` deliberately keeps its scale as a plain `float`.
 
 ## 4.6 Quantization-Aware Training and the Straight-Through Estimator
+
+<!-- edge:concept-4.6:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![The forward and backward passes use different rules](../images/technical/ch04/04-06.svg)](../images/technical/ch04/04-06.svg)
+
+<figcaption>The straight-through estimator is a training approximation, not the exact derivative of rounding.</figcaption>
+</figure>
+<!-- edge:concept-4.6:end -->
+
 
 ### Intuition
 

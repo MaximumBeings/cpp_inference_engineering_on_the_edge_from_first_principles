@@ -1,5 +1,14 @@
 # Chapter 7: TurboQuant -- Online Vector Quantization with Near-Optimal Distortion
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 7: Quantize a vector in a rotated coordinate system](../images/chapter-openers/07.svg)](../images/chapter-openers/07.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why a random rotation is not decoration but the load-bearing trick that makes vector quantization tractable: it converts the worst possible input (all energy in one coordinate) into an average-case input (energy spread evenly across every coordinate), verified directly by rotating a spike vector and measuring how far its energy actually spreads, and by confirming empirically that a rotated coordinate's variance matches the theoretical value the rest of the chapter depends on.
@@ -28,6 +37,16 @@ Every quantizer built so far in this book has worked one 32-element block at a t
 <!-- /chapter-figure -->
 
 ## 7.1 Random Rotation: Turning Worst-Case Vectors into Average-Case Ones
+
+<!-- edge:concept-7.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![An orthogonal transform preserves geometry](../images/technical/ch07/07-01.svg)](../images/technical/ch07/07-01.svg)
+
+<figcaption>Rotation redistributes coordinates before quantization. Quantization itself introduces approximation.</figcaption>
+</figure>
+<!-- edge:concept-7.1:end -->
+
 
 ### Intuition
 
@@ -431,6 +450,16 @@ TurboQuant 7.1: Random Rotation and the Beta Distribution
     A matrix of independent Gaussian entries scrambles a vector just as thoroughly as a genuine rotation does — multiplying by it produces a vector that looks nothing like the input. The difference only shows up when you try to undo it. A proper rotation's transpose is its exact inverse (`Pi^T Pi = I`), so rotating and then "rotating back" with the transpose reconstructs the original vector exactly, with no quantization involved at all. A raw Gaussian matrix `G` has no such guarantee — `G^T G` is not the identity — so "rotate with `G`, then rotate back with `G^T`" reconstructs a vector with a large, structural error, even before a single bit of quantization has happened. This is not a rounding error to be tolerated; it is a correctness bug, and it is the reason this chapter builds its rotation via explicit Gram-Schmidt orthogonalization rather than skipping straight to "any matrix full of random numbers will do."
 
 ## 7.2 Lloyd-Max Optimal Codebooks and the MSE Quantizer
+
+<!-- edge:concept-7.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![A codebook alternates assignments and centroids](../images/technical/ch07/07-02.svg)](../images/technical/ch07/07-02.svg)
+
+<figcaption>The codebook is optimized for an assumed distribution. A mismatched distribution changes the error.</figcaption>
+</figure>
+<!-- edge:concept-7.2:end -->
+
 
 ### Intuition
 
@@ -875,6 +904,16 @@ TurboQuant 7.2: Lloyd-Max Codebooks and the MSE Quantizer
     The codebook in this section was solved for a coordinate distribution with variance `1/d` — that is, for coordinates of a vector that is ALREADY on the unit sphere. Feeding the codebook a rotated coordinate from a vector with a large norm skips the one step that makes the codebook's calibration valid: the rotated coordinates land far outside the range the codebook was built for, and every one of them saturates at whichever outermost centroid is closest, since the codebook has no representable value out there. This is not the same failure mode as ordinary quantization rounding — rounding error stays proportional to the input, while a missing scale factor produces an error that grows without bound as the input's true norm grows, because the reconstruction is stuck near the unit sphere no matter how large the original vector actually was. "Always normalize first" is not a stylistic preference; it is the precondition the entire codebook calibration depends on.
 
 ## 7.3 The Inner-Product Bias Problem and the QJL Fix
+
+<!-- edge:concept-7.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Reconstruction error and dot-product bias differ](../images/technical/ch07/07-03.svg)](../images/technical/ch07/07-03.svg)
+
+<figcaption>Low MSE alone is not a proof that an estimated attention score is unbiased.</figcaption>
+</figure>
+<!-- edge:concept-7.3:end -->
+
 
 ### Intuition
 
@@ -1375,6 +1414,16 @@ TurboQuant 7.3: The Inner-Product Bias Problem and QJL
 
 ## 7.4 Compressing the KV Cache with TurboQuant
 
+<!-- edge:concept-7.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Compressed KV must still support attention](../images/technical/ch07/07-04.svg)](../images/technical/ch07/07-04.svg)
+
+<figcaption>Query and cache transforms must use compatible conventions and the same logical positions.</figcaption>
+</figure>
+<!-- edge:concept-7.4:end -->
+
+
 ### Intuition
 
 The KV cache is the one structure in a running transformer that blockwise quantization was never a comfortable fit for: it does not exist until generation starts, it grows by one key and one value vector per token per head per layer, and there is no representative sample of it available in advance to calibrate a codebook against. TurboQuant's codebooks, precomputed purely from `d` and the bit budget with no data dependence at all, are exactly suited to this: every vector that will ever be cached can be quantized the moment it is produced, using a codebook that was already finished before generation even began.
@@ -1816,6 +1865,16 @@ TurboQuant 7.4: Compressing the KV Cache
     The rotation matrix and the codebook are genuinely shared across every vector in the cache — that sharing is what makes the codebook "universal" and the whole scheme data-oblivious. The norm is not part of that shared machinery; it is per-vector data, exactly as essential to a correct reconstruction as the quantization indices themselves, because real cached keys and values do not all have the same magnitude from token to token. Reusing the very first cached vector's norm for every subsequent vector — as if the norm were some fixed property of the layer rather than of each individual vector — leaves the INDICES correct while silently corrupting the SCALE of every reconstructed vector whose true magnitude differs from that first one, and in a real sequence, almost all of them will differ. Nothing about this failure looks like ordinary quantization noise: the reconstructed direction is fine, the reconstructed length is simply wrong.
 
 ## 7.5 TurboQuant vs. Blockwise Quantization, and the Distortion Bounds
+
+<!-- edge:concept-7.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Two compression families use different metadata](../images/technical/ch07/07-05.svg)](../images/technical/ch07/07-05.svg)
+
+<figcaption>Compare total bytes and task error under the same workload. No measured speedup is implied.</figcaption>
+</figure>
+<!-- edge:concept-7.5:end -->
+
 
 ### Intuition
 

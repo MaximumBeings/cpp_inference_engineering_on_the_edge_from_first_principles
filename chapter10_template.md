@@ -1,5 +1,14 @@
 # Chapter 10: Threading and Concurrency -- Real Threads, Verified Without a Clock
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 10: Share work without racing on state](../images/chapter-openers/10.svg)](../images/chapter-openers/10.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why a single core cannot hit a realistic interactive decode-latency target at all, derived from Chapter 8.5's own measured full-decode-step FLOP total rather than a new, separately invented workload — and why Amdahl's law puts a hard, derivable ceiling on how much speedup ANY number of additional cores can ever buy, long before a single thread is created.
@@ -30,6 +39,16 @@ Chapter 9 showed how a single core reaches its peak compute, one SIMD instructio
 
 ## 10.1 The Latency Budget and Amdahl's Ceiling
 
+<!-- edge:concept-10.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Amdahl limits parallel speedup](../images/technical/ch10/10-01.svg)](../images/technical/ch10/10-01.svg)
+
+<figcaption>Illustrative upper bound with no synchronization or scheduling cost.</figcaption>
+</figure>
+<!-- edge:concept-10.1:end -->
+
+
 ### Intuition
 
 Before writing a single thread, it is worth deriving whether one is even necessary — and, if so, roughly how much parallelism could possibly help. A single core's real cost for one decode step, already measured in Chapter 8.5, run through Chapter 8.1's own achievable-throughput formula, gives a concrete answer to "is one core enough," with no new workload invented for the purpose. Amdahl's law then answers the next question honestly: however many cores are added, some fraction of a real decode step — sampling the next token, updating a cursor, scheduling the next request — never parallelizes at all, and that fraction alone puts a hard, derivable ceiling on total speedup.
@@ -57,6 +76,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_latency_budget_and_amdahls_law.cpp -o 01_lat
     "We have 8 cores, so we should get roughly 8x" ignores that SOME part of a real per-token step — sampling, bookkeeping, scheduling the next request — runs on exactly one core no matter how many are available. At a stated 5% serial fraction, 8 cores buys about 5.93x, not 8x, and the gap only widens as core count grows: Amdahl's law's speedup does not merely fall short of linear, it CONVERGES to a hard ceiling of `1/serial_fraction` — here, 20x — that no finite number of cores, however large, can ever reach or exceed. A team that buys twice the cores expecting twice the throughput, without first asking what fraction of the work is inherently serial, is making a purchasing decision Amdahl's law already answered before the hardware order was placed.
 
 ## 10.2 Atomics, Mutexes, and Why Synchronization Is Not Optional
+
+<!-- edge:concept-10.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Synchronization establishes a happens-before relation](../images/technical/ch10/10-02.svg)](../images/technical/ch10/10-02.svg)
+
+<figcaption>A data race is not merely a performance issue; the language does not define the program behavior.</figcaption>
+</figure>
+<!-- edge:concept-10.2:end -->
+
 
 ### Intuition
 
@@ -86,6 +115,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -pthread 02_atomics_mutexes_and_synchronization
 
 ## 10.3 A Barrier-Synchronized Thread Pool for a Partitioned GEMV
 
+<!-- edge:concept-10.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Workers share phase boundaries](../images/technical/ch10/10-03.svg)](../images/technical/ch10/10-03.svg)
+
+<figcaption>A barrier separates dependent phases. Workers can write disjoint output rows concurrently.</figcaption>
+</figure>
+<!-- edge:concept-10.3:end -->
+
+
 ### Intuition
 
 Chapter 8.3 already classified a decode-time GEMV as memory-bound; this section asks how to actually SPLIT that GEMV's work across several real cores. Splitting by output row is the natural choice — each row's dot product is independent of every other row's — and because no two threads ever write the same output element, the result is not merely close to a serial reference within a tolerance, the way Chapter 9.2's AVX2 kernel was; it is bit-for-bit identical, verified exactly.
@@ -114,6 +153,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -pthread -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -
 
 ## 10.4 False Sharing: A Memory-Layout Hazard, Not a Race
 
+<!-- edge:concept-10.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Independent counters can occupy one cache line](../images/technical/ch10/10-04.svg)](../images/technical/ch10/10-04.svg)
+
+<figcaption>False sharing causes coherence traffic even when threads update different variables.</figcaption>
+</figure>
+<!-- edge:concept-10.4:end -->
+
+
 ### Intuition
 
 Two threads, each incrementing its own logically independent counter, share no variable and therefore have no data race by any definition — and yet, depending purely on where those two counters happen to sit in memory, updating one can force the OTHER thread's cached copy of a completely different value to be invalidated. This is not a correctness bug — both counters still end up with exactly the right value, every time — so this section verifies it the only way that is honest without a wall-clock number: as address arithmetic.
@@ -141,6 +190,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -pthread 04_false_sharing_and_cache_line_layout
     Two array elements, `naive.count[0]` and `naive.count[1]`, are two completely separate `long long` values — no thread ever reads or writes the other's element, so by any definition of a data race, there is none here. This section measured their addresses anyway and found both inside the same 64-byte cache line, because cache coherence has no concept of "these two bytes belong to logically different variables" — it only knows about lines. The hazard is invisible to anyone reading the increment statements themselves, since nothing in that source code shares anything; it only becomes visible by checking WHERE the compiler and allocator actually placed the bytes, which is exactly the check this section performs and exactly why `alignas(64)` padding is a structural fix, not a style preference.
 
 ## 10.5 Work Stealing: Verifying Correctness Under a Nondeterministic Schedule
+
+<!-- edge:concept-10.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Work ownership can move without duplicating work](../images/technical/ch10/10-05.svg)](../images/technical/ch10/10-05.svg)
+
+<figcaption>Scheduling order is nondeterministic. The correctness check must not depend on one task order.</figcaption>
+</figure>
+<!-- edge:concept-10.5:end -->
+
 
 ### Intuition
 

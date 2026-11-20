@@ -1,5 +1,14 @@
 # Chapter 10: Threading and Concurrency -- Real Threads, Verified Without a Clock
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 10: Share work without racing on state](../images/chapter-openers/10.svg)](../images/chapter-openers/10.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why a single core cannot hit a realistic interactive decode-latency target at all, derived from Chapter 8.5's own measured full-decode-step FLOP total rather than a new, separately invented workload — and why Amdahl's law puts a hard, derivable ceiling on how much speedup ANY number of additional cores can ever buy, long before a single thread is created.
@@ -29,6 +38,16 @@ Chapter 9 showed how a single core reaches its peak compute, one SIMD instructio
 <!-- /chapter-figure -->
 
 ## 10.1 The Latency Budget and Amdahl's Ceiling
+
+<!-- edge:concept-10.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Amdahl limits parallel speedup](../images/technical/ch10/10-01.svg)](../images/technical/ch10/10-01.svg)
+
+<figcaption>Illustrative upper bound with no synchronization or scheduling cost.</figcaption>
+</figure>
+<!-- edge:concept-10.1:end -->
+
 
 ### Intuition
 
@@ -308,6 +327,16 @@ Chapter 10.1: The Latency Budget and Amdahl's Ceiling
 
 ## 10.2 Atomics, Mutexes, and Why Synchronization Is Not Optional
 
+<!-- edge:concept-10.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Synchronization establishes a happens-before relation](../images/technical/ch10/10-02.svg)](../images/technical/ch10/10-02.svg)
+
+<figcaption>A data race is not merely a performance issue; the language does not define the program behavior.</figcaption>
+</figure>
+<!-- edge:concept-10.2:end -->
+
+
 ### Intuition
 
 This book's first real `std::thread` immediately raises the question every later section in this chapter depends on: what happens when more than one thread reads and writes the SAME piece of memory. `std::atomic` and `std::mutex` are two different mechanisms that both answer it the same way — by making the combined read-modify-write sequence indivisible from every other thread's point of view — verified here the way this book verifies everything: by running real threads and checking an exact result, not a probabilistic one.
@@ -577,6 +606,16 @@ Chapter 10.2: Atomics, Mutexes, and Why Synchronization Is Not Optional
     A function that locks a `std::mutex` and then calls another function that — unaware the caller already holds that same lock — tries to lock it again does not get politely refused with a return value to check; a blocking `lock()` call in that situation simply never returns, because a plain `std::mutex` has no notion of "the thread that already owns me may re-enter." This section demonstrates the mechanism safely with `try_lock()`, which returns `false` deterministically rather than hanging, precisely so the demonstration itself has well-defined output to verify — but the real-world version of this bug is a silent, total deadlock the first time two code paths that both need the same lock are called from the same thread. `std::recursive_mutex` exists exactly for the case where a single thread genuinely needs to re-enter its own lock, and reaching for it (or, better, restructuring the code so re-entry is never attempted) is the fix — not discovering the hang in production.
 
 ## 10.3 A Barrier-Synchronized Thread Pool for a Partitioned GEMV
+
+<!-- edge:concept-10.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Workers share phase boundaries](../images/technical/ch10/10-03.svg)](../images/technical/ch10/10-03.svg)
+
+<figcaption>A barrier separates dependent phases. Workers can write disjoint output rows concurrently.</figcaption>
+</figure>
+<!-- edge:concept-10.3:end -->
+
 
 ### Intuition
 
@@ -918,6 +957,16 @@ Chapter 10.3: A Barrier-Synchronized Thread Pool for a Partitioned GEMV
 
 ## 10.4 False Sharing: A Memory-Layout Hazard, Not a Race
 
+<!-- edge:concept-10.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Independent counters can occupy one cache line](../images/technical/ch10/10-04.svg)](../images/technical/ch10/10-04.svg)
+
+<figcaption>False sharing causes coherence traffic even when threads update different variables.</figcaption>
+</figure>
+<!-- edge:concept-10.4:end -->
+
+
 ### Intuition
 
 Two threads, each incrementing its own logically independent counter, share no variable and therefore have no data race by any definition — and yet, depending purely on where those two counters happen to sit in memory, updating one can force the OTHER thread's cached copy of a completely different value to be invalidated. This is not a correctness bug — both counters still end up with exactly the right value, every time — so this section verifies it the only way that is honest without a wall-clock number: as address arithmetic.
@@ -1209,6 +1258,16 @@ Chapter 10.4: False Sharing -- a Memory-Layout Hazard, Not a Race
     Two array elements, `naive.count[0]` and `naive.count[1]`, are two completely separate `long long` values — no thread ever reads or writes the other's element, so by any definition of a data race, there is none here. This section measured their addresses anyway and found both inside the same 64-byte cache line, because cache coherence has no concept of "these two bytes belong to logically different variables" — it only knows about lines. The hazard is invisible to anyone reading the increment statements themselves, since nothing in that source code shares anything; it only becomes visible by checking WHERE the compiler and allocator actually placed the bytes, which is exactly the check this section performs and exactly why `alignas(64)` padding is a structural fix, not a style preference.
 
 ## 10.5 Work Stealing: Verifying Correctness Under a Nondeterministic Schedule
+
+<!-- edge:concept-10.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Work ownership can move without duplicating work](../images/technical/ch10/10-05.svg)](../images/technical/ch10/10-05.svg)
+
+<figcaption>Scheduling order is nondeterministic. The correctness check must not depend on one task order.</figcaption>
+</figure>
+<!-- edge:concept-10.5:end -->
+
 
 ### Intuition
 

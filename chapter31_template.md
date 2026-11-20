@@ -1,5 +1,14 @@
 # Chapter 31: Continuous Batching and Production Serving Architecture
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 31: Continuous batching schedules active requests](../images/chapter-openers/31.svg)](../images/chapter-openers/31.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why the naive, real batching scheme early inference servers actually used -- fixed-size batches that cannot start until the previous one fully retires -- wastes real GPU-slot time on padding and delays a short request that arrives just after a long batch has already started, quantified with exact hand-traceable numbers rather than asserted.
@@ -28,6 +37,16 @@ Every chapter before this one built one real piece of an inference engine and ve
 <!-- /chapter-figure -->
 
 ## 31.1 The Static-Batching Problem and Head-of-Line Blocking
+
+<!-- edge:concept-31.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Static batches wait for their slowest member](../images/technical/ch31/31-01.svg)](../images/technical/ch31/31-01.svg)
+
+<figcaption>Scheduling improves resource use only within the actual compute, memory and latency constraints.</figcaption>
+</figure>
+<!-- edge:concept-31.1:end -->
+
 
 ### Intuition
 
@@ -59,6 +78,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_static_batching_problem_and_head_of_line_blo
 
 ## 31.2 The Prefill/Decode Conflict and Chunked Prefill
 
+<!-- edge:concept-31.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chunked prefill creates scheduling boundaries](../images/technical/ch31/31-02.svg)](../images/technical/ch31/31-02.svg)
+
+<figcaption>Chunk size trades prefill progress against decode delay. The schedule is illustrative.</figcaption>
+</figure>
+<!-- edge:concept-31.2:end -->
+
+
 ### Intuition
 
 A serving step that only advances already-running sequences by one token each (decode) has a very different real cost profile from a step that processes an entirely new prompt in one shot (prefill), and naively mixing the two in a single step means the SLOWER of the two profiles imposes its own real cost on every sequence sharing that step -- including ones that have nothing to do with the new request at all.
@@ -89,6 +118,16 @@ g++ -std=c++23 -Wall -Wextra -O2 02_prefill_decode_conflict_and_chunked_prefill.
 
 ## 31.3 A Continuous-Batching Scheduler Built From Scratch
 
+<!-- edge:concept-31.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![An iteration explicitly updates active state](../images/technical/ch31/31-03.svg)](../images/technical/ch31/31-03.svg)
+
+<figcaption>Do not exceed KV capacity merely because compute slots are available.</figcaption>
+</figure>
+<!-- edge:concept-31.3:end -->
+
+
 ### Intuition
 
 Static batching's own real flaw, quantified in Section 31.1, is structural: a slot cannot be reused until its ENTIRE batch retires, even if that slot's own request finished long ago. Continuous batching fixes this directly -- a slot frees the instant its own sequence finishes, and the very next scheduling step can admit a new request into it, with no need to wait for anything else in that batch.
@@ -118,6 +157,16 @@ g++ -std=c++23 -Wall -Wextra -O2 03_continuous_batching_scheduler_from_scratch.c
     It is tempting to think continuous batching wins simply because it is somehow more generous with GPU capacity. Test 4 shows this is not the mechanism at all: with only a single real slot -- the least generous possible configuration -- continuous batching still behaves correctly and wastes zero real capacity, because it degenerates cleanly to strict FIFO. The real advantage continuous batching provides over static batching, demonstrated directly in Test 2 on an IDENTICAL 2-slot workload, comes entirely from WHEN a finished sequence's own slot becomes available for reuse -- immediately, rather than only once an entire batch retires -- not from having access to any more real hardware than static batching already had.
 
 ## 31.4 Numerical Debugging Tools: NaN-Propagation Tracing and Floating-Point Drift Detection
+
+<!-- edge:concept-31.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Find the first divergent or nonfinite tensor](../images/technical/ch31/31-04.svg)](../images/technical/ch31/31-04.svg)
+
+<figcaption>A final-output mismatch does not identify its cause. Use absolute and relative tolerances explicitly.</figcaption>
+</figure>
+<!-- edge:concept-31.4:end -->
+
 
 ### Intuition
 

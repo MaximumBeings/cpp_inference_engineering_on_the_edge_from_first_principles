@@ -1,0 +1,919 @@
+[
+  {
+    "chapter": "02",
+    "page": "docs/part0/02-the-tensor-engine.md",
+    "opener": "docs/images/chapter-openers/02.svg",
+    "concepts": [
+      {
+        "section": "2.1",
+        "asset": "docs/images/technical/ch02/02-01.svg",
+        "layout": "grid"
+      },
+      {
+        "section": "2.2",
+        "asset": "docs/images/technical/ch02/02-02.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "2.3",
+        "asset": "docs/images/technical/ch02/02-03.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "2.4",
+        "asset": "docs/images/technical/ch02/02-04.svg",
+        "layout": "memory"
+      },
+      {
+        "section": "2.5",
+        "asset": "docs/images/technical/ch02/02-05.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "03",
+    "page": "docs/part0/03-the-computational-graph.md",
+    "opener": "docs/images/chapter-openers/03.svg",
+    "concepts": [
+      {
+        "section": "3.1",
+        "asset": "docs/images/technical/ch03/03-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "3.2",
+        "asset": "docs/images/technical/ch03/03-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "3.3",
+        "asset": "docs/images/technical/ch03/03-03.svg",
+        "layout": "math"
+      },
+      {
+        "section": "3.4",
+        "asset": "docs/images/technical/ch03/03-04.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "3.5",
+        "asset": "docs/images/technical/ch03/03-05.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "3.6",
+        "asset": "docs/images/technical/ch03/03-06.svg",
+        "layout": "memory"
+      }
+    ]
+  },
+  {
+    "chapter": "04",
+    "page": "docs/part1/04-quantization-strategies.md",
+    "opener": "docs/images/chapter-openers/04.svg",
+    "concepts": [
+      {
+        "section": "4.1",
+        "asset": "docs/images/technical/ch04/04-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "4.2",
+        "asset": "docs/images/technical/ch04/04-02.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "4.3",
+        "asset": "docs/images/technical/ch04/04-03.svg",
+        "layout": "memory"
+      },
+      {
+        "section": "4.4",
+        "asset": "docs/images/technical/ch04/04-04.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "4.5",
+        "asset": "docs/images/technical/ch04/04-05.svg",
+        "layout": "math"
+      },
+      {
+        "section": "4.6",
+        "asset": "docs/images/technical/ch04/04-06.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "05",
+    "page": "docs/part1/05-model-file-formats.md",
+    "opener": "docs/images/chapter-openers/05.svg",
+    "concepts": [
+      {
+        "section": "5.1",
+        "asset": "docs/images/technical/ch05/05-01.svg",
+        "layout": "memory"
+      },
+      {
+        "section": "5.2",
+        "asset": "docs/images/technical/ch05/05-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "5.3",
+        "asset": "docs/images/technical/ch05/05-03.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "5.4",
+        "asset": "docs/images/technical/ch05/05-04.svg",
+        "layout": "memory"
+      },
+      {
+        "section": "5.5",
+        "asset": "docs/images/technical/ch05/05-05.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "06",
+    "page": "docs/part1/06-hybrid-quantized-engine.md",
+    "opener": "docs/images/chapter-openers/06.svg",
+    "concepts": [
+      {
+        "section": "6.1",
+        "asset": "docs/images/technical/ch06/06-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "6.2",
+        "asset": "docs/images/technical/ch06/06-02.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "6.3",
+        "asset": "docs/images/technical/ch06/06-03.svg",
+        "layout": "math"
+      },
+      {
+        "section": "6.4",
+        "asset": "docs/images/technical/ch06/06-04.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "6.5",
+        "asset": "docs/images/technical/ch06/06-05.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "07",
+    "page": "docs/part1/07-turboquant.md",
+    "opener": "docs/images/chapter-openers/07.svg",
+    "concepts": [
+      {
+        "section": "7.1",
+        "asset": "docs/images/technical/ch07/07-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "7.2",
+        "asset": "docs/images/technical/ch07/07-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "7.3",
+        "asset": "docs/images/technical/ch07/07-03.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "7.4",
+        "asset": "docs/images/technical/ch07/07-04.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "7.5",
+        "asset": "docs/images/technical/ch07/07-05.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "08",
+    "page": "docs/part2/08-memory-wall-and-roofline-model.md",
+    "opener": "docs/images/chapter-openers/08.svg",
+    "concepts": [
+      {
+        "section": "8.1",
+        "asset": "docs/images/technical/ch08/08-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "8.2",
+        "asset": "docs/images/technical/ch08/08-02.svg",
+        "layout": "math"
+      },
+      {
+        "section": "8.3",
+        "asset": "docs/images/technical/ch08/08-03.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "8.4",
+        "asset": "docs/images/technical/ch08/08-04.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "8.5",
+        "asset": "docs/images/technical/ch08/08-05.svg",
+        "layout": "bars"
+      }
+    ]
+  },
+  {
+    "chapter": "09",
+    "page": "docs/part2/09-simd-vectorization-avx2-neon.md",
+    "opener": "docs/images/chapter-openers/09.svg",
+    "concepts": [
+      {
+        "section": "9.1",
+        "asset": "docs/images/technical/ch09/09-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "9.2",
+        "asset": "docs/images/technical/ch09/09-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "9.3",
+        "asset": "docs/images/technical/ch09/09-03.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "9.4",
+        "asset": "docs/images/technical/ch09/09-04.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "9.5",
+        "asset": "docs/images/technical/ch09/09-05.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "10",
+    "page": "docs/part2/10-threading-and-concurrency.md",
+    "opener": "docs/images/chapter-openers/10.svg",
+    "concepts": [
+      {
+        "section": "10.1",
+        "asset": "docs/images/technical/ch10/10-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "10.2",
+        "asset": "docs/images/technical/ch10/10-02.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "10.3",
+        "asset": "docs/images/technical/ch10/10-03.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "10.4",
+        "asset": "docs/images/technical/ch10/10-04.svg",
+        "layout": "memory"
+      },
+      {
+        "section": "10.5",
+        "asset": "docs/images/technical/ch10/10-05.svg",
+        "layout": "mapping"
+      }
+    ]
+  },
+  {
+    "chapter": "11",
+    "page": "docs/part2/11-parallelizing-the-forward-pass.md",
+    "opener": "docs/images/chapter-openers/11.svg",
+    "concepts": [
+      {
+        "section": "11.1",
+        "asset": "docs/images/technical/ch11/11-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "11.2",
+        "asset": "docs/images/technical/ch11/11-02.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "11.3",
+        "asset": "docs/images/technical/ch11/11-03.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "11.4",
+        "asset": "docs/images/technical/ch11/11-04.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "11.5",
+        "asset": "docs/images/technical/ch11/11-05.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "12",
+    "page": "docs/part3/12-the-tokenizer.md",
+    "opener": "docs/images/chapter-openers/12.svg",
+    "concepts": [
+      {
+        "section": "12.1",
+        "asset": "docs/images/technical/ch12/12-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "12.2",
+        "asset": "docs/images/technical/ch12/12-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "12.3",
+        "asset": "docs/images/technical/ch12/12-03.svg",
+        "layout": "memory"
+      },
+      {
+        "section": "12.4",
+        "asset": "docs/images/technical/ch12/12-04.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "12.5",
+        "asset": "docs/images/technical/ch12/12-05.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "13",
+    "page": "docs/part3/13-the-kv-cache-manager.md",
+    "opener": "docs/images/chapter-openers/13.svg",
+    "concepts": [
+      {
+        "section": "13.1",
+        "asset": "docs/images/technical/ch13/13-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "13.2",
+        "asset": "docs/images/technical/ch13/13-02.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "13.3",
+        "asset": "docs/images/technical/ch13/13-03.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "13.4",
+        "asset": "docs/images/technical/ch13/13-04.svg",
+        "layout": "bars"
+      },
+      {
+        "section": "13.5",
+        "asset": "docs/images/technical/ch13/13-05.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "14",
+    "page": "docs/part3/14-advanced-kv-cache-management.md",
+    "opener": "docs/images/chapter-openers/14.svg",
+    "concepts": [
+      {
+        "section": "14.1",
+        "asset": "docs/images/technical/ch14/14-01.svg",
+        "layout": "memory"
+      },
+      {
+        "section": "14.2",
+        "asset": "docs/images/technical/ch14/14-02.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "14.3",
+        "asset": "docs/images/technical/ch14/14-03.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "14.4",
+        "asset": "docs/images/technical/ch14/14-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "15",
+    "page": "docs/part4/15-running-real-models.md",
+    "opener": "docs/images/chapter-openers/15.svg",
+    "concepts": [
+      {
+        "section": "15.1",
+        "asset": "docs/images/technical/ch15/15-01.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "15.2",
+        "asset": "docs/images/technical/ch15/15-02.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "15.3",
+        "asset": "docs/images/technical/ch15/15-03.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "15.4",
+        "asset": "docs/images/technical/ch15/15-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "16",
+    "page": "docs/part4/16-production-engine.md",
+    "opener": "docs/images/chapter-openers/16.svg",
+    "concepts": [
+      {
+        "section": "16.1",
+        "asset": "docs/images/technical/ch16/16-01.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "16.2",
+        "asset": "docs/images/technical/ch16/16-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "16.3",
+        "asset": "docs/images/technical/ch16/16-03.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "16.4",
+        "asset": "docs/images/technical/ch16/16-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "17",
+    "page": "docs/part4/17-benchmarking.md",
+    "opener": "docs/images/chapter-openers/17.svg",
+    "concepts": [
+      {
+        "section": "17.1",
+        "asset": "docs/images/technical/ch17/17-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "17.2",
+        "asset": "docs/images/technical/ch17/17-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "17.3",
+        "asset": "docs/images/technical/ch17/17-03.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "18",
+    "page": "docs/part5/18-industrial-visual-inspection.md",
+    "opener": "docs/images/chapter-openers/18.svg",
+    "concepts": [
+      {
+        "section": "18.1",
+        "asset": "docs/images/technical/ch18/18-01.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "18.2",
+        "asset": "docs/images/technical/ch18/18-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "18.3",
+        "asset": "docs/images/technical/ch18/18-03.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "18.4",
+        "asset": "docs/images/technical/ch18/18-04.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "18.5",
+        "asset": "docs/images/technical/ch18/18-05.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "19",
+    "page": "docs/part5/19-retail-inventory.md",
+    "opener": "docs/images/chapter-openers/19.svg",
+    "concepts": [
+      {
+        "section": "19.1",
+        "asset": "docs/images/technical/ch19/19-01.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "19.2",
+        "asset": "docs/images/technical/ch19/19-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "19.3",
+        "asset": "docs/images/technical/ch19/19-03.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "19.4",
+        "asset": "docs/images/technical/ch19/19-04.svg",
+        "layout": "bars"
+      },
+      {
+        "section": "19.5",
+        "asset": "docs/images/technical/ch19/19-05.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "20",
+    "page": "docs/part5/20-medical-imaging-triage.md",
+    "opener": "docs/images/chapter-openers/20.svg",
+    "concepts": [
+      {
+        "section": "20.1",
+        "asset": "docs/images/technical/ch20/20-01.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "20.2",
+        "asset": "docs/images/technical/ch20/20-02.svg",
+        "layout": "math"
+      },
+      {
+        "section": "20.3",
+        "asset": "docs/images/technical/ch20/20-03.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "20.4",
+        "asset": "docs/images/technical/ch20/20-04.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "20.5",
+        "asset": "docs/images/technical/ch20/20-05.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "21",
+    "page": "docs/part5/21-document-intelligence-claims-environmental.md",
+    "opener": "docs/images/chapter-openers/21.svg",
+    "concepts": [
+      {
+        "section": "21.1",
+        "asset": "docs/images/technical/ch21/21-01.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "21.2",
+        "asset": "docs/images/technical/ch21/21-02.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "21.3",
+        "asset": "docs/images/technical/ch21/21-03.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "21.4",
+        "asset": "docs/images/technical/ch21/21-04.svg",
+        "layout": "compare"
+      }
+    ]
+  },
+  {
+    "chapter": "22",
+    "page": "docs/part5/22-security-accessibility-art.md",
+    "opener": "docs/images/chapter-openers/22.svg",
+    "concepts": [
+      {
+        "section": "22.1",
+        "asset": "docs/images/technical/ch22/22-01.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "22.2",
+        "asset": "docs/images/technical/ch22/22-02.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "22.3",
+        "asset": "docs/images/technical/ch22/22-03.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "23",
+    "page": "docs/part5/23-trust-authenticity-point-of-sale.md",
+    "opener": "docs/images/chapter-openers/23.svg",
+    "concepts": [
+      {
+        "section": "23.1",
+        "asset": "docs/images/technical/ch23/23-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "23.2",
+        "asset": "docs/images/technical/ch23/23-02.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "23.3",
+        "asset": "docs/images/technical/ch23/23-03.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "23.4",
+        "asset": "docs/images/technical/ch23/23-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "24",
+    "page": "docs/part5/24-natural-language-photo-editing.md",
+    "opener": "docs/images/chapter-openers/24.svg",
+    "concepts": [
+      {
+        "section": "24.1",
+        "asset": "docs/images/technical/ch24/24-01.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "24.2",
+        "asset": "docs/images/technical/ch24/24-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "24.3",
+        "asset": "docs/images/technical/ch24/24-03.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "24.4",
+        "asset": "docs/images/technical/ch24/24-04.svg",
+        "layout": "timeline"
+      }
+    ]
+  },
+  {
+    "chapter": "25",
+    "page": "docs/part5/25-body-worn-and-personal-cameras.md",
+    "opener": "docs/images/chapter-openers/25.svg",
+    "concepts": [
+      {
+        "section": "25.1",
+        "asset": "docs/images/technical/ch25/25-01.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "25.2",
+        "asset": "docs/images/technical/ch25/25-02.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "25.3",
+        "asset": "docs/images/technical/ch25/25-03.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "25.4",
+        "asset": "docs/images/technical/ch25/25-04.svg",
+        "layout": "mapping"
+      }
+    ]
+  },
+  {
+    "chapter": "26",
+    "page": "docs/part5/26-check-and-invoice-fraud-detection.md",
+    "opener": "docs/images/chapter-openers/26.svg",
+    "concepts": [
+      {
+        "section": "26.1",
+        "asset": "docs/images/technical/ch26/26-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "26.2",
+        "asset": "docs/images/technical/ch26/26-02.svg",
+        "layout": "mapping"
+      },
+      {
+        "section": "26.3",
+        "asset": "docs/images/technical/ch26/26-03.svg",
+        "layout": "math"
+      },
+      {
+        "section": "26.4",
+        "asset": "docs/images/technical/ch26/26-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "27",
+    "page": "docs/part5/27-low-latency-market-signal-inference.md",
+    "opener": "docs/images/chapter-openers/27.svg",
+    "concepts": [
+      {
+        "section": "27.1",
+        "asset": "docs/images/technical/ch27/27-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "27.2",
+        "asset": "docs/images/technical/ch27/27-02.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "27.3",
+        "asset": "docs/images/technical/ch27/27-03.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "27.4",
+        "asset": "docs/images/technical/ch27/27-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "28",
+    "page": "docs/part5/28-insurance-claims-photo-assessment-fraud-flagging.md",
+    "opener": "docs/images/chapter-openers/28.svg",
+    "concepts": [
+      {
+        "section": "28.1",
+        "asset": "docs/images/technical/ch28/28-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "28.2",
+        "asset": "docs/images/technical/ch28/28-02.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "28.3",
+        "asset": "docs/images/technical/ch28/28-03.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "28.4",
+        "asset": "docs/images/technical/ch28/28-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "29",
+    "page": "docs/part5/29-on-device-aml-transaction-monitoring.md",
+    "opener": "docs/images/chapter-openers/29.svg",
+    "concepts": [
+      {
+        "section": "29.1",
+        "asset": "docs/images/technical/ch29/29-01.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "29.2",
+        "asset": "docs/images/technical/ch29/29-02.svg",
+        "layout": "bars"
+      },
+      {
+        "section": "29.3",
+        "asset": "docs/images/technical/ch29/29-03.svg",
+        "layout": "math"
+      },
+      {
+        "section": "29.4",
+        "asset": "docs/images/technical/ch29/29-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "30",
+    "page": "docs/part6/30-mathematical-foundations.md",
+    "opener": "docs/images/chapter-openers/30.svg",
+    "concepts": [
+      {
+        "section": "30.1",
+        "asset": "docs/images/technical/ch30/30-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "30.2",
+        "asset": "docs/images/technical/ch30/30-02.svg",
+        "layout": "math"
+      },
+      {
+        "section": "30.3",
+        "asset": "docs/images/technical/ch30/30-03.svg",
+        "layout": "math"
+      },
+      {
+        "section": "30.4",
+        "asset": "docs/images/technical/ch30/30-04.svg",
+        "layout": "math"
+      },
+      {
+        "section": "30.5",
+        "asset": "docs/images/technical/ch30/30-05.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "30.6",
+        "asset": "docs/images/technical/ch30/30-06.svg",
+        "layout": "math"
+      }
+    ]
+  },
+  {
+    "chapter": "31",
+    "page": "docs/part6/31-continuous-batching-and-production-serving.md",
+    "opener": "docs/images/chapter-openers/31.svg",
+    "concepts": [
+      {
+        "section": "31.1",
+        "asset": "docs/images/technical/ch31/31-01.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "31.2",
+        "asset": "docs/images/technical/ch31/31-02.svg",
+        "layout": "timeline"
+      },
+      {
+        "section": "31.3",
+        "asset": "docs/images/technical/ch31/31-03.svg",
+        "layout": "flow"
+      },
+      {
+        "section": "31.4",
+        "asset": "docs/images/technical/ch31/31-04.svg",
+        "layout": "flow"
+      }
+    ]
+  },
+  {
+    "chapter": "32",
+    "page": "docs/part6/32-flash-attention-and-cuda-kernels.md",
+    "opener": "docs/images/chapter-openers/32.svg",
+    "concepts": [
+      {
+        "section": "32.1",
+        "asset": "docs/images/technical/ch32/32-01.svg",
+        "layout": "math"
+      },
+      {
+        "section": "32.2",
+        "asset": "docs/images/technical/ch32/32-02.svg",
+        "layout": "compare"
+      },
+      {
+        "section": "32.3",
+        "asset": "docs/images/technical/ch32/32-03.svg",
+        "layout": "flow"
+      }
+    ]
+  }
+]

@@ -1,5 +1,14 @@
 # Chapter 3: The Computational Graph -- RMSNorm, SwiGLU, RoPE, and Attention
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 3: Inside a transformer block](../images/chapter-openers/03.svg)](../images/chapter-openers/03.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - How RMSNorm, SwiGLU, and RoPE each replace an older Transformer component with a cheaper or more capable alternative, and the exact arithmetic each one performs, worked by hand before it is ever compiled.
@@ -25,6 +34,16 @@ Chapter 2 gave this book the tools to describe and allocate tensors; this chapte
 <!-- /chapter-figure -->
 
 ## 3.1 RMSNorm: Cheap, Memory-Bound Normalization
+
+<!-- edge:concept-3.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Normalize by the root mean square](../images/technical/ch03/03-01.svg)](../images/technical/ch03/03-01.svg)
+
+<figcaption>The same scalar denominator normalizes the feature vector. The learned gain is per feature.</figcaption>
+</figure>
+<!-- edge:concept-3.1:end -->
+
 
 ### Intuition
 
@@ -195,6 +214,16 @@ ALL CHECKS PASSED
 
 ## 3.2 SwiGLU: The Gated Feed-Forward Network
 
+<!-- edge:concept-3.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Two projections form a gated feed-forward path](../images/technical/ch03/03-02.svg)](../images/technical/ch03/03-02.svg)
+
+<figcaption>The gate and up projections both read x. The gate modulates the up branch element by element.</figcaption>
+</figure>
+<!-- edge:concept-3.2:end -->
+
+
 ### Intuition
 
 The feed-forward network is where a transformer stores most of its factual knowledge, and its hidden dimension is typically three to four times the model's own hidden size, which is why it dominates a forward pass's FLOPs budget (roughly two-thirds of it end to end). The original Transformer used two matrices and a ReLU; Llama-style models use three matrices and a gated activation called SwiGLU, trading one extra matrix multiply for richer gradients during training and, this section argues, a real difference in which neurons stay trainable at all.
@@ -346,6 +375,16 @@ ALL CHECKS PASSED
     Swapping only the activation function (`ReLU(x . W1) . W2` becomes `SiLU(x . W1) . W2`) is a different, smaller change than SwiGLU actually is — it misses the THIRD matrix entirely. SwiGLU's defining property is the elementwise gate: one projection's activated output multiplies a second, separate projection's raw output, which is why the down projection's input dimension is `d_ff` fed from a gating multiply, not directly from a single activated matmul. A "SwiGLU" implementation with only two weight matrices has quietly become a differently-activated ordinary FFN, not the gated unit this section describes.
 
 ## 3.3 RoPE: Encoding Position Through Rotation
+
+<!-- edge:concept-3.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![RoPE rotates pairs of coordinates](../images/technical/ch03/03-03.svg)](../images/technical/ch03/03-03.svg)
+
+<figcaption>Each pair has its own frequency. Rotation preserves its norm before finite-precision rounding.</figcaption>
+</figure>
+<!-- edge:concept-3.3:end -->
+
 
 ### Intuition
 
@@ -515,6 +554,16 @@ ALL CHECKS PASSED
     RoPE only ever rotates Q and K, and only before the `Q . K` dot product is computed — never V, and never the attention output. V carries CONTENT, not position-dependent relevance, so rotating it would corrupt the actual values being blended together for no benefit; and rotating Q or K after the dot product is simply too late to have any effect on the score that dot product produces. The one-line summary worth keeping in mind while wiring a real attention block together: RoPE lives strictly between the QKV projections and the attention score computation, and touches exactly two of the three tensors that pass through that gap.
 
 ## 3.4 Grouped-Query Attention with a KV Cache
+
+<!-- edge:concept-3.4:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Several query heads can share one KV head](../images/technical/ch03/03-04.svg)](../images/technical/ch03/03-04.svg)
+
+<figcaption>Illustrative GQA ratio 2:1. Query heads remain distinct while cached keys and values are shared.</figcaption>
+</figure>
+<!-- edge:concept-3.4:end -->
+
 
 ### Intuition
 
@@ -748,6 +797,16 @@ ALL CHECKS PASSED
     GQA groups query heads into CONTIGUOUS blocks that share one KV head — heads `0..group_size-1` share KV head 0, heads `group_size..2*group_size-1` share KV head 1, and so on — which is integer division (`h / group_size`), not modulo. Using `h % group_size` by mistake interleaves the grouping instead (heads `0, group_size, 2*group_size, ...` would all incorrectly map to KV head 0), silently reading the wrong cached keys and values for every query head except the first `group_size` of them, with no crash or error to reveal the mistake — only quietly wrong attention output.
 
 ## 3.5 The Static Compute Graph: Record Once, Replay Cheaply
+
+<!-- edge:concept-3.5:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Record dependencies once, execute repeatedly](../images/technical/ch03/03-05.svg)](../images/technical/ch03/03-05.svg)
+
+<figcaption>Replay must still respect data dependencies and the lifetime of every referenced allocation.</figcaption>
+</figure>
+<!-- edge:concept-3.5:end -->
+
 
 ### Intuition
 
@@ -1002,6 +1061,16 @@ ALL CHECKS PASSED
     A memory plan is only valid for the exact operation order it was computed from — it encodes which tensor's slot is safe to reuse based on precisely when each tensor is born and when it is last read. Reordering the tape after the fact (even a change that looks harmless, like moving a debug-only operation earlier) can make two tensors that the planner assumed never overlap suddenly alive at the same time, and the shared arena slot the planner assigned them turns into silent aliasing: one write corrupting data the other tensor still needs, with nothing in the type system able to catch it, since both are just `float*` into the same arena as far as the compiler is concerned.
 
 ## 3.6 mmap Weight Loading: Zero-Copy Access to a Multi-Gigabyte File
+
+<!-- edge:concept-3.6:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Map file bytes and expose bounded tensor ranges](../images/technical/ch03/03-06.svg)](../images/technical/ch03/03-06.svg)
+
+<figcaption>File offsets identify tensor payloads. Views must not outlive the file mapping.</figcaption>
+</figure>
+<!-- edge:concept-3.6:end -->
+
 
 ### Intuition
 

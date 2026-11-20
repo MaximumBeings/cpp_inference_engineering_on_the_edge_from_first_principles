@@ -1,5 +1,14 @@
 # Chapter 32: Flash Attention and CUDA Kernels: Taking the Engine to the GPU
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Chapter 32: Tiled attention keeps the score matrix out of global memory](../images/chapter-openers/32.svg)](../images/chapter-openers/32.svg)
+
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this chapter:**
 
 - Why standard attention's own real O(N^2) score-matrix memory becomes the actual bottleneck at real sequence lengths, quantified in exact bytes rather than described in the abstract, and why the online-softmax recurrence -- a real, provable algebraic reformulation of softmax, not an approximation -- fixes it.
@@ -28,6 +37,16 @@ This book has built one real inference engine, from `std::mdspan` tensors throug
 <!-- /chapter-figure -->
 
 ## 32.1 The O(N^2) Memory Wall and the Online-Softmax Fix
+
+<!-- edge:concept-32.1:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Online softmax rescales old and new contributions](../images/technical/ch32/32-01.svg)](../images/technical/ch32/32-01.svg)
+
+<figcaption>Tile sums and weighted values use the same new maximum. Normalize o by l after the final tile.</figcaption>
+</figure>
+<!-- edge:concept-32.1:end -->
+
 
 ### Intuition
 
@@ -59,6 +78,16 @@ g++ -std=c++23 -Wall -Wextra -O2 01_memory_wall_and_online_softmax.cpp -o 01_mem
 
 ## 32.2 A std::mdspan-Based Flash Attention Implementation and Benchmark
 
+<!-- edge:concept-32.2:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Tiling changes intermediate storage, not the target result](../images/technical/ch32/32-02.svg)](../images/technical/ch32/32-02.svg)
+
+<figcaption>The tiled path avoids storing the full score matrix but remains subject to finite-precision differences.</figcaption>
+</figure>
+<!-- edge:concept-32.2:end -->
+
+
 ### Intuition
 
 Section 32.1 proved the online-softmax recurrence correct on raw vectors. This section implements the identical real algorithm as a proper tiled Flash Attention pass over `std::mdspan`-viewed Q, K, and V matrices, and "benchmarks" it the only way this book's own discipline allows: with real, deterministic counts, never wall-clock time.
@@ -88,6 +117,16 @@ g++ -std=c++23 -Wall -Wextra -O2 -DMDSPAN_IMPL_STANDARD_NAMESPACE=std -DMDSPAN_I
     Test 3's own real, counted result is easy to misread in the opposite direction from the Section 32.1 trap: it is tempting to assume Flash Attention must ALSO be doing fewer real floating-point operations, since it is famous for being faster in practice. Test 3 proves directly that it is not: both implementations perform the identical `2 * Nq * Nk * d` real multiply-accumulate operations, counted at each one's own innermost loop, every single time. Flash Attention's own genuine real speedup on actual hardware comes from a different resource entirely -- it never writes the full O(N^2) score matrix out to slow real memory and reads it back in for the softmax and the second matmul, which Chapter 30's own roofline framing already established is the ACTUAL bottleneck for a memory-bound operation. Same real compute, drastically less real memory traffic -- that distinction is the entire point of this section's own choice to benchmark bytes and operation counts rather than assume the FLOP count itself must have changed.
 
 ## 32.3 A CUDA Production Engine and Its Own Kernel-Validation Suite
+
+<!-- edge:concept-32.3:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Validate kernels on real device work](../images/technical/ch32/32-03.svg)](../images/technical/ch32/32-03.svg)
+
+<figcaption>A skipped device run is not a pass. Partial tiles and block tails need explicit coverage.</figcaption>
+</figure>
+<!-- edge:concept-32.3:end -->
+
 
 ### From a CPU reference to a device result
 
