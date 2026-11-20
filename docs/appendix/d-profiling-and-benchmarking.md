@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix D: Profile a controlled workload](../images/chapter-openers/appendix-d.svg)](../images/chapter-openers/appendix-d.svg)
+[![Appendix D: Profile a controlled workload](../images/chapter-openers/appendix-d.svg?v=57b10ed77421)](../images/chapter-openers/appendix-d.svg?v=57b10ed77421)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,7 +16,7 @@ Chapter 32's own opening line makes a promise this appendix now keeps: "this boo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg){: loading="lazy" width="760" }
+![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg?v=e1a4284a463a){: loading="lazy" width="760" }
 
   <figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
 </figure>

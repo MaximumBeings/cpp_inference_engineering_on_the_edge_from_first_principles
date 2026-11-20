@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix C: Choose an optimization from the limiting resource](../images/chapter-openers/appendix-c.svg)](../images/chapter-openers/appendix-c.svg)
+[![Appendix C: Choose an optimization from the limiting resource](../images/chapter-openers/appendix-c.svg?v=cd29cb2d7ecc)](../images/chapter-openers/appendix-c.svg?v=cd29cb2d7ecc)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,7 +16,7 @@ This appendix builds nothing new. Every format, every partitioning rule, every c
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg){: loading="lazy" width="760" }
+![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg?v=3390cfd02be4){: loading="lazy" width="760" }
 
   <figcaption>Each optimization must preserve the model&#x27;s numerical and state contracts.</figcaption>
 </figure>

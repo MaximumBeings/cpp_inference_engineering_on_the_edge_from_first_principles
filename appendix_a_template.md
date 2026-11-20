@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix A: Cross-compile, then execute the target binary](../images/chapter-openers/appendix-a.svg)](../images/chapter-openers/appendix-a.svg)
+[![Appendix A: Cross-compile, then execute the target binary](../images/chapter-openers/appendix-a.svg?v=5acf65575590)](../images/chapter-openers/appendix-a.svg?v=5acf65575590)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Every chapter in this book compiled and ran identically on an x86_64 development
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg){: loading="lazy" width="760" }
+![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg?v=70f3db8a0035){: loading="lazy" width="760" }
 
   <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
 </figure>

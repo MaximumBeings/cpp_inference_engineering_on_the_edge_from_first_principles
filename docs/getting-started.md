@@ -5,7 +5,7 @@ This book targets modern C++ compiled with `g++` (GCC 13 or newer). Most chapter
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Choose the toolchain for the target. Compile for the processor that will execute the binary.](images/getting-started-overview.svg){: loading="lazy" width="760" }
+![Choose the toolchain for the target. Compile for the processor that will execute the binary.](images/getting-started-overview.svg?v=330cd381c248){: loading="lazy" width="760" }
 
   <figcaption>A successful cross-compile still needs execution on the target or an emulator.</figcaption>
 </figure>

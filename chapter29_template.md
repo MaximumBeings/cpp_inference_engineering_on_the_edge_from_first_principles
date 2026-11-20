@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 29: Monitor transactions with explicit windows](../images/chapter-openers/29.svg)](../images/chapter-openers/29.svg)
+[![Chapter 29: Monitor transactions with explicit windows](../images/chapter-openers/29.svg?v=bb1d62ed7ddf)](../images/chapter-openers/29.svg?v=bb1d62ed7ddf)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapter 28 turned to a claim's own photographic and temporal evidence. This chap
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Monitor transactions with explicit windows. Aggregate event history before combining anomaly signals.](../images/29-overview.svg){: loading="lazy" width="760" }
+![Monitor transactions with explicit windows. Aggregate event history before combining anomaly signals.](../images/29-overview.svg?v=ccba833c6a8c){: loading="lazy" width="760" }
 
   <figcaption>An alert needs contextual review; thresholds alone cannot establish money laundering.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapter 28 turned to a claim's own photographic and temporal evidence. This chap
 <!-- edge:concept-29.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Windowed aggregation detects a pattern candidate](../images/technical/ch29/29-01.svg)](../images/technical/ch29/29-01.svg)
+[![Windowed aggregation detects a pattern candidate](../images/technical/ch29/29-01.svg?v=68a7fe76def3)](../images/technical/ch29/29-01.svg?v=68a7fe76def3)
 
 <figcaption>Structuring rules depend on jurisdiction and context. A pattern flag is not proof of criminal conduct.</figcaption>
 </figure>
@@ -81,7 +81,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_aml_structuring_detection.cpp -o 01_aml_stru
 <!-- edge:concept-29.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Velocity counts need a defined time window](../images/technical/ch29/29-02.svg)](../images/technical/ch29/29-02.svg)
+[![Velocity counts need a defined time window](../images/technical/ch29/29-02.svg?v=1d03b827a321)](../images/technical/ch29/29-02.svg?v=1d03b827a321)
 
 <figcaption>Illustrative transaction counts. State the window, entity key and threshold before interpreting an alert.</figcaption>
 </figure>
@@ -121,7 +121,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_transaction_velocity_anomaly_detection.cpp -
 <!-- edge:concept-29.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Travel consistency compares distance with elapsed time](../images/technical/ch29/29-03.svg)](../images/technical/ch29/29-03.svg)
+[![Travel consistency compares distance with elapsed time](../images/technical/ch29/29-03.svg?v=744edc244562)](../images/technical/ch29/29-03.svg?v=744edc244562)
 
 <figcaption>Check timestamp quality, location confidence and shared accounts. A rule hit can have benign causes.</figcaption>
 </figure>
@@ -161,7 +161,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_impossible_travel_geographic_detection.cpp -
 <!-- edge:concept-29.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Monitoring produces an explainable review record](../images/technical/ch29/29-04.svg)](../images/technical/ch29/29-04.svg)
+[![Monitoring produces an explainable review record](../images/technical/ch29/29-04.svg?v=be428abd4fc2)](../images/technical/ch29/29-04.svg?v=be428abd4fc2)
 
 <figcaption>Signals support a compliance workflow. The model does not determine guilt.</figcaption>
 </figure>

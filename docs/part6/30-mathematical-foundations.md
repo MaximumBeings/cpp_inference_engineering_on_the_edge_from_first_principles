@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 30: Connect the math to kernel behavior](../images/chapter-openers/30.svg)](../images/chapter-openers/30.svg)
+[![Chapter 30: Connect the math to kernel behavior](../images/chapter-openers/30.svg?v=77b1599550c0)](../images/chapter-openers/30.svg?v=77b1599550c0)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Every chapter before this one built a working system and verified it against the
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures.](../images/30-overview.svg){: loading="lazy" width="760" }
+![Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures.](../images/30-overview.svg?v=33203688aea2){: loading="lazy" width="760" }
 
   <figcaption>Use the mathematical assumptions explicitly when interpreting measurements.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Every chapter before this one built a working system and verified it against the
 <!-- edge:concept-30.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![GEMV and GEMM reuse the same weights differently](../images/technical/ch30/30-01.svg)](../images/technical/ch30/30-01.svg)
+[![GEMV and GEMM reuse the same weights differently](../images/technical/ch30/30-01.svg?v=f9fb658dc0bc)](../images/technical/ch30/30-01.svg?v=f9fb658dc0bc)
 
 <figcaption>The crossover depends on shape and memory traffic, not just peak arithmetic rate.</figcaption>
 </figure>
@@ -291,7 +291,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-30.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Subtracting the maximum stabilizes softmax](../images/technical/ch30/30-02.svg)](../images/technical/ch30/30-02.svg)
+[![Subtracting the maximum stabilizes softmax](../images/technical/ch30/30-02.svg?v=4366f2ebbbec)](../images/technical/ch30/30-02.svg?v=4366f2ebbbec)
 
 <figcaption>The shift preserves exact softmax ratios while avoiding exponentiation of very large positive logits.</figcaption>
 </figure>
@@ -528,7 +528,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-30.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A two-coordinate rotation preserves squared length](../images/technical/ch30/30-03.svg)](../images/technical/ch30/30-03.svg)
+[![A two-coordinate rotation preserves squared length](../images/technical/ch30/30-03.svg?v=0d6641288738)](../images/technical/ch30/30-03.svg?v=0d6641288738)
 
 <figcaption>This illustrative angle explains the geometry. RoPE uses position- and frequency-dependent angles.</figcaption>
 </figure>
@@ -753,7 +753,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-30.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Rounding error has a scale-dependent bound](../images/technical/ch30/30-04.svg)](../images/technical/ch30/30-04.svg)
+[![Rounding error has a scale-dependent bound](../images/technical/ch30/30-04.svg?v=9e94e717a36f)](../images/technical/ch30/30-04.svg?v=9e94e717a36f)
 
 <figcaption>Clipping introduces an additional error not covered by the in-range rounding bound.</figcaption>
 </figure>
@@ -968,7 +968,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-30.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Second-order sensitivity weights errors unequally](../images/technical/ch30/30-05.svg)](../images/technical/ch30/30-05.svg)
+[![Second-order sensitivity weights errors unequally](../images/technical/ch30/30-05.svg?v=0d908f4fd648)](../images/technical/ch30/30-05.svg?v=0d908f4fd648)
 
 <figcaption>The quadratic approximation is local and depends on the calibration data and objective.</figcaption>
 </figure>
@@ -1280,7 +1280,7 @@ ALL CHECKS PASSED
 <!-- edge:concept-30.6:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Combine arithmetic and traffic for the layer](../images/technical/ch30/30-06.svg)](../images/technical/ch30/30-06.svg)
+[![Combine arithmetic and traffic for the layer](../images/technical/ch30/30-06.svg?v=ee4a45579ed7)](../images/technical/ch30/30-06.svg?v=ee4a45579ed7)
 
 <figcaption>State sequence length, batch, precision, cache assumptions and the memory level being modeled.</figcaption>
 </figure>

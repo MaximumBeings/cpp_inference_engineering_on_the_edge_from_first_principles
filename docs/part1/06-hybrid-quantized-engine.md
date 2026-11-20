@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 6: Use precision where it matters](../images/chapter-openers/06.svg)](../images/chapter-openers/06.svg)
+[![Chapter 6: Use precision where it matters](../images/chapter-openers/06.svg?v=7517acbff888)](../images/chapter-openers/06.svg?v=7517acbff888)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Chapter 5 built one quantization pipeline and applied it the same way to every t
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Use precision where it matters. Different tensor classes have different error sensitivity and storage cost.](../images/06-overview.svg){: loading="lazy" width="760" }
+![Use precision where it matters. Different tensor classes have different error sensitivity and storage cost.](../images/06-overview.svg?v=7efeba58f5fb){: loading="lazy" width="760" }
 
   <figcaption>The memory budget is the sum of each tensor&#x27;s actual encoded size.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Chapter 5 built one quantization pipeline and applied it the same way to every t
 <!-- edge:concept-6.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Equal byte savings can have unequal model effects](../images/technical/ch06/06-01.svg)](../images/technical/ch06/06-01.svg)
+[![Equal byte savings can have unequal model effects](../images/technical/ch06/06-01.svg?v=32fa12c8e3f7)](../images/technical/ch06/06-01.svg?v=32fa12c8e3f7)
 
 <figcaption>Sensitivity is a policy input. The diagram does not claim measured model-quality improvements.</figcaption>
 </figure>
@@ -556,7 +556,7 @@ Weight Class Sensitivity: Same Format, Different Consequences
 <!-- edge:concept-6.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A type tag drives format-specific dispatch](../images/technical/ch06/06-02.svg)](../images/technical/ch06/06-02.svg)
+[![A type tag drives format-specific dispatch](../images/technical/ch06/06-02.svg?v=bd097166f252)](../images/technical/ch06/06-02.svg?v=bd097166f252)
 
 <figcaption>The policy is persisted in tensor metadata so loading and computation agree on representation.</figcaption>
 </figure>
@@ -1155,7 +1155,7 @@ A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag
 <!-- edge:concept-6.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Account for every tensor, including metadata](../images/technical/ch06/06-03.svg)](../images/technical/ch06/06-03.svg)
+[![Account for every tensor, including metadata](../images/technical/ch06/06-03.svg?v=148bd47a238c)](../images/technical/ch06/06-03.svg?v=148bd47a238c)
 
 <figcaption>Hybrid memory usage is a sum of encoded sizes, not a single nominal bits-per-weight number.</figcaption>
 </figure>
@@ -1408,7 +1408,7 @@ The Memory Budget: Uniform vs. Hybrid Quantization
 <!-- edge:concept-6.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The mapped file selects the forward-pass kernels](../images/technical/ch06/06-04.svg)](../images/technical/ch06/06-04.svg)
+[![The mapped file selects the forward-pass kernels](../images/technical/ch06/06-04.svg?v=ea7ffae71489)](../images/technical/ch06/06-04.svg?v=ea7ffae71489)
 
 <figcaption>The runtime must not interpret a Q4 block using a Q8 or floating-point kernel.</figcaption>
 </figure>
@@ -2067,7 +2067,7 @@ A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File
 <!-- edge:concept-6.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Carry the same policy through every layer](../images/technical/ch06/06-05.svg)](../images/technical/ch06/06-05.svg)
+[![Carry the same policy through every layer](../images/technical/ch06/06-05.svg?v=dc3ef5f5925f)](../images/technical/ch06/06-05.svg?v=dc3ef5f5925f)
 
 <figcaption>Per-layer execution must preserve the tensor format, activation shape and residual dependencies.</figcaption>
 </figure>

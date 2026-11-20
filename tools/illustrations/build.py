@@ -2,6 +2,7 @@
 """Build chapter openers and section diagrams, keeping source templates in sync."""
 from pathlib import Path
 import html
+import hashlib
 import json
 import re
 import runpy
@@ -249,6 +250,9 @@ def opener(key,page):
     return svg(title,SPECS[key][1],b,bottom+30,True)
 
 def figure(src,title,caption,marker):
+    # Version the image URL so readers do not retain stale diagrams after a deploy.
+    asset=ROOT/'docs'/src.removeprefix('../')
+    src+='?v='+hashlib.sha256(asset.read_bytes()).hexdigest()[:12]
     # Markdown links are resolved by MkDocs, including nested directory URLs.
     return f'''<!-- edge:{marker}:start -->
 <figure class="chapter-figure" markdown="1">

@@ -1,5 +1,6 @@
 from pathlib import Path
 import html
+import hashlib
 import re
 import textwrap
 import unicodedata
@@ -244,10 +245,11 @@ def main():
         asset=f'{key}-overview.svg'
         (folder/asset).write_text(render_overview(spec,key))
         relative='images/' if page.parent==ROOT/'docs' else '../images/'
+        asset_url=relative+asset+'?v='+hashlib.sha256((folder/asset).read_bytes()).hexdigest()[:12]
         figure=f'''<!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![{esc(prose(spec[0]+'. '+spec[1]))}]({relative}{asset}){{: loading="lazy" width="760" }}
+![{esc(prose(spec[0]+'. '+spec[1]))}]({asset_url}){{: loading="lazy" width="760" }}
 
   <figcaption>{esc(prose(spec[3]))}</figcaption>
 </figure>

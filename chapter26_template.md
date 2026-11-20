@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 26: Cross-check financial document fields](../images/chapter-openers/26.svg)](../images/chapter-openers/26.svg)
+[![Chapter 26: Cross-check financial document fields](../images/chapter-openers/26.svg?v=ff9956333567)](../images/chapter-openers/26.svg?v=ff9956333567)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Chapter 25 closed Part 5's run of consumer- and field-facing vision-language dep
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Cross-check financial document fields. Independent checks expose inconsistencies for further review.](../images/26-overview.svg){: loading="lazy" width="760" }
+![Cross-check financial document fields. Independent checks expose inconsistencies for further review.](../images/26-overview.svg?v=8a2363c759b7){: loading="lazy" width="760" }
 
   <figcaption>Matching fields do not establish authenticity; preserve uncertainty and provenance.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Chapter 25 closed Part 5's run of consumer- and field-facing vision-language dep
 <!-- edge:concept-26.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A checksum and a signature answer different questions](../images/technical/ch26/26-01.svg)](../images/technical/ch26/26-01.svg)
+[![A checksum and a signature answer different questions](../images/technical/ch26/26-01.svg?v=ef2024113bf3)](../images/technical/ch26/26-01.svg?v=ef2024113bf3)
 
 <figcaption>Use signals as review inputs. Neither mechanism alone establishes that a payment is legitimate.</figcaption>
 </figure>
@@ -80,7 +80,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_micr_checksum_and_signature_comparison.cpp -
 <!-- edge:concept-26.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Duplicate detection combines stable fields](../images/technical/ch26/26-02.svg)](../images/technical/ch26/26-02.svg)
+[![Duplicate detection combines stable fields](../images/technical/ch26/26-02.svg?v=75920f0e9fa9)](../images/technical/ch26/26-02.svg?v=75920f0e9fa9)
 
 <figcaption>Similar fields can occur legitimately. Explain which fields caused the duplicate flag.</figcaption>
 </figure>
@@ -120,7 +120,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_invoice_duplicate_detection.cpp -o 02_invoic
 <!-- edge:concept-26.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Two representations of an amount should agree](../images/technical/ch26/26-03.svg)](../images/technical/ch26/26-03.svg)
+[![Two representations of an amount should agree](../images/technical/ch26/26-03.svg?v=4d57baea958c)](../images/technical/ch26/26-03.svg?v=4d57baea958c)
 
 <figcaption>Currency, locale and minor-unit rules must be explicit. Parse failures require review.</figcaption>
 </figure>
@@ -160,7 +160,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_amount_in_words_cross_validation.cpp -o 03_a
 <!-- edge:concept-26.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Disposition is a controlled policy step](../images/technical/ch26/26-04.svg)](../images/technical/ch26/26-04.svg)
+[![Disposition is a controlled policy step](../images/technical/ch26/26-04.svg?v=bedb51a945fa)](../images/technical/ch26/26-04.svg?v=bedb51a945fa)
 
 <figcaption>A risk score is not a finding of fraud. Preserve evidence and escalation reasons.</figcaption>
 </figure>

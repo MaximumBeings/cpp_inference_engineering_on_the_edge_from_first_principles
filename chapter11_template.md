@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 11: Parallelize the forward pass at independent outputs](../images/chapter-openers/11.svg)](../images/chapter-openers/11.svg)
+[![Chapter 11: Parallelize the forward pass at independent outputs](../images/chapter-openers/11.svg?v=cc13c74de9f9)](../images/chapter-openers/11.svg?v=cc13c74de9f9)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Chapter 10 built the primitives — atomics, mutexes, a barrier-synchronized thr
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result.](../images/11-overview.svg){: loading="lazy" width="760" }
+![Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result.](../images/11-overview.svg?v=b6ae6bdee47e){: loading="lazy" width="760" }
 
   <figcaption>Keep reduction order fixed when bitwise reproducibility is required.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Chapter 10 built the primitives — atomics, mutexes, a barrier-synchronized thr
 <!-- edge:concept-11.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Partitioning output and partitioning reduction differ](../images/technical/ch11/11-01.svg)](../images/technical/ch11/11-01.svg)
+[![Partitioning output and partitioning reduction differ](../images/technical/ch11/11-01.svg?v=1b90eaed87b7)](../images/technical/ch11/11-01.svg?v=1b90eaed87b7)
 
 <figcaption>The partition determines both ownership and synchronization.</figcaption>
 </figure>
@@ -80,7 +80,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread -DMDSPAN_IMPL_STANDA
 <!-- edge:concept-11.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Keep worker threads across layer phases](../images/technical/ch11/11-02.svg)](../images/technical/ch11/11-02.svg)
+[![Keep worker threads across layer phases](../images/technical/ch11/11-02.svg?v=07322914cd27)](../images/technical/ch11/11-02.svg?v=07322914cd27)
 
 <figcaption>Persistent threads avoid repeated creation. They do not remove dependencies between phases.</figcaption>
 </figure>
@@ -118,7 +118,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread -DMDSPAN_IMPL_STANDA
 <!-- edge:concept-11.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Head parallelism gives each task distinct outputs](../images/technical/ch11/11-03.svg)](../images/technical/ch11/11-03.svg)
+[![Head parallelism gives each task distinct outputs](../images/technical/ch11/11-03.svg?v=bceefa00ae03)](../images/technical/ch11/11-03.svg?v=bceefa00ae03)
 
 <figcaption>Grouped-query heads may share read-only KV storage while writing separate query-head outputs.</figcaption>
 </figure>
@@ -156,7 +156,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread -DMDSPAN_IMPL_STANDA
 <!-- edge:concept-11.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A fixed reduction tree makes ordering explicit](../images/technical/ch11/11-04.svg)](../images/technical/ch11/11-04.svg)
+[![A fixed reduction tree makes ordering explicit](../images/technical/ch11/11-04.svg?v=a53527975ea0)](../images/technical/ch11/11-04.svg?v=a53527975ea0)
 
 <figcaption>Floating-point addition is not associative. Determinism requires controlling operation order.</figcaption>
 </figure>
@@ -194,7 +194,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -pthread 04_deterministic_red
 <!-- edge:concept-11.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![One decode step is a dependency chain](../images/technical/ch11/11-05.svg)](../images/technical/ch11/11-05.svg)
+[![One decode step is a dependency chain](../images/technical/ch11/11-05.svg?v=78277c40ca73)](../images/technical/ch11/11-05.svg?v=78277c40ca73)
 
 <figcaption>Parallelize inside the phases and wait before a later phase consumes their outputs.</figcaption>
 </figure>

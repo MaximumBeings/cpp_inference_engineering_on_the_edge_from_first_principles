@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 14: Reuse and limit live KV state](../images/chapter-openers/14.svg)](../images/chapter-openers/14.svg)
+[![Chapter 14: Reuse and limit live KV state](../images/chapter-openers/14.svg?v=e6fc84c37fe4)](../images/chapter-openers/14.svg?v=e6fc84c37fe4)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapter 13 gave every future chapter a KV cache that pages efficiently, wraps wi
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Reuse and limit live KV state. Windowing, requantization and prefix reuse trade capacity for work or precision.](../images/14-overview.svg){: loading="lazy" width="760" }
+![Reuse and limit live KV state. Windowing, requantization and prefix reuse trade capacity for work or precision.](../images/14-overview.svg?v=b705f8b64d0d){: loading="lazy" width="760" }
 
   <figcaption>Prefix sharing requires compatible model state and careful reference lifetimes.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapter 13 gave every future chapter a KV cache that pages efficiently, wraps wi
 <!-- edge:concept-14.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A sliding window reuses a bounded set of slots](../images/technical/ch14/14-01.svg)](../images/technical/ch14/14-01.svg)
+[![A sliding window reuses a bounded set of slots](../images/technical/ch14/14-01.svg?v=b1f7761c7bd7)](../images/technical/ch14/14-01.svg?v=b1f7761c7bd7)
 
 <figcaption>The retained sequence moves forward. Its logical positions do not wrap with the physical ring.</figcaption>
 </figure>
@@ -290,7 +290,7 @@ Chapter 14.1: Sliding-Window Attention as a Ring Buffer at Scale
 <!-- edge:concept-14.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Age tiers trade bytes for representation error](../images/technical/ch14/14-02.svg)](../images/technical/ch14/14-02.svg)
+[![Age tiers trade bytes for representation error](../images/technical/ch14/14-02.svg?v=af6595c29efa)](../images/technical/ch14/14-02.svg?v=af6595c29efa)
 
 <figcaption>The precision tier must accompany each block so reads use the correct decoder.</figcaption>
 </figure>
@@ -659,7 +659,7 @@ Chapter 14.2: Streaming Re-Quantization -- Tiered Precision as Entries Age
 <!-- edge:concept-14.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A shared prefix can feed different continuations](../images/technical/ch14/14-03.svg)](../images/technical/ch14/14-03.svg)
+[![A shared prefix can feed different continuations](../images/technical/ch14/14-03.svg?v=1c7e1975cd36)](../images/technical/ch14/14-03.svg?v=1c7e1975cd36)
 
 <figcaption>Cache identity includes the model and tokenization context. Shared pages require safe mutation rules.</figcaption>
 </figure>
@@ -1093,7 +1093,7 @@ Chapter 14.3: Prefix Caching for Multi-Turn Conversations
 <!-- edge:concept-14.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Apply policy without losing cache identity](../images/technical/ch14/14-04.svg)](../images/technical/ch14/14-04.svg)
+[![Apply policy without losing cache identity](../images/technical/ch14/14-04.svg?v=610eac650397)](../images/technical/ch14/14-04.svg?v=610eac650397)
 
 <figcaption>Combining policies requires a single contract for validity, storage type and lifetime.</figcaption>
 </figure>

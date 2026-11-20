@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix B: Use the quiz to test a chain of reasoning](../images/chapter-openers/appendix-b.svg)](../images/chapter-openers/appendix-b.svg)
+[![Appendix B: Use the quiz to test a chain of reasoning](../images/chapter-openers/appendix-b.svg?v=a30d81ea53d6)](../images/chapter-openers/appendix-b.svg?v=a30d81ea53d6)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -14,7 +14,7 @@ Every chapter in this book already ends with its own self-check questions and wo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg){: loading="lazy" width="760" }
+![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg?v=93d17283ba7c){: loading="lazy" width="760" }
 
   <figcaption>Explain why an answer follows from the constraints.</figcaption>
 </figure>

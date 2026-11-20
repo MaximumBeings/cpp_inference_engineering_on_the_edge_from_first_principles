@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 13: The KV cache preserves attention history](../images/chapter-openers/13.svg)](../images/chapter-openers/13.svg)
+[![Chapter 13: The KV cache preserves attention history](../images/chapter-openers/13.svg?v=43bd385d34f3)](../images/chapter-openers/13.svg?v=43bd385d34f3)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![The KV cache preserves attention history. New tokens append keys and values; each query reads the retained history.](../images/13-overview.svg){: loading="lazy" width="760" }
+![The KV cache preserves attention history. New tokens append keys and values; each query reads the retained history.](../images/13-overview.svg?v=5db94632ee1e){: loading="lazy" width="760" }
 
   <figcaption>KV bytes = layers * tokens * KV heads * head dimension * 2 * bytes per element</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 <!-- edge:concept-13.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The logical cache size grows with retained tokens](../images/technical/ch13/13-01.svg)](../images/technical/ch13/13-01.svg)
+[![The logical cache size grows with retained tokens](../images/technical/ch13/13-01.svg?v=2e6b39bd5e11)](../images/technical/ch13/13-01.svg?v=2e6b39bd5e11)
 
 <figcaption>This counts logical KV payload. Allocation, page metadata and quantization scales are additional.</figcaption>
 </figure>
@@ -316,7 +316,7 @@ Chapter 13.1: The Memory Wall -- Bandwidth-Limited Decode
 <!-- edge:concept-13.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A block table maps logical pages to physical blocks](../images/technical/ch13/13-02.svg)](../images/technical/ch13/13-02.svg)
+[![A block table maps logical pages to physical blocks](../images/technical/ch13/13-02.svg?v=473acdbcac3f)](../images/technical/ch13/13-02.svg?v=473acdbcac3f)
 
 <figcaption>Logical ordering need not equal physical ordering. Attention resolves each token through the table.</figcaption>
 </figure>
@@ -718,7 +718,7 @@ BLOCK_SIZE=16 HEAD_DIM=32 NUM_HEADS=4
 <!-- edge:concept-13.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A ring slot and a RoPE position are different](../images/technical/ch13/13-03.svg)](../images/technical/ch13/13-03.svg)
+[![A ring slot and a RoPE position are different](../images/technical/ch13/13-03.svg?v=941e100ed6f5)](../images/technical/ch13/13-03.svg?v=941e100ed6f5)
 
 <figcaption>Wrapping a buffer must not silently reset token positions.</figcaption>
 </figure>
@@ -1051,7 +1051,7 @@ Chapter 13.3: Ring Buffer Contexts -- RoPE Decoupling and Sink Tokens
 <!-- edge:concept-13.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![An eviction policy ranks retained information](../images/technical/ch13/13-04.svg)](../images/technical/ch13/13-04.svg)
+[![An eviction policy ranks retained information](../images/technical/ch13/13-04.svg?v=be4033c956d6)](../images/technical/ch13/13-04.svg?v=be4033c956d6)
 
 <figcaption>Schematic policy scores. Cumulative attention and recency protections define which entries may be evicted.</figcaption>
 </figure>
@@ -1341,7 +1341,7 @@ Chapter 13.4: Smart Eviction -- The H2O Heavy-Hitter Policy
 <!-- edge:concept-13.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The manager owns allocation and validity](../images/technical/ch13/13-05.svg)](../images/technical/ch13/13-05.svg)
+[![The manager owns allocation and validity](../images/technical/ch13/13-05.svg?v=0ba9fd9760e1)](../images/technical/ch13/13-05.svg?v=0ba9fd9760e1)
 
 <figcaption>Do not release storage while an attention operation still reads it.</figcaption>
 </figure>

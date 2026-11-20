@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 5: Load model tensors without copying their payload](../images/chapter-openers/05.svg)](../images/chapter-openers/05.svg)
+[![Chapter 5: Load model tensors without copying their payload](../images/chapter-openers/05.svg?v=17f4f4fd7f24)](../images/chapter-openers/05.svg?v=17f4f4fd7f24)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Chapters 2 through 4 built every mechanism a transformer's forward pass needs â€
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Load model tensors without copying their payload. The file reader validates metadata before exposing mapped tensor ranges.](../images/05-overview.svg){: loading="lazy" width="760" }
+![Load model tensors without copying their payload. The file reader validates metadata before exposing mapped tensor ranges.](../images/05-overview.svg?v=2daf684659e0){: loading="lazy" width="760" }
 
   <figcaption>Validate every size and byte range before reading a tensor.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Chapters 2 through 4 built every mechanism a transformer's forward pass needs â€
 <!-- edge:concept-5.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A model file separates descriptors from payloads](../images/technical/ch05/05-01.svg)](../images/technical/ch05/05-01.svg)
+[![A model file separates descriptors from payloads](../images/technical/ch05/05-01.svg?v=2607f4e306d6)](../images/technical/ch05/05-01.svg?v=2607f4e306d6)
 
 <figcaption>Offsets, dimensions and encoded byte counts must be checked against the actual file length.</figcaption>
 </figure>
@@ -310,7 +310,7 @@ The GGUF Binary Format, Byte by Byte
 <!-- edge:concept-5.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A file-format round trip has a semantic check](../images/technical/ch05/05-02.svg)](../images/technical/ch05/05-02.svg)
+[![A file-format round trip has a semantic check](../images/technical/ch05/05-02.svg?v=e8c983818665)](../images/technical/ch05/05-02.svg?v=e8c983818665)
 
 <figcaption>The test checks the decoded contents and metadata, not just whether a file could be opened.</figcaption>
 </figure>
@@ -746,7 +746,7 @@ A GGUF Writer and Reader: A Full Round Trip
 <!-- edge:concept-5.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Descriptors resolve to mapped tensor views](../images/technical/ch05/05-03.svg)](../images/technical/ch05/05-03.svg)
+[![Descriptors resolve to mapped tensor views](../images/technical/ch05/05-03.svg?v=547d41793e27)](../images/technical/ch05/05-03.svg?v=547d41793e27)
 
 <figcaption>The resolved tensor range must remain inside the mapping, including alignment and block metadata.</figcaption>
 </figure>
@@ -1216,7 +1216,7 @@ Tensor Descriptor Tables and Zero-Copy Weight Access
 <!-- edge:concept-5.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![SafeTensors locates data through a JSON header](../images/technical/ch05/05-04.svg)](../images/technical/ch05/05-04.svg)
+[![SafeTensors locates data through a JSON header](../images/technical/ch05/05-04.svg?v=443465280b67)](../images/technical/ch05/05-04.svg?v=443465280b67)
 
 <figcaption>Tensor offsets refer to the data buffer after the header. Validate JSON and byte ranges before use.</figcaption>
 </figure>
@@ -1587,7 +1587,7 @@ The SafeTensors Format: JSON Header + mmap
 <!-- edge:concept-5.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![File metadata is not the quantization kernel](../images/technical/ch05/05-05.svg)](../images/technical/ch05/05-05.svg)
+[![File metadata is not the quantization kernel](../images/technical/ch05/05-05.svg?v=b5aeb210928e)](../images/technical/ch05/05-05.svg?v=b5aeb210928e)
 
 <figcaption>A reader must explicitly support each encoded type. Recognizing a container is not full format support.</figcaption>
 </figure>

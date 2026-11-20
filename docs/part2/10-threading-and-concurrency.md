@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 10: Share work without racing on state](../images/chapter-openers/10.svg)](../images/chapter-openers/10.svg)
+[![Chapter 10: Share work without racing on state](../images/chapter-openers/10.svg?v=9ca4b909de73)](../images/chapter-openers/10.svg?v=9ca4b909de73)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Chapter 9 showed how a single core reaches its peak compute, one SIMD instructio
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization.](../images/10-overview.svg){: loading="lazy" width="760" }
+![Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization.](../images/10-overview.svg?v=579709fc05d1){: loading="lazy" width="760" }
 
   <figcaption>A data race is undefined behavior; volatile does not provide thread synchronization.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Chapter 9 showed how a single core reaches its peak compute, one SIMD instructio
 <!-- edge:concept-10.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Amdahl limits parallel speedup](../images/technical/ch10/10-01.svg)](../images/technical/ch10/10-01.svg)
+[![Amdahl limits parallel speedup](../images/technical/ch10/10-01.svg?v=a858ed0c529c)](../images/technical/ch10/10-01.svg?v=a858ed0c529c)
 
 <figcaption>Illustrative upper bound with no synchronization or scheduling cost.</figcaption>
 </figure>
@@ -330,7 +330,7 @@ Chapter 10.1: The Latency Budget and Amdahl's Ceiling
 <!-- edge:concept-10.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Synchronization establishes a happens-before relation](../images/technical/ch10/10-02.svg)](../images/technical/ch10/10-02.svg)
+[![Synchronization establishes a happens-before relation](../images/technical/ch10/10-02.svg?v=ff38f075cae5)](../images/technical/ch10/10-02.svg?v=ff38f075cae5)
 
 <figcaption>A data race is not merely a performance issue; the language does not define the program behavior.</figcaption>
 </figure>
@@ -610,7 +610,7 @@ Chapter 10.2: Atomics, Mutexes, and Why Synchronization Is Not Optional
 <!-- edge:concept-10.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Workers share phase boundaries](../images/technical/ch10/10-03.svg)](../images/technical/ch10/10-03.svg)
+[![Workers share phase boundaries](../images/technical/ch10/10-03.svg?v=8220299dd75c)](../images/technical/ch10/10-03.svg?v=8220299dd75c)
 
 <figcaption>A barrier separates dependent phases. Workers can write disjoint output rows concurrently.</figcaption>
 </figure>
@@ -960,7 +960,7 @@ Chapter 10.3: A Barrier-Synchronized Thread Pool for a Partitioned GEMV
 <!-- edge:concept-10.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Independent counters can occupy one cache line](../images/technical/ch10/10-04.svg)](../images/technical/ch10/10-04.svg)
+[![Independent counters can occupy one cache line](../images/technical/ch10/10-04.svg?v=6554e36f985b)](../images/technical/ch10/10-04.svg?v=6554e36f985b)
 
 <figcaption>False sharing causes coherence traffic even when threads update different variables.</figcaption>
 </figure>
@@ -1262,7 +1262,7 @@ Chapter 10.4: False Sharing -- a Memory-Layout Hazard, Not a Race
 <!-- edge:concept-10.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Work ownership can move without duplicating work](../images/technical/ch10/10-05.svg)](../images/technical/ch10/10-05.svg)
+[![Work ownership can move without duplicating work](../images/technical/ch10/10-05.svg?v=a0c648ce2094)](../images/technical/ch10/10-05.svg?v=a0c648ce2094)
 
 <figcaption>Scheduling order is nondeterministic. The correctness check must not depend on one task order.</figcaption>
 </figure>

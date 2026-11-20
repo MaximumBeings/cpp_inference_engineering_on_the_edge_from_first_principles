@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 7: Quantize a vector in a rotated coordinate system](../images/chapter-openers/07.svg)](../images/chapter-openers/07.svg)
+[![Chapter 7: Quantize a vector in a rotated coordinate system](../images/chapter-openers/07.svg?v=b577b185fa6a)](../images/chapter-openers/07.svg?v=b577b185fa6a)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Every quantizer built so far in this book has worked one 32-element block at a t
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products.](../images/07-overview.svg){: loading="lazy" width="760" }
+![Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products.](../images/07-overview.svg?v=27dd76778d61){: loading="lazy" width="760" }
 
   <figcaption>Keep the MSE reconstruction, residual and query in compatible coordinates.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Every quantizer built so far in this book has worked one 32-element block at a t
 <!-- edge:concept-7.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![An orthogonal transform preserves geometry](../images/technical/ch07/07-01.svg)](../images/technical/ch07/07-01.svg)
+[![An orthogonal transform preserves geometry](../images/technical/ch07/07-01.svg?v=7616be598893)](../images/technical/ch07/07-01.svg?v=7616be598893)
 
 <figcaption>Rotation redistributes coordinates before quantization. Quantization itself introduces approximation.</figcaption>
 </figure>
@@ -454,7 +454,7 @@ TurboQuant 7.1: Random Rotation and the Beta Distribution
 <!-- edge:concept-7.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A codebook alternates assignments and centroids](../images/technical/ch07/07-02.svg)](../images/technical/ch07/07-02.svg)
+[![A codebook alternates assignments and centroids](../images/technical/ch07/07-02.svg?v=683a1cc14fa3)](../images/technical/ch07/07-02.svg?v=683a1cc14fa3)
 
 <figcaption>The codebook is optimized for an assumed distribution. A mismatched distribution changes the error.</figcaption>
 </figure>
@@ -908,7 +908,7 @@ TurboQuant 7.2: Lloyd-Max Codebooks and the MSE Quantizer
 <!-- edge:concept-7.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Reconstruction error and dot-product bias differ](../images/technical/ch07/07-03.svg)](../images/technical/ch07/07-03.svg)
+[![Reconstruction error and dot-product bias differ](../images/technical/ch07/07-03.svg?v=ee7610151d7a)](../images/technical/ch07/07-03.svg?v=ee7610151d7a)
 
 <figcaption>Low MSE alone is not a proof that an estimated attention score is unbiased.</figcaption>
 </figure>
@@ -1417,7 +1417,7 @@ TurboQuant 7.3: The Inner-Product Bias Problem and QJL
 <!-- edge:concept-7.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Compressed KV must still support attention](../images/technical/ch07/07-04.svg)](../images/technical/ch07/07-04.svg)
+[![Compressed KV must still support attention](../images/technical/ch07/07-04.svg?v=97081782837f)](../images/technical/ch07/07-04.svg?v=97081782837f)
 
 <figcaption>Query and cache transforms must use compatible conventions and the same logical positions.</figcaption>
 </figure>
@@ -1869,7 +1869,7 @@ TurboQuant 7.4: Compressing the KV Cache
 <!-- edge:concept-7.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Two compression families use different metadata](../images/technical/ch07/07-05.svg)](../images/technical/ch07/07-05.svg)
+[![Two compression families use different metadata](../images/technical/ch07/07-05.svg?v=17ec5eb72fe7)](../images/technical/ch07/07-05.svg?v=17ec5eb72fe7)
 
 <figcaption>Compare total bytes and task error under the same workload. No measured speedup is implied.</figcaption>
 </figure>

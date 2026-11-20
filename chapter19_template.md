@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 19: Turn shelf images into inventory evidence](../images/chapter-openers/19.svg)](../images/chapter-openers/19.svg)
+[![Chapter 19: Turn shelf images into inventory evidence](../images/chapter-openers/19.svg?v=e72828f2a64a)](../images/chapter-openers/19.svg?v=e72828f2a64a)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapter 18 taught a vision-language model to inspect a single manufactured part 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram.](../images/19-overview.svg){: loading="lazy" width="760" }
+![Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram.](../images/19-overview.svg?v=1668e392f2eb){: loading="lazy" width="760" }
 
   <figcaption>Separate observed image evidence from inferred stock availability.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapter 18 taught a vision-language model to inspect a single manufactured part 
 <!-- edge:concept-19.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A planogram provides an explicit comparison target](../images/technical/ch19/19-01.svg)](../images/technical/ch19/19-01.svg)
+[![A planogram provides an explicit comparison target](../images/technical/ch19/19-01.svg?v=87038b7c769a)](../images/technical/ch19/19-01.svg?v=87038b7c769a)
 
 <figcaption>The prompt supplies structured expectations. The image remains uncertain evidence.</figcaption>
 </figure>
@@ -83,7 +83,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_planogram_and_system_prompt.cpp -o 01_planog
 <!-- edge:concept-19.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Batch processing keeps images and results paired](../images/technical/ch19/19-02.svg)](../images/technical/ch19/19-02.svg)
+[![Batch processing keeps images and results paired](../images/technical/ch19/19-02.svg?v=d176daf1fdfc)](../images/technical/ch19/19-02.svg?v=d176daf1fdfc)
 
 <figcaption>Partial failures must not cause results to be assigned to the wrong shelf.</figcaption>
 </figure>
@@ -123,7 +123,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESP
 <!-- edge:concept-19.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Inventory suggestions pass through an API boundary](../images/technical/ch19/19-03.svg)](../images/technical/ch19/19-03.svg)
+[![Inventory suggestions pass through an API boundary](../images/technical/ch19/19-03.svg?v=608ba3705cac)](../images/technical/ch19/19-03.svg?v=608ba3705cac)
 
 <figcaption>Use stable identifiers and retry-safe operations; do not assume every retry should add stock again.</figcaption>
 </figure>
@@ -163,7 +163,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_erp_wms_rest_integration.cpp -o 03_erp_wms_r
 <!-- edge:concept-19.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Aggregation must retain denominators](../images/technical/ch19/19-04.svg)](../images/technical/ch19/19-04.svg)
+[![Aggregation must retain denominators](../images/technical/ch19/19-04.svg?v=9a7ed52fbb3b)](../images/technical/ch19/19-04.svg?v=9a7ed52fbb3b)
 
 <figcaption>Illustrative sample counts. Compare rates using observation volume and time windows, not raw totals alone.</figcaption>
 </figure>
@@ -203,7 +203,7 @@ g++ -std=c++23 -Wall -Wextra -O2 04_multistore_aggregation_and_trends.cpp -o 04_
 <!-- edge:concept-19.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A visual discrepancy has several explanations](../images/technical/ch19/19-05.svg)](../images/technical/ch19/19-05.svg)
+[![A visual discrepancy has several explanations](../images/technical/ch19/19-05.svg?v=65c517e8c158)](../images/technical/ch19/19-05.svg?v=65c517e8c158)
 
 <figcaption>A shelf image alone does not establish theft or shrinkage causation.</figcaption>
 </figure>

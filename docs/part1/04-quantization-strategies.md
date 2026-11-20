@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 4: Represent a floating value with an integer](../images/chapter-openers/04.svg)](../images/chapter-openers/04.svg)
+[![Chapter 4: Represent a floating value with an integer](../images/chapter-openers/04.svg?v=b4a743112889)](../images/chapter-openers/04.svg?v=b4a743112889)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapters 2 and 3 built and ran a transformer block in full precision. This chapt
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Represent a floating value with an integer. The scale and zero point define the affine mapping.](../images/04-overview.svg){: loading="lazy" width="760" }
+![Represent a floating value with an integer. The scale and zero point define the affine mapping.](../images/04-overview.svg?v=10fb49c9fe87){: loading="lazy" width="760" }
 
   <figcaption>Quantization error depends on scale, clipping and the distribution of values.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapters 2 and 3 built and ran a transformer block in full precision. This chapt
 <!-- edge:concept-4.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Affine quantization is a scale and a shift](../images/technical/ch04/04-01.svg)](../images/technical/ch04/04-01.svg)
+[![Affine quantization is a scale and a shift](../images/technical/ch04/04-01.svg?v=819ac97e8b0e)](../images/technical/ch04/04-01.svg?v=819ac97e8b0e)
 
 <figcaption>Reconstruction uses scale * (q - zero_point). Values outside the chosen range are clipped.</figcaption>
 </figure>
@@ -330,7 +330,7 @@ Affine Quantization: the general formula
 <!-- edge:concept-4.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Local scales isolate an outlier](../images/technical/ch04/04-02.svg)](../images/technical/ch04/04-02.svg)
+[![Local scales isolate an outlier](../images/technical/ch04/04-02.svg?v=775b3b2e05c7)](../images/technical/ch04/04-02.svg?v=775b3b2e05c7)
 
 <figcaption>Illustrative grouping only. The actual Q8 block size and metadata are defined by the file format.</figcaption>
 </figure>
@@ -746,7 +746,7 @@ Symmetric Blockwise Q8 Quantization (fp16 scale)
 <!-- edge:concept-4.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Two four-bit codes share one byte](../images/technical/ch04/04-03.svg)](../images/technical/ch04/04-03.svg)
+[![Two four-bit codes share one byte](../images/technical/ch04/04-03.svg?v=2547440117c9)](../images/technical/ch04/04-03.svg?v=2547440117c9)
 
 <figcaption>Nibble order and the signed-value offset are format contracts; they must match the encoder.</figcaption>
 </figure>
@@ -1074,7 +1074,7 @@ Q4_0 Bit Packing and Dequantization
 <!-- edge:concept-4.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Reconstruct only what the dot product needs](../images/technical/ch04/04-04.svg)](../images/technical/ch04/04-04.svg)
+[![Reconstruct only what the dot product needs](../images/technical/ch04/04-04.svg?v=e00f883faa02)](../images/technical/ch04/04-04.svg?v=e00f883faa02)
 
 <figcaption>Fusing these stages avoids materializing a full floating-point weight matrix.</figcaption>
 </figure>
@@ -1416,7 +1416,7 @@ Fused Q4/Q8 Dot Products
 <!-- edge:concept-4.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Separate integer accumulation from scaling](../images/technical/ch04/04-05.svg)](../images/technical/ch04/04-05.svg)
+[![Separate integer accumulation from scaling](../images/technical/ch04/04-05.svg?v=d24baa87cefc)](../images/technical/ch04/04-05.svg?v=d24baa87cefc)
 
 <figcaption>This simplified symmetric case has zero point zero. Nonzero zero points require correction terms.</figcaption>
 </figure>
@@ -1687,7 +1687,7 @@ Dynamic Activation Quantization (INT8)
 <!-- edge:concept-4.6:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The forward and backward passes use different rules](../images/technical/ch04/04-06.svg)](../images/technical/ch04/04-06.svg)
+[![The forward and backward passes use different rules](../images/technical/ch04/04-06.svg?v=1e93563baad9)](../images/technical/ch04/04-06.svg?v=1e93563baad9)
 
 <figcaption>The straight-through estimator is a training approximation, not the exact derivative of rounding.</figcaption>
 </figure>

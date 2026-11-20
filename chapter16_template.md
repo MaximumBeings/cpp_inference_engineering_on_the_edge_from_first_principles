@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 16: Turn the forward pass into a command-line engine](../images/chapter-openers/16.svg)](../images/chapter-openers/16.svg)
+[![Chapter 16: Turn the forward pass into a command-line engine](../images/chapter-openers/16.svg?v=07cc3dccd755)](../images/chapter-openers/16.svg?v=07cc3dccd755)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Section 15.4 produced one real, correct, decoded token from a real forward pass 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Turn the forward pass into a command-line engine. Parse input strictly and make capacity and numerical failures visible.](../images/16-overview.svg){: loading="lazy" width="760" }
+![Turn the forward pass into a command-line engine. Parse input strictly and make capacity and numerical failures visible.](../images/16-overview.svg?v=f10fd5de7a41){: loading="lazy" width="760" }
 
   <figcaption>A repeated token receives one repetition penalty per sampling step.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Section 15.4 produced one real, correct, decoded token from a real forward pass 
 <!-- edge:concept-16.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Validate configuration before execution](../images/technical/ch16/16-01.svg)](../images/technical/ch16/16-01.svg)
+[![Validate configuration before execution](../images/technical/ch16/16-01.svg?v=bf8df02ec53e)](../images/technical/ch16/16-01.svg?v=bf8df02ec53e)
 
 <figcaption>Numeric parsing must consume the whole argument and enforce finite values and valid bounds.</figcaption>
 </figure>
@@ -82,7 +82,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_engine_config_and_cli.cpp -o 01_engine_confi
 <!-- edge:concept-16.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Sampling ends in a byte-safe stream](../images/technical/ch16/16-02.svg)](../images/technical/ch16/16-02.svg)
+[![Sampling ends in a byte-safe stream](../images/technical/ch16/16-02.svg?v=b631449d6228)](../images/technical/ch16/16-02.svg?v=b631449d6228)
 
 <figcaption>Apply repetition penalties once per distinct history token under the documented policy.</figcaption>
 </figure>
@@ -122,7 +122,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_sampling_and_streaming_decoder.cpp -o 02_sam
 <!-- edge:concept-16.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Generation and conversation have nested lifetimes](../images/technical/ch16/16-03.svg)](../images/technical/ch16/16-03.svg)
+[![Generation and conversation have nested lifetimes](../images/technical/ch16/16-03.svg?v=634d1b2fc9b7)](../images/technical/ch16/16-03.svg?v=634d1b2fc9b7)
 
 <figcaption>A turn boundary is not automatically a model reload or a complete state reset.</figcaption>
 </figure>
@@ -164,7 +164,7 @@ g++ -std=c++23 -Wall -Wextra -O2 -ffp-contract=off -DMDSPAN_IMPL_STANDARD_NAMESP
 <!-- edge:concept-16.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Production integration makes boundaries visible](../images/technical/ch16/16-04.svg)](../images/technical/ch16/16-04.svg)
+[![Production integration makes boundaries visible](../images/technical/ch16/16-04.svg?v=04e5b6e94af1)](../images/technical/ch16/16-04.svg?v=04e5b6e94af1)
 
 <figcaption>Timing scopes, ownership and failure paths remain explicit even inside one executable.</figcaption>
 </figure>

@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 8: The roofline bounds attainable throughput](../images/chapter-openers/08.svg)](../images/chapter-openers/08.svg)
+[![Chapter 8: The roofline bounds attainable throughput](../images/chapter-openers/08.svg?v=162fd4dcc2fd)](../images/chapter-openers/08.svg?v=162fd4dcc2fd)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -31,7 +31,7 @@ Every kernel in this book so far has been judged by what it computes and how acc
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel.](../images/08-overview.svg){: loading="lazy" width="760" }
+![The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel.](../images/08-overview.svg?v=5336ac1d9b5c){: loading="lazy" width="760" }
 
   <figcaption>Decode GEMV often has low intensity; batching can improve weight reuse.</figcaption>
 </figure>
@@ -42,7 +42,7 @@ Every kernel in this book so far has been judged by what it computes and how acc
 <!-- edge:concept-8.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A roofline bound combines two limits](../images/technical/ch08/08-01.svg)](../images/technical/ch08/08-01.svg)
+[![A roofline bound combines two limits](../images/technical/ch08/08-01.svg?v=8930a17077bd)](../images/technical/ch08/08-01.svg?v=8930a17077bd)
 
 <figcaption>Use consistent units. This is an upper bound, not a prediction of achieved throughput.</figcaption>
 </figure>
@@ -309,7 +309,7 @@ Chapter 8.1: The Roofline Model, Derived From First Principles
 <!-- edge:concept-8.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Count work and traffic for one kernel](../images/technical/ch08/08-02.svg)](../images/technical/ch08/08-02.svg)
+[![Count work and traffic for one kernel](../images/technical/ch08/08-02.svg?v=04b7e2f2785a)](../images/technical/ch08/08-02.svg?v=04b7e2f2785a)
 
 <figcaption>Cache reuse, packing and fused operations affect the traffic actually observed at each memory level.</figcaption>
 </figure>
@@ -634,7 +634,7 @@ Chapter 8.2: Arithmetic Intensity of Real Transformer Kernels
 <!-- edge:concept-8.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Prefill reuses weights across prompt tokens](../images/technical/ch08/08-03.svg)](../images/technical/ch08/08-03.svg)
+[![Prefill reuses weights across prompt tokens](../images/technical/ch08/08-03.svg?v=7081bd37ca82)](../images/technical/ch08/08-03.svg?v=7081bd37ca82)
 
 <figcaption>The dominant bottleneck depends on shape, precision, hardware and implementation.</figcaption>
 </figure>
@@ -1064,7 +1064,7 @@ Chapter 8.3: Prefill (GEMM) vs. Decode (GEMV)
 <!-- edge:concept-8.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Batching changes the work per weight read](../images/technical/ch08/08-04.svg)](../images/technical/ch08/08-04.svg)
+[![Batching changes the work per weight read](../images/technical/ch08/08-04.svg?v=b9ca692375f6)](../images/technical/ch08/08-04.svg?v=b9ca692375f6)
 
 <figcaption>KV traffic and scheduling overhead still matter. Larger batches can also increase latency.</figcaption>
 </figure>
@@ -1288,7 +1288,7 @@ Chapter 8.4: Continuous Batching -- the Same Crossover, a Different Question
 <!-- edge:concept-8.5:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![A layer has several memory consumers](../images/technical/ch08/08-05.svg)](../images/technical/ch08/08-05.svg)
+[![A layer has several memory consumers](../images/technical/ch08/08-05.svg?v=8c9276eed3d3)](../images/technical/ch08/08-05.svg?v=8c9276eed3d3)
 
 <figcaption>Illustrative relative traffic only. Replace these schematic bars with measured byte counts for a model.</figcaption>
 </figure>

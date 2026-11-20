@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 21: Route evidence through a structured pipeline](../images/chapter-openers/21.svg)](../images/chapter-openers/21.svg)
+[![Chapter 21: Route evidence through a structured pipeline](../images/chapter-openers/21.svg?v=0afb0f3c37ce)](../images/chapter-openers/21.svg?v=0afb0f3c37ce)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -30,7 +30,7 @@ Chapter 20 handled a domain where a wrong call costs a delayed diagnosis. This c
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Route evidence through a structured pipeline. Documents, claims and camera images need different preprocessing and decision policies.](../images/21-overview.svg){: loading="lazy" width="760" }
+![Route evidence through a structured pipeline. Documents, claims and camera images need different preprocessing and decision policies.](../images/21-overview.svg?v=7be1cef2d58e){: loading="lazy" width="760" }
 
   <figcaption>Preserve the source evidence and record uncertainty with each derived result.</figcaption>
 </figure>
@@ -41,7 +41,7 @@ Chapter 20 handled a domain where a wrong call costs a delayed diagnosis. This c
 <!-- edge:concept-21.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Document pixels can feed structured extraction](../images/technical/ch21/21-01.svg)](../images/technical/ch21/21-01.svg)
+[![Document pixels can feed structured extraction](../images/technical/ch21/21-01.svg?v=81a320294de5)](../images/technical/ch21/21-01.svg?v=81a320294de5)
 
 <figcaption>Extraction must be evaluated for the actual document types, handwriting and image conditions.</figcaption>
 </figure>
@@ -81,7 +81,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_ocr_pipeline_vs_vlm_extraction.cpp -o 01_ocr
 <!-- edge:concept-21.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Route documents before applying their schema](../images/technical/ch21/21-02.svg)](../images/technical/ch21/21-02.svg)
+[![Route documents before applying their schema](../images/technical/ch21/21-02.svg?v=8e35d8cb501c)](../images/technical/ch21/21-02.svg?v=8e35d8cb501c)
 
 <figcaption>Document routing can be wrong; uncertain types should not be forced into a confident schema.</figcaption>
 </figure>
@@ -121,7 +121,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_document_router_and_handwriting_confidence.c
 <!-- edge:concept-21.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Damage evidence supports a reviewable estimate](../images/technical/ch21/21-03.svg)](../images/technical/ch21/21-03.svg)
+[![Damage evidence supports a reviewable estimate](../images/technical/ch21/21-03.svg?v=a7590815b1c5)](../images/technical/ch21/21-03.svg?v=a7590815b1c5)
 
 <figcaption>Images do not establish hidden damage, causation or a final settlement amount.</figcaption>
 </figure>
@@ -161,7 +161,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_vehicle_damage_assessment_and_claim_consiste
 <!-- edge:concept-21.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Identification should retain uncertainty and context](../images/technical/ch21/21-04.svg)](../images/technical/ch21/21-04.svg)
+[![Identification should retain uncertainty and context](../images/technical/ch21/21-04.svg?v=5a8edb0cf441)](../images/technical/ch21/21-04.svg?v=5a8edb0cf441)
 
 <figcaption>A camera image is not proof of species identity or population change without validation.</figcaption>
 </figure>

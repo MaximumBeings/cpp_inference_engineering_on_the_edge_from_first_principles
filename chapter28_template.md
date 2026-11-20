@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Chapter 28: Assess a claim using multiple consistency checks](../images/chapter-openers/28.svg)](../images/chapter-openers/28.svg)
+[![Chapter 28: Assess a claim using multiple consistency checks](../images/chapter-openers/28.svg?v=7d247e037c0e)](../images/chapter-openers/28.svg?v=7d247e037c0e)
 
 <figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -29,7 +29,7 @@ Chapter 27 turned to a hard, real-time deadline. This chapter turns to a genuine
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition.](../images/28-overview.svg){: loading="lazy" width="760" }
+![Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition.](../images/28-overview.svg?v=5c6ad2cae34c){: loading="lazy" width="760" }
 
   <figcaption>A fraud flag is an uncertainty-bearing signal for review.</figcaption>
 </figure>
@@ -40,7 +40,7 @@ Chapter 27 turned to a hard, real-time deadline. This chapter turns to a genuine
 <!-- edge:concept-28.1:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Identical and similar photos need different checks](../images/technical/ch28/28-01.svg)](../images/technical/ch28/28-01.svg)
+[![Identical and similar photos need different checks](../images/technical/ch28/28-01.svg?v=2735a5b6d1a1)](../images/technical/ch28/28-01.svg?v=2735a5b6d1a1)
 
 <figcaption>Photo reuse can be legitimate. A duplicate candidate is not proof of fraud.</figcaption>
 </figure>
@@ -80,7 +80,7 @@ g++ -std=c++23 -Wall -Wextra -O2 01_insurance_claim_duplicate_photo_detection.cp
 <!-- edge:concept-28.2:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Compare claimed timing with available evidence](../images/technical/ch28/28-02.svg)](../images/technical/ch28/28-02.svg)
+[![Compare claimed timing with available evidence](../images/technical/ch28/28-02.svg?v=2aeadd1f8aec)](../images/technical/ch28/28-02.svg?v=2aeadd1f8aec)
 
 <figcaption>Editable metadata is evidence with limits. A mismatch requires explanation, not an automatic accusation.</figcaption>
 </figure>
@@ -120,7 +120,7 @@ g++ -std=c++23 -Wall -Wextra -O2 02_photo_timestamp_incident_consistency.cpp -o 
 <!-- edge:concept-28.3:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Cost estimation and fraud screening are separate outputs](../images/technical/ch28/28-03.svg)](../images/technical/ch28/28-03.svg)
+[![Cost estimation and fraud screening are separate outputs](../images/technical/ch28/28-03.svg?v=1597b7850c3d)](../images/technical/ch28/28-03.svg?v=1597b7850c3d)
 
 <figcaption>A high estimate does not itself imply fraud. Keep both outputs independently reviewable.</figcaption>
 </figure>
@@ -160,7 +160,7 @@ g++ -std=c++23 -Wall -Wextra -O2 03_fraud_likelihood_cost_range_engine.cpp -o 03
 <!-- edge:concept-28.4:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![The claims engine reports a disposition with reasons](../images/technical/ch28/28-04.svg)](../images/technical/ch28/28-04.svg)
+[![The claims engine reports a disposition with reasons](../images/technical/ch28/28-04.svg?v=aad856f5ff10)](../images/technical/ch28/28-04.svg?v=aad856f5ff10)
 
 <figcaption>Retain source photos, triggered checks and uncertainty with the resulting case record.</figcaption>
 </figure>

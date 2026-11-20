@@ -3,7 +3,7 @@
 <!-- edge:opener:start -->
 <figure class="chapter-figure" markdown="1">
 
-[![Appendix E: Translate familiar framework concepts into engine parts](../images/chapter-openers/appendix-e.svg)](../images/chapter-openers/appendix-e.svg)
+[![Appendix E: Translate familiar framework concepts into engine parts](../images/chapter-openers/appendix-e.svg?v=57699d7d1569)](../images/chapter-openers/appendix-e.svg?v=57699d7d1569)
 
 <figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
 </figure>
@@ -16,7 +16,7 @@ This appendix builds nothing new in the sense Appendix C did -- there is no fres
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain.](../images/e-overview.svg){: loading="lazy" width="760" }
+![Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain.](../images/e-overview.svg?v=c0af2881682d){: loading="lazy" width="760" }
 
   <figcaption>Check the book&#x27;s implemented scope before assuming framework feature parity.</figcaption>
 </figure>
