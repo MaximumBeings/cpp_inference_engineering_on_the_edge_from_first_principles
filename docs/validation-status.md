@@ -1,6 +1,6 @@
 # Validation Status
 
-The book's examples were revalidated on **November 20, 2026**. The current status is tested code with documented scope, rather than a GPU-free or compile-only project.
+The book's examples were revalidated on **November 20, 2026**. The recorded execution checks pass, but the subsequent [technical accuracy audit](https://github.com/MaximumBeings/cpp_inference_engineering_on_the_edge_from_first_principles/blob/main/TECHNICAL_ACCURACY_AUDIT.md) identified **26 open correctness and claim-scope issues**. Passing the existing tests does not establish external format compatibility, benchmark validity or standards compliance. Those findings remain open; the execution evidence below should be read with that scope.
 
 | Area | Completed validation | Scope |
 | --- | --- | --- |

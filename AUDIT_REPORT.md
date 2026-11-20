@@ -1,5 +1,7 @@
 # Website and C++ audit
 
+**Technical accuracy follow-up:** The [comprehensive technical review](TECHNICAL_ACCURACY_AUDIT.md) found 26 open issues beyond the execution checks documented below. A passing test run does not clear those semantic, interoperability, benchmark or standards findings.
+
 Reviewed the published homepage and repository at commit `cff737b6cec58dd20f8ccba3ed98f22155c3faf1`. The fixes and validation evidence are included in this checkout.
 
 ## Fixed

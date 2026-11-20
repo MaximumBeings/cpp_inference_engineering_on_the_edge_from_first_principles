@@ -97,6 +97,10 @@ void demo_dynamic_matrix() {
 
     auto matrix = std::mdspan(data.data(), 3, 4);   // 3 rows, 4 cols
 
+    std::cout << "Dynamic matrix shape: [" << matrix.extent(0) << ", " << matrix.extent(1) << "]\n";
+    std::cout << "Row-major strides: [" << matrix.stride(0) << ", " << matrix.stride(1) << "]\n";
+    std::cout << "matrix[1,2] = " << matrix[1, 2] << " (flat offset " << 1 * matrix.stride(0) + 2 * matrix.stride(1) << ")\n";
+
     // Row-major index math: flat = row * stride(0) + col * stride(1)
     //                            = row * num_cols  + col * 1
     // matrix[1, 2] -> 1*4 + 2 = 6 -> data[6] = 7
@@ -112,10 +116,12 @@ void demo_dynamic_matrix() {
     // mdspan must change data[] itself. matrix[0,0] -> flat index 0.
     matrix[0, 0] = 99.0f;
     CHECK(data[0] == 99.0f);
+    std::cout << "After matrix[0,0] = 99, data[0] = " << data[0] << "\n";
     // And the reverse direction: mutating the vector must show up
     // through the view immediately, since both just read the same bytes.
     data[11] = -1.0f;
     CHECK(matrix[2, 3] == -1.0f);
+    std::cout << "After data[11] = -1, matrix[2,3] = " << matrix[2, 3] << "\n";
 }
 
 // ---- Part 2: fully static extents -- zero runtime shape metadata ----
@@ -134,6 +140,7 @@ void demo_static_extents() {
     CHECK(tile[5, 7] == 647.0f);
     CHECK(tile.extent(0) == 32);
     CHECK(tile.extent(1) == 128);
+    std::cout << "Static tile: [" << tile.extent(0) << ", " << tile.extent(1) << "]; tile[5,7] = " << tile[5, 7] << "\n";
 }
 
 // ---- Part 3: mixed extents -- the realistic LLM embedding case ----
@@ -160,6 +167,7 @@ void demo_mixed_extents() {
     CHECK(embeddings[0, 0] == 0.0f);
     CHECK(embeddings[1, 0] == 4096.0f);
     CHECK(embeddings[2, 99] == 8291.0f);
+    std::cout << "Mixed extents: [" << embeddings.extent(0) << ", " << embeddings.extent(1) << "]; embeddings[2,100] = " << embeddings[2, 100] << "\n";
 }
 
 int main() {
@@ -187,6 +195,13 @@ g++ -std=c++23 -Wall -Wextra -O2 \
 **Sample output:**
 
 ```text
+Dynamic matrix shape: [3, 4]
+Row-major strides: [4, 1]
+matrix[1,2] = 7 (flat offset 6)
+After matrix[0,0] = 99, data[0] = 99
+After data[11] = -1, matrix[2,3] = -1
+Static tile: [32, 128]; tile[5,7] = 647
+Mixed extents: [3, 4096]; embeddings[2,100] = 8292
 18/18 checks passed
 ALL CHECKS PASSED
 ```
@@ -258,6 +273,8 @@ int main() {
     using Shape4D = std::dextents<size_t, 4>;
     auto full = std::mdspan<float, Shape4D>(data.data(), BATCH, SEQ, HEADS, HEAD_DIM);
 
+    std::cout << "Full tensor shape: [" << full.extent(0) << ", " << full.extent(1) << ", " << full.extent(2) << ", " << full.extent(3) << "]\n";
+    std::cout << "Full tensor strides: [" << full.stride(0) << ", " << full.stride(1) << ", " << full.stride(2) << ", " << full.stride(3) << "]\n";
     CHECK(full.stride(0) == 24 && full.stride(1) == 6 &&
           full.stride(2) == 2  && full.stride(3) == 1);
     CHECK(full[0, 0, 0, 0] == 0.0f);
@@ -284,12 +301,20 @@ int main() {
     CHECK(head1[0, 0, 0] == 2.0f && head1[0, 0, 1] == 3.0f);   // seq=0 -> flat 2,3
     CHECK(head1[0, 1, 0] == 8.0f && head1[0, 3, 0] == 20.0f);  // seq=1,3 -> flat 8,20
 
+    std::cout << "head1 shape: [" << head1.extent(0) << ", " << head1.extent(1) << ", " << head1.extent(2) << "]\n";
+    std::cout << "head1 strides: [" << head1.stride(0) << ", " << head1.stride(1) << ", " << head1.stride(2) << "]\n";
+    std::cout << "head1 values by sequence:\n";
+    for (size_t seq = 0; seq < head1.extent(1); ++seq)
+        std::cout << "  seq " << seq << ": [" << head1[0, seq, 0] << ", " << head1[0, seq, 1] << "]\n";
+    std::cout << "head1 aliases data + 2: " << (head1.data_handle() == data.data() + 2 ? "yes" : "no") << "\n";
+
     // Proof that submdspan is a VIEW, not a copy: writing through it
     // must land in the original buffer, at the flat index the stride
     // math predicts.
     float saved = head1[0, 0, 0];
     head1[0, 0, 0] = 999.0f;
     CHECK(data[2] == 999.0f);
+    std::cout << "After head1[0,0,0] = 999, data[2] = " << data[2] << "\n";
     head1[0, 0, 0] = saved;  // restore for the checks that follow
 
     // --- Range slice: keep only sequence positions 1 and 2 ---
@@ -307,6 +332,9 @@ int main() {
     CHECK(seq_window[0, 0, 0, 0] == 6.0f);   // corresponds to full[0,1,0,0]
     CHECK(seq_window[0, 1, 0, 0] == 12.0f);  // corresponds to full[0,2,0,0]
 
+    std::cout << "Sequence window shape: [" << seq_window.extent(0) << ", " << seq_window.extent(1) << ", " << seq_window.extent(2) << ", " << seq_window.extent(3) << "]\n";
+    std::cout << "Window first values: " << seq_window[0, 0, 0, 0] << ", " << seq_window[0, 1, 0, 0] << "\n";
+
     // --- Combined: one head from a sequence window, in one call ---
     // seq -> pair{1,3} (kept, shrunk), head -> 2 (dropped). Result rank 3.
     auto combined = std::submdspan(full,
@@ -319,6 +347,7 @@ int main() {
     CHECK(combined[0, 0, 0] == 10.0f && combined[0, 0, 1] == 11.0f);  // seq=1, head=2
     CHECK(combined[0, 1, 0] == 16.0f && combined[0, 1, 1] == 17.0f);  // seq=2, head=2
 
+    std::cout << "Combined slice values: [" << combined[0, 0, 0] << ", " << combined[0, 0, 1] << "]; [" << combined[0, 1, 0] << ", " << combined[0, 1, 1] << "]\n";
     std::cout << g_passed << "/" << g_tests << " checks passed\n";
     std::cout << (g_passed == g_tests ? "ALL CHECKS PASSED\n" : "SOME CHECKS FAILED\n");
     return (g_passed == g_tests) ? 0 : 1;
@@ -339,6 +368,20 @@ g++ -std=c++23 -Wall -Wextra -O2 \
 **Sample output:**
 
 ```text
+Full tensor shape: [1, 4, 3, 2]
+Full tensor strides: [24, 6, 2, 1]
+head1 shape: [1, 4, 2]
+head1 strides: [24, 6, 1]
+head1 values by sequence:
+  seq 0: [2, 3]
+  seq 1: [8, 9]
+  seq 2: [14, 15]
+  seq 3: [20, 21]
+head1 aliases data + 2: yes
+After head1[0,0,0] = 999, data[2] = 999
+Sequence window shape: [1, 2, 3, 2]
+Window first values: 6, 12
+Combined slice values: [10, 11]; [16, 17]
 16/16 checks passed
 ALL CHECKS PASSED
 ```

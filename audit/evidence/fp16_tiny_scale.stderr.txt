@@ -1,0 +1,3 @@
+audit/evidence/fp16_tiny_scale.cpp:125:48: runtime error: nan is outside the range of representable values of type 'signed char'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior audit/evidence/fp16_tiny_scale.cpp:125:48 
+decode(0x0001)=0 encoded tiny=0

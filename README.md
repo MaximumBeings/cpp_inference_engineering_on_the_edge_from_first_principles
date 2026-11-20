@@ -40,3 +40,9 @@ python3 tools/illustrations/verify.py site
 ```
 
 Section-specific content lives in `tools/illustrations/concepts.py`; the generated manifest records coverage. Both generators update chapter templates so rebuilding embedded code examples preserves the illustrations. `docs/stylesheets/figures.css` controls their presentation. Numerical examples and schematic bars are labeled separately from measured benchmarks.
+
+## Technical review
+
+See [the technical accuracy audit](TECHNICAL_ACCURACY_AUDIT.md) for open correctness findings, primary references and correction order. The machine-readable findings are in `audit/technical-findings-2026-11-20.json`.
+
+Run `python3 tests/sample_output_checks.py` to verify that the expanded tensor samples match actual stdout and that no captured sample contains only pass-count lines.

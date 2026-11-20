@@ -15,6 +15,8 @@ Most inference-engineering material is written from the data center outward: ela
 
 This book builds its own tensor, quantization and threading foundations from Chapter 2. Its examples were revalidated on November 20, 2026 using GCC/Linux, Arm execution under QEMU, and a physical NVIDIA A100 for the CUDA attention kernel. The chapter and appendix verification suites pass, as do the 27 embedded C++ examples in Chapters 2-6. The A100 suite passes all 71 checks, including 60 device comparisons, with clean memory, race and synchronization sanitizer results. [Validation status](validation-status.md) records the evidence and the remaining scope limits, including fresh real-model benchmarks and physical Jetson execution.
 
+The [technical accuracy audit](https://github.com/MaximumBeings/cpp_inference_engineering_on_the_edge_from_first_principles/blob/main/TECHNICAL_ACCURACY_AUDIT.md) records open corrections identified after the execution checks. This book remains under development; passing self-tests is not a substitute for independently checking its format, numerical and deployment claims.
+
 ## What this book covers
 
 - **Part 0 — Foundations for Inference at the Edge.** Why edge inference is a fundamentally different problem from cloud inference, a zero-copy tensor engine built on `std::mdspan` with an arena allocator and mixed-precision support, and the computational graph (RMSNorm, SwiGLU, RoPE, attention) that every transformer forward pass is built from.

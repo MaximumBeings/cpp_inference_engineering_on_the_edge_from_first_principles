@@ -1,0 +1,408 @@
+{
+  "date": "2026-11-20",
+  "source_snapshot": "a62ee74",
+  "findings": [
+    {
+      "id": "TA-01",
+      "priority": "P1",
+      "title": "Tiny valid quantization scales become zero",
+      "path": "docs/part1/04-quantization-strategies.md",
+      "line": 421,
+      "problem": "The half helper flushes binary16 subnormals. A 32-value block containing 0.001 and zeros produces a zero Q8 scale and subsequently a NaN-to-int8 conversion. The sanitizer reproduction fails even though the published ordinary-value tests pass. Decoding binary16 0x0001 also incorrectly returns zero.",
+      "correction": "Implement subnormal conversion or explicitly use a documented representation with safe scale handling. Reject or handle zero/nonfinite scales before integer conversion, test tiny nonzero blocks, and inspect copied half helpers.",
+      "sources": [
+        [
+          "NVIDIA binary16 definition",
+          "https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/struct____half.html"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-02",
+      "priority": "P1",
+      "title": "GGUF magic and a Q8 type identifier are incorrect",
+      "path": "docs/part1/05-model-file-formats.md",
+      "line": 435,
+      "problem": "The early writer/reader examples use 0x46475547, which serializes GUGF. The little-endian integer for GGUF is 0x46554747. GGML_Q8_0 is also assigned 7 instead of 8. Related constants recur in Chapter 6. A writer and reader sharing the same mistake do not establish interoperability.",
+      "correction": "Correct the constants and dispatch tables, check literal file bytes, and validate against independently generated upstream fixtures. If retaining a simplified container, name it a teaching format rather than GGUF.",
+      "sources": [
+        [
+          "GGUF specification",
+          "https://github.com/ggml-org/ggml/blob/master/docs/gguf.md"
+        ],
+        [
+          "ggml type identifiers",
+          "https://github.com/ggml-org/ggml/blob/master/include/ggml.h"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-03",
+      "priority": "P1",
+      "title": "The teaching four-bit layout is not actual Q4_0",
+      "path": "docs/part1/04-quantization-strategies.md",
+      "line": 762,
+      "problem": "The lesson insists on alpha/7 and pairs adjacent values in nibbles. Upstream Q4_0 uses the signed extremum divided by -8 and pairs coordinates j and j+16. The error propagates into later format and SIMD examples.",
+      "correction": "Implement the upstream scale and packing convention, or explicitly rename the teaching encoding and separate it from real GGUF Q4_0. Add independent byte-level fixtures.",
+      "sources": [
+        [
+          "Q4_0 reference encoder",
+          "https://github.com/ggml-org/ggml/blob/master/src/ggml-quants.c"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-04",
+      "priority": "P1",
+      "title": "Global AVX2 flags defeat the runtime fallback contract",
+      "path": "05_runtime_dispatch.cpp",
+      "line": 19,
+      "problem": "The dispatch example and verifier compile the entire translation unit with -mavx2 -mfma while promising execution on CPUs without those features. Unguarded ordinary code may then contain unsupported instructions.",
+      "correction": "Remove global ISA-enabling flags from the baseline translation unit. Keep specialization inside the existing target(\"avx2,fma\") function or a separate object. Also narrow the claim that -march=native necessarily folds explicit feature queries away.",
+      "sources": [
+        [
+          "GCC runtime feature detection",
+          "https://gcc.gnu.org/onlinedocs/gcc/x86-Built-in-Functions.html"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-05",
+      "priority": "P1",
+      "title": "Historical benchmark rates are relabeled as current comparisons",
+      "path": "03_llamacpp_comparison.cpp",
+      "line": 944,
+      "problem": "Fixed historical NEON llama.cpp rates are printed under arbitrary current --pp/--tg lengths, combined with a fresh local timing, and described as relative speed on this machine. The hardware, workload and statistic are not guaranteed to match.",
+      "correction": "Keep historical captures with immutable provenance and workload metadata. Require a matching fresh reference measurement before computing a current-machine ratio.",
+      "sources": [
+        [
+          "llama-bench measurement fields",
+          "https://github.com/ggml-org/llama.cpp/blob/master/tools/llama-bench/README.md"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-06",
+      "priority": "P1",
+      "title": "The real-file reader accepts unvalidated tensor ranges",
+      "path": "01_real_gguf_inspection.cpp",
+      "line": 241,
+      "problem": "The reader can report success without proving every tensor range is inside the file. Stream-read success, descriptor/string bounds, dimension products and alignment are not comprehensively checked. Later model examples copy this reader.",
+      "correction": "Validate metadata reads and dimensions, supported types/version, alignment, checked size arithmetic and all mapped ranges before exposing views. Until then, describe the reader as restricted to trusted instructional inputs.",
+      "sources": [
+        [
+          "GGUF layout contract",
+          "https://github.com/ggml-org/ggml/blob/master/docs/gguf.md"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-07",
+      "priority": "P1",
+      "title": "A noncryptographic checksum is presented as evidentiary tamper protection",
+      "path": "chapter25_template.md",
+      "line": 98,
+      "problem": "The incident-report example calls an unprotected 32-bit FNV checksum tamper evidence. The checksum is over annotations rather than the original video. One mutation changing a checksum does not establish evidentiary integrity.",
+      "correction": "Label the demonstration as change detection. Evidence-integrity claims require cryptographic hashing of the relevant source and records, protected reference digests, and documented custody procedures.",
+      "sources": [
+        [
+          "FNV is noncryptographic",
+          "https://datatracker.ietf.org/doc/html/rfc9923"
+        ],
+        [
+          "NIST digital evidence preservation",
+          "https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8387.pdf"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-08",
+      "priority": "P1",
+      "title": "The structuring rule is not the legal definition",
+      "path": "chapter29_template.md",
+      "line": 53,
+      "problem": "The chapter equates an aggregate above $10,000 and individually smaller payments with the exact definition of structuring, and calls other cases legitimate. Structuring depends on evasion purpose and is not limited to that aggregate or one institution/day.",
+      "correction": "Call the code a simplified alert heuristic. Distinguish CTR thresholds, institutional review, suspicious patterns and legal conclusions; do not infer legitimacy from a negative rule result.",
+      "sources": [
+        [
+          "FFIEC structuring guidance",
+          "https://bsaaml.ffiec.gov/manual/Appendices/08"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-09",
+      "priority": "P1",
+      "title": "The accessibility checker confuses AA and AAA target size",
+      "path": "02_accessibility_compliance_audit.cpp",
+      "line": 106,
+      "problem": "The checker claims AA-only coverage but enforces criterion 2.5.5 at 44 by 44 CSS pixels, which is AAA. WCAG 2.2 AA criterion 2.5.8 uses 24 by 24 or sufficient spacing, with exceptions.",
+      "correction": "Specify the WCAG version and conformance level, implement the selected rule and exceptions, and avoid claiming full conformance from these limited checks.",
+      "sources": [
+        [
+          "W3C 2.5.5 AAA",
+          "https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html"
+        ],
+        [
+          "W3C 2.5.8 AA",
+          "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-10",
+      "priority": "P2",
+      "title": "SafeTensors support is understated",
+      "path": "docs/part1/05-model-file-formats.md",
+      "line": 1531,
+      "problem": "The sample output says SafeTensors has no quantization support and supports only F32/F16/BF16. Its numeric types include integer representations and additional floating types. Container support is different from defining GGUF block semantics.",
+      "correction": "Describe which dtypes and representation metadata the example implements, and distinguish container storage from framework-specific quantization conventions.",
+      "sources": [
+        [
+          "SafeTensors dtype definitions",
+          "https://github.com/huggingface/safetensors/blob/main/safetensors/src/tensor.rs"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-11",
+      "priority": "P2",
+      "title": "Q4_K block size is confused with a mixed model recipe",
+      "path": "docs/part1/05-model-file-formats.md",
+      "line": 1648,
+      "problem": "The 144-byte/256-value calculation describes Q4_K blocks. Q4_K_M is a mixed model recipe and may use other precisions for selected tensors.",
+      "correction": "Label the demonstrated block Q4_K and calculate whole-model size from its actual tensor types and metadata, rather than one block ratio.",
+      "sources": [
+        [
+          "llama.cpp quantization recipes",
+          "https://github.com/ggml-org/llama.cpp/blob/master/src/llama-quant.cpp"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-12",
+      "priority": "P2",
+      "title": "Aggregate layer intensity is treated as an exact bottleneck classifier",
+      "path": "06_full_transformer_layer_roofline_analysis.cpp",
+      "line": 83,
+      "problem": "Total FLOPs divided by selected total bytes cannot establish the bottleneck of serial unfused kernels. Memory-bound and compute-bound kernels can coexist, and the model omits some activation and KV traffic. Related reasoning appears in Chapter 8.",
+      "correction": "Label the aggregate as an optimistic weight-dominated model. Sum per-kernel time bounds and distinguish those bounds from measured performance.",
+      "sources": [
+        [
+          "Original Roofline paper",
+          "https://www2.eecs.berkeley.edu/Pubs/TechRpts/2008/EECS-2008-134.pdf"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-13",
+      "priority": "P2",
+      "title": "The full-layer model omits a SwiGLU projection",
+      "path": "06_full_transformer_layer_roofline_analysis.cpp",
+      "line": 60,
+      "problem": "The Chapter 30 capstone counts a two-matrix FFN although the book engine uses gate, up and down projections. For the stated tiny example, matching SwiGLU changes 576 FLOPs/512 weight bytes to 704/640 before ancillary operations and traffic.",
+      "correction": "Explicitly name a conventional two-projection FFN or count all three SwiGLU matrices and regenerate the calculations and output.",
+      "sources": [
+        [
+          "GLU variants",
+          "https://arxiv.org/abs/2002.05202"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-14",
+      "priority": "P2",
+      "title": "The QJL formula omits residual magnitude",
+      "path": "docs/part1/07-turboquant.md",
+      "line": 924,
+      "problem": "The prose reconstruction formula omits the residual norm even though sign bits alone are invariant to positive rescaling. The implementation already includes that norm.",
+      "correction": "Include the residual norm, define the projection count consistently, and specify the zero-residual case. Preserve the already-correct norm handling in code.",
+      "sources": [
+        [
+          "TurboQuant paper",
+          "https://arxiv.org/html/2504.19874v1"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-15",
+      "priority": "P2",
+      "title": "The GPTQ illustration does not preserve previously quantized weights",
+      "path": "05_hessian_role_in_gptq.cpp",
+      "line": 103,
+      "problem": "The compensation loop updates every index except the current one despite promising updates only to not-yet-quantized weights. Repeated calls can move a previously quantized weight off its grid.",
+      "correction": "Label it a single-step compensation illustration, or implement an active set with the appropriate inverse/Cholesky updates and test several successive quantization steps.",
+      "sources": [
+        [
+          "GPTQ reference implementation",
+          "https://github.com/IST-DASLab/gptq/blob/main/gptq.py"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-16",
+      "priority": "P2",
+      "title": "Compression commentary reverses scale overhead",
+      "path": "03_prefill_vs_decode.cpp",
+      "line": 278,
+      "problem": "The stdout says four bits versus 32 implies roughly 4x compression and metadata strengthens compression. The raw ratio is 8x; adding a scale reduces it to about 128/18 = 7.11x.",
+      "correction": "Correct the explanation and captured stdout. The existing encoded-byte calculation can remain.",
+      "sources": [],
+      "status": "open"
+    },
+    {
+      "id": "TA-17",
+      "priority": "P2",
+      "title": "Reciprocal median latency is mislabeled as throughput",
+      "path": "01_benchmark_stats_and_definitions.cpp",
+      "line": 97,
+      "problem": "1000/median(step_ms) is a median-equivalent rate, not generally completed tokens divided by elapsed time. For step times [1,1,100] ms, it gives 1000 tokens/s while elapsed throughput is about 29.41 tokens/s.",
+      "correction": "Report count/sum(time) throughput and latency quantiles separately. Do not compare reciprocal-median rates with whole-run llama-bench rates.",
+      "sources": [
+        [
+          "llama-bench statistics",
+          "https://github.com/ggml-org/llama.cpp/blob/master/tools/llama-bench/README.md"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-18",
+      "priority": "P2",
+      "title": "The benchmark sampling step is a random-ID draw",
+      "path": "02_benchmark_harness.cpp",
+      "line": 595,
+      "problem": "The comment describes vocabulary-sized argmax/sampling work, but pick(token_rng) draws one integer without scanning logits. Reported full-generation TTFT therefore excludes material work.",
+      "correction": "Run the actual sampler or label the timing as a forward-pass microbenchmark with token selection, decoding and transport excluded.",
+      "sources": [],
+      "status": "open"
+    },
+    {
+      "id": "TA-19",
+      "priority": "P2",
+      "title": "Zero elapsed time suppresses an impossible-travel alert",
+      "path": "03_impossible_travel_geographic_detection.cpp",
+      "line": 83,
+      "problem": "The code sets required speed to zero for elapsed time <= 0. A same-time New York/Los Angeles pair therefore receives no travel flag despite positive distance.",
+      "correction": "Handle positive distance at zero elapsed time explicitly, reject reversed timestamps, and test equal-time, reversed-time and same-location cases.",
+      "sources": [],
+      "status": "open"
+    },
+    {
+      "id": "TA-20",
+      "priority": "P2",
+      "title": "Human-only SAR filing is stated as a blanket legal rule",
+      "path": "04_transaction_monitoring_disposition_engine.cpp",
+      "line": 8,
+      "problem": "The text treats manual institutional review and electronic submission mechanics as the same legal requirement. FinCEN supports automated/batch transmission; the cited blanket prohibition on automated filing is unsupported.",
+      "correction": "State that this example does not implement SAR filing and uses a review policy. Separate accountable decision governance from the transmission method.",
+      "sources": [
+        [
+          "FinCEN transmission methods",
+          "https://bsaefiling.fincen.gov/transmission-methods"
+        ],
+        [
+          "FinCEN secure data transfer",
+          "https://bsaefiling.fincen.gov/SDTM"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-21",
+      "priority": "P2",
+      "title": "The CUDA attention demonstration is unscaled and noncausal",
+      "path": "03_cuda_kernel_and_validation_suite.cu",
+      "line": 68,
+      "problem": "Both CPU reference and GPU omit 1/sqrt(head dimension) scaling and a causal mask while the chapter presents the result as a production decoder attention step. Shared assumptions allow both implementations to agree.",
+      "correction": "Prominently specify unscaled noncausal attention, or implement the intended scale and mask and compare with an independent definition.",
+      "sources": [
+        [
+          "Scaled dot-product attention definition",
+          "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-22",
+      "priority": "P2",
+      "title": "Fixed attention memory and exactness claims exceed the checks",
+      "path": "chapter32_template.md",
+      "line": 15,
+      "problem": "The fixed allocation demonstrated is the score tile, not all Q/K/V/output/state memory. Tolerance-based numerical comparisons also do not establish bitwise equality or proof for arbitrary inputs.",
+      "correction": "Say the implementation avoids the quadratic score matrix and uses fixed score-tile storage for fixed tile dimensions. State the tested tolerances and input scope.",
+      "sources": [
+        [
+          "FlashAttention paper",
+          "https://arxiv.org/abs/2205.14135"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-23",
+      "priority": "P2",
+      "title": "Three field-name checks are not a complete privacy guarantee",
+      "path": "01_bodycam_frame_sampling_and_scene_tagging.cpp",
+      "line": 144,
+      "problem": "The concept checks only name, person_id and face_embedding. Other field names or recognition outside this result type are not ruled out. The book overstates the scope as structural prohibition of facial recognition.",
+      "correction": "Describe a narrow schema guard and its precise checked names. A broader privacy claim needs pipeline constraints and separate review.",
+      "sources": [],
+      "status": "open"
+    },
+    {
+      "id": "TA-24",
+      "priority": "P2",
+      "title": "Missing observations become an affirmative inactivity claim",
+      "path": "02_incident_report_drafting_and_chain_of_custody.cpp",
+      "line": 135,
+      "problem": "Gaps between tags and empty observation collections are labeled No notable activity without evidence that the interval was observed and classified negative.",
+      "correction": "Use No tagged observations or Coverage unknown unless validated observation coverage supports an inactivity statement. Track unavailable footage separately.",
+      "sources": [],
+      "status": "open"
+    },
+    {
+      "id": "TA-25",
+      "priority": "P2",
+      "title": "KV cache complexity mixes per-step and total work",
+      "path": "chapter13_template.md",
+      "line": 53,
+      "problem": "The sentence compares O(N^2) total generation with O(N) per step. These are different quantities. Cached dense attention still sums linear per-step work to quadratic total attention work across a growing sequence.",
+      "correction": "Compare per-step costs with per-step costs and give total-generation costs separately, including the roles of projections, attention and any fixed window.",
+      "sources": [
+        [
+          "KV caching explanation",
+          "https://huggingface.co/docs/transformers/cache_explanation"
+        ]
+      ],
+      "status": "open"
+    },
+    {
+      "id": "TA-26",
+      "priority": "P2",
+      "title": "The prose refers to missing chapters and appendices",
+      "path": "docs/part0/02-the-tensor-engine.md",
+      "line": 25,
+      "problem": "The published navigation starts at Chapter 2 and ends at Appendix E, but prose contains six references to an absent Chapter 1 or Appendix F, including Appendix A/B/E conclusions.",
+      "correction": "Replace these references with existing sections or add the promised material. Recheck prose references as well as clickable links.",
+      "sources": [],
+      "status": "open"
+    }
+  ]
+}
