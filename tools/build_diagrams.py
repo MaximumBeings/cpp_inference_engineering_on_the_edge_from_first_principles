@@ -8,9 +8,9 @@ import unicodedata
 ROOT = Path(__file__).resolve().parents[1]
 # Chapter-specific inputs explain the actual data transformations.
 SPECS = {
-'index': ('From model bytes to the next token','An edge engine must fit weights, live state and working memory on the device.',
- [('Model file','Mapped weights and metadata'),('Token IDs','Tokenizer and chat template'),('Forward pass','Layers, attention and KV state'),('Next token','Sampling and text decoding')],
- 'Memory budget = weights + KV cache + activations + runtime overhead'),
+'index': ('From first principles to a deployable edge engine','The whole book connects compact models, C++ kernels, serving state, hardware limits and practical applications.',
+ [('Foundations','Tensor storage and transformer math'),('Representation','Quantized model files and loading'),('Execution','CPU/GPU kernels and serving state'),('Applications','Local language and vision workflows')],
+ 'A complete path through Parts 0-6, with verification across every layer and fixed device budgets guiding the design.'),
 'getting-started':('Choose the toolchain for the target','Compile for the processor that will execute the binary.',
  [('Portable C++','GCC 13+ and C++23'),('CPU specialization','AVX2 on x86 or NEON on Arm'),('Library support','Pinned mdspan and SQLite'),('GPU checks','nvcc, target architecture and driver')],
  'A successful cross-compile still needs execution on the target or an emulator.'),
@@ -256,12 +256,19 @@ def main():
 <!-- /chapter-figure -->
 
 '''
+        if key=='index':
+            image_line=f'![{esc(prose(spec[0]+". "+spec[1]))}]({asset_url})'
+            figure=figure.replace(image_line+'{: loading="lazy" width="760" }', '['+image_line+']('+asset_url+')')
         template=ROOT/f'chapter{key}_template.md' if key.isdigit() else ROOT/f'appendix_{key}_template.md'
         targets=[page]+([template] if template.is_file() else [])
         for target in targets:
             content=re.sub(r'<!-- chapter-figure -->.*?<!-- /chapter-figure -->\s*','',target.read_text(),flags=re.S)
             # Keep the existing heading sequence intact for chapter verifiers.
             at=content.find('\n## ')
+            if key=='index':
+                subtitle=re.search(r'(?m)^\*Building[^\n]+\*$',content)
+                if subtitle:
+                    at=subtitle.end()
             if at<0:
                 at=content.find('\n',content.find('\n')+1)
             content=content[:at].rstrip()+'\n\n'+figure+content[at:].lstrip('\n')

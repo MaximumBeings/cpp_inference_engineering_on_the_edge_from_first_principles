@@ -11,6 +11,10 @@ This book targets modern C++ compiled with `g++` (GCC 13 or newer). Most chapter
 </figure>
 <!-- /chapter-figure -->
 
+## Current validation status
+
+The November 20, 2026 GCC/Linux validation passes the chapter and appendix verification suites and all 27 embedded C++ examples in Chapters 2-6. Arm SIMD execution was checked under QEMU. The CUDA attention kernel passes 71 checks on an A100, including 60 device-to-reference comparisons, with clean Compute Sanitizer memory, race and synchronization reports. See [Validation status](validation-status.md) for logs and scope. The setup requirements below describe what a reader needs to reproduce the checks; they do not mean the examples remain untested.
+
 ## The base toolchain
 
 ```bash

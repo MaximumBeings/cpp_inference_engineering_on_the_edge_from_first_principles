@@ -2,18 +2,18 @@
 
 *Building LLM and Vision-Language Inference Systems in C++23, From First Principles*
 
-Most inference-engineering material is written from the data center outward: elastic memory, a GPU a network call away, and throughput measured across thousands of concurrent requests. This book starts from the opposite machine — a fixed amount of RAM that will never grow, a CPU that may or may not have a companion GPU, a battery and a thermal ceiling, and no network round-trip to fall back on when local compute runs short — and builds an inference engine that has to work under those constraints from the first line of code, not as an afterthought bolted on once a cloud-shaped design already exists.
-
-This book is independent: it does not assume or reference any other book, and it builds its own tensor, quantization, and threading foundations from Chapter 2 rather than pointing elsewhere for them. What it keeps is a discipline: every piece of code in this book is genuinely compiled, and wherever a real answer does not require hardware this book's own authoring environment lacks, it is genuinely run — including executing cross-compiled Arm binaries under emulation and validating Chapter 32 attention on a physical A100. Where a claim depends on hardware this environment truly does not have — a physical GPU, a real embedded board — that limitation is stated plainly rather than papered over with a plausible-looking, unverified number.
-
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![From model bytes to the next token. An edge engine must fit weights, live state and working memory on the device.](images/index-overview.svg?v=15f907d5d6cc){: loading="lazy" width="760" }
+[![From first principles to a deployable edge engine. The whole book connects compact models, C++ kernels, serving state, hardware limits and practical applications.](images/index-overview.svg?v=8141a0c7c073)](images/index-overview.svg?v=8141a0c7c073)
 
-  <figcaption>Memory budget = weights + KV cache + activations + runtime overhead</figcaption>
+  <figcaption>A complete path through Parts 0-6, with verification across every layer and fixed device budgets guiding the design.</figcaption>
 </figure>
 <!-- /chapter-figure -->
+
+Most inference-engineering material is written from the data center outward: elastic memory, a GPU a network call away, and throughput measured across thousands of concurrent requests. This book starts from the opposite machine — a fixed amount of RAM that will never grow, a CPU that may or may not have a companion GPU, a battery and a thermal ceiling, and no network round-trip to fall back on when local compute runs short — and builds an inference engine that has to work under those constraints from the first line of code, not as an afterthought bolted on once a cloud-shaped design already exists.
+
+This book builds its own tensor, quantization and threading foundations from Chapter 2. Its examples were revalidated on November 20, 2026 using GCC/Linux, Arm execution under QEMU, and a physical NVIDIA A100 for the CUDA attention kernel. The chapter and appendix verification suites pass, as do the 27 embedded C++ examples in Chapters 2-6. The A100 suite passes all 71 checks, including 60 device comparisons, with clean memory, race and synchronization sanitizer results. [Validation status](validation-status.md) records the evidence and the remaining scope limits, including fresh real-model benchmarks and physical Jetson execution.
 
 ## What this book covers
 

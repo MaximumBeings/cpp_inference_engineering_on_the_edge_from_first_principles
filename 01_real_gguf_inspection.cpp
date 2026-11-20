@@ -10,26 +10,15 @@
 // its own synthetic worked example. This section builds a reader that
 // closes both gaps, then points it at an actual downloaded model file.
 //
-// This file cannot be verified the same way every earlier chapter file
-// was. The real ~644 MB Qwen2.5-0.5B-Instruct GGUF file this section
-// inspects lives only on the reader's own machine -- it was never
-// transferred into (and is not committed alongside) this book's own
-// build environment, both because organizational network policy blocks
-// downloading it there directly and because committing a 644 MB binary
-// to source control defeats the purpose of a text-based book. So this
-// file runs in two genuinely different modes: with no argument, it
-// builds a small synthetic fixture with this section's own GGUFWriter
-// (mirroring the real file's own proportions: non-trivial GQA ratio,
-// multiple metadata value types, an unknown value type the reader must
-// skip rather than choke on) and verifies the reader against it -- this
-// half is what compiles and reruns identically on every one of this
-// book's usual cross-check targets. With a real file path as argv[1],
-// it ALSO opens that real file and prints and checks the genuine
-// architecture facts read directly from its bytes -- this half's locked
-// output was captured by running this exact binary via a shell on the
-// reader's own machine against the real, downloaded file, and is
-// reproduced here as an honest exception to this book's usual
-// "verified identically on four targets" rule, clearly marked below.
+// Validation status (2026-11-20): the synthetic-fixture self-tests were
+// compiled and executed under GCC/Linux. Real-file mode is a separate
+// path that requires an external Qwen2.5 GGUF checkpoint. Its documented
+// transcript is a historical capture; the fresh audit did not download
+// that checkpoint or rerun real-file inspection. The model binary is
+// intentionally not committed to the book repository.
+// With no argument, the program verifies the reader using a synthetic
+// fixture. With a model path as argv[1], it inspects the supplied file.
+// See docs/validation-status.md and validation/a100/ for current evidence.
 //
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 01_real_gguf_inspection.cpp -o 01_real_gguf_inspection
 // Run (self-tests only, works anywhere):    ./01_real_gguf_inspection
@@ -469,13 +458,9 @@ int main(int argc, char** argv) {
     std::cout << (g_passed == g_tests ? "ALL PASS --\n" : "FAILURES --\n");
 
     // =====================================================================
-    // REAL FILE INSPECTION -- executed via a shell on the reader's own
-    // aarch64 machine against the actual downloaded
-    // qwen2.5-0.5b-instruct-q8_0.gguf, not reproducible in this book's
-    // usual four-way cross-check environment because the ~644 MB file
-    // itself was never transferred there. Everything printed past this
-    // marker is genuine data read directly from that real file's bytes.
-    // =====================================================================
+    // REAL FILE INSPECTION -- optional checkpoint-dependent path.
+    // The captured real-file transcript is historical; the 2026-11-20
+    // validation reran the synthetic-fixture self-tests, not this mode.
     if (argc >= 2) {
         std::cout << "\n=== REAL FILE INSPECTION (run via a shell on the reader's own machine"
                      " against the actual downloaded file; not reproduced in the four-way"

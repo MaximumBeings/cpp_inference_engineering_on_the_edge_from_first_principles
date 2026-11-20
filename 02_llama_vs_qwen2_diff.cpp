@@ -11,15 +11,11 @@
 // that -- unlike every Llama-3-style conversation this book has built
 // so far -- never prepends a beginning-of-text token at all.
 //
-// Like Section 15.1, this file runs in two modes. Self-tests (no
-// argument) exercise every piece of comparison logic against small
-// synthetic fixtures and reproduce identically on every one of this
-// book's usual cross-check targets. Real-file mode (a path as argv[1])
-// re-opens the actual downloaded model and checks these five claims
-// against its real bytes -- executed via a shell on the reader's own
-// machine, for the same reason Section 15.1 could not run that part in
-// the book's usual build environment: the real ~644 MB file lives only
-// there.
+// Validation status (2026-11-20): synthetic-fixture comparison self-tests
+// were compiled and executed under GCC/Linux. Supplying a model path
+// enables separate real-file checks. Their documented transcript is a
+// historical capture, not a fresh checkpoint-dependent audit run.
+// See docs/validation-status.md for evidence and scope.
 //
 // Compile: g++ -std=c++23 -Wall -Wextra -O2 02_llama_vs_qwen2_diff.cpp -o 02_llama_vs_qwen2_diff
 // Run (self-tests only, works anywhere):    ./02_llama_vs_qwen2_diff

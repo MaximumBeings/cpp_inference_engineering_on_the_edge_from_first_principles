@@ -42,6 +42,11 @@
 // Run (self-tests only, works anywhere):    ./04_first_real_token
 // Run (adds real generation):               ./04_first_real_token /path/to/model.gguf
 
+// Validation status (2026-11-20): built-in synthetic-model self-tests
+// passed under GCC/Linux. Captured real-model output was checked as
+// documented data; the external checkpoint was not freshly rerun.
+// See docs/validation-status.md and validation/a100/ for evidence.
+
 #include <mdspan/mdspan.hpp>
 #include <algorithm>
 #include <cctype>

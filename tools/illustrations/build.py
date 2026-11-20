@@ -216,7 +216,44 @@ def render(spec,section):
     return svg(title,caption,b,height)
 
 
+
+def render_book_map():
+    title='From first principles to a deployable edge engine'
+    description='The complete book connects model representation, C++ kernels, serving state, hardware limits and practical applications.'
+    b=txt(32,36,'THE BOOK AT A GLANCE  /  C++23 INFERENCE',13,TEAL,700)
+    b+=wrap(32,80,title,29,43,weight=600,step=37)
+    b+=rect(32,160,696,88,'#eaf2ef','#d2e1db')
+    b+=txt(50,189,'DESIGN FOR A FIXED DEVICE BUDGET',14,TEAL,700)
+    b+=txt(50,222,'RAM  /  memory bandwidth  /  latency  /  power and thermals',18,INK,500)
+    b+=txt(32,292,'BUILD THE LOCAL INFERENCE ENGINE',17,TEAL,700)
+    cards=[
+        ('PART 0','Tensors and compute graphs','mdspan, arenas, mixed precision; transformer operators'),
+        ('PART 1','Compact model storage','Quantization, GGUF/SafeTensors, mmap and TurboQuant'),
+        ('PART 2','Fast CPU kernels','Roofline analysis, AVX2/NEON, cache behavior and threads'),
+        ('PART 3','Tokenization and KV state','BPE, paged/ring KV caches, eviction and prefix reuse'),
+        ('PART 4','Integrated model runtime','Real weights to tokens; streaming, profiling and benchmarks'),
+        ('PART 6','Math and GPU kernels','Stable numerics, continuous batching, tiled attention and CUDA'),
+    ]
+    for i,(part,label,detail) in enumerate(cards):
+        x=32+(i%2)*376;y=316+(i//2)*178
+        b+=rect(x,y,320,154)
+        b+=txt(x+16,y+27,part,13,ORANGE,700)
+        b+=wrap(x+16,y+58,label,20,28,weight=600,step=27)
+        b+=wrap(x+16,y+93,detail,17,31,MUTED,step=24)
+    b+=arrow(380,834,380,876)
+    b+=rect(32,882,696,152,'#e8f1ed')
+    b+=txt(50,913,'PART 5  /  PUT THE ENGINE TO WORK',14,TEAL,700)
+    b+=txt(50,950,'Local language and vision-language applications',23,INK,600)
+    b+=wrap(50,984,'Inspection, inventory, documents, imaging triage, accessibility, fraud screening and market-signal examples',18,72,MUTED,step=26)
+    b+=rect(32,1062,696,112,'#faeee6')
+    b+=txt(50,1094,'VERIFY AT EVERY LAYER',14,ORANGE,700)
+    b+=wrap(50,1128,'Build and test C++ examples; check numeric results and memory behavior; validate target execution and report measurement limits.',18,72,INK,step=26)
+    b+=txt(32,1216,'From model bytes and input tokens to useful output on a constrained device.',17,TEAL,500)
+    return svg(title,description,b,1248)
+
 def render_overview(spec,key):
+    if key=='index':
+        return render_book_map()
     title,description,nodes,caption=spec
     b=txt(32,36,'C++ INFERENCE AT THE EDGE  /  OVERVIEW',13,TEAL,700)
     title_lines=len(textwrap.wrap(title,46))

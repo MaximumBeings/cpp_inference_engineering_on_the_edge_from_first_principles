@@ -79,7 +79,7 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 **Part 6 -- Going Further: Mathematical Foundations and GPU Acceleration (Chapters 26-28)**
 
 13. Why does naive softmax overflow to NaN on large real inputs, and what single algebraic identity (used throughout Chapters 30.2 and 32.1) fixes it without changing the mathematical result?
-14. Chapter 32 could not launch its CUDA kernel on a real GPU anywhere in this book's own pipeline. What could a clean `nvcc` compile still prove about that kernel, and what could it NOT prove?
+14. Chapter 32 now has an A100 device run with 71 passing checks, including 60 attention shapes, and clean memory, race and synchronization sanitizer results. What does compilation establish, what does device validation add, and which claims still require separate evidence?
 
 ## B.3 Conceptual Review Answers
 
@@ -119,7 +119,7 @@ Answer every question in B.2 in your own words -- out loud, or on paper -- befor
 
 **13.** `exp()` of a large real input overflows a float's or double's finite range and becomes infinity well before the division by the sum happens, and infinity divided by an infinity-containing sum evaluates to NaN, silently corrupting the entire softmax output rather than just its largest entry. The shift-invariant identity `softmax(x) == softmax(x - max(x))` fixes this WITHOUT changing the mathematical result: subtracting the input's own maximum guarantees the largest shifted value is exactly 0 (so `exp(0) = 1`, never overflowing) while every other shifted value is negative (so its `exp()` is a safe fraction below 1), and the algebra guarantees the final normalized probabilities come out identical to what the numerically-impossible unshifted computation would have produced had it not overflowed.
 
-**14.** A clean compile across three real Jetson-class architectures proves the kernel is syntactically valid CUDA C++ and that the compiler could generate real device code implementing its stated logic for each target -- a genuine, meaningful fact about the kernel's correctness at the SOURCE level. It proves nothing about the kernel's actual RUNTIME behavior: a race condition in the shared-memory tile load, a tile-boundary off-by-one, or a genuine numerical error in the online-softmax update would all compile without any error, since none of them are visible from source code alone -- only actually launching the kernel on real hardware and comparing its output against the CPU golden reference, which this book's own pipeline was honest about never having a GPU available to do, could close that gap.
+**14.** Compilation establishes that the toolchain accepts the source and generates code for the selected architecture. The A100 run adds actual kernel execution, output comparisons against the CPU reference for the tested shapes, and sanitizer checks of those runs. It does not prove all possible inputs correct, establish throughput, or demonstrate physical Jetson execution. Those require their own tests and measurements. See [Validation status](../validation-status.md).
 
 ## B.4 Predict-the-Output Challenges
 

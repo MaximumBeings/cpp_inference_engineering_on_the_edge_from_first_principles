@@ -4,6 +4,13 @@
 // Jetson Orin uses sm_87. The suite also supports hosts without a device,
 // reporting skipped device checks explicitly.
 
+// Validated 2026-11-20 on A100-SXM4-40GB with CUDA 12.8 and GCC 13.3:
+// 71 checks pass, including 60 device/reference attention shapes.
+// Compute Sanitizer memcheck, racecheck and synccheck report no errors.
+// A separate hidden-device run validates explicit skip behavior.
+// These correctness checks are not a throughput benchmark or Jetson test.
+// Evidence: validation/a100/ and docs/validation-status.md.
+
 #include <cuda_runtime.h>
 #include <algorithm>
 #include <cmath>
