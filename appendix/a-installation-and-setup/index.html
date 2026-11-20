@@ -2259,6 +2259,13 @@
 
 
 <h1 id="appendix-a-installation-and-setup-cross-compiling-for-the-edge">Appendix A: Installation and Setup -- Cross-Compiling for the Edge<a class="headerlink" href="#appendix-a-installation-and-setup-cross-compiling-for-the-edge" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/appendix-a.svg"><img alt="Appendix A: Cross-compile, then execute the target binary" src="../../images/chapter-openers/appendix-a.svg" /></a></p>
+<figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this appendix:</strong></p>
 <ul>
 <li>How to install a real, working <code>aarch64-linux-gnu-g++</code> cross-compilation toolchain and <code>qemu-user</code> on an x86_64 Ubuntu 24.04 development machine -- the identical real toolchain this book's own build-verify-lock pipeline has used for every chapter's own cross-architecture check, from Chapter 2 onward.</li>
@@ -2276,7 +2283,7 @@
 <p>Every chapter in this book compiled and ran identically on an x86_64 development machine and real aarch64 hardware, using a real cross-compilation toolchain invoked directly with <code>g++</code> and specific flags. This appendix documents that same real toolchain on its own, as a standalone, working CMake project a reader can copy directly: how to install it, how to structure a CMake project around it so cross-compiling is a single flag rather than a hand-maintained command line, and -- in the same honest spirit as every chapter before it -- five real failures this book's own pipeline actually hit while building this exact setup, captured verbatim, with the real fix for each one.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation." height="470" loading="lazy" src="../../images/a-overview.svg" width="1120" /></p>
+<p><img alt="Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation." loading="lazy" src="../../images/a-overview.svg" width="760" /></p>
 <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
 </figure>
 <!-- /chapter-figure -->

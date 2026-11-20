@@ -2259,11 +2259,18 @@
 
 
 <h1 id="appendix-d-profiling-and-benchmarking-on-edge-hardware">Appendix D: Profiling and Benchmarking on Edge Hardware<a class="headerlink" href="#appendix-d-profiling-and-benchmarking-on-edge-hardware" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/appendix-d.svg"><img alt="Appendix D: Profile a controlled workload" src="../../images/chapter-openers/appendix-d.svg" /></a></p>
+<figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p>Chapter 32's own opening line makes a promise this appendix now keeps: "this book's own running discipline of never claiming a wall-clock timing result as part of a locked, deterministic self-test contract" is "stated plainly in Appendix D." Every chapter since Chapter 4 has followed that discipline without stopping to defend it at length -- byte counts and FLOP counts get locked and verified across four architectures; milliseconds and GB/s never do. This appendix states the reasoning explicitly, gives it a real formula for computing a theoretical ceiling, a real (deliberately unlocked) way to measure what a machine actually achieves, a real way to turn either into a latency budget, and an honest account of what happened when this book tried to reach for the most obvious real profiling tool -- <code>perf</code> -- on its own two real build environments.</p>
 <hr />
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Profile a controlled workload. A measurement only answers the question defined by its boundaries." height="470" loading="lazy" src="../../images/d-overview.svg" width="1120" /></p>
+<p><img alt="Profile a controlled workload. A measurement only answers the question defined by its boundaries." loading="lazy" src="../../images/d-overview.svg" width="760" /></p>
 <figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
 </figure>
 <!-- /chapter-figure -->

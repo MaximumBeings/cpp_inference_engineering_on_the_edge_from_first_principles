@@ -2515,7 +2515,7 @@
 <p>Chapter 5 built one quantization pipeline and applied it the same way to every tensor in a GGUF file. A real inference engine does not do this: it routes different weight classes through different formats, on purpose, because different classes fail differently when quantized and cost different amounts of memory to protect. This chapter builds that routing from first principles rather than asserting it. Section 6.1 verifies, by actually measuring it, that the case for hybrid quantization is about consequences rather than raw quantizability. Section 6.2 turns that case into a policy encoded the way GGUF already supports — a per-tensor type tag, dispatched on correctly. Section 6.3 prices the policy in real bytes for a large model, and corrects a mistake in its own first draft when the numbers do not support it. Sections 6.4 and 6.5 wire the corrected policy into a genuine forward pass and then a complete multi-layer, multi-token engine, reading real weights from a memory-mapped GGUF file — the culmination of Chapters 3 through 5, with the KV cache still at plain FP32 until Chapter 7 gives it a reason to change.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Use precision where it matters. Different tensor classes have different error sensitivity and storage cost." height="470" loading="lazy" src="../../images/06-overview.svg" width="1120" /></p>
+<p><img alt="Use precision where it matters. Different tensor classes have different error sensitivity and storage cost." loading="lazy" src="../../images/06-overview.svg" width="760" /></p>
 <figcaption>The memory budget is the sum of each tensor&#x27;s actual encoded size.</figcaption>
 </figure>
 <!-- /chapter-figure -->

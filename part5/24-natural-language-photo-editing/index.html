@@ -2415,7 +2415,7 @@
 <p>Every chapter since Chapter 18 has built a real technique that turns an unstructured visual input into a structured, checkable output. This chapter turns that direction around: it takes a structured request and turns it into unstructured pixels, via a real, verifiable pipeline the whole way through. Section 24.1 builds the closed vocabulary and the strict parser that keep an ambiguous natural-language request from ever reaching an image-processing engine as anything other than a small, named, checkable set of operations. Section 24.2 builds the real engine, linking against actual OpenCV rather than a hand-rolled equivalent -- a deliberate, honestly-documented departure from every other file in this book, which depends on nothing but the C++ standard library. Section 24.3 builds the deterministic table connecting the two, plus a real conflict check. Section 24.4 closes the loop with the real conversational state a genuine photo-editing session needs: the ability to ask for "a bit more," to undo, and to change one's mind without the system holding two contradictory instructions at once.</p>
 <!-- chapter-figure -->
 <figure class="chapter-figure">
-<p><img alt="Translate an edit request into image operations. A validated operation plan connects natural language with the image processor." height="470" loading="lazy" src="../../images/24-overview.svg" width="1120" /></p>
+<p><img alt="Translate an edit request into image operations. A validated operation plan connects natural language with the image processor." loading="lazy" src="../../images/24-overview.svg" width="760" /></p>
 <figcaption>Validate the plan before it reaches cv::Mat operations.</figcaption>
 </figure>
 <!-- /chapter-figure -->
