@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-12-the-tokenizer-bpe-sentencepiece-and-the-vocabulary-pipeline">Chapter 12: The Tokenizer -- BPE, SentencePiece, and the Vocabulary Pipeline<a class="headerlink" href="#chapter-12-the-tokenizer-bpe-sentencepiece-and-the-vocabulary-pipeline" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/12.svg"><img alt="Chapter 12: From text to model token IDs" src="../../images/chapter-openers/12.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Byte-pair encoding's core algorithm: how an ordered merge table turns individual bytes into a hierarchical vocabulary, and why the merge with the LOWEST priority number among all currently-adjacent pairs fires first at encode time — a rule where merge PRIORITY, not merge OPPORTUNITY, decides the outcome, sometimes in ways that look surprising until traced by hand.</li>
@@ -2515,6 +2522,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="121-byte-pair-encoding-the-merge-algorithm">12.1 Byte-Pair Encoding: The Merge Algorithm<a class="headerlink" href="#121-byte-pair-encoding-the-merge-algorithm" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-12.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch12/12-01.svg"><img alt="BPE repeatedly chooses an eligible merge" src="../../images/technical/ch12/12-01.svg" /></a></p>
+<figcaption>Actual merges follow vocabulary ranks and tokenization rules, not arbitrary pair concatenation.</figcaption>
+</figure>
+<!-- edge:concept-12.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A BPE vocabulary is built once, offline, by repeatedly finding the most frequent adjacent pair of symbols in a training corpus and merging it into a new symbol, recording each merge in the order it was learned. That order becomes the vocabulary's most important property at encode time: it is not merely a training log, it is a priority list that determines, deterministically, which merge applies first whenever more than one is possible.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2855,6 +2869,13 @@
 <p>It is tempting to check whether a vocabulary CONTAINS a token like "Hello" — built from a real, valid chain of merge rules — and conclude that encoding the string "Hello" must produce it. The merge loop does not search for the longest reachable token or prefer chains that terminate in a token matching the whole input; at every step it applies whichever SINGLE applicable merge has the lowest priority number, with no lookahead at all. If some other pair in the current token sequence has a lower priority number than the next step of "Hello"'s own chain would need, that other pair merges first, and it can consume a byte "Hello"'s chain needed for itself — exactly what happens when <code>(l,o)</code>'s priority-0 rule consumes the second "l" and the "o" before <code>(He,ll)</code>'s priority-8 rule ever gets a turn. The vocabulary containing a token is necessary but never sufficient for encoding to produce it; only tracing the actual priority-ordered merge sequence tells you what a given input actually becomes.</p>
 </div>
 <h2 id="122-pre-tokenization-splitting-text-before-bpe">12.2 Pre-Tokenization: Splitting Text Before BPE<a class="headerlink" href="#122-pre-tokenization-splitting-text-before-bpe" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-12.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch12/12-02.svg"><img alt="Pre-tokenization sets merge boundaries" src="../../images/technical/ch12/12-02.svg" /></a></p>
+<figcaption>Whitespace, punctuation and byte handling are model-specific conventions.</figcaption>
+</figure>
+<!-- edge:concept-12.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>If BPE ran directly on raw, unsplit text, nothing would stop a merge rule from fusing the last character of one word with the first character of the next — or with the space between them. A pre-tokenizer draws the boundaries BPE is never allowed to cross, splitting text into word-sized chunks before the merge loop ever runs, with BPE then operating independently inside each chunk.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3081,6 +3102,13 @@
 <p>It is easy to write a pre-tokenizer that attaches trailing whitespace to the word BEFORE it — "the " then "cat" — because that is how splitting on whitespace naturally falls out of the most obvious scanning approach (consume a word, then consume the space that follows). Real tokenizers do the opposite on purpose: the space belongs to the word that FOLLOWS it. Getting this backwards does not merely produce a cosmetically different chunk boundary — it silently changes which token IDs BPE ends up producing for every word in a sentence except the first, because a token vocabulary trained on "word-with-leading-space" tokens has no matching entry for a "word-with-trailing-space" token, and the encoder falls back to a completely different (and much less efficient) tokenization for text that would otherwise have been a single common token.</p>
 </div>
 <h2 id="123-special-tokens-and-the-chat-template">12.3 Special Tokens and the Chat Template<a class="headerlink" href="#123-special-tokens-and-the-chat-template" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-12.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch12/12-03.svg"><img alt="A chat template is part of the input format" src="../../images/technical/ch12/12-03.svg" /></a></p>
+<figcaption>Use the model vocabulary IDs and exact template. Similar-looking text is not the same token sequence.</figcaption>
+</figure>
+<!-- edge:concept-12.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Special tokens tell a model where a prompt begins, whose turn it is, and where a turn ends — structural scaffolding no amount of BPE merging can produce, because they are never present as ordinary text for BPE to encode in the first place. A chat template assembles them, by integer ID, around ordinary BPE-encoded text.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3422,6 +3450,13 @@
 <p>A chat template that — anywhere in its content-handling path — checks whether a user's message text matches a special token's string and, if so, treats it as that special token, has reintroduced exactly the vulnerability this section's design avoids: a user can now end a conversation early, forge a fake system turn, or otherwise manipulate the model's context simply by typing the right literal string. The fix is not sanitizing or escaping that string inside user content — it is never giving user content a code path to a special-token ID at all. This section's <code>ChatTemplateEncoder</code> inserts special-token IDs only as fixed integer constants at structural positions ITS OWN code controls, and routes every piece of user-supplied text, with no exception, through the ordinary <code>BPEEncoder</code> that has no notion of special tokens whatsoever. Structural separation, not input filtering, is what makes the injection impossible rather than merely unlikely.</p>
 </div>
 <h2 id="124-the-token-decoder-ids-back-to-utf-8">12.4 The Token Decoder: IDs Back to UTF-8<a class="headerlink" href="#124-the-token-decoder-ids-back-to-utf-8" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-12.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch12/12-04.svg"><img alt="Streaming bytes must end at UTF-8 boundaries" src="../../images/technical/ch12/12-04.svg" /></a></p>
+<figcaption>A token boundary is not necessarily a Unicode character boundary.</figcaption>
+</figure>
+<!-- edge:concept-12.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Decoding reverses encoding: given the integer IDs a model produces, reconstruct the text they represent. This looks like a plain table lookup, but byte-fallback tokens and control tokens both need handling beyond "look up the string and concatenate."</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3683,6 +3718,13 @@
 <p>A byte-fallback token's vocabulary entry is commonly given a human-readable display string like "&lt;0xC3&gt;" purely so a developer inspecting the vocabulary can tell what it is. It is a real and easy mistake to decode that token by emitting its STORED STRING — literally the seven characters "&lt;0xC3&gt;" — instead of the single raw byte 0xC3 it represents. The bug is invisible for plain ASCII text, where display strings and intended output rarely collide in an obviously broken way, but it corrupts every multi-byte UTF-8 sequence and every byte value a model actually needs decoded as raw output: instead of two bytes reassembling into one accented character, the user sees the literal text "&lt;0xC3&gt;&lt;0xA9&gt;" where a single letter belonged. The fix this section relies on is a single, explicit special case: for byte-fallback tokens with IDs 0-255, the numeric ID itself is the byte to emit, and the display string exists for debugging output only, never for the actual decoded byte stream.</p>
 </div>
 <h2 id="125-a-complete-tokenizer-pipeline-loaded-from-a-real-gguf-file">12.5 A Complete Tokenizer Pipeline Loaded from a Real GGUF File<a class="headerlink" href="#125-a-complete-tokenizer-pipeline-loaded-from-a-real-gguf-file" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-12.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch12/12-05.svg"><img alt="Load tokenization conventions with the weights" src="../../images/technical/ch12/12-05.svg" /></a></p>
+<figcaption>Test known prompts and byte sequences against the intended model conventions.</figcaption>
+</figure>
+<!-- edge:concept-12.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>A tokenizer is only as real as the file it can be loaded from. Chapter 5's GGUF reader and writer already handle a model's scalar architecture metadata; a vocabulary of thousands of strings needs GGUF's ARRAY type instead, and this section extends that same real reader and writer with exactly the array support a tokenizer's metadata requires.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

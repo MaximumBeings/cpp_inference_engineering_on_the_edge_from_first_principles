@@ -2269,6 +2269,13 @@
 
 
 <h1 id="chapter-32-flash-attention-and-cuda-kernels-taking-the-engine-to-the-gpu">Chapter 32: Flash Attention and CUDA Kernels: Taking the Engine to the GPU<a class="headerlink" href="#chapter-32-flash-attention-and-cuda-kernels-taking-the-engine-to-the-gpu" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/32.svg"><img alt="Chapter 32: Tiled attention keeps the score matrix out of global memory" src="../../images/chapter-openers/32.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why standard attention's own real O(N^2) score-matrix memory becomes the actual bottleneck at real sequence lengths, quantified in exact bytes rather than described in the abstract, and why the online-softmax recurrence -- a real, provable algebraic reformulation of softmax, not an approximation -- fixes it.</li>
@@ -2293,6 +2300,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="321-the-on2-memory-wall-and-the-online-softmax-fix">32.1 The O(N^2) Memory Wall and the Online-Softmax Fix<a class="headerlink" href="#321-the-on2-memory-wall-and-the-online-softmax-fix" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-32.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch32/32-01.svg"><img alt="Online softmax rescales old and new contributions" src="../../images/technical/ch32/32-01.svg" /></a></p>
+<figcaption>Tile sums and weighted values use the same new maximum. Normalize o by l after the final tile.</figcaption>
+</figure>
+<!-- edge:concept-32.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Standard attention computes a full N x N score matrix -- one entry per query-key pair -- before it can take a single softmax over any row of it. That matrix's own real memory cost grows with the SQUARE of sequence length, and at the real sequence lengths modern serving systems actually handle, it becomes the genuine bottleneck long before raw compute does.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2581,6 +2595,13 @@
 <p>It is easy to assume any technique that avoids materializing the full real score matrix must be giving something up numerically to get there. Test 4 exists specifically to rule this out: streaming attention with a block size of 1 -- processing one real key at a time, the maximally memory-frugal case -- produces a result matching naive full-row attention to within 1e-9, not "close enough for practical purposes." The online-softmax recurrence is a real algebraic identity: the running max, sum, and output correction terms are derived directly from the same shift-invariant softmax identity Chapter 30.2 already proved, rearranged to update incrementally rather than requiring the whole row up front. There is no accuracy given up for the memory saved -- which is exactly why Flash Attention became the real, universal default rather than a memory-constrained fallback used only when the full matrix does not fit.</p>
 </div>
 <h2 id="322-a-stdmdspan-based-flash-attention-implementation-and-benchmark">32.2 A std::mdspan-Based Flash Attention Implementation and Benchmark<a class="headerlink" href="#322-a-stdmdspan-based-flash-attention-implementation-and-benchmark" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-32.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch32/32-02.svg"><img alt="Tiling changes intermediate storage, not the target result" src="../../images/technical/ch32/32-02.svg" /></a></p>
+<figcaption>The tiled path avoids storing the full score matrix but remains subject to finite-precision differences.</figcaption>
+</figure>
+<!-- edge:concept-32.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Section 32.1 proved the online-softmax recurrence correct on raw vectors. This section implements the identical real algorithm as a proper tiled Flash Attention pass over <code>std::mdspan</code>-viewed Q, K, and V matrices, and "benchmarks" it the only way this book's own discipline allows: with real, deterministic counts, never wall-clock time.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2923,6 +2944,13 @@
 <p>Test 3's own real, counted result is easy to misread in the opposite direction from the Section 32.1 trap: it is tempting to assume Flash Attention must ALSO be doing fewer real floating-point operations, since it is famous for being faster in practice. Test 3 proves directly that it is not: both implementations perform the identical <code>2 * Nq * Nk * d</code> real multiply-accumulate operations, counted at each one's own innermost loop, every single time. Flash Attention's own genuine real speedup on actual hardware comes from a different resource entirely -- it never writes the full O(N^2) score matrix out to slow real memory and reads it back in for the softmax and the second matmul, which Chapter 30's own roofline framing already established is the ACTUAL bottleneck for a memory-bound operation. Same real compute, drastically less real memory traffic -- that distinction is the entire point of this section's own choice to benchmark bytes and operation counts rather than assume the FLOP count itself must have changed.</p>
 </div>
 <h2 id="323-a-cuda-production-engine-and-its-own-kernel-validation-suite">32.3 A CUDA Production Engine and Its Own Kernel-Validation Suite<a class="headerlink" href="#323-a-cuda-production-engine-and-its-own-kernel-validation-suite" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-32.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch32/32-03.svg"><img alt="Validate kernels on real device work" src="../../images/technical/ch32/32-03.svg" /></a></p>
+<figcaption>A skipped device run is not a pass. Partial tiles and block tails need explicit coverage.</figcaption>
+</figure>
+<!-- edge:concept-32.3:end -->
+
 <h3 id="from-a-cpu-reference-to-a-device-result">From a CPU reference to a device result<a class="headerlink" href="#from-a-cpu-reference-to-a-device-result" title="Permanent link">&para;</a></h3>
 <p>The kernel assigns one query row to each thread. Threads cooperatively load a tile of keys and values into shared memory, synchronize, and update the online-softmax state for their query. The last query block and final key tile can be partially filled.</p>
 <p>Validation compares device output with a CPU attention reference for 60 combinations of query count, key count, and head dimension. The shapes include 129 queries, key counts around the 32-key tile boundary, and head dimensions up to the kernel's stated limit of 64. The comparison rejects non-finite output. CUDA allocation, copy, launch, and synchronization failures cause validation to fail, and the input checks reject unsupported dimensions before a launch.</p>

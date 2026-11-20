@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-19-retail-inventory-and-supply-chain-intelligence-shelf-photography-to-action">Chapter 19: Retail Inventory and Supply Chain Intelligence: Shelf Photography to Action<a class="headerlink" href="#chapter-19-retail-inventory-and-supply-chain-intelligence-shelf-photography-to-action" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/19.svg"><img alt="Chapter 19: Turn shelf images into inventory evidence" src="../../images/chapter-openers/19.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to encode a real retail planogram -- the diagram stating which SKU belongs in which shelf slot and how many facings it should have -- into a deterministic, VLM-ready system prompt, with real validation, a real run-length compression pass for large stores, and a conservative token-budget guard that refuses to silently truncate a planogram it cannot fit.</li>
@@ -2515,6 +2522,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="191-encoding-a-planogram-directly-into-the-system-prompt">19.1 Encoding a Planogram Directly into the System Prompt<a class="headerlink" href="#191-encoding-a-planogram-directly-into-the-system-prompt" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-19.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch19/19-01.svg"><img alt="A planogram provides an explicit comparison target" src="../../images/technical/ch19/19-01.svg" /></a></p>
+<figcaption>The prompt supplies structured expectations. The image remains uncertain evidence.</figcaption>
+</figure>
+<!-- edge:concept-19.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A vision-language model looking at a shelf photograph has no way to know what SHOULD be there unless it is told, in the very same prompt as the photograph, exactly what a real retail planogram specifies: which SKU belongs in which shelf slot, and how many adjacent facings it should have.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2942,6 +2956,13 @@
 <p>It is tempting to estimate a prompt's token cost by counting whitespace-delimited words directly, since that is the cheapest computation available without re-running a real tokenizer. Real BPE tokenizers typically split many English words into MULTIPLE sub-word tokens, so a plain word count systematically UNDER-estimates the real cost -- exactly backwards for a guard whose entire purpose is refusing a prompt that will not actually fit. This section's own <code>estimate_token_count</code> applies a stated, deliberately generous multiplier for exactly this reason: a budget guard that is sometimes too cautious wastes nothing but a little context-window headroom, while a budget guard that ever under-counts can let through a prompt a real model would truncate mid-instruction, with no warning to either the caller or the model that anything was cut off.</p>
 </div>
 <h2 id="192-a-batch-shelf-photo-processor">19.2 A Batch Shelf-Photo Processor<a class="headerlink" href="#192-a-batch-shelf-photo-processor" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-19.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch19/19-02.svg"><img alt="Batch processing keeps images and results paired" src="../../images/technical/ch19/19-02.svg" /></a></p>
+<figcaption>Partial failures must not cause results to be assigned to the wrong shelf.</figcaption>
+</figure>
+<!-- edge:concept-19.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Section 19.1 built the prompt; this section runs the actual inspection. A retail batch job processes many shelf photographs in one run, and this section's own real, stated discipline is that a single bad photo must never take the rest of the batch down with it.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -4252,6 +4273,13 @@
 <p>A batch loop that lets one photo's exception propagate out of the whole function trades a small, specific, easily-diagnosed problem (photo <code>photo-bad</code> failed with a fusion count mismatch) for a large, vague one (the ENTIRE batch of photos this run was supposed to inspect produced no results at all). On a real production line running this batch job on a fixed schedule, that difference is the difference between one shelf going un-reconciled today and the ENTIRE STORE going un-reconciled today, from a single photo that was probably just corrupted or mis-captured. <code>process_batch</code>'s own per-photo isolation, tested directly in Test 2, is what keeps a real, specific failure from ever escalating into an unrelated, unnecessary one.</p>
 </div>
 <h2 id="193-rest-integration-into-erpwms-systems">19.3 REST Integration into ERP/WMS Systems<a class="headerlink" href="#193-rest-integration-into-erpwms-systems" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-19.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch19/19-03.svg"><img alt="Inventory suggestions pass through an API boundary" src="../../images/technical/ch19/19-03.svg" /></a></p>
+<figcaption>Use stable identifiers and retry-safe operations; do not assume every retry should add stock again.</figcaption>
+</figure>
+<!-- edge:concept-19.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Sections 19.1 and 19.2 can now tell what a shelf should hold and what a photograph shows it actually holds. None of that reaches a retailer's own business systems until it crosses a real interface nearly every modern retail backend actually exposes: a REST API exchanging JSON over HTTP's own real methods and status codes.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -4661,6 +4689,13 @@
 <p>It is tempting to read <code>put_stock_level</code>'s returned version advancing from 1 to 2 as a sign that "something changed," when Test 3 deliberately constructs the case where the underlying, business-relevant quantity did NOT change at all -- the same value (50) was written twice, each time with the correct current version. The version counter's own real job is protecting against a LOST UPDATE, not describing the business state itself; a caller (or a dashboard built on top of this backend) that conflates "version incremented" with "inventory actually changed" would report a false change event on every single idempotent re-confirmation a real reconciliation job performs, drowning genuine change events in noise generated by nothing more than the concurrency-control mechanism doing its job correctly.</p>
 </div>
 <h2 id="194-multi-store-aggregation-and-trend-detection">19.4 Multi-Store Aggregation and Trend Detection<a class="headerlink" href="#194-multi-store-aggregation-and-trend-detection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-19.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch19/19-04.svg"><img alt="Aggregation must retain denominators" src="../../images/technical/ch19/19-04.svg" /></a></p>
+<figcaption>Illustrative sample counts. Compare rates using observation volume and time windows, not raw totals alone.</figcaption>
+</figure>
+<!-- edge:concept-19.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A single store's own inventory record answers "how much of this SKU does store 42 have right now." A retail chain needs a genuinely different question answered across every store at once: is this SKU trending toward a stockout, and by when -- and answering that honestly requires knowing which stores' numbers are even reflected in the total.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -4968,6 +5003,13 @@
 <p>Summing on-hand quantity across "every store in my list" and simply not adding anything for a store with no snapshot LOOKS identical, in the resulting total, to correctly excluding that store -- until the very next question asked of that total is "how many units of this SKU exist across the chain," at which point a missing store's real, unknown, possibly-substantial inventory has silently become zero in every downstream calculation. <code>aggregate_by_sku</code>'s own <code>stores_missing</code> field exists specifically so a caller can distinguish "3 units total, all 3 stores reporting" from "3 units total, only 1 of 3 stores reporting" -- two totals that happen to share a number but mean completely different things about how much of the chain's real inventory that number actually reflects.</p>
 </div>
 <h2 id="195-shrinkage-and-misplacement-detection-from-ordinary-shelf-photographs">19.5 Shrinkage and Misplacement Detection from Ordinary Shelf Photographs<a class="headerlink" href="#195-shrinkage-and-misplacement-detection-from-ordinary-shelf-photographs" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-19.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch19/19-05.svg"><img alt="A visual discrepancy has several explanations" src="../../images/technical/ch19/19-05.svg" /></a></p>
+<figcaption>A shelf image alone does not establish theft or shrinkage causation.</figcaption>
+</figure>
+<!-- edge:concept-19.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>This section closes the loop the chapter opened: Section 19.1's planogram states what SHOULD be on a shelf, Section 19.2's batch processor and parser produce what a VLM actually observed there, and this section reconciles the two into the findings a store operator genuinely acts on.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

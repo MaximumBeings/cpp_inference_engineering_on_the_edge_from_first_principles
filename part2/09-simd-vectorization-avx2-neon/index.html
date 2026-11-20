@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-9-simd-vectorization-avx2-on-x86-neon-on-arm">Chapter 9: SIMD Vectorization -- AVX2 on x86, NEON on Arm<a class="headerlink" href="#chapter-9-simd-vectorization-avx2-on-x86-neon-on-arm" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/09.svg"><img alt="Chapter 9: A dot product across SIMD lanes" src="../../images/chapter-openers/09.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>What a SIMD register actually is — a fixed number of bits divided into lanes of a stated element width — derived from that single fact rather than memorized as a vendor-specific rule, and why doubling a chip's peak compute this way still buys nothing for a memory-bound kernel, exactly per Chapter 8's own roofline model.</li>
@@ -2516,6 +2523,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="91-the-simd-register-model-derived-from-register-width">9.1 The SIMD Register Model, Derived From Register Width<a class="headerlink" href="#91-the-simd-register-model-derived-from-register-width" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-9.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch09/09-01.svg"><img alt="Register width determines lane count" src="../../images/technical/ch09/09-01.svg" /></a></p>
+<figcaption>These are storage lane counts; instruction semantics and accumulator width must be checked separately.</figcaption>
+</figure>
+<!-- edge:concept-9.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A SIMD register is not a mysterious accelerator; it is a wider bucket that a fixed number of narrower values are poured into together. A 256-bit AVX2 register and a 128-bit NEON register both follow the identical rule — lanes equal register bits divided by element bits — and that one arithmetic fact, not a lookup table of vendor trivia, is enough to derive exactly how much peak compute a given register width is responsible for.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2722,6 +2736,13 @@
 <p>Doubling a chip's SIMD lane count really does double its peak compute — that part of the arithmetic is not in dispute, and this section verifies it directly. But peak compute is only the ceiling a COMPUTE-bound kernel can approach; a memory-bound kernel's achievable throughput, per Chapter 8.1's own formula, is <code>arithmetic_intensity * peak_bandwidth</code>, an expression that does not mention SIMD width at all. At a representative decode-time arithmetic intensity, AVX2's eight lanes and NEON's four lanes produce identical achievable throughput, down to the last decimal place, because both machines hit the same bandwidth ceiling long before either one's compute ceiling becomes relevant. "This CPU has wider SIMD registers" is evidence of nothing for a kernel's real-world speed until the kernel's own arithmetic intensity relative to that machine's ridge point has been checked first.</p>
 </div>
 <h2 id="92-avx2-vectorized-quantized-dot-products-on-x86">9.2 AVX2: Vectorized Quantized Dot Products on x86<a class="headerlink" href="#92-avx2-vectorized-quantized-dot-products-on-x86" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-9.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch09/09-02.svg"><img alt="A quantized vector dot product widens before summing" src="../../images/technical/ch09/09-02.svg" /></a></p>
+<figcaption>Accumulators must be wide enough. Packed signedness and saturation rules cannot be inferred from lane count.</figcaption>
+</figure>
+<!-- edge:concept-9.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>The Q8_0 and Q4_0 dot product this book has computed scalar-element-by-scalar-element since Chapter 4 is exactly the kind of loop SIMD exists for: the same handful of operations, repeated independently across many elements, with no data dependency between one element and the next. AVX2 turns that repetition into eight-wide (for Q8_0's already-int8 elements, widened to int32) parallel arithmetic per instruction — but a packed 4-bit format cannot simply be "widened"; its two values per byte have to be pried apart first, and getting that unpacking wrong is where a hand-vectorized quantized kernel most often goes quietly wrong.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3057,6 +3078,13 @@
 <p>A Q4_0 nibble is stored as an unsigned 4-bit value in the range <code>[0, 15]</code>, encoding a signed value in the range <code>[-8, 7]</code> by adding a fixed bias of 8 at encode time — so decoding it correctly means SUBTRACTING that bias, not sign-extending the raw 4 bits as though they already were a signed quantity. Sign-extending a raw nibble of <code>1</code> (which the correct decode would turn into <code>-7</code>) instead leaves it as <code>1</code> — identical to the raw bits whenever they happen to already be less than 8, and never negative at all regardless of what value the block actually encoded, since a 4-bit field has no sign bit of its own to extend. This is not a rare edge case: roughly half of any real Q4_0 block's nibbles decode to a value that this bug gets wrong, and every one of those errors is silent, because the buggy output is still a plausible-looking float, just the wrong one.</p>
 </div>
 <h2 id="93-arm-neon-the-same-kernel-a-different-register">9.3 Arm NEON: The Same Kernel, a Different Register<a class="headerlink" href="#93-arm-neon-the-same-kernel-a-different-register" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-9.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch09/09-03.svg"><img alt="The algorithm stays, the intrinsic sequence changes" src="../../images/technical/ch09/09-03.svg" /></a></p>
+<figcaption>Compare both implementations against the same scalar reference on all supported lengths.</figcaption>
+</figure>
+<!-- edge:concept-9.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Every transformer that runs on a phone, a laptop's efficiency cores, or an Arm-based server needs the identical Q8_0 and Q4_0 dot product Section 9.2 just vectorized for AVX2 — and Arm NEON can vectorize it too, with the same lane-based reasoning Section 9.1 already established. But NEON is not AVX2 with the function names swapped: at least one operation Section 9.2 leaned on as a single instruction has no NEON equivalent at all, and finding that out empirically here is exactly the kind of asymmetry a chapter that only ever wrote AVX2 could never have surfaced.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3388,6 +3416,13 @@
 <p>AVX2's <code>_mm256_cvtepi8_epi32</code> widens a packed int8 value directly to int32 in a single instruction, and it is natural to assume every AVX2 intrinsic has some equally direct NEON equivalent waiting to be substituted in. NEON's int8-to-int16 widen, <code>vmovl_s8</code>, stops at 16 bits — there is no <code>vmovl_s8</code>-to-int32 instruction — so reaching int32 genuinely requires a second call, <code>vmovl_s16</code>, applied to the already-widened result. A direct one-for-one port that copies AVX2's instruction COUNT rather than its semantic effect would leave NEON's intermediate values sitting at 16 bits where the following FMA step expects 32, either failing to compile against the wrong-width type or, with an unchecked cast, silently computing on truncated or misinterpreted data. Verifying this kind of platform-specific instruction-count difference in code, as this section does, catches it before it becomes a shipped, silent bug on whichever architecture was ported to second.</p>
 </div>
 <h2 id="94-auto-vectorization-and-the-restrict-promise">9.4 Auto-Vectorization and the Restrict Promise<a class="headerlink" href="#94-auto-vectorization-and-the-restrict-promise" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-9.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch09/09-04.svg"><img alt="A no-alias promise is a correctness contract" src="../../images/technical/ch09/09-04.svg" /></a></p>
+<figcaption>Only assert non-aliasing when the calling code guarantees it for every supported invocation.</figcaption>
+</figure>
+<!-- edge:concept-9.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Neither Section 9.2 nor Section 9.3 is the only way to get a vectorized loop: a modern compiler's <code>-O3</code> auto-vectorizer will widen a sufficiently simple elementwise loop on its own, with no intrinsics at all, PROVIDED it can prove doing so is safe. Two raw pointers are not provably safe to reorder in general, so the compiler's default is a runtime check; <code>__restrict</code> is the programmer's promise that removes it — and this section verifies both halves of that promise are real, including what happens the moment it is broken.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3646,6 +3681,13 @@
 <p>It is tempting to reason "the vector register is N-wide, so as long as my overlapping pointers are at least N elements apart, <code>__restrict</code> is safe" — but <code>__restrict</code> makes exactly one promise: NO aliasing, full stop, not "aliasing no closer than the register width." This section's own measurement shows the actual safe distance on this build is wider than the 8-lane AVX2 register alone, because the compiler chose to unroll the vectorized loop to handle more than one register's worth of data per iteration, a decision made by the optimizer, at this optimization level, on this compiler version — none of which the source code controls or can predict by inspection. A hand-derived "stay N elements apart" rule that happened to work on one build can silently break on a different compiler, a different flag, or a different unrolling decision on the very same compiler's next release. The only distance that is actually safe to rely on is the one <code>__restrict</code> itself promises: none of them alias, ever.</p>
 </div>
 <h2 id="95-runtime-cpu-feature-detection-and-dispatch">9.5 Runtime CPU Feature Detection and Dispatch<a class="headerlink" href="#95-runtime-cpu-feature-detection-and-dispatch" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-9.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch09/09-05.svg"><img alt="Select only an instruction set the machine supports" src="../../images/technical/ch09/09-05.svg" /></a></p>
+<figcaption>Building a binary with an instruction set is different from safely dispatching to it at runtime.</figcaption>
+</figure>
+<!-- edge:concept-9.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Every kernel this chapter has written so far assumes its target instruction set is simply available — but a single shipped binary has no such guarantee about the machine it will actually run on. The fix is not to compile a different binary per customer; it is to ask the CPU, once, at startup, which instruction sets it actually supports, and to keep a scalar fallback ready for the machines that answer "not this one."</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

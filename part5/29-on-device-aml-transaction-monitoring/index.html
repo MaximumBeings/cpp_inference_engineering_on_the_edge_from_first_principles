@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-29-on-device-aml-transaction-anomaly-monitoring-at-atms-and-pos-terminals">Chapter 29: On-Device AML Transaction Anomaly Monitoring at ATMs and POS Terminals<a class="headerlink" href="#chapter-29-on-device-aml-transaction-anomaly-monitoring-at-atms-and-pos-terminals" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/29.svg"><img alt="Chapter 29: Monitor transactions with explicit windows" src="../../images/chapter-openers/29.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to detect "structuring" (smurfing) -- a real, specifically named federal offense under the US Bank Secrecy Act -- by scanning a rolling window across a SEQUENCE of transactions, since no individual transaction in the pattern is suspicious on its own.</li>
@@ -2415,6 +2422,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="291-aml-structuring-smurfing-detection">29.1 AML Structuring (Smurfing) Detection<a class="headerlink" href="#291-aml-structuring-smurfing-detection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-29.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch29/29-01.svg"><img alt="Windowed aggregation detects a pattern candidate" src="../../images/technical/ch29/29-01.svg" /></a></p>
+<figcaption>Structuring rules depend on jurisdiction and context. A pattern flag is not proof of criminal conduct.</figcaption>
+</figure>
+<!-- edge:concept-29.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>"Structuring" is a real, specifically named offense under the US Bank Secrecy Act: deliberately breaking a large cash transaction into several smaller ones, each kept under the real $10,000 Currency Transaction Report threshold, specifically to avoid the reporting the full amount would trigger. No individual transaction in the pattern looks suspicious -- the pattern is only visible across several transactions from the same account within a real, short window of time.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2644,6 +2658,13 @@
 <p>A real, deployed structuring detector considers many additional real signals this section's own narrow, illustrative function does not: transactions across MULTIPLE accounts controlled by the same real person (a well-documented refinement real structuring schemes use to spread transactions even further), transactions at multiple different branches or ATMs specifically chosen to avoid a single teller's own suspicion, and a real employee's own trained judgment about a customer's stated purpose for a transaction. <code>detect_structuring</code> catches exactly one real, narrow, and well-documented pattern -- multiple transactions from the SAME account, each individually under the threshold, summing past it within a short window -- and should be understood as one real signal among many a real compliance program would need, not a complete real detection system on its own.</p>
 </div>
 <h2 id="292-transaction-velocity-anomaly-detection">29.2 Transaction Velocity Anomaly Detection<a class="headerlink" href="#292-transaction-velocity-anomaly-detection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-29.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch29/29-02.svg"><img alt="Velocity counts need a defined time window" src="../../images/technical/ch29/29-02.svg" /></a></p>
+<figcaption>Illustrative transaction counts. State the window, entity key and threshold before interpreting an alert.</figcaption>
+</figure>
+<!-- edge:concept-29.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A second, independent real signal has nothing to do with WHICH amounts moved, only how often. A real account suddenly transacting far more frequently than any ordinary customer would is a well-documented real signal for a compromised card or account being drained quickly, independent of whether any single amount looks unusual.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2856,6 +2877,13 @@
 <p>Section 29.1's structuring check and this section's own velocity check are deliberately independent: a burst of several small, ordinary purchases at different terminals is a real velocity anomaly with no structuring signal attached to it at all (no amount ever approaches the real CTR threshold), while a slow, patient structuring scheme spread across exactly the stated window with only two or three transactions total triggers Section 29.1's own check without ever coming close to this section's own frequency threshold. Treating either signal as a stand-in for the other -- assuming a clean velocity check means an account cannot be structuring, or the reverse -- would miss real, well-documented patterns that only this chapter's OTHER independent signal is actually built to catch.</p>
 </div>
 <h2 id="293-impossible-travel-geographic-detection">29.3 Impossible Travel Geographic Detection<a class="headerlink" href="#293-impossible-travel-geographic-detection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-29.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch29/29-03.svg"><img alt="Travel consistency compares distance with elapsed time" src="../../images/technical/ch29/29-03.svg" /></a></p>
+<figcaption>Check timestamp quality, location confidence and shared accounts. A rule hit can have benign causes.</figcaption>
+</figure>
+<!-- edge:concept-29.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A third, independent real signal asks a different question again: could the same physical person plausibly have been at both of two transaction locations, given how little time passed between them? "Impossible travel" is a real, well-documented technique used across both AML and account-security fraud detection, built on a deliberately generous real bound -- fast enough to cover an actual commercial flight -- so a genuine cross-country traveler is never flagged.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3119,6 +3147,13 @@
 <p>A tighter, less generous speed threshold would catch MORE real anomalies, but at a real, serious cost: a genuine customer who legitimately flew from one real city to another between two ordinary transactions would be flagged as fraudulent, purely for traveling normally. This section's own stated 900 km/h bound is deliberately set close to the real physical limit of ordinary human travel specifically so that ONLY a genuinely impossible required speed -- one no real commercial transportation could achieve -- is ever flagged, exactly the same "real, useful signal without an unacceptable false-positive cost" design tradeoff Section 26.1's own signature-comparison tolerance and Section 28.1's own duplicate-photo threshold already made in their own respective domains.</p>
 </div>
 <h2 id="294-the-transaction-monitoring-disposition-engine">29.4 The Transaction Monitoring Disposition Engine<a class="headerlink" href="#294-the-transaction-monitoring-disposition-engine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-29.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch29/29-04.svg"><img alt="Monitoring produces an explainable review record" src="../../images/technical/ch29/29-04.svg" /></a></p>
+<figcaption>Signals support a compliance workflow. The model does not determine guilt.</figcaption>
+</figure>
+<!-- edge:concept-29.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>This chapter's capstone, and the fourth and final financial-industry chapter this book set out to build, combines Section 29.1's structuring signal, Section 29.2's velocity signal, and Section 29.3's impossible-travel signal into one per-account disposition -- with a real, legally precise boundary specific to this domain: under real US law, a Suspicious Activity Report can only ever be filed by a human compliance officer, never by an automated system.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

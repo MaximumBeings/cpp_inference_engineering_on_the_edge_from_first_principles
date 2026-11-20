@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-10-threading-and-concurrency-real-threads-verified-without-a-clock">Chapter 10: Threading and Concurrency -- Real Threads, Verified Without a Clock<a class="headerlink" href="#chapter-10-threading-and-concurrency-real-threads-verified-without-a-clock" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/10.svg"><img alt="Chapter 10: Share work without racing on state" src="../../images/chapter-openers/10.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why a single core cannot hit a realistic interactive decode-latency target at all, derived from Chapter 8.5's own measured full-decode-step FLOP total rather than a new, separately invented workload — and why Amdahl's law puts a hard, derivable ceiling on how much speedup ANY number of additional cores can ever buy, long before a single thread is created.</li>
@@ -2516,6 +2523,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="101-the-latency-budget-and-amdahls-ceiling">10.1 The Latency Budget and Amdahl's Ceiling<a class="headerlink" href="#101-the-latency-budget-and-amdahls-ceiling" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-10.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch10/10-01.svg"><img alt="Amdahl limits parallel speedup" src="../../images/technical/ch10/10-01.svg" /></a></p>
+<figcaption>Illustrative upper bound with no synchronization or scheduling cost.</figcaption>
+</figure>
+<!-- edge:concept-10.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Before writing a single thread, it is worth deriving whether one is even necessary — and, if so, roughly how much parallelism could possibly help. A single core's real cost for one decode step, already measured in Chapter 8.5, run through Chapter 8.1's own achievable-throughput formula, gives a concrete answer to "is one core enough," with no new workload invented for the purpose. Amdahl's law then answers the next question honestly: however many cores are added, some fraction of a real decode step — sampling the next token, updating a cursor, scheduling the next request — never parallelizes at all, and that fraction alone puts a hard, derivable ceiling on total speedup.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2781,6 +2795,13 @@
 <p>"We have 8 cores, so we should get roughly 8x" ignores that SOME part of a real per-token step — sampling, bookkeeping, scheduling the next request — runs on exactly one core no matter how many are available. At a stated 5% serial fraction, 8 cores buys about 5.93x, not 8x, and the gap only widens as core count grows: Amdahl's law's speedup does not merely fall short of linear, it CONVERGES to a hard ceiling of <code>1/serial_fraction</code> — here, 20x — that no finite number of cores, however large, can ever reach or exceed. A team that buys twice the cores expecting twice the throughput, without first asking what fraction of the work is inherently serial, is making a purchasing decision Amdahl's law already answered before the hardware order was placed.</p>
 </div>
 <h2 id="102-atomics-mutexes-and-why-synchronization-is-not-optional">10.2 Atomics, Mutexes, and Why Synchronization Is Not Optional<a class="headerlink" href="#102-atomics-mutexes-and-why-synchronization-is-not-optional" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-10.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch10/10-02.svg"><img alt="Synchronization establishes a happens-before relation" src="../../images/technical/ch10/10-02.svg" /></a></p>
+<figcaption>A data race is not merely a performance issue; the language does not define the program behavior.</figcaption>
+</figure>
+<!-- edge:concept-10.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>This book's first real <code>std::thread</code> immediately raises the question every later section in this chapter depends on: what happens when more than one thread reads and writes the SAME piece of memory. <code>std::atomic</code> and <code>std::mutex</code> are two different mechanisms that both answer it the same way — by making the combined read-modify-write sequence indivisible from every other thread's point of view — verified here the way this book verifies everything: by running real threads and checking an exact result, not a probabilistic one.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3038,6 +3059,13 @@
 <p>A function that locks a <code>std::mutex</code> and then calls another function that — unaware the caller already holds that same lock — tries to lock it again does not get politely refused with a return value to check; a blocking <code>lock()</code> call in that situation simply never returns, because a plain <code>std::mutex</code> has no notion of "the thread that already owns me may re-enter." This section demonstrates the mechanism safely with <code>try_lock()</code>, which returns <code>false</code> deterministically rather than hanging, precisely so the demonstration itself has well-defined output to verify — but the real-world version of this bug is a silent, total deadlock the first time two code paths that both need the same lock are called from the same thread. <code>std::recursive_mutex</code> exists exactly for the case where a single thread genuinely needs to re-enter its own lock, and reaching for it (or, better, restructuring the code so re-entry is never attempted) is the fix — not discovering the hang in production.</p>
 </div>
 <h2 id="103-a-barrier-synchronized-thread-pool-for-a-partitioned-gemv">10.3 A Barrier-Synchronized Thread Pool for a Partitioned GEMV<a class="headerlink" href="#103-a-barrier-synchronized-thread-pool-for-a-partitioned-gemv" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-10.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch10/10-03.svg"><img alt="Workers share phase boundaries" src="../../images/technical/ch10/10-03.svg" /></a></p>
+<figcaption>A barrier separates dependent phases. Workers can write disjoint output rows concurrently.</figcaption>
+</figure>
+<!-- edge:concept-10.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Chapter 8.3 already classified a decode-time GEMV as memory-bound; this section asks how to actually SPLIT that GEMV's work across several real cores. Splitting by output row is the natural choice — each row's dot product is independent of every other row's — and because no two threads ever write the same output element, the result is not merely close to a serial reference within a tolerance, the way Chapter 9.2's AVX2 kernel was; it is bit-for-bit identical, verified exactly.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3365,6 +3393,13 @@
 <p><code>chunk = n_out / n_threads</code> followed by <code>[t*chunk, (t+1)*chunk)</code> for each thread looks correct and compiles without complaint, but integer division truncates: when n_out is not an exact multiple of the thread count, the rows from <code>n_threads * chunk</code> to <code>n_out - 1</code> fall outside every single thread's range. This is not a crash and not a wrong VALUE in any output element that IS computed — it is a set of output elements that are simply never touched by anyone, left at whatever the buffer happened to contain beforehand. The fix — a ceiling-divided chunk size with the final range explicitly capped at n_out — costs nothing in the common case where the division is exact, and is the only version of this partition that is correct in the case where it is not.</p>
 </div>
 <h2 id="104-false-sharing-a-memory-layout-hazard-not-a-race">10.4 False Sharing: A Memory-Layout Hazard, Not a Race<a class="headerlink" href="#104-false-sharing-a-memory-layout-hazard-not-a-race" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-10.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch10/10-04.svg"><img alt="Independent counters can occupy one cache line" src="../../images/technical/ch10/10-04.svg" /></a></p>
+<figcaption>False sharing causes coherence traffic even when threads update different variables.</figcaption>
+</figure>
+<!-- edge:concept-10.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Two threads, each incrementing its own logically independent counter, share no variable and therefore have no data race by any definition — and yet, depending purely on where those two counters happen to sit in memory, updating one can force the OTHER thread's cached copy of a completely different value to be invalidated. This is not a correctness bug — both counters still end up with exactly the right value, every time — so this section verifies it the only way that is honest without a wall-clock number: as address arithmetic.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3644,6 +3679,13 @@
 <p>Two array elements, <code>naive.count[0]</code> and <code>naive.count[1]</code>, are two completely separate <code>long long</code> values — no thread ever reads or writes the other's element, so by any definition of a data race, there is none here. This section measured their addresses anyway and found both inside the same 64-byte cache line, because cache coherence has no concept of "these two bytes belong to logically different variables" — it only knows about lines. The hazard is invisible to anyone reading the increment statements themselves, since nothing in that source code shares anything; it only becomes visible by checking WHERE the compiler and allocator actually placed the bytes, which is exactly the check this section performs and exactly why <code>alignas(64)</code> padding is a structural fix, not a style preference.</p>
 </div>
 <h2 id="105-work-stealing-verifying-correctness-under-a-nondeterministic-schedule">10.5 Work Stealing: Verifying Correctness Under a Nondeterministic Schedule<a class="headerlink" href="#105-work-stealing-verifying-correctness-under-a-nondeterministic-schedule" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-10.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch10/10-05.svg"><img alt="Work ownership can move without duplicating work" src="../../images/technical/ch10/10-05.svg" /></a></p>
+<figcaption>Scheduling order is nondeterministic. The correctness check must not depend on one task order.</figcaption>
+</figure>
+<!-- edge:concept-10.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Section 10.3's thread pool split work with a fixed, static partition decided before any thread ran — fine when every row costs the same, wrong the moment tasks take unequal time, since a static split leaves fast threads idle while a slow one is still working. A work-stealing scheduler fixes this by letting an idle thread take work from a busy one's own queue — but that means the exact SCHEDULE, which thread executes which task and in what order, is deliberately, genuinely nondeterministic, and this section's real subject is how to verify such a thing rigorously anyway.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

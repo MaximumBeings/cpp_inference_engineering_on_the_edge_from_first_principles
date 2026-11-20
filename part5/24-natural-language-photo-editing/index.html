@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-24-natural-language-photo-editing-from-prompt-to-cvmat-on-edge-hardware">Chapter 24: Natural Language Photo Editing: From Prompt to <code>cv::Mat</code> on Edge Hardware<a class="headerlink" href="#chapter-24-natural-language-photo-editing-from-prompt-to-cvmat-on-edge-hardware" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/24.svg"><img alt="Chapter 24: Translate an edit request into image operations" src="../../images/chapter-openers/24.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to build a real, stated system prompt and a strict structural parser that translate any natural-language photo-edit request, however vague, into a closed, small vocabulary of named edit intents and strengths -- never a free-form description of "enhancements."</li>
@@ -2414,6 +2421,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="241-an-edit-interpretation-prompt-and-structured-plan-parser">24.1 An Edit-Interpretation Prompt and Structured Plan Parser<a class="headerlink" href="#241-an-edit-interpretation-prompt-and-structured-plan-parser" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-24.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch24/24-01.svg"><img alt="Translate a request into a bounded edit plan" src="../../images/technical/ch24/24-01.svg" /></a></p>
+<figcaption>Reject unsupported operations and out-of-range parameters before applying an edit.</figcaption>
+</figure>
+<!-- edge:concept-24.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>"Make it look better" names no operation, no direction, and no strength -- a real image-processing engine cannot execute it. This section builds the same real discipline Section 20.3 applied to a triage report: a stated system prompt that forces any natural-language request, however vague, into a closed, small vocabulary of named edit intents and strengths, plus a strict parser that rejects anything outside that vocabulary, naming the exact reason.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2767,6 +2781,13 @@
 <p>It is tempting to let a vague request like "make it look better" pass through unconstrained -- have the parser accept any reasonable-looking completion the model produces, on the theory that a vague REQUEST justifies a flexible RESPONSE. Test 6 exists specifically to show why that gets the division of responsibility backwards: this section's own system prompt commits, in its own stated text, to one specific, conservative, named default plan for exactly this case, and the parser's own job is to verify that the model actually produced THAT plan (or another fully valid one), never to relax its own closed vocabulary just because the originating request happened to be unspecific. A vague request is a prompt-engineering problem to solve with a stated default, not a parsing problem to solve by accepting more.</p>
 </div>
 <h2 id="242-a-complete-opencv-processing-engine">24.2 A Complete OpenCV Processing Engine<a class="headerlink" href="#242-a-complete-opencv-processing-engine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-24.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch24/24-02.svg"><img alt="Execute edits with known image semantics" src="../../images/technical/ch24/24-02.svg" /></a></p>
+<figcaption>Check channel order, numeric range and dimensions. Displayed colors depend on the input convention.</figcaption>
+</figure>
+<!-- edge:concept-24.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A structured edit plan is only useful once something executes it as real pixel operations. This section builds that engine on genuine OpenCV <code>cv::Mat</code> calls, verified against hand-computed expected values wherever the underlying arithmetic is exact, and against real, checkable statistical properties -- mean, standard deviation -- wherever it is not.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3218,6 +3239,13 @@
 <p>Every other file in this book depends on nothing but the C++ standard library, which is what lets this book's own usual pipeline cross-compile and run each one, completely unmodified, across 4 separate CPU architectures and toolchains. OpenCV is a real, large, dynamically-linked SYSTEM library that must be built or installed natively per real target platform -- there is no portable static build this book can simply cross-compile the way it cross-compiles its own self-contained code, and this section's own real target device has no root access to install one there. This section is verified instead on 2 real compilers (this system's own default GCC and GCC 14), both linking the identical real, installed OpenCV 4.6.0 -- confirming this section's own real pixel arithmetic is deterministic across compiler versions -- rather than this book's usual 4-way check. This is not a gap quietly papered over: it is a real, honest constraint of depending on a real external system library, and a genuine edge deployment would resolve it the same way -- installing or building OpenCV natively for each specific target device, exactly as this section's own limitation implies.</p>
 </div>
 <h2 id="243-a-request-to-operation-mapping-table">24.3 A Request-to-Operation Mapping Table<a class="headerlink" href="#243-a-request-to-operation-mapping-table" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-24.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch24/24-03.svg"><img alt="An operation table is an allowlist" src="../../images/technical/ch24/24-03.svg" /></a></p>
+<figcaption>The table makes supported behavior explicit rather than executing arbitrary model-generated code.</figcaption>
+</figure>
+<!-- edge:concept-24.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Section 24.1's closed vocabulary and Section 24.2's real engine need a deterministic bridge: an explicit table mapping every (intent, strength) pair to one concrete numeric parameter, plus a real check that a plan asking for two directly opposing edits at once is caught before it ever reaches the engine.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3561,6 +3589,13 @@
 <p>It would be a real, meaningful test to confirm that STRONG produces a bigger effect than SUBTLE for a couple of intents chosen by hand -- brightness, say, and saturation -- and stop there. Test 3 is built specifically to do more: it iterates over EVERY strength-sensitive intent in the entire table and checks the identical real property for each one, catching a mistake in an intent nobody thought to hand-check individually (a copy-paste error in the <code>WARMTH_DECREASE</code> row, for instance, that a spot check of <code>BRIGHTNESS_INCREASE</code> and <code>SATURATION_INCREASE</code> would never have caught). A resolution table this size earns a real, general, whole-table property check precisely because a table is exactly the kind of structure where one silently wrong row hides behind nine correct ones.</p>
 </div>
 <h2 id="244-iterative-refinement-through-conversation">24.4 Iterative Refinement Through Conversation<a class="headerlink" href="#244-iterative-refinement-through-conversation" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-24.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch24/24-04.svg"><img alt="A conversation carries edit state forward" src="../../images/technical/ch24/24-04.svg" /></a></p>
+<figcaption>Keep the source image and version identity so a follow-up applies to the intended result.</figcaption>
+</figure>
+<!-- edge:concept-24.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A real photo-editing conversation is rarely one request. It is a request followed by "a bit more," "actually undo that," or "no, make it cooler instead" -- and each of those needs a real, structural answer, not a fresh, independent reparse that forgets everything that came before.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

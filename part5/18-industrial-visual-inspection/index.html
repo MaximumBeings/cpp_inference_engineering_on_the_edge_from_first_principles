@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-18-industrial-visual-inspection-edge-deployed-defect-detection-on-manufacturing-lines">Chapter 18: Industrial Visual Inspection: Edge-Deployed Defect Detection on Manufacturing Lines<a class="headerlink" href="#chapter-18-industrial-visual-inspection-edge-deployed-defect-detection-on-manufacturing-lines" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/18.svg"><img alt="Chapter 18: A manufacturing inspection decision path" src="../../images/chapter-openers/18.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How a real machine-vision camera's frame actually arrives at an inference engine -- not as a single, ready-made image file, but as an unreliable stream of UDP-sized packets that a frame-grabber protocol like GigE Vision Streaming Protocol (GVSP) must reassemble, in the right order or not, before a single pixel is usable.</li>
@@ -2515,6 +2522,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="181-gige-vision-frame-acquisition-and-hardware-triggering">18.1 GigE Vision Frame Acquisition and Hardware Triggering<a class="headerlink" href="#181-gige-vision-frame-acquisition-and-hardware-triggering" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-18.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch18/18-01.svg"><img alt="Acquisition begins with a capture event" src="../../images/technical/ch18/18-01.svg" /></a></p>
+<figcaption>A missing or late frame must have a defined handling path rather than silently shifting inspection order.</figcaption>
+</figure>
+<!-- edge:concept-18.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A manufacturing line's camera does not hand an inference engine a finished image. It hands it a stream of network packets, arriving over UDP, which offers no guarantee of order and no guarantee that every packet even arrives. The very first job any edge inference engine on a real line has -- before a single pixel reaches a vision encoder -- is turning that unreliable packet stream back into one complete, correctly ordered frame, and knowing honestly when it has failed to do so.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2957,6 +2971,13 @@
 <p>It is tempting to reassemble a frame by simply appending each arriving payload packet's bytes to a growing buffer, in the order they happen to arrive -- and on a quiet local test network, this often even appears to work, because packets frequently do arrive in order. Real UDP delivery offers no such guarantee, and a single out-of-order packet under that scheme corrupts the entire frame silently, with no error and no way downstream to detect it happened. The fix <code>FrameReassembler</code> applies is placing every payload chunk at the explicit byte offset its own header field states (<code>packet_id * CHUNK_BYTES</code>), independent of arrival order entirely -- proven correct here not by hoping a test network stays quiet, but by a self-test that deliberately shuffles delivery order and confirms the reassembled pixels are still byte-identical to the reference.</p>
 </div>
 <h2 id="182-image-preprocessing-and-the-qwen25-vl-vision-encoder">18.2 Image Preprocessing and the Qwen2.5-VL Vision Encoder<a class="headerlink" href="#182-image-preprocessing-and-the-qwen25-vl-vision-encoder" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-18.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch18/18-02.svg"><img alt="Pixels become model features" src="../../images/technical/ch18/18-02.svg" /></a></p>
+<figcaption>Use the model-specific preprocessing contract. A generic resize is not a universal encoder input.</figcaption>
+</figure>
+<!-- edge:concept-18.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Section 18.1's <code>FrameReassembler</code> already hands this section exactly the input a real deployment has: a raw MONO8/RGB8 pixel buffer, straight off the sensor. That is one genuine advantage a machine-vision pipeline has over a general-purpose photo pipeline -- there is no JPEG or PNG to decode at all, because a GigE Vision camera never encodes one in the first place. This section starts from that raw buffer and builds everything Qwen2.5-VL's own vision encoder needs from it.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3503,6 +3524,13 @@
 <p>On a grid exactly 2 patches wide, "four row-major-consecutive patches" and "one real 2x2 spatial block" happen to describe the SAME four indices, so a bug that merges by row-major order instead of by real spatial adjacency would pass a test built on a 2-wide grid without ever being exercised. This section's own Test 3 deliberately uses a 4x4 grid specifically because a 4-wide grid is where the two groupings first diverge -- block (0,0)'s real spatial neighborhood is <code>{0, 1, 4, 5}</code>, while four row-major-consecutive patches starting at index 0 would wrongly be <code>{0, 1, 2, 3}</code>, one entire row rather than a square. The general lesson: a geometric correctness property should be tested on the smallest input where the bug it is guarding against and the correct behavior would actually produce two DIFFERENT answers, not the smallest input where the code merely runs without crashing.</p>
 </div>
 <h2 id="183-wiring-the-vision-encoder-into-the-qwen2-decoder">18.3 Wiring the Vision Encoder into the Qwen2 Decoder<a class="headerlink" href="#183-wiring-the-vision-encoder-into-the-qwen2-decoder" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-18.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch18/18-03.svg"><img alt="Vision features join the language input" src="../../images/technical/ch18/18-03.svg" /></a></p>
+<figcaption>The supported model determines the feature insertion and positional conventions.</figcaption>
+</figure>
+<!-- edge:concept-18.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Section 18.2 turned a raw camera frame into a small handful of visual tokens, each one already projected into the text decoder's own embedding space. This section does the one thing that makes "vision-LANGUAGE model" more than two separate models bolted together: splicing those visual tokens directly into a text token sequence, in place of a reserved placeholder ID, and running the IDENTICAL, unchanged Qwen2 decoder this book has verified since Chapter 15 over the combined sequence.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -4620,6 +4648,13 @@
 <p>A fusion routine that pads a shortfall of visual tokens with zero vectors, or silently drops the excess when there are too many, will not crash and will not produce an obviously wrong-looking output -- it will produce a plausible-looking hidden state computed from a scrambled or truncated version of whatever image was actually captured, on a real production line, with no signal anywhere that anything went wrong. <code>build_fused_embeddings</code>'s own refusal in both directions turns a silent data-corruption bug into a loud, specific, immediately diagnosable error at the exact moment the mismatch occurs -- naming which direction it went and by how many tokens -- rather than a wrong disposition decision three functions downstream that nobody would think to trace back to a mismatched placeholder count.</p>
 </div>
 <h2 id="184-confidence-threshold-disposition-and-sqlite-defect-logging">18.4 Confidence-Threshold Disposition and SQLite Defect Logging<a class="headerlink" href="#184-confidence-threshold-disposition-and-sqlite-defect-logging" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-18.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch18/18-04.svg"><img alt="A model suggestion is not a line disposition" src="../../images/technical/ch18/18-04.svg" /></a></p>
+<figcaption>A schema-valid response still needs task validation and a safe uncertain-result path.</figcaption>
+</figure>
+<!-- edge:concept-18.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Section 18.3 produced one real, finite hidden state per inspected part, but a hidden state is not a decision a factory line can act on. A real inspection station needs exactly two more things: a rule that turns the model's own stated verdict and confidence into one of three dispositions a conveyor's downstream gate actually understands, and a durable, queryable record of every decision this line ever made -- because "why did the line reject part #48213 at 2:14 this morning" is a real question a quality engineer eventually asks, and "the model said so" is not an answer without a logged confidence and defect type to point to.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -4986,6 +5021,13 @@
 <p>A single, symmetric threshold applied to every reading -- "accept if confidence exceeds 0.70, reject otherwise" -- treats "the model thinks this is defective" and "the model thinks this is fine" as the same kind of claim needing the same bar of certainty, when a real line's two failure modes have very different real costs: auto-rejecting a genuinely good part on a shaky positive read wastes real material, while auto-accepting a genuinely defective part on a shaky negative read ships a real defect. This section's own asymmetric thresholds -- a HIGH bar to auto-reject, a LOWER bar to auto-accept, with the gap between them routed to REVIEW rather than forced into either extreme -- is not an approximation of the "correct" single threshold; it is the honest recognition that these are two different decisions with two different real costs, and pretending one number could correctly serve both is the actual bug a symmetric threshold would introduce.</p>
 </div>
 <h2 id="185-opc-ua-integration-into-the-messcada-line">18.5 OPC UA Integration into the MES/SCADA Line<a class="headerlink" href="#185-opc-ua-integration-into-the-messcada-line" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-18.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch18/18-05.svg"><img alt="Bridge inspection results to the line system" src="../../images/technical/ch18/18-05.svg" /></a></p>
+<figcaption>Integration code must distinguish proposed results, accepted records and confirmed downstream actions.</figcaption>
+</figure>
+<!-- edge:concept-18.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Section 18.4 gave this line a durable, queryable local record of every decision it ever made, but a real factory does not learn what happened by a separate station querying that database directly -- it learns from its SCADA/MES system, which itself learns from the plant floor over OPC UA, the vendor-neutral protocol that lets a PLC, an HMI, a historian, and a supervisory system all read and write the SAME typed, named nodes without every device needing to speak every other device's proprietary format.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

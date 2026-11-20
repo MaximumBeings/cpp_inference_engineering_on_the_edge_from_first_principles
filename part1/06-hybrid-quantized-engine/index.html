@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-6-the-hybrid-quantized-engine-mixing-precisions-for-different-jobs">Chapter 6: The Hybrid Quantized Engine -- Mixing Precisions for Different Jobs<a class="headerlink" href="#chapter-6-the-hybrid-quantized-engine-mixing-precisions-for-different-jobs" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/06.svg"><img alt="Chapter 6: Use precision where it matters" src="../../images/chapter-openers/06.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why giving every weight matrix the same quantization format is a mistake that has nothing to do with some matrices being harder to quantize than others — the raw rounding error a block format introduces depends only on the format's bit width, verified directly by quantizing an attention-shaped and an FFN-shaped matrix from the same distribution and finding statistically identical error.</li>
@@ -2514,6 +2521,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="61-why-hybrid-same-format-different-consequences">6.1 Why Hybrid: Same Format, Different Consequences<a class="headerlink" href="#61-why-hybrid-same-format-different-consequences" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-6.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch06/06-01.svg"><img alt="Equal byte savings can have unequal model effects" src="../../images/technical/ch06/06-01.svg" /></a></p>
+<figcaption>Sensitivity is a policy input. The diagram does not claim measured model-quality improvements.</figcaption>
+</figure>
+<!-- edge:concept-6.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>It would be convenient if some weight matrices were simply more "quantizable" than others — if an attention matrix's values were, in some measurable sense, harder to round to 4 bits than an FFN matrix's values. That is not the story this section finds. Rounding a block of 32 weights to Q4_0 or Q8_0 introduces an error that depends on the block's own values and the format's bit width — nothing about the matrix's role in a transformer enters into that calculation. What actually differs by role is what happens to that error AFTER it is introduced: an attention weight feeds a dot product that gets normalized by softmax and then very often consumed through a discrete decision (which cached position wins the most attention weight), and a small perturbation can flip that decision outright whenever two positions are nearly tied. An FFN weight feeds a smooth, non-competitive SiLU gate with no equivalent discrete decision to flip. Same format, same raw error, different consequences.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -3007,6 +3021,13 @@
 <p>This section's own first draft measured the total-variation distance between the FP32 and Q4-quantized softmax distributions, expecting a small raw score error to come out amplified into a larger distributional shift. It came out SMALLER instead: softmax's outputs live in a bounded probability simplex, which caps how far the bulk distribution can move no matter how large the input perturbation is. The real fragility was invisible in that number because total variation measures the WRONG thing — a small average shift across many possible outcomes, not whether the single outcome that gets acted on (the argmax) actually changed. Measuring the argmax flip rate across many independent trials instead of one distribution's total variation is what actually surfaces the effect this section is about.</p>
 </div>
 <h2 id="62-a-per-tensor-quantization-policy-encoded-in-the-gguf-type-tag">6.2 A Per-Tensor Quantization Policy, Encoded in the GGUF Type Tag<a class="headerlink" href="#62-a-per-tensor-quantization-policy-encoded-in-the-gguf-type-tag" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-6.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch06/06-02.svg"><img alt="A type tag drives format-specific dispatch" src="../../images/technical/ch06/06-02.svg" /></a></p>
+<figcaption>The policy is persisted in tensor metadata so loading and computation agree on representation.</figcaption>
+</figure>
+<!-- edge:concept-6.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Section 6.1 established why different weight classes deserve different formats. Nothing new needs to be invented to store that decision: Chapter 5's tensor descriptor already carries a per-tensor type tag, because that is what real GGUF files do — a single file with a norm vector in F32 sitting next to an FFN matrix in Q4_0 is not a special case, it is the normal case. The policy itself is just a small function from a weight's role to a format. The part that has to be gotten right is the READER'S half of the bargain: it must dispatch on the descriptor's own recorded type, tensor by tensor, and never guess a format from the tensor's name.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3583,6 +3604,13 @@
 <p>A dispatcher that checks whether a tensor's name contains the substring "ffn" and assumes Q4_0 on a match gets <code>blk.0.ffn_norm.weight</code> wrong — that tensor is genuinely F32 despite its name, because it is a norm vector that happens to sit before the FFN block, not an FFN weight matrix itself. Reinterpreting its true F32 bytes as Q4_0 blocks (an fp16 scale followed by packed 4-bit nibbles) does not fail loudly: it produces values that are numerically plausible-looking floats, just completely wrong ones, with a relative error over 7 — not a quantization rounding error, a wholesale misreading of what the bytes mean. The descriptor's own <code>type</code> field is the only source of truth; a tensor's name is a human-readable label, never a format specification.</p>
 </div>
 <h2 id="63-the-memory-budget-uniform-vs-hybrid-quantization">6.3 The Memory Budget: Uniform vs. Hybrid Quantization<a class="headerlink" href="#63-the-memory-budget-uniform-vs-hybrid-quantization" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-6.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch06/06-03.svg"><img alt="Account for every tensor, including metadata" src="../../images/technical/ch06/06-03.svg" /></a></p>
+<figcaption>Hybrid memory usage is a sum of encoded sizes, not a single nominal bits-per-weight number.</figcaption>
+</figure>
+<!-- edge:concept-6.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A hybrid policy is only worth adopting if it is cheap. This section prices Section 6.2's policy in real bytes for a large-scale model, using Chapter 5.3's own tensor-count formula and Section 6.1's own per-layer element-count formulas — and it prices the WRONG policy first, on purpose, because that is what actually happened while writing this chapter: the first version of Section 6.2's policy kept both norm weights and the embedding table at F32, on the reasoning that both are "small and sensitive." That reasoning holds for norm weights, which really are small — tens of thousands of elements regardless of model size. It does not hold for the embedding table, whose size scales with VOCABULARY, not model depth, and a modern large-vocabulary embedding table is tens to hundreds of millions of elements, not tens of thousands.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3813,6 +3841,13 @@
 <p>Norm weights and the embedding table both sound like they belong in the same "small, sensitive, keep it exact" bucket — neither is a big square weight matrix, and both feed something that touches every token. But "small" is doing all the work in that sentence, and it is true for one of them and false for the other: norm weights total a few tens of thousands of elements per model regardless of scale, while an embedding table's element count is <code>vocabulary_size x hidden_dimension</code>, and a 128,000-token vocabulary at a 4096-dimensional hidden size alone is over half a billion elements. Grouping them by a shared adjective instead of checking their actual element counts is exactly how this chapter's own first-draft policy ended up costing 86% more than uniform Q4_0 — a mistake that a five-line calculation, run before committing to the policy rather than after, would have caught immediately.</p>
 </div>
 <h2 id="64-a-hybrid-forward-pass-loaded-via-mmap-from-a-real-gguf-file">6.4 A Hybrid Forward Pass, Loaded via mmap From a Real GGUF File<a class="headerlink" href="#64-a-hybrid-forward-pass-loaded-via-mmap-from-a-real-gguf-file" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-6.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch06/06-04.svg"><img alt="The mapped file selects the forward-pass kernels" src="../../images/technical/ch06/06-04.svg" /></a></p>
+<figcaption>The runtime must not interpret a Q4 block using a Q8 or floating-point kernel.</figcaption>
+</figure>
+<!-- edge:concept-6.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Every section so far has worked with weights generated in-process. This section writes an actual GGUF file to disk under Section 6.2's corrected policy, memory-maps it with Chapter 5.3's zero-copy technique, and runs one complete transformer layer's forward pass against the mapped weights — RMSNorm, RoPE, grouped-query attention with a KV cache, and a SwiGLU FFN, exactly as Chapter 3 built each piece, with the projections now reading fused dot products directly off mmap'd Q8_0 and Q4_0 blocks instead of in-process float arrays. The KV cache stays exactly Chapter 3.4's KVCache, unchanged and still FP32 — TurboQuant is Chapter 7's subject, and using a technique this book has not built yet would be getting ahead of the material.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -4449,6 +4484,13 @@
 <p><code>MappedGGUF::get_f32</code>, <code>get_q8</code>, and <code>get_q4</code> each reinterpret a tensor's raw bytes according to whichever format their NAME promises — none of them looks at the tensor descriptor's own recorded <code>type</code> field to confirm that promise is true. That is fine as long as every caller already knows the right format to ask for, which was true in Chapter 5.3 (the embedding table really was F32 there) and stopped being true the moment Section 6.2 changed the policy. Calling <code>get_f32("token_embd.weight")</code> after that change compiles, links, runs, and returns a <code>std::span&lt;const float&gt;</code> that looks completely normal — it just contains values reinterpreted from the wrong byte layout, off by up to 33 orders of magnitude in this section's own measurement, with nothing in the type system or the accessor itself to catch it. The fix is never to harden the accessors (they cannot know your intent); it is to check <code>TensorInfo::type</code> at the call site before deciding which accessor to call, exactly as Section 6.2's dispatcher already does.</p>
 </div>
 <h2 id="65-the-complete-hybrid-engine-multi-layer-multi-token-end-to-end">6.5 The Complete Hybrid Engine: Multi-Layer, Multi-Token, End to End<a class="headerlink" href="#65-the-complete-hybrid-engine-multi-layer-multi-token-end-to-end" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-6.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch06/06-05.svg"><img alt="Carry the same policy through every layer" src="../../images/technical/ch06/06-05.svg" /></a></p>
+<figcaption>Per-layer execution must preserve the tensor format, activation shape and residual dependencies.</figcaption>
+</figure>
+<!-- edge:concept-6.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>This is the payoff the previous four sections built toward: a complete inference engine, wired end to end, reading a real multi-layer GGUF file via <code>mmap</code>, running Section 6.2's hybrid policy through every layer, and generating tokens autoregressively. Nothing here is new machinery — Section 6.4's single layer is simply run once per layer, each with its own independent KV cache, and the final layer's output feeds one more genuine architectural step that this section's own experiment shows is not optional: a final RMSNorm before the projection back to vocabulary logits.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

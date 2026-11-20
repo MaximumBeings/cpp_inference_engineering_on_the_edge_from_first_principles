@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-25-body-worn-and-personal-cameras-evidence-documentation-and-health-tracking">Chapter 25: Body-Worn and Personal Cameras: Evidence Documentation and Health Tracking<a class="headerlink" href="#chapter-25-body-worn-and-personal-cameras-evidence-documentation-and-health-tracking" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/25.svg"><img alt="Chapter 25: Sample camera streams into reviewable evidence" src="../../images/chapter-openers/25.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to build a real frame-sampling strategy for continuous body-camera footage -- a fixed periodic rate unioned with real motion-triggered frames -- and a scene-tagging data model whose own types make facial recognition structurally impossible, proven at compile time rather than merely promised in a comment or a policy document.</li>
@@ -2414,6 +2421,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="251-body-camera-frame-sampling-and-scene-tagging-under-a-no-facial-recognition-boundary">25.1 Body-Camera Frame Sampling and Scene Tagging Under a No-Facial-Recognition Boundary<a class="headerlink" href="#251-body-camera-frame-sampling-and-scene-tagging-under-a-no-facial-recognition-boundary" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-25.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch25/25-01.svg"><img alt="Sample frames under a declared privacy boundary" src="../../images/technical/ch25/25-01.svg" /></a></p>
+<figcaption>The chapter boundary excludes facial recognition. Identity must not be inferred from scene tags.</figcaption>
+</figure>
+<!-- edge:concept-25.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A body camera recording at 30 frames per second for an entire shift generates far more frames than any edge device can process in real time, and it must never be able to recognize a specific person even if someone later asked it to. This section builds a real frame-sampling strategy that keeps coverage honest without processing every frame, and a scene-tagging data model that makes identification structurally impossible rather than merely disallowed.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2779,6 +2793,13 @@
 <p>It is tempting to build <code>PersonBox</code> first with whatever fields seem useful, then write a comment or a compliance document saying "this system does not perform facial recognition." That leaves the actual guarantee resting entirely on every future contributor reading and honoring a comment. Section 25.1's own <code>HasIdentityField</code> concept and its <code>static_assert</code> move that guarantee into the type system itself: a future edit that added a <code>.name</code>, <code>.person_id</code>, or <code>.face_embedding</code> field to <code>PersonBox</code> would not produce a policy violation to be caught in review -- it would produce a compiler error, on every build, for every contributor, forever. A real legal and ethical boundary this important deserves a mechanism stronger than a comment nobody is forced to read.</p>
 </div>
 <h2 id="252-incident-report-drafting-and-chain-of-custody">25.2 Incident Report Drafting and Chain of Custody<a class="headerlink" href="#252-incident-report-drafting-and-chain-of-custody" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-25.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch25/25-02.svg"><img alt="Evidence handling preserves source identity" src="../../images/technical/ch25/25-02.svg" /></a></p>
+<figcaption>A generated narrative is derived material. Retain the original and an auditable derivation trail.</figcaption>
+</figure>
+<!-- edge:concept-25.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A body camera's own raw per-frame tags are not a report a human can read or a court can trust. This section turns them into a real chronological narrative, honestly labels any real gap in activity, and computes a real, tamper-evident checksum proving exactly what record a report was built from.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3140,6 +3161,13 @@
 <p>A report generator that only ever emits a line when a scene tag is present looks, at a glance, like it is simply being efficient -- why print anything about a period where nothing of note happened? The real problem is that a report with silent gaps is indistinguishable from a report built from an incomplete or tampered recording: a reviewer reading it later cannot tell "nothing happened here" apart from "this section of footage never made it into the report." Test 5 exists specifically to demonstrate the fix: an explicit, honestly labeled "No notable activity" line for every real gap means the report's own silence is never ambiguous, and the chain-of-custody hash over the complete underlying frame record (not just the frames that happened to carry a tag) is what actually backs up that the full record was considered, not merely the interesting parts of it.</p>
 </div>
 <h2 id="253-exercise-form-analysis-and-rep-counting">25.3 Exercise-Form Analysis and Rep Counting<a class="headerlink" href="#253-exercise-form-analysis-and-rep-counting" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-25.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch25/25-03.svg"><img alt="Rep counting follows a defined state transition" src="../../images/technical/ch25/25-03.svg" /></a></p>
+<figcaption>Occlusion and camera angle can invalidate pose estimates; provide an uncertain state.</figcaption>
+</figure>
+<!-- edge:concept-25.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A camera coaching a squat needs a real number for how deep a joint bent, and a real, honest way to decide whether a full repetition actually happened -- not merely whether the person moved.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3407,6 +3435,13 @@
 <p>A naive rep counter watching for "went down, now going back up" would have counted Test 2's own partial rep -- the one that only reached 128 degrees before returning to standing -- as a real completed repetition, because motion reversed direction. <code>RepCounter</code>'s own <code>DESCENDING</code> state specifically distinguishes "started descending" from "actually reached <code>BOTTOM</code>," and a rep only counts on a full real cycle that passed through <code>BOTTOM</code> on the way. The distinction matters for exactly the reason a fitness application exists in the first place: an athlete relying on this system's own rep count to know whether they hit their real training target deserves a system that only counts a repetition that actually satisfied its own stated depth requirement, not one that rewards a shortcut the system itself was supposed to catch.</p>
 </div>
 <h2 id="254-camera-based-nutrition-tracking-via-a-usda-style-offline-reference">25.4 Camera-Based Nutrition Tracking via a USDA-Style Offline Reference<a class="headerlink" href="#254-camera-based-nutrition-tracking-via-a-usda-style-offline-reference" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-25.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch25/25-04.svg"><img alt="Nutrition estimates depend on several uncertain links" src="../../images/technical/ch25/25-04.svg" /></a></p>
+<figcaption>An image cannot reliably determine ingredients or exact portion mass on its own.</figcaption>
+</figure>
+<!-- edge:concept-25.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A nutrition tracker built for a personal device cannot depend on a live network call to USDA FoodData Central for every single meal -- the whole point of a privacy-first architecture is that a photograph of dinner never needs to leave the device it was taken on. This section builds a real, complete pipeline against a small, honestly-scoped offline reference instead.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

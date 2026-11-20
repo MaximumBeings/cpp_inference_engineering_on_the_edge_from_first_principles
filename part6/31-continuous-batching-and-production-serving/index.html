@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-31-continuous-batching-and-production-serving-architecture">Chapter 31: Continuous Batching and Production Serving Architecture<a class="headerlink" href="#chapter-31-continuous-batching-and-production-serving-architecture" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/31.svg"><img alt="Chapter 31: Continuous batching schedules active requests" src="../../images/chapter-openers/31.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why the naive, real batching scheme early inference servers actually used -- fixed-size batches that cannot start until the previous one fully retires -- wastes real GPU-slot time on padding and delays a short request that arrives just after a long batch has already started, quantified with exact hand-traceable numbers rather than asserted.</li>
@@ -2415,6 +2422,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="311-the-static-batching-problem-and-head-of-line-blocking">31.1 The Static-Batching Problem and Head-of-Line Blocking<a class="headerlink" href="#311-the-static-batching-problem-and-head-of-line-blocking" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-31.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch31/31-01.svg"><img alt="Static batches wait for their slowest member" src="../../images/technical/ch31/31-01.svg" /></a></p>
+<figcaption>Scheduling improves resource use only within the actual compute, memory and latency constraints.</figcaption>
+</figure>
+<!-- edge:concept-31.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>The simplest way to batch real inference requests together is also the most wasteful one: group a fixed number of them, run the whole group until every single member is done, and only then admit the next group. This section builds a real, from-scratch simulator for exactly that scheme, to quantify -- not merely describe -- how much real GPU-slot time it wastes and how badly it can delay a request unlucky enough to arrive at the wrong moment.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2699,6 +2713,13 @@
 <p>It is tempting to think a request's own worst-case real delay under static batching is bounded by how many OTHER requests are ahead of it. Test 3 shows the real bound that actually matters is completely different: a request that arrives one single step after a batch has already started is not delayed by "one step's worth of queue" -- it is delayed by the ENTIRE remaining duration of whatever the longest-running member of that batch still needs, regardless of how short its own real job is. A 1-step request arriving moments too late waited a real 9 steps before its own batch even began, purely because static batching's own retirement rule has no way to let a new, urgent request cut in once a batch is already running -- which is exactly the real constraint continuous batching (Section 31.3) is built to remove.</p>
 </div>
 <h2 id="312-the-prefilldecode-conflict-and-chunked-prefill">31.2 The Prefill/Decode Conflict and Chunked Prefill<a class="headerlink" href="#312-the-prefilldecode-conflict-and-chunked-prefill" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-31.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch31/31-02.svg"><img alt="Chunked prefill creates scheduling boundaries" src="../../images/technical/ch31/31-02.svg" /></a></p>
+<figcaption>Chunk size trades prefill progress against decode delay. The schedule is illustrative.</figcaption>
+</figure>
+<!-- edge:concept-31.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A serving step that only advances already-running sequences by one token each (decode) has a very different real cost profile from a step that processes an entirely new prompt in one shot (prefill), and naively mixing the two in a single step means the SLOWER of the two profiles imposes its own real cost on every sequence sharing that step -- including ones that have nothing to do with the new request at all.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2919,6 +2940,13 @@
 <p>Chunked prefill does not make a long prompt cheaper to process overall -- Test 3 confirms the total extra work across all 4 chunked steps conserves the unchunked total EXACTLY, to the unit. What chunking actually changes is when that real cost is paid: instead of one single step absorbing the entire spike, several smaller steps each absorb a bounded fraction of it, keeping every individual step's own real latency predictable for the sequences that happen to share it. A system that chunks prefill expecting a net real throughput gain from chunking alone will be disappointed -- the genuine benefit is bounded worst-case per-step latency, which is a real, different, and for a production serving system, usually far more valuable property than raw total throughput.</p>
 </div>
 <h2 id="313-a-continuous-batching-scheduler-built-from-scratch">31.3 A Continuous-Batching Scheduler Built From Scratch<a class="headerlink" href="#313-a-continuous-batching-scheduler-built-from-scratch" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-31.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch31/31-03.svg"><img alt="An iteration explicitly updates active state" src="../../images/technical/ch31/31-03.svg" /></a></p>
+<figcaption>Do not exceed KV capacity merely because compute slots are available.</figcaption>
+</figure>
+<!-- edge:concept-31.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Static batching's own real flaw, quantified in Section 31.1, is structural: a slot cannot be reused until its ENTIRE batch retires, even if that slot's own request finished long ago. Continuous batching fixes this directly -- a slot frees the instant its own sequence finishes, and the very next scheduling step can admit a new request into it, with no need to wait for anything else in that batch.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3229,6 +3257,13 @@
 <p>It is tempting to think continuous batching wins simply because it is somehow more generous with GPU capacity. Test 4 shows this is not the mechanism at all: with only a single real slot -- the least generous possible configuration -- continuous batching still behaves correctly and wastes zero real capacity, because it degenerates cleanly to strict FIFO. The real advantage continuous batching provides over static batching, demonstrated directly in Test 2 on an IDENTICAL 2-slot workload, comes entirely from WHEN a finished sequence's own slot becomes available for reuse -- immediately, rather than only once an entire batch retires -- not from having access to any more real hardware than static batching already had.</p>
 </div>
 <h2 id="314-numerical-debugging-tools-nan-propagation-tracing-and-floating-point-drift-detection">31.4 Numerical Debugging Tools: NaN-Propagation Tracing and Floating-Point Drift Detection<a class="headerlink" href="#314-numerical-debugging-tools-nan-propagation-tracing-and-floating-point-drift-detection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-31.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch31/31-04.svg"><img alt="Find the first divergent or nonfinite tensor" src="../../images/technical/ch31/31-04.svg" /></a></p>
+<figcaption>A final-output mismatch does not identify its cause. Use absolute and relative tolerances explicitly.</figcaption>
+</figure>
+<!-- edge:concept-31.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A serving system running Section 31.3's own scheduler continuously, across unpredictable real traffic, eventually hits the numerical instabilities Section 30.2 warned about -- but at serving scale, the real question is no longer just "did a NaN appear," it is "where did it actually START," and a second, quieter real risk appears alongside it: continuous batching's own traffic-dependent regrouping of sequences can change the order a real reduction is computed in from run to run, and floating-point addition is not associative.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

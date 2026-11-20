@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-27-low-latency-market-signal-inference-near-the-exchange">Chapter 27: Low-Latency Market-Signal Inference Near the Exchange<a class="headerlink" href="#chapter-27-low-latency-market-signal-inference-near-the-exchange" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/27.svg"><img alt="Chapter 27: Fit inference into a market-data latency budget" src="../../images/chapter-openers/27.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to compute a real order book's mid-price, size-weighted "microprice," and order-book imbalance from a Level 1 top-of-book snapshot -- the same real, published market-microstructure signals a real market-making or execution system computes on every book update.</li>
@@ -2414,6 +2421,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="271-order-book-microstructure-features">27.1 Order Book Microstructure Features<a class="headerlink" href="#271-order-book-microstructure-features" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-27.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch27/27-01.svg"><img alt="A small book imbalance example" src="../../images/technical/ch27/27-01.svg" /></a></p>
+<figcaption>Illustrative feature arithmetic only. Handle a zero denominator and stale or incomplete market data.</figcaption>
+</figure>
+<!-- edge:concept-27.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A real electronic exchange's own top-of-book -- the single best bid, best ask, and their own displayed sizes -- already carries real, computable signal before any history or model is involved. The mid-price is the obvious first cut, but the "microprice" is a more informative real quantity: it weights each side's price by the OPPOSITE side's own displayed size, so that heavy buying pressure (a large bid size resting against a thin ask) pulls the microprice up toward the ask, reflecting the real expectation that the thin side is more likely to be consumed next. Order-book imbalance captures the same asymmetry as a single bounded number.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2659,6 +2673,13 @@
 <p>Every function in this section operates on TOP-OF-BOOK ONLY -- the single best bid and best ask level. A real limit order book has many price levels beneath the top, and a large real order can be deliberately split into small "iceberg" slices so that only a fraction of its own true size is ever displayed at the top level at once -- exactly the kind of hidden liquidity this section's own <code>imbalance</code> and <code>microprice</code> formulas have no way to see, since they only ever read the displayed size at the best level. A market participant relying on this section's own signals alone, without also tracking how the top-of-book levels are refreshed over time, would be blind to a large resting order deliberately kept off the visible top of the book -- a real, well-documented limitation of any level-1-only signal, not a bug in this section's own arithmetic.</p>
 </div>
 <h2 id="272-the-latency-budget-tick-to-trade-deadline-enforcement">27.2 The Latency Budget: Tick-to-Trade Deadline Enforcement<a class="headerlink" href="#272-the-latency-budget-tick-to-trade-deadline-enforcement" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-27.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch27/27-02.svg"><img alt="A deadline is an end-to-end constraint" src="../../images/technical/ch27/27-02.svg" /></a></p>
+<figcaption>No latency numbers are implied. Measure the complete path under the intended system load.</figcaption>
+</figure>
+<!-- edge:concept-27.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A hard real-time deadline changes what "correct" means: a trading decision computed correctly but too late is not a weaker answer, it is an answer that may already be wrong, since the book it was computed from has likely moved on. Exactly like Chapter 10.1's own derivation of a single decode step's latency, every microsecond value in this section is a stated, labeled parameter -- never a value read from a wall clock -- so this section's own locked self-test output stays identical no matter how fast or slow the specific machine running it happens to be.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2919,6 +2940,13 @@
 <p>Every microsecond value in this file -- each <code>PipelineStage</code>'s own cost, every event's own arrival timestamp -- is a STATED, illustrative architectural parameter, exactly like Chapter 8.1's own illustrative CPU peak-bandwidth figures, not a measurement of any specific real exchange's own real infrastructure. A real production system's actual tick-to-trade latency depends on real network jitter, real operating-system scheduling, real cache and TLB behavior, and real garbage-collection or memory-allocation pauses in whatever language it is written in -- none of which this section's own pure, deterministic arithmetic can predict. Treating this section's own stated-parameter pipeline as a substitute for actually instrumenting and measuring a real deployed system's own real latency would repeat the identical mistake Chapter 8's own roofline model warned against: an idealized derivation is a real, useful ceiling to reason about, never a stand-in for a real measurement.</p>
 </div>
 <h2 id="273-financial-news-sentiment-scoring">27.3 Financial News Sentiment Scoring<a class="headerlink" href="#273-financial-news-sentiment-scoring" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-27.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch27/27-03.svg"><img alt="Text becomes a time-stamped sentiment signal" src="../../images/technical/ch27/27-03.svg" /></a></p>
+<figcaption>A sentiment score is an uncertain feature, not a prediction of a guaranteed price move.</figcaption>
+</figure>
+<!-- edge:concept-27.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A real, well-documented finding in financial text analysis is that a generic English sentiment dictionary badly misclassifies financial text: ordinary business vocabulary such as "tax," "liability," and "cost" describes routine, expected line items, not bad news, yet a generic lexicon flags all three as negative. The real, published fix -- Loughran and McDonald's own finance-specific sentiment methodology -- deliberately excludes this routine vocabulary from its own negative word list. This section builds a small, explicitly illustrative lexicon modeled on that real methodology, and demonstrates the exact contrast it exists to fix.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3201,6 +3229,13 @@
 <p><code>POS_LEXICON</code> and <code>NEG_LEXICON</code> in this file are small, illustrative lists built to demonstrate the real methodology, not the actual published Loughran-McDonald dictionaries, which span several thousand words across seven real categories (negative, positive, uncertainty, litigious, strong modal, weak modal, and constraining language) developed and validated against real 10-K filings. Deploying this section's own narrow illustrative vocabulary against real production news flow would miss the large majority of real finance-relevant sentiment words entirely and silently score most real headlines as a hollow NEUTRAL -- the identical narrow-closed-vocabulary caution Chapter 12's own tokenizer, Chapter 24's own closed intent vocabulary, and Chapter 26.3's own amount-in-words parser each stated for their own real, fixed, and deliberately limited scope.</p>
 </div>
 <h2 id="274-signal-fusion-and-the-trading-decision-engine">27.4 Signal Fusion and the Trading Decision Engine<a class="headerlink" href="#274-signal-fusion-and-the-trading-decision-engine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-27.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch27/27-04.svg"><img alt="Signal fusion still needs execution controls" src="../../images/technical/ch27/27-04.svg" /></a></p>
+<figcaption>Backtest and deployment controls are separate from computing an inference result.</figcaption>
+</figure>
+<!-- edge:concept-27.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A trading decision is only as trustworthy as its own audit trail, and a signal that arrived too late to act on safely is not a weaker signal -- it is not a usable signal at all. This section's capstone fuses Section 27.1's order-book imbalance and price pressure with Section 27.3's sentiment score into one weighted score and a three-way action, reapplying Chapter 26.4's own never-suppress-a-named-flag structure -- but inverted for this real-time domain, so Section 27.2's own deadline signal forces the SAFEST disposition rather than the strictest one.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

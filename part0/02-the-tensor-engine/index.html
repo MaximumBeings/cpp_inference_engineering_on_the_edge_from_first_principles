@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-2-the-tensor-engine-stdmdspan-arena-allocators-and-mixed-precision">Chapter 2: The Tensor Engine -- std::mdspan, Arena Allocators, and Mixed Precision<a class="headerlink" href="#chapter-2-the-tensor-engine-stdmdspan-arena-allocators-and-mixed-precision" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/02.svg"><img alt="Chapter 2: A tensor view describes existing storage" src="../../images/chapter-openers/02.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How <code>std::mdspan</code> turns a raw pointer into a multi-dimensional, indexed view with zero copies and zero allocations, and how to read its three template parameters — element type, extents, and layout — to know exactly what shape and memory order any given <code>mdspan</code> describes.</li>
@@ -2512,6 +2519,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="21-stdmdspan-a-zero-copy-view-over-flat-memory">2.1 std::mdspan: A Zero-Copy View Over Flat Memory<a class="headerlink" href="#21-stdmdspan-a-zero-copy-view-over-flat-memory" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-2.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch02/02-01.svg"><img alt="A two-dimensional view over one allocation" src="../../images/technical/ch02/02-01.svg" /></a></p>
+<figcaption>The view stores shape and strides; the arena owns the twelve elements.</figcaption>
+</figure>
+<!-- edge:concept-2.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A <code>std::vector&lt;float&gt;</code> is just a flat run of bytes; nothing about it says whether those bytes represent one long vector, a 32x128 tile, or a batch of token embeddings. <code>std::mdspan</code> adds exactly that missing layer — a way to say "read this flat buffer as if it had this shape" — without allocating anywhere or copying a single element. It is a view in the same sense <code>std::string_view</code> and <code>std::span</code> are views: a pointer plus metadata, nothing more.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2650,6 +2664,13 @@
 <p><code>std::mdspan</code> owns nothing. It stores a pointer and some shape/stride metadata, full stop — there is no reference count, no lifetime extension, and no copy of a single byte. If the <code>std::vector</code> (or array, or arena allocation) an <code>mdspan</code> was built over goes out of scope, is resized in a way that reallocates, or is freed, every <code>mdspan</code> still pointing at it is now a dangling view, and using it is undefined behavior exactly as if a raw pointer had outlived its target — because that is precisely what happened. This is not a defect to work around; it is the entire reason <code>mdspan</code> is cheap enough to build and destroy freely, and later sections (the arena allocator especially) depend directly on this "just a view" property to make <code>reset()</code> an O(1) operation.</p>
 </div>
 <h2 id="22-zero-copy-slicing-with-stdsubmdspan">2.2 Zero-Copy Slicing With std::submdspan<a class="headerlink" href="#22-zero-copy-slicing-with-stdsubmdspan" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-2.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch02/02-02.svg"><img alt="Slicing changes the view, not the allocation" src="../../images/technical/ch02/02-02.svg" /></a></p>
+<figcaption>A slice has a new origin and extents. Its lifetime cannot exceed the underlying storage.</figcaption>
+</figure>
+<!-- edge:concept-2.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Multi-head attention stores Q, K, and V projections as one tensor shaped <code>[Batch, Seq, Heads, HeadDim]</code>, but every head needs to operate on its own slice independently. Copying each head out into its own buffer before processing it would mean copying most of the tensor, every single step, purely to satisfy a shape requirement the data already satisfies — it is contiguous, it is already there, it just needs a different <em>view</em> of the same bytes. <code>std::submdspan</code> is that view.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2776,6 +2797,13 @@
 <p>Fixing <code>Heads</code> to a single index removes that dimension from the <em>shape</em>, but every other dimension keeps the exact stride it had in the original tensor — because the underlying bytes never moved. In this section's own trace, extracting head 1 leaves the sequence dimension's stride at 6 (the full <code>Heads * HeadDim</code> of the original tensor), not 2 (<code>HeadDim</code> alone, which is what a "the slice is now its own small tensor" assumption would predict). Code that reads a sub-view's <code>.stride()</code> values directly is safe; code that assumes a sliced tensor is as tightly packed as a freshly-allocated one of the same shape will silently compute wrong flat offsets the moment it bypasses <code>mdspan</code>'s own indexing.</p>
 </div>
 <h2 id="23-cache-optimized-layouts-why-loop-order-is-not-free">2.3 Cache-Optimized Layouts: Why Loop Order Is Not Free<a class="headerlink" href="#23-cache-optimized-layouts-why-loop-order-is-not-free" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-2.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch02/02-03.svg"><img alt="Loop order determines the traversal" src="../../images/technical/ch02/02-03.svg" /></a></p>
+<figcaption>Row-major layout favors walking across columns in the inner loop. Measure the real kernel.</figcaption>
+</figure>
+<!-- edge:concept-2.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Reading <code>data[5]</code> does not fetch four bytes — the CPU pulls in a full 64-byte cache line, sixteen floats, whether the program asked for them or not. A loop that reads memory in increasing address order gets the rest of that cache line for free, and the hardware prefetcher keeps the <em>next</em> line ready before the loop even asks for it. A loop that jumps across a large stride on every iteration gets none of that: each access is a fresh, uncached fetch, and the prefetcher — tuned for sequential access — cannot help at all.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -2919,6 +2947,13 @@
 <p>Aggressive optimization flags can vectorize a stride-1 inner loop far more effectively than a stride-<code>N</code> one, which sometimes makes the <em>gap</em> between the two orderings even larger at higher optimization levels, not smaller — there is no compiler flag that turns a memory-bound, cache-hostile access pattern into a cache-friendly one after the fact. The fix is always in the loop order or the underlying layout choice itself, never in the optimizer being asked to work harder around it.</p>
 </div>
 <h2 id="24-the-arena-allocator-o1-alloc-and-reset-for-per-token-scratch">2.4 The Arena Allocator: O(1) Alloc and Reset for Per-Token Scratch<a class="headerlink" href="#24-the-arena-allocator-o1-alloc-and-reset-for-per-token-scratch" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-2.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch02/02-04.svg"><img alt="Scratch storage advances a cursor" src="../../images/technical/ch02/02-04.svg" /></a></p>
+<figcaption>Aligned allocations advance the arena cursor. Reset reclaims scratch together after its users finish.</figcaption>
+</figure>
+<!-- edge:concept-2.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Every token a model generates needs a handful of scratch buffers — an activation vector, a temporary for layer norm, room for attention scores — that live for exactly one step and are then completely dead. Routing that through <code>malloc</code>/<code>free</code> on every single token means paying allocator bookkeeping and syscall overhead on the hottest loop in the program, and risking heap fragmentation as thousands of same-sized allocations are made and freed in a tight cycle. An arena sidesteps both problems by asking the operating system for memory exactly once.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3120,6 +3155,13 @@
 <p><code>reset()</code> does not know, and cannot know, whether every pointer it previously handed out is actually done being used — it trusts the caller completely. Holding onto a pointer from before a <code>reset()</code> call and dereferencing it afterward is a use-after-free in exactly the same sense as a dangling pointer into <code>free()</code>'d memory, except the corruption can be far more confusing to debug: the memory is very likely to still contain <em>plausible-looking</em> data (quite possibly the same tensor, briefly, until the next <code>alloc()</code> overwrites it), rather than failing loudly. The arena's contract is strict and entirely on the caller: every allocation made since the last <code>reset()</code> must be provably dead — not merely unused for now — before <code>reset()</code> is called again.</p>
 </div>
 <h2 id="25-mixed-precision-type-safe-multi-format-storage-with-stdvariant">2.5 Mixed Precision: Type-Safe Multi-Format Storage With std::variant<a class="headerlink" href="#25-mixed-precision-type-safe-multi-format-storage-with-stdvariant" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-2.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch02/02-05.svg"><img alt="A format tag selects a typed representation" src="../../images/technical/ch02/02-05.svg" /></a></p>
+<figcaption>std::variant makes the active storage alternative explicit. A tag does not convert the payload.</figcaption>
+</figure>
+<!-- edge:concept-2.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Model weights need to be stored compactly; accumulators and intermediate activations often need more headroom than a compact format provides. A codebase that handles both ends up needing the same kernel logic to run correctly over more than one underlying element type, and the naive way to allow that — a <code>void*</code> plus a manually-tracked type tag — turns any mismatch between the tag and the actual bytes into silent, undefined-behavior garbage rather than a compiler error.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

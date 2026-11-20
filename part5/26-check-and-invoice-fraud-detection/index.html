@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-26-check-and-invoice-fraud-detection-at-bank-branches-and-back-offices">Chapter 26: Check and Invoice Fraud Detection at Bank Branches and Back Offices<a class="headerlink" href="#chapter-26-check-and-invoice-fraud-detection-at-bank-branches-and-back-offices" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/26.svg"><img alt="Chapter 26: Cross-check financial document fields" src="../../images/chapter-openers/26.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to implement the real American Bankers Association routing-number checksum -- the identical published formula every US bank's own check-clearing system runs on every check -- and reapply Chapter 23.1's own real perceptual difference-hash (dHash) algorithm to signature comparison instead of product photography.</li>
@@ -2414,6 +2421,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="261-micr-checksum-validation-and-signature-comparison">26.1 MICR Checksum Validation and Signature Comparison<a class="headerlink" href="#261-micr-checksum-validation-and-signature-comparison" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-26.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch26/26-01.svg"><img alt="A checksum and a signature answer different questions" src="../../images/technical/ch26/26-01.svg" /></a></p>
+<figcaption>Use signals as review inputs. Neither mechanism alone establishes that a payment is legitimate.</figcaption>
+</figure>
+<!-- edge:concept-26.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A check's own MICR line is not just an identifier -- its routing number carries a real, published checksum, the same formula every US bank's own check-clearing system runs on every check that passes through it. A forged or badly transcribed routing number will very often fail this checksum outright, catching a structural problem before any human ever reads the check. Separately, a check's own payee signature can be compared against a signature on file using the identical real perceptual hash this book already built in Chapter 23.1 for a completely different purpose.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2673,6 +2687,13 @@
 <p>A checksum-valid routing number proves only that the 9 digits printed on the MICR line are INTERNALLY CONSISTENT with the ABA's own published formula -- it says nothing about whether that routing number belongs to a real, currently-operating bank (which would require a live lookup against the Federal Reserve's own routing-number registry, a real network dependency this section's own offline, deterministic discipline deliberately does not take on), and nothing at all about whether the account number, the signature, or the amount fields are genuine. A sophisticated forger who simply copies a real, valid routing number from a genuine check onto a fraudulent one would pass this specific check perfectly -- exactly why Section 26.4's own risk engine treats a checksum failure as one input among several, forcing escalation rather than either auto-clearing OR auto-rejecting on this signal alone.</p>
 </div>
 <h2 id="262-invoice-duplicate-detection">26.2 Invoice Duplicate Detection<a class="headerlink" href="#262-invoice-duplicate-detection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-26.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch26/26-02.svg"><img alt="Duplicate detection combines stable fields" src="../../images/technical/ch26/26-02.svg" /></a></p>
+<figcaption>Similar fields can occur legitimately. Explain which fields caused the duplicate flag.</figcaption>
+</figure>
+<!-- edge:concept-26.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A well-documented real invoice-fraud pattern is not a forged invoice at all, but the SAME real invoice submitted twice for payment, with its own invoice number altered by a single character specifically to dodge a naive exact-match duplicate check. Catching this requires the identical real fuzzy-matching algorithm Chapter 23.2 already built from scratch, applied to a different real signal.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2905,6 +2926,13 @@
 <p><code>flag_duplicate</code> identifies a real, checkable STRUCTURAL pattern -- a near-identical invoice number combined with an identical vendor and amount -- that correlates strongly with real double-billing fraud. It does not, and cannot, prove intent. A vendor that genuinely issues two separate, legitimate invoices for the same recurring service charge in the same week, using an invoice-numbering scheme that happens to increment by one, would also match this exact pattern, and a flagged invoice should still go to a human reviewer for a real decision rather than being auto-rejected on this signal alone -- exactly the honest structural-pass discipline Chapter 23.4's own luxury-goods screening engine applied to its own best possible outcome.</p>
 </div>
 <h2 id="263-amount-in-words-cross-validation">26.3 Amount-in-Words Cross-Validation<a class="headerlink" href="#263-amount-in-words-cross-validation" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-26.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch26/26-03.svg"><img alt="Two representations of an amount should agree" src="../../images/technical/ch26/26-03.svg" /></a></p>
+<figcaption>Currency, locale and minor-unit rules must be explicit. Parse failures require review.</figcaption>
+</figure>
+<!-- edge:concept-26.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A US check states its own amount twice -- once in numerals, once spelled out in words -- specifically so that altering the numerals alone (the classic "check washing" fraud, chemically removing and rewriting a printed amount) does not silently succeed, provided something actually cross-checks the two fields against each other. This section builds that cross-check from scratch: a real English number-word parser reconstructing the exact cent value the words field claims.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3174,6 +3202,13 @@
 <p><code>parse_amount_words</code> implements one specific, real, stated convention: a US check's own whole-dollar amount in words, followed by an "and NN/100" cents suffix. It does not attempt to parse arbitrary English number phrasing -- a phrase using "and" in a different position, a non-US convention for grouping large numbers, or a currency whose own printed-check convention differs -- and Test 5 exists specifically to prove an unrecognized token produces an honest, explicit parse failure rather than a silently wrong guess. Deploying this exact parser against checks drawn on a different real convention without first confirming its own vocabulary covers that convention's own words would risk exactly the silent-wrong-answer failure this book's own honesty discipline exists to prevent -- the identical narrow-scope caveat Chapter 12's own tokenizer stated for its own real, fixed vocabulary.</p>
 </div>
 <h2 id="264-risk-scoring-and-escalation">26.4 Risk Scoring and Escalation<a class="headerlink" href="#264-risk-scoring-and-escalation" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-26.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch26/26-04.svg"><img alt="Disposition is a controlled policy step" src="../../images/technical/ch26/26-04.svg" /></a></p>
+<figcaption>A risk score is not a finding of fraud. Preserve evidence and escalation reasons.</figcaption>
+</figure>
+<!-- edge:concept-26.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A single fraud signal rarely justifies an automatic rejection on its own, and a clean aggregate score should never be allowed to silently absorb one specific, high-severity red flag. This section's capstone combines Section 26.1's MICR and signature signals, Section 26.2's duplicate-invoice signal, and Section 26.3's amount-mismatch signal into one real, fully auditable weighted score and a three-way disposition, reapplying this book's own recurring never-suppress-a-named-flag discipline one more time.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

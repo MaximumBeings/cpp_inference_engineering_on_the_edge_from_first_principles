@@ -2591,6 +2591,13 @@
 
 
 <h1 id="chapter-30-mathematical-foundations-for-kernel-authors-flops-the-roofline-and-the-hessian">Chapter 30: Mathematical Foundations for Kernel Authors: FLOPs, the Roofline, and the Hessian<a class="headerlink" href="#chapter-30-mathematical-foundations-for-kernel-authors-flops-the-roofline-and-the-hessian" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/30.svg"><img alt="Chapter 30: Connect the math to kernel behavior" src="../../images/chapter-openers/30.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why a dot product's own real arithmetic intensity is a fixed constant regardless of length, why GEMV (the operation autoregressive decode actually runs) is intrinsically memory-bound at any model size, and the exact real batch size at which GEMM crosses over from memory-bound to compute-bound on a given machine.</li>
@@ -2616,6 +2623,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="301-the-dot-product-as-inferences-atomic-unit-and-the-real-gemvgemm-crossover">30.1 The Dot Product as Inference's Atomic Unit, and the Real GEMV/GEMM Crossover<a class="headerlink" href="#301-the-dot-product-as-inferences-atomic-unit-and-the-real-gemvgemm-crossover" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-30.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch30/30-01.svg"><img alt="GEMV and GEMM reuse the same weights differently" src="../../images/technical/ch30/30-01.svg" /></a></p>
+<figcaption>The crossover depends on shape and memory traffic, not just peak arithmetic rate.</figcaption>
+</figure>
+<!-- edge:concept-30.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Every matrix multiply in a transformer decomposes into real dot products, and a real dot product's own arithmetic intensity -- FLOPs moved per byte read -- never improves no matter how long the vectors get. That single, unglamorous fact is the entire reason autoregressive decode is memory-bound, and it is what makes GEMM's own real transition to compute-bound, as batch size grows, a genuinely derivable number rather than a rule of thumb.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2841,6 +2855,13 @@
 <p>It is tempting to think a sufficiently large model, with enough real FLOPs per token, must eventually become compute-bound even during single-token decode. Test 2 shows precisely why that intuition is wrong: GEMV's own real arithmetic intensity converges toward a FIXED ceiling of exactly 0.5 FLOPs/byte as the matrix grows -- it does not keep climbing. A bigger model has proportionally more real FLOPs AND proportionally more real bytes to read, and those two quantities grow together, leaving the ratio essentially unchanged. The only real lever that moves arithmetic intensity for a linear layer is the BATCH size, not the model size -- which is exactly why real serving systems build continuous batching (this book's own next chapter) rather than simply hoping a bigger GPU fixes decode-time memory-boundedness on its own.</p>
 </div>
 <h2 id="302-numerically-stable-softmax-the-log-sum-exp-fix">30.2 Numerically Stable Softmax: The Log-Sum-Exp Fix<a class="headerlink" href="#302-numerically-stable-softmax-the-log-sum-exp-fix" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-30.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch30/30-02.svg"><img alt="Subtracting the maximum stabilizes softmax" src="../../images/technical/ch30/30-02.svg" /></a></p>
+<figcaption>The shift preserves exact softmax ratios while avoiding exponentiation of very large positive logits.</figcaption>
+</figure>
+<!-- edge:concept-30.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Softmax's own textbook definition is exactly correct mathematically and dangerously wrong to implement literally: a single sufficiently large real logit overflows a real floating-point exponential before the actual probability computation is finished.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3054,6 +3075,13 @@
 <p>Test 1's naive softmax fails loudly enough that a NaN check would catch it immediately. Test 5's naive log-sum-exp is the more instructive real failure precisely because it does NOT fail loudly: <code>+inf</code> is a normal, valid-looking <code>double</code>, and a system that only checks <code>std::isnan</code> on its own outputs would let this real bug through completely undetected, silently corrupting every downstream computation that treats that <code>+inf</code> as a legitimate log-probability. The real lesson is not "check for NaN" -- it is that a numerically unstable formula can fail in whatever way is easiest for it to fail, and the only real fix is the shift-invariant identity itself, applied everywhere the unstable formula would otherwise be used, not a downstream check for one specific symptom.</p>
 </div>
 <h2 id="303-ropes-rotation-math">30.3 RoPE's Rotation Math<a class="headerlink" href="#303-ropes-rotation-math" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-30.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch30/30-03.svg"><img alt="A two-coordinate rotation preserves squared length" src="../../images/technical/ch30/30-03.svg" /></a></p>
+<figcaption>This illustrative angle explains the geometry. RoPE uses position- and frequency-dependent angles.</figcaption>
+</figure>
+<!-- edge:concept-30.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Chapter 3 implemented RoPE as working code. This section asks why rotating a query and a key by their own real, position-dependent angles before taking their dot product actually encodes relative position at all -- and the answer turns out to be a clean, provable real trigonometric identity, not a fortunate coincidence.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3255,6 +3283,13 @@
 <p>It is possible to convince yourself RoPE "seems to" encode relative position by trying a few position pairs and noticing the dot products look related. Test 2 and Test 4 exist to do something stronger: derive the REASON algebraically (rotation composition reduces to a single angle subtraction, because a rotation matrix's transpose is its own real inverse) and then confirm the concrete numerical computation matches that abstract identity exactly. The difference matters because an empirical-only check cannot tell you whether the property holds for every possible position pair or only the ones you happened to try; the algebraic identity, once confirmed to match the concrete computation, guarantees it holds for all of them.</p>
 </div>
 <h2 id="304-quantization-as-affine-algebra-real-error-bounds-and-the-optimal-scale">30.4 Quantization as Affine Algebra: Real Error Bounds and the Optimal Scale<a class="headerlink" href="#304-quantization-as-affine-algebra-real-error-bounds-and-the-optimal-scale" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-30.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch30/30-04.svg"><img alt="Rounding error has a scale-dependent bound" src="../../images/technical/ch30/30-04.svg" /></a></p>
+<figcaption>Clipping introduces an additional error not covered by the in-range rounding bound.</figcaption>
+</figure>
+<!-- edge:concept-30.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Chapter 4 implemented affine quantization as working code. Treating it explicitly as an affine map -- <code>quantize(x) = round(x / scale) + zero_point</code> -- makes its own real error bound and its own real failure to compose across repeated quantization both directly provable rather than merely observed.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3446,6 +3481,13 @@
 <p>A system that dequantizes a value to re-scale it -- converting from one bit width to another, say, during a real re-quantization pass -- might assume the result is equivalent to having quantized the true original value directly at the new scale, since dequantization is "supposed to" recover the original. Test 4 shows this assumption is false in general: the intermediate fine-grained rounding step introduces its own small real error, and that error can be just enough to push the value across a coarser bin's own boundary, landing on a genuinely different final code than a direct quantization would have. Any real system that quantizes more than once -- exactly the situation Chapter 14's own streaming re-quantization is built to handle carefully -- has to treat this as a real, accumulating source of error, not something dequantization quietly undoes.</p>
 </div>
 <h2 id="305-the-hessians-role-in-gptq-second-order-error-compensation">30.5 The Hessian's Role in GPTQ: Second-Order Error Compensation<a class="headerlink" href="#305-the-hessians-role-in-gptq-second-order-error-compensation" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-30.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch30/30-05.svg"><img alt="Second-order sensitivity weights errors unequally" src="../../images/technical/ch30/30-05.svg" /></a></p>
+<figcaption>The quadratic approximation is local and depends on the calibration data and objective.</figcaption>
+</figure>
+<!-- edge:concept-30.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Quantizing every weight independently, as Section 30.4's own affine map does in isolation, ignores real information a calibration dataset already provides: once one weight is quantized, the weights that are not yet quantized can be nudged to compensate for the error that quantization just introduced. GPTQ's real insight is that the layer's own Hessian is exactly the second-order information needed to compute that compensation optimally.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>
@@ -3734,6 +3776,13 @@
 <p>It is easy to read GPTQ's own compensation formula and assume its benefit is limited to the single, immediately adjacent weight it updates. Test 4's own real pipeline shows the mechanism is genuinely sequential and cumulative: quantizing weight 0 changes the value weight 1 is compensated toward, and in a layer with more than 2 weights, quantizing weight 1 (now itself already nudged once) would go on to compensate weight 2, and so on. Each real compensation step uses the CURRENT state of the not-yet-quantized weights, not the original ones -- which is exactly why GPTQ processes weights in a specific real sequence rather than computing every compensation independently up front from the unquantized original values.</p>
 </div>
 <h2 id="306-a-full-roofline-analysis-of-a-transformer-layer">30.6 A Full Roofline Analysis of a Transformer Layer<a class="headerlink" href="#306-a-full-roofline-analysis-of-a-transformer-layer" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-30.6:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch30/30-06.svg"><img alt="Combine arithmetic and traffic for the layer" src="../../images/technical/ch30/30-06.svg" /></a></p>
+<figcaption>State sequence length, batch, precision, cache assumptions and the memory level being modeled.</figcaption>
+</figure>
+<!-- edge:concept-30.6:end -->
+
 <h3 id="intuition_5">Intuition<a class="headerlink" href="#intuition_5" title="Permanent link">&para;</a></h3>
 <p>Every real formula this chapter derived -- arithmetic intensity, weight-dominated byte accounting, the roofline crossover -- was built on a single operation at a time. This capstone section applies all of them together to an entire real transformer decoder layer, to classify the WHOLE layer's own real bound and to derive the exact batch size where that classification flips.</p>
 <h3 id="the-concept-in-detail_5">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_5" title="Permanent link">&para;</a></h3>

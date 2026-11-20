@@ -2591,6 +2591,13 @@
 
 
 <h1 id="chapter-3-the-computational-graph-rmsnorm-swiglu-rope-and-attention">Chapter 3: The Computational Graph -- RMSNorm, SwiGLU, RoPE, and Attention<a class="headerlink" href="#chapter-3-the-computational-graph-rmsnorm-swiglu-rope-and-attention" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/03.svg"><img alt="Chapter 3: Inside a transformer block" src="../../images/chapter-openers/03.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How RMSNorm, SwiGLU, and RoPE each replace an older Transformer component with a cheaper or more capable alternative, and the exact arithmetic each one performs, worked by hand before it is ever compiled.</li>
@@ -2612,6 +2619,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="31-rmsnorm-cheap-memory-bound-normalization">3.1 RMSNorm: Cheap, Memory-Bound Normalization<a class="headerlink" href="#31-rmsnorm-cheap-memory-bound-normalization" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-3.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch03/03-01.svg"><img alt="Normalize by the root mean square" src="../../images/technical/ch03/03-01.svg" /></a></p>
+<figcaption>The same scalar denominator normalizes the feature vector. The learned gain is per feature.</figcaption>
+</figure>
+<!-- edge:concept-3.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Deep networks need their activations kept in a stable numeric range from layer to layer, or training and inference both become unreliable. The original Transformer used LayerNorm (subtract the mean, divide by the standard deviation); Llama, Mistral, and Gemma all use RMSNorm instead, which skips the mean entirely and normalizes only by the root mean square — one reduction pass instead of two, for empirically comparable model quality.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2767,6 +2781,13 @@
 <p>Without <code>epsilon</code>, an all-zero (or numerically tiny) input vector produces <code>sqrt(0) = 0</code>, and the very next step divides by that zero, turning the entire output into <code>NaN</code> or <code>Inf</code> — not a rare edge case in practice, since a padded token or a freshly-reset scratch buffer can genuinely be all zeros. Just as easy to get subtly wrong is where <code>epsilon</code> gets added: <code>sqrt(mean_sq) + epsilon</code> still leaves <code>mean_sq = 0</code> unprotected at the moment the square root is taken, while <code>sqrt(mean_sq + epsilon)</code> (this section's version) protects the vulnerable operation directly. The difference sounds cosmetic until the input actually is all zeros, at which point one version returns a small, well-defined number and the other returns <code>NaN</code>.</p>
 </div>
 <h2 id="32-swiglu-the-gated-feed-forward-network">3.2 SwiGLU: The Gated Feed-Forward Network<a class="headerlink" href="#32-swiglu-the-gated-feed-forward-network" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-3.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch03/03-02.svg"><img alt="Two projections form a gated feed-forward path" src="../../images/technical/ch03/03-02.svg" /></a></p>
+<figcaption>The gate and up projections both read x. The gate modulates the up branch element by element.</figcaption>
+</figure>
+<!-- edge:concept-3.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>The feed-forward network is where a transformer stores most of its factual knowledge, and its hidden dimension is typically three to four times the model's own hidden size, which is why it dominates a forward pass's FLOPs budget (roughly two-thirds of it end to end). The original Transformer used two matrices and a ReLU; Llama-style models use three matrices and a gated activation called SwiGLU, trading one extra matrix multiply for richer gradients during training and, this section argues, a real difference in which neurons stay trainable at all.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2905,6 +2926,13 @@
 <p>Swapping only the activation function (<code>ReLU(x . W1) . W2</code> becomes <code>SiLU(x . W1) . W2</code>) is a different, smaller change than SwiGLU actually is — it misses the THIRD matrix entirely. SwiGLU's defining property is the elementwise gate: one projection's activated output multiplies a second, separate projection's raw output, which is why the down projection's input dimension is <code>d_ff</code> fed from a gating multiply, not directly from a single activated matmul. A "SwiGLU" implementation with only two weight matrices has quietly become a differently-activated ordinary FFN, not the gated unit this section describes.</p>
 </div>
 <h2 id="33-rope-encoding-position-through-rotation">3.3 RoPE: Encoding Position Through Rotation<a class="headerlink" href="#33-rope-encoding-position-through-rotation" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-3.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch03/03-03.svg"><img alt="RoPE rotates pairs of coordinates" src="../../images/technical/ch03/03-03.svg" /></a></p>
+<figcaption>Each pair has its own frequency. Rotation preserves its norm before finite-precision rounding.</figcaption>
+</figure>
+<!-- edge:concept-3.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>The raw dot product inside self-attention is position-blind: <code>Q . K</code> gives the identical score whether the two tokens are adjacent or a thousand positions apart, so a transformer needs some separate mechanism to inject position. Rotary Positional Embeddings do this not by adding a position vector to the embedding, but by rotating the Q and K vectors themselves by an angle that grows with position — and the useful algebraic fact that falls out of choosing a ROTATION specifically is that the rotated dot product depends only on the difference between the two positions, never on either position by itself.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3060,6 +3088,13 @@
 <p>RoPE only ever rotates Q and K, and only before the <code>Q . K</code> dot product is computed — never V, and never the attention output. V carries CONTENT, not position-dependent relevance, so rotating it would corrupt the actual values being blended together for no benefit; and rotating Q or K after the dot product is simply too late to have any effect on the score that dot product produces. The one-line summary worth keeping in mind while wiring a real attention block together: RoPE lives strictly between the QKV projections and the attention score computation, and touches exactly two of the three tensors that pass through that gap.</p>
 </div>
 <h2 id="34-grouped-query-attention-with-a-kv-cache">3.4 Grouped-Query Attention with a KV Cache<a class="headerlink" href="#34-grouped-query-attention-with-a-kv-cache" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-3.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch03/03-04.svg"><img alt="Several query heads can share one KV head" src="../../images/technical/ch03/03-04.svg" /></a></p>
+<figcaption>Illustrative GQA ratio 2:1. Query heads remain distinct while cached keys and values are shared.</figcaption>
+</figure>
+<!-- edge:concept-3.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p><code>Attention(Q, K, V) = softmax(Q . K^T / sqrt(head_dim)) . V</code> lets a token look back across every earlier position and blend their value vectors by relevance. Multi-Head Attention gives every query head its own key/value head (most accurate, most KV-cache memory); Multi-Query Attention collapses every query head onto a single shared key/value head (least memory, most quality loss); Grouped-Query Attention — what Llama 3 and Mistral actually ship — sits deliberately between the two, letting groups of query heads share one key/value head, for a KV cache <code>group_size</code> times smaller than MHA's cache at a fraction of MQA's quality cost.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3279,6 +3314,13 @@
 <p>GQA groups query heads into CONTIGUOUS blocks that share one KV head — heads <code>0..group_size-1</code> share KV head 0, heads <code>group_size..2*group_size-1</code> share KV head 1, and so on — which is integer division (<code>h / group_size</code>), not modulo. Using <code>h % group_size</code> by mistake interleaves the grouping instead (heads <code>0, group_size, 2*group_size, ...</code> would all incorrectly map to KV head 0), silently reading the wrong cached keys and values for every query head except the first <code>group_size</code> of them, with no crash or error to reveal the mistake — only quietly wrong attention output.</p>
 </div>
 <h2 id="35-the-static-compute-graph-record-once-replay-cheaply">3.5 The Static Compute Graph: Record Once, Replay Cheaply<a class="headerlink" href="#35-the-static-compute-graph-record-once-replay-cheaply" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-3.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch03/03-05.svg"><img alt="Record dependencies once, execute repeatedly" src="../../images/technical/ch03/03-05.svg" /></a></p>
+<figcaption>Replay must still respect data dependencies and the lifetime of every referenced allocation.</figcaption>
+</figure>
+<!-- edge:concept-3.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>An eager execution engine inspects shapes, allocates outputs, and dispatches a kernel from scratch for every single operation, every single token — overhead that is small per call but is paid thousands of times per forward pass. A static graph separates recording (walk the model once, store a closure per operation) from execution (call each closure in order), so the hot, per-token path becomes nothing more than a list of function-pointer calls with no shape checks and no allocation.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>
@@ -3519,6 +3561,13 @@
 <p>A memory plan is only valid for the exact operation order it was computed from — it encodes which tensor's slot is safe to reuse based on precisely when each tensor is born and when it is last read. Reordering the tape after the fact (even a change that looks harmless, like moving a debug-only operation earlier) can make two tensors that the planner assumed never overlap suddenly alive at the same time, and the shared arena slot the planner assigned them turns into silent aliasing: one write corrupting data the other tensor still needs, with nothing in the type system able to catch it, since both are just <code>float*</code> into the same arena as far as the compiler is concerned.</p>
 </div>
 <h2 id="36-mmap-weight-loading-zero-copy-access-to-a-multi-gigabyte-file">3.6 mmap Weight Loading: Zero-Copy Access to a Multi-Gigabyte File<a class="headerlink" href="#36-mmap-weight-loading-zero-copy-access-to-a-multi-gigabyte-file" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-3.6:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch03/03-06.svg"><img alt="Map file bytes and expose bounded tensor ranges" src="../../images/technical/ch03/03-06.svg" /></a></p>
+<figcaption>File offsets identify tensor payloads. Views must not outlive the file mapping.</figcaption>
+</figure>
+<!-- edge:concept-3.6:end -->
+
 <h3 id="intuition_5">Intuition<a class="headerlink" href="#intuition_5" title="Permanent link">&para;</a></h3>
 <p>Loading a large weight file the ordinary way (<code>fread</code>/<code>ifstream</code> into a heap buffer) means reading every byte off disk before a single weight is usable, and doubles memory usage in the process — the OS's own page cache and the freshly <code>malloc</code>'d heap buffer both hold a copy of the same bytes. <code>mmap</code> maps the file directly into the process's address space instead: the mapping itself is essentially instant no matter the file's size, and the OS only pulls a page off disk the first time something actually reads from it.</p>
 <h3 id="the-concept-in-detail_5">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_5" title="Permanent link">&para;</a></h3>

@@ -14,3 +14,7 @@
   font-size: 0.78rem;
   line-height: 1.6;
 }
+
+.chapter-figure a { display: block; }
+.chapter-figure a:hover img { outline: 2px solid var(--md-accent-fg-color); outline-offset: 3px; }
+.chapter-figure a:focus-visible { outline: 3px solid var(--md-accent-fg-color); outline-offset: 4px; }

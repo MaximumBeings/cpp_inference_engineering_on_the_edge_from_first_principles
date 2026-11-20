@@ -2291,6 +2291,13 @@
 
 
 <h1 id="chapter-17-benchmarking-against-llamacpp-and-the-broader-ecosystem">Chapter 17: Benchmarking Against llama.cpp and the Broader Ecosystem<a class="headerlink" href="#chapter-17-benchmarking-against-llamacpp-and-the-broader-ecosystem" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/17.svg"><img alt="Chapter 17: Measure the full request lifecycle" src="../../images/chapter-openers/17.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why "how fast is it" is not one number but at least three genuinely different ones -- time-to-first-token, tokens-per-second, and time-per-output-token -- and why this book reports the MEDIAN of a run's per-step latencies rather than the mean.</li>
@@ -2315,6 +2322,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="171-what-to-measure-and-why">17.1 What to Measure and Why<a class="headerlink" href="#171-what-to-measure-and-why" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-17.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch17/17-01.svg"><img alt="Latency and throughput answer different questions" src="../../images/technical/ch17/17-01.svg" /></a></p>
+<figcaption>Declare workload, token counts, batch size and timing boundaries for every reported number.</figcaption>
+</figure>
+<!-- edge:concept-17.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>"How fast is it" hides a real ambiguity. A user waiting for a chatbot to start responding cares about one thing; a user watching text stream in afterward cares about a different one; and neither of those is the same as "how much memory did this cost to run," which no earlier chapter in this book ever had reason to measure at all.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2603,6 +2617,13 @@
 <p>A bare <code>std::vector&lt;uint8_t&gt; grow(200'000'000)</code> reserves 200MB of address space, but on a system with lazy page allocation, the kernel is free to satisfy that reservation with pages it never actually backs with real memory until something writes to them -- <code>VmHWM</code> can stay completely unchanged after a <code>.resize()</code> alone, making a test that only reserves memory and checks for <code>VmHWM</code> growth silently measure nothing. The fix is not a bigger reservation; it is writing to every page (<code>for (size_t i = 0; i &lt; GROW_BYTES; i += 4096) grow[i] = ...</code>), which forces the kernel to actually back each page with physical memory before <code>VmHWM</code> has anything real to report growing.</p>
 </div>
 <h2 id="172-a-from-scratch-benchmarking-harness">17.2 A From-Scratch Benchmarking Harness<a class="headerlink" href="#172-a-from-scratch-benchmarking-harness" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-17.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch17/17-02.svg"><img alt="A benchmark must control its measurement scope" src="../../images/technical/ch17/17-02.svg" /></a></p>
+<figcaption>Asynchronous GPU work needs completion before timing ends. Include or exclude setup consistently.</figcaption>
+</figure>
+<!-- edge:concept-17.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Section 17.1 defined what to measure. This section wires those definitions into a REAL benchmarking harness that runs Chapter 16's own <code>decode_step</code> and <code>prefill</code> -- not a simulated bandwidth model standing in for a forward pass, and not a placeholder assuming some other file will supply the real computation later. Benchmarking code that never runs the thing it claims to measure cannot actually measure it.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3456,6 +3477,13 @@
 <p><code>get_f32</code>'s documented behavior for a missing metadata key -- returning 0.0 rather than throwing -- is a reasonable default for a KEY THIS BOOK'S OWN READER CHOSE not to write. It is a different claim entirely to assume that default is SAFE for every formula that might read it, and <code>RoPETables</code>'s own <code>1 / pow(base, exponent)</code> is exactly the kind of formula where a "reasonable-looking" default of zero drives a division by zero into an infinity, and where multiplying that infinity by a position of exactly zero produces NaN rather than the zero a reader might naively expect "no rotation at position zero" to mean. The general lesson: a default value's safety is a property of the specific formula consuming it, not of the value in isolation -- and the only way to know is to trace the formula, not to assume "it's just zero" settles the question.</p>
 </div>
 <h2 id="173-an-honest-comparison-against-llamacpp">17.3 An Honest Comparison Against llama.cpp<a class="headerlink" href="#173-an-honest-comparison-against-llamacpp" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-17.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch17/17-03.svg"><img alt="A comparison needs the same work on both sides" src="../../images/technical/ch17/17-03.svg" /></a></p>
+<figcaption>A schematic or analytical estimate must not be presented as a measured runtime comparison.</figcaption>
+</figure>
+<!-- edge:concept-17.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Sections 17.1 and 17.2 built this book's own honest measuring stick: precise definitions and a harness that times this book's real forward pass. This section finally points that measuring stick at the question the whole chapter exists to answer: compared to <code>llama.cpp</code>, how good is the engine this book has built from scratch since Chapter 15?</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>

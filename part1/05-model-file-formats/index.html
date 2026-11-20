@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-5-model-file-formats-gguf-safetensors-and-memory-mapped-loading">Chapter 5: Model File Formats -- GGUF, SafeTensors, and Memory-Mapped Loading<a class="headerlink" href="#chapter-5-model-file-formats-gguf-safetensors-and-memory-mapped-loading" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/05.svg"><img alt="Chapter 5: Load model tensors without copying their payload" src="../../images/chapter-openers/05.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>The exact byte-level layout of a GGUF file — header, typed key-value metadata store, tensor descriptor table, and a 32-byte-aligned data section — and why that layout, not a JSON schema or a serialization library, is what makes zero-copy loading possible at all.</li>
@@ -2514,6 +2521,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="51-the-gguf-binary-format-header-metadata-and-tensor-descriptors">5.1 The GGUF Binary Format: Header, Metadata, and Tensor Descriptors<a class="headerlink" href="#51-the-gguf-binary-format-header-metadata-and-tensor-descriptors" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-5.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch05/05-01.svg"><img alt="A model file separates descriptors from payloads" src="../../images/technical/ch05/05-01.svg" /></a></p>
+<figcaption>Offsets, dimensions and encoded byte counts must be checked against the actual file length.</figcaption>
+</figure>
+<!-- edge:concept-5.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A model file format is a binary container that stores everything an inference engine needs — architecture parameters, tokenizer, and every weight tensor in its final quantized form — laid out in exactly the byte order the engine will consume. GGUF (GGML Universal File format, introduced by the llama.cpp project in 2023) does this with a fixed header, a typed key-value metadata store, a table of tensor descriptors, and a contiguous data section: no JSON to parse, no Python interpreter required, no serialization layer standing between the bytes on disk and the values the engine reads.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2761,6 +2775,13 @@
 <p>A hex-dump trace of a GGUF header is a genuinely useful way to build intuition for the format, but it is also exactly the kind of arithmetic where a single miscounted string length throws off every offset after it — silently, since the file still parses, it just parses the WRONG bytes as the next field. This section's own alignment padding (computed from this file's actual field lengths) does not match a hand-computed offset for a differently-worded worked example elsewhere in the quantization literature this chapter draws from — which is exactly the point: the two examples describe different strings of different lengths, and only the computed offset for THIS file is trustworthy for THIS file.</p>
 </div>
 <h2 id="52-a-gguf-writer-and-reader-a-full-round-trip">5.2 A GGUF Writer and Reader: A Full Round Trip<a class="headerlink" href="#52-a-gguf-writer-and-reader-a-full-round-trip" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-5.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch05/05-02.svg"><img alt="A file-format round trip has a semantic check" src="../../images/technical/ch05/05-02.svg" /></a></p>
+<figcaption>The test checks the decoded contents and metadata, not just whether a file could be opened.</figcaption>
+</figure>
+<!-- edge:concept-5.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Before a reader can be trusted, it needs a file with known ground truth to read — which means writing one. A writer that produces a small, controlled GGUF file and a reader that parses it back into an in-memory catalog of metadata and tensor descriptors are mirror images of each other, and testing them together, as a single round trip, is a stronger check than testing either in isolation: if the writer and reader disagree about a single byte's meaning, the round trip fails loudly instead of two independently-plausible-looking halves quietly disagreeing.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3174,6 +3195,13 @@
 <p>It is tempting to hardcode a tensor's on-disk byte size as <code>(n_elements / 32) * 36</code> for a Q8_0 tensor, following a reference table. If that block's actual scale field is 2 bytes (fp16) rather than 4 (float), the tensor's real size is <code>* 34</code>, and every tensor descriptor after the mismatched one now points at the wrong offset — silently, since arithmetic that is merely wrong still produces a number. This section's reader instead computes each block's size with <code>sizeof(BlockQ8)</code> and <code>sizeof(BlockQ4)</code> directly against the same struct definitions the writer used, so a change to either block's layout cannot desynchronize the two.</p>
 </div>
 <h2 id="53-tensor-descriptor-tables-and-zero-copy-weight-access">5.3 Tensor Descriptor Tables and Zero-Copy Weight Access<a class="headerlink" href="#53-tensor-descriptor-tables-and-zero-copy-weight-access" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-5.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch05/05-03.svg"><img alt="Descriptors resolve to mapped tensor views" src="../../images/technical/ch05/05-03.svg" /></a></p>
+<figcaption>The resolved tensor range must remain inside the mapping, including alignment and block metadata.</figcaption>
+</figure>
+<!-- edge:concept-5.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Every GGUF model follows a naming convention: global tensors (the embedding table, the final norm, the LM head) have short, unprefixed names, and per-layer tensors are prefixed <code>blk.{L}.</code> for layer <code>L</code>. This convention is not cosmetic — it is the entire interface between the file and the engine, since the engine asks for a weight by name (<code>"blk.5.attn_q.weight"</code>) and expects the reader's catalog to answer with a type, a shape, and an offset. Section 5.2's reader builds that catalog; this section uses it to build the zero-copy views that turn a memory-mapped file into a usable tensor.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3621,6 +3649,13 @@
 <p>A tensor descriptor's span covers the ENTIRE weight matrix — for a 64x64 Q8_0 attention weight, that is 128 blocks, not the 2 blocks one row actually needs. Passing the full span to a per-row dot product silently reads far past the end of whatever input vector it is being multiplied against: the loop bound comes from the span's size, the vector being indexed does not grow to match, and the result is undefined behavior that showed up here as <code>nan</code> the first time this section's own dot-product test ran, until the span was narrowed with <code>.first(n_blocks_per_row)</code> before the call. The fix is one line; finding it required actually running the code and noticing the output was <code>nan</code>, not inspecting the code and assuming the shapes lined up.</p>
 </div>
 <h2 id="54-the-safetensors-format-json-metadata-and-a-hand-rolled-parser">5.4 The SafeTensors Format: JSON Metadata and a Hand-Rolled Parser<a class="headerlink" href="#54-the-safetensors-format-json-metadata-and-a-hand-rolled-parser" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-5.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch05/05-04.svg"><img alt="SafeTensors locates data through a JSON header" src="../../images/technical/ch05/05-04.svg" /></a></p>
+<figcaption>Tensor offsets refer to the data buffer after the header. Validate JSON and byte ranges before use.</figcaption>
+</figure>
+<!-- edge:concept-5.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>SafeTensors, introduced by Hugging Face in 2022, is the format nearly every model repository ships its raw weights in, for the same reason GGUF exists: PyTorch's pickle-based <code>.pt</code> files can execute arbitrary code on load, and SafeTensors is strictly data. Its binary prefix and mmap-compatible layout are close cousins of GGUF's, with one deliberate difference: its metadata header is JSON, not a binary type-tagged store — easy for a human (or any language with a JSON library) to inspect, at the cost of being slower to parse than GGUF's binary metadata.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3969,6 +4004,13 @@
 <p>SafeTensors' <code>data_offsets: [start, end]</code> pair looks, at a glance, like it should be measured from byte 0 of the file — it is not. It is measured from the first byte AFTER the JSON header (<code>8 + header_length</code>), so a tensor's real file offset is <code>tensor_data_base + data_offsets[0]</code>, and computing it as <code>data_offsets[0]</code> alone reads from entirely the wrong place in a file that has any header at all — which every real SafeTensors file does.</p>
 </div>
 <h2 id="55-gguf-vs-safetensors-and-a-peek-at-production-k-quants">5.5 GGUF vs. SafeTensors, and a Peek at Production K-Quants<a class="headerlink" href="#55-gguf-vs-safetensors-and-a-peek-at-production-k-quants" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-5.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch05/05-05.svg"><img alt="File metadata is not the quantization kernel" src="../../images/technical/ch05/05-05.svg" /></a></p>
+<figcaption>A reader must explicitly support each encoded type. Recognizing a container is not full format support.</figcaption>
+</figure>
+<!-- edge:concept-5.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>This chapter's two formats serve different stages of a model's life: SafeTensors for training and distribution (unquantized, JSON metadata, easy to inspect), GGUF for local inference (quantized, binary metadata, optimized for the exact moment weights need to reach a running engine). Real GGUF files for well-known models, though, mostly do not use the flat Q4_0/Q8_0 blocks Chapter 4 built — they use "K-quants," which spend the same bit budget more cleverly by adding a second level of scales.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

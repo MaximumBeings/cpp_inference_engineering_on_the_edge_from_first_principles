@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-21-document-intelligence-insurance-claims-and-environmental-monitoring">Chapter 21: Document Intelligence, Insurance Claims, and Environmental Monitoring<a class="headerlink" href="#chapter-21-document-intelligence-insurance-claims-and-environmental-monitoring" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/21.svg"><img alt="Chapter 21: Route evidence through a structured pipeline" src="../../images/chapter-openers/21.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>The real, concrete failure mode a coordinate-based OCR extraction pipeline has that a semantic, position-independent extraction contract does not -- demonstrated with hand-verified numbers, not merely argued for, by running the identical rigid template against two real document layouts and counting exactly how many fields it silently gets wrong.</li>
@@ -2415,6 +2422,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="211-why-a-vision-language-model-replaces-a-traditional-ocr-pipeline-outright">21.1 Why a Vision-Language Model Replaces a Traditional OCR Pipeline Outright<a class="headerlink" href="#211-why-a-vision-language-model-replaces-a-traditional-ocr-pipeline-outright" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-21.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch21/21-01.svg"><img alt="Document pixels can feed structured extraction" src="../../images/technical/ch21/21-01.svg" /></a></p>
+<figcaption>Extraction must be evaluated for the actual document types, handwriting and image conditions.</figcaption>
+</figure>
+<!-- edge:concept-21.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A traditional document-extraction pipeline finds where the ink is, recognizes what it says, and then decides WHICH FIELD a recognized string belongs to by where it sits on the page -- a fixed coordinate region calibrated against one specific layout. This section builds that real coordinate-based pipeline from scratch, and then runs the one experiment that shows, with hand-verified numbers, exactly why its final step is the wrong one to keep.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2837,6 +2851,13 @@
 <p>It is tempting to assume a rigid, coordinate-calibrated extractor's real danger is producing NO value for a field whose position moved -- a loud, detectable gap a downstream system could at least notice and flag. Test 4's own numbers prove the real danger is worse than that: TOTAL_AMOUNT happened to share the same region across both vendor layouts and extracted correctly, while INVOICE_NUMBER and INVOICE_DATE did not merely come back empty, they came back SWAPPED -- a fully-populated, plausible-looking, and completely wrong result, with nothing in the extractor's own output to distinguish it from a correct one. A missing field asks to be checked; a swapped field, sitting in an otherwise normal-looking record, does not.</p>
 </div>
 <h2 id="212-a-document-type-router-with-handwriting-aware-extraction">21.2 A Document-Type Router with Handwriting-Aware Extraction<a class="headerlink" href="#212-a-document-type-router-with-handwriting-aware-extraction" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-21.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch21/21-02.svg"><img alt="Route documents before applying their schema" src="../../images/technical/ch21/21-02.svg" /></a></p>
+<figcaption>Document routing can be wrong; uncertain types should not be forced into a confident schema.</figcaption>
+</figure>
+<!-- edge:concept-21.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Before any extraction contract can be applied at all, a real pipeline first has to know what kind of document it is looking at. This section builds that routing decision as a real, explainable, priority-ordered set of rules over real structural features, and adds the one honest discipline this domain needs on top: a handwriting-recognition confidence score is real but genuinely less trustworthy than a printed-text score, and this section refuses to let one reach a downstream system unclamped.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3181,6 +3202,13 @@
 <p>It would be a real, meaningful improvement over no review policy at all to require human verification for every document routed as <code>HANDWRITTEN_FORM</code> and stop there -- but Test 4 exists specifically because that is not the whole property this section's own real risk requires. A document correctly routed as a printed <code>INVOICE</code> can still carry one genuinely handwritten field (an approver's signature, a handwritten correction), and a review policy keyed only to the document's own TYPE would let that one unreliable field ride through alongside its high-confidence printed neighbors with no review at all. <code>requires_human_verification</code>'s own per-field loop is what actually closes that gap -- accountable review, once triggered by document type OR by even a single field's own origin, cannot be assumed to already cover every field just because most of the document is printed text.</p>
 </div>
 <h2 id="213-vehicle-and-property-damage-assessment-engines-for-insurance-claims">21.3 Vehicle- and Property-Damage Assessment Engines for Insurance Claims<a class="headerlink" href="#213-vehicle-and-property-damage-assessment-engines-for-insurance-claims" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-21.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch21/21-03.svg"><img alt="Damage evidence supports a reviewable estimate" src="../../images/technical/ch21/21-03.svg" /></a></p>
+<figcaption>Images do not establish hidden damage, causation or a final settlement amount.</figcaption>
+</figure>
+<!-- edge:concept-21.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A repair estimate given from a photograph, before a shop has ever inspected the real damage, is honestly a RANGE, and a claimed severity that contradicts a claimant's own submitted photographs is a real, useful signal for a human adjuster -- in either direction, never a reason to decide the claim automatically.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3530,6 +3558,13 @@
 <p>It is tempting, once a zone's own photo evidence is flagged inconsistent with its claimed severity, to have the assessment engine quietly substitute a "corrected" severity into the total -- after all, the engine has already computed a measured difference that disagrees with the claim. Test 5 is built specifically to rule that temptation out: DRIVER_DOOR's own claimed SEVERE tier is flagged as inconsistent with its measured difference, and the claim's own total cost range STILL includes DRIVER_DOOR's full SEVERE-tier range, exactly as claimed, with the inconsistency reported separately rather than silently resolved. Deciding which of the claim or the photograph is actually correct is a human adjuster's own real job -- an assessment engine that quietly substitutes its own guess for the claimed severity would be making that decision by itself, which is exactly the kind of unstructured authority this book's own human-in-the-loop discipline, since Chapter 20, has consistently refused to grant a piece of software.</p>
 </div>
 <h2 id="214-wildlife-and-underwater-species-identification-from-camera-trap-and-marine-imagery">21.4 Wildlife and Underwater Species Identification from Camera-Trap and Marine Imagery<a class="headerlink" href="#214-wildlife-and-underwater-species-identification-from-camera-trap-and-marine-imagery" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-21.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch21/21-04.svg"><img alt="Identification should retain uncertainty and context" src="../../images/technical/ch21/21-04.svg" /></a></p>
+<figcaption>A camera image is not proof of species identity or population change without validation.</figcaption>
+</figure>
+<!-- edge:concept-21.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A motion-triggered camera does not take one picture per real animal visit -- it takes a burst per real event, and the same real individual can trigger many separate bursts across a deployment. Treating a raw detection count as a population estimate is a real, well-documented mistake this section refuses to make, building the real ecological fix -- independent-event windowing -- from scratch instead.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

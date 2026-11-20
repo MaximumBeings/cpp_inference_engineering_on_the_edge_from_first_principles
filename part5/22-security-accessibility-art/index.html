@@ -2291,6 +2291,13 @@
 
 
 <h1 id="chapter-22-security-surveillance-accessibility-compliance-and-art-authentication">Chapter 22: Security Surveillance, Accessibility Compliance, and Art Authentication<a class="headerlink" href="#chapter-22-security-surveillance-accessibility-compliance-and-art-authentication" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/22.svg"><img alt="Chapter 22: Combine visual findings with context" src="../../images/chapter-openers/22.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to build a real presence-interval coalescing pipeline over raw per-frame detections, render a deterministic natural-language narration sentence from that structured state, and honestly report AMBIGUOUS rather than silently guessing when a multi-camera correlation genuinely has more than one equally plausible answer.</li>
@@ -2313,6 +2320,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="221-a-multi-camera-surveillance-narration-engine-with-temporal-correlation">22.1 A Multi-Camera Surveillance Narration Engine with Temporal Correlation<a class="headerlink" href="#221-a-multi-camera-surveillance-narration-engine-with-temporal-correlation" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-22.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch22/22-01.svg"><img alt="Temporal correlation must preserve camera identity" src="../../images/technical/ch22/22-01.svg" /></a></p>
+<figcaption>Correlated narration is an inference. Distinguish recorded events from inferred relationships.</figcaption>
+</figure>
+<!-- edge:concept-22.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A raw stream of per-frame detections is not, by itself, a narrative a human reviewer can act on -- it is a flood of individually meaningless coordinates. This section builds the real structural step between the two: coalescing raw detections into presence intervals, rendering those intervals as a deterministic narration sentence, and correlating a subject's departure from one camera with their arrival at another, honestly refusing to guess when more than one arrival genuinely fits.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2600,6 +2614,13 @@
 <p>It is tempting to treat <code>find_correlated_entry</code>'s own <code>AMBIGUOUS</code> result as an unfinished computation -- surely the system could pick the CLOSER of the two candidates in time, or the one with the higher raw detection confidence, and just report a single answer. Test 4 is built specifically to show why that temptation is exactly backwards: when two real candidates both genuinely fit the stated transition window, picking one and reporting it as <code>FOUND</code> would manufacture a specific, confident-looking claim -- "the subject who left Camera 3 is the same person who entered Camera 5" -- that the underlying data does not actually support. <code>AMBIGUOUS</code>, naming both real candidates, is the honestly complete answer; a human reviewer with access to a face-matching system, a badge log, or simply the original footage is positioned to resolve what this section's own temporal-correlation-only evidence genuinely cannot.</p>
 </div>
 <h2 id="222-an-accessibility-compliance-auditing-engine">22.2 An Accessibility-Compliance Auditing Engine<a class="headerlink" href="#222-an-accessibility-compliance-auditing-engine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-22.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch22/22-02.svg"><img alt="A photographed feature is not a full compliance audit" src="../../images/technical/ch22/22-02.svg" /></a></p>
+<figcaption>Perspective, hidden features and missing dimensions limit conclusions from a photo.</figcaption>
+</figure>
+<!-- edge:concept-22.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>An accessibility audit is one of the few domains this book has reached where the structured extraction a vision-language model produces from a screenshot can be checked against a real, EXACT, publicly standardized formula rather than a stated policy choice of this book's own invention. This section builds that real math -- relative luminance, contrast ratio, and the AA/AAA pass thresholds -- from scratch, verified against a real, famous reference value.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2877,6 +2898,13 @@
 <p>WCAG defines two real, separately useful conformance levels -- AA, the level most real accessibility regulations (including the ADA and Section 508) actually cite as their own required minimum, and the considerably stricter, optional AAA. It is tempting to have an audit engine flag any element failing EITHER level as a violation, on the theory that more strictness can only help -- but this section's own <code>audit_element</code> deliberately enforces only the AA bar, exactly as regulatory practice actually requires, and an element that fails AAA while still passing AA is not reported as a violation at all. Flagging every AAA shortfall as an urgent violation would flood a real report with a volume of noise that would make the genuinely required AA failures -- the ones with real regulatory and human-usability consequences -- harder, not easier, for a reviewer to find and act on.</p>
 </div>
 <h2 id="223-an-art-condition-assessment-and-provenance-verification-engine">22.3 An Art-Condition Assessment and Provenance-Verification Engine<a class="headerlink" href="#223-an-art-condition-assessment-and-provenance-verification-engine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-22.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch22/22-03.svg"><img alt="Condition and provenance require different evidence" src="../../images/technical/ch22/22-03.svg" /></a></p>
+<figcaption>A visual model cannot certify authenticity from appearance alone.</figcaption>
+</figure>
+<!-- edge:concept-22.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A stated ownership history is either chronologically consistent or it is not, and that consistency can be checked by real, structural date arithmetic alone, with no judgment about authenticity required at all. Separately, a conservator's periodic condition scores describe a real, fittable trend -- the same ordinary-least-squares regression this book already built for a retail sell-through trend in Chapter 19.4, reapplied here to a very different real domain.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>

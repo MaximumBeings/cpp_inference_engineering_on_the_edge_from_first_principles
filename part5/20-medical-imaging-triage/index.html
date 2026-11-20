@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-20-medical-imaging-triage-preliminary-radiology-reads-and-human-in-the-loop-workflow">Chapter 20: Medical Imaging Triage: Preliminary Radiology Reads and Human-in-the-Loop Workflow<a class="headerlink" href="#chapter-20-medical-imaging-triage-preliminary-radiology-reads-and-human-in-the-loop-workflow" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/20.svg"><img alt="Chapter 20: Medical triage with a human review gate" src="../../images/chapter-openers/20.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why a clinical triage system needs its human sign-off requirement built as a STRUCTURAL, type-system-enforced property of its own state machine, rather than a documented policy step a caller could forget or route around -- and how to build exactly one function capable of finalizing a case, gated on both the correct state and a real, non-empty clinician identifier.</li>
@@ -2515,6 +2522,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="201-a-structural-human-in-the-loop-triage-state-machine">20.1 A Structural Human-in-the-Loop Triage State Machine<a class="headerlink" href="#201-a-structural-human-in-the-loop-triage-state-machine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-20.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch20/20-01.svg"><img alt="A triage suggestion stays inside human review" src="../../images/technical/ch20/20-01.svg" /></a></p>
+<figcaption>This is a workflow illustration, not a clinically validated diagnostic system.</figcaption>
+</figure>
+<!-- edge:concept-20.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Chapter 18.4's <code>classify</code> decided, entirely on its own, whether a manufactured part passed or failed, gated only by a confidence threshold. A system suggesting how urgently a radiologist should look at a scan cannot be allowed to finalize anything on its own, at any confidence level -- and this section builds that guarantee as a property of the TYPE itself, not a rule a caller has to remember to follow.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2815,6 +2829,13 @@
 <p>Chapter 18.4's <code>classify</code> auto-accepted or auto-rejected a manufactured part once its own confidence score crossed a stated threshold, and that design was the right one for a defect-detection line where a wrong call costs a discarded part. Reapplying that same pattern here -- auto-finalizing a triage case whenever the AI's own suggested priority carries a high enough confidence score -- would be a serious, substantive error, not a matter of degree: a manufactured part can be re-inspected, but a clinical prioritization decision this section's own docstrings state plainly is not this book's to make cannot be un-made by adding more confidence-threshold precision. <code>TriageCase</code>'s own private <code>final_disposition_</code> field, reachable from exactly one gated function, is what makes the difference structural rather than a matter of choosing the right threshold value -- there is no threshold high enough that this section's own code would ever let a case reach <code>FINALIZED</code> without a real clinician's own attributed sign-off.</p>
 </div>
 <h2 id="202-dicom-ingestion-and-windowing-for-display">20.2 DICOM Ingestion and Windowing for Display<a class="headerlink" href="#202-dicom-ingestion-and-windowing-for-display" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-20.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch20/20-02.svg"><img alt="Windowing maps a selected intensity interval" src="../../images/technical/ch20/20-02.svg" /></a></p>
+<figcaption>Display windowing changes visible contrast. Preserve source pixel values and medical metadata.</figcaption>
+</figure>
+<!-- edge:concept-20.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A shelf photograph in Chapter 19 arrived as an ordinary raw pixel buffer. A medical scan does not: it arrives as a real, standardized DICOM file carrying its own pixel data alongside real metadata -- dimensions, bit depth, and a WINDOW CENTER and WINDOW WIDTH the scanner or radiologist intends the image to be viewed through -- and that container has to be parsed for real before a single pixel reaches Chapter 18's own vision encoder.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3308,6 +3329,13 @@
 <p>This section's own first working draft of Test 1 failed immediately with <code>std::bad_optional_access</code>, thrown from inside <code>DicomReader::open</code> on what should have been a valid, freshly-written file. The real cause was not a parsing bug at all: <code>DicomWriter</code>'s member <code>std::ofstream</code> had never been flushed or closed before a <code>DicomReader</code> was constructed and asked to read the exact same file path back within the same scope, so the writer's own destructor -- which would eventually close the file -- had not yet run, and the file <code>DicomReader::open</code> actually opened was zero bytes long. The fix was a real, explicit <code>close()</code> method on <code>DicomWriter</code>, called before every test constructs a reader against the same path. Two file handles pointed at the same path do not automatically observe each other's writes in the order the source code suggests; only a closed (or explicitly flushed) writer guarantees a reader opened afterward sees the complete file.</p>
 </div>
 <h2 id="203-a-structured-triage-reporting-prompt-and-parser">20.3 A Structured Triage-Reporting Prompt and Parser<a class="headerlink" href="#203-a-structured-triage-reporting-prompt-and-parser" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-20.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch20/20-03.svg"><img alt="Structured output needs parsing and validation" src="../../images/technical/ch20/20-03.svg" /></a></p>
+<figcaption>A valid schema does not prove a finding is medically correct.</figcaption>
+</figure>
+<!-- edge:concept-20.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Section 20.2 can now hand a real, windowed image to Chapter 18's vision-language pipeline. What that pipeline says back has to be constrained just as carefully as the state machine that gates its own finalization -- not merely by asking it nicely to avoid diagnosing, but by giving it a report SCHEMA that cannot represent a diagnosis even if a model's own text tried to write one into it.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3703,6 +3731,13 @@
 <p>A system prompt that tells a vision-language model not to diagnose is a real, worthwhile instruction, and <code>render_triage_prompt</code> states exactly that instruction directly in its own rendered text. But an instruction inside a prompt is advisory in exactly the same sense Section 20.1's AI-suggested priority is advisory -- nothing about a model FOLLOWING that instruction is structurally guaranteed the way <code>TriageCase</code>'s own sign-off gate is. This section's own real answer is not a better-worded instruction; it is a report schema <code>parse_finding_line</code> enforces at the PARSING layer, entirely independent of whether the underlying model happened to follow the prompt's own request. A diagnosis-shaped string written into the URGENCY field, or appended as an extra field entirely, is refused by a strict structural check, not by hoping the model read the instruction carefully -- exactly the same shift from "ask nicely" to "structurally cannot" that Section 20.1 already made for human sign-off.</p>
 </div>
 <h2 id="204-pacs-worklist-integration-with-a-human-in-the-loop-queue">20.4 PACS Worklist Integration with a Human-in-the-Loop Queue<a class="headerlink" href="#204-pacs-worklist-integration-with-a-human-in-the-loop-queue" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-20.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch20/20-04.svg"><img alt="Worklist states make ownership visible" src="../../images/technical/ch20/20-04.svg" /></a></p>
+<figcaption>Urgency suggestions and final clinical decisions must remain distinguishable.</figcaption>
+</figure>
+<!-- edge:concept-20.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Section 20.1 made one case's own human sign-off structural. A real PACS worklist has to enforce a second, equally real property across an entire QUEUE of cases at once: when two radiologists are both looking at the same worklist, at most one of them may actually be working a given case, and once someone signs a case off, nothing may silently overwrite that decision.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -4135,6 +4170,13 @@
 <p>It is tempting to treat <code>claim</code> as the whole of this section's own safety property -- once a radiologist has claimed a case, the thinking goes, the hard part (preventing a double-claim) is done. Test 3 exists specifically because that is not the whole property: a SECOND radiologist could, in a system that checked only the current state and not WHO is claiming it, still begin reviewing or even finalize a case someone else claimed, simply by knowing its accession number and finding it sitting in <code>ASSIGNED</code> or <code>IN_REVIEW</code>. Every one of <code>begin_review</code>, <code>finalize</code>, and <code>reject</code> in this section separately checks <code>radiologist_id == *claimed_by_</code>, not merely the state -- accountability, once established by a successful claim, has to be checked again at every single subsequent transition, not assumed to still hold just because the state looks right.</p>
 </div>
 <h2 id="205-occlusion-based-saliency-and-the-honest-limits-of-explainability">20.5 Occlusion-Based Saliency and the Honest Limits of Explainability<a class="headerlink" href="#205-occlusion-based-saliency-and-the-honest-limits-of-explainability" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-20.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch20/20-05.svg"><img alt="Occlusion reveals sensitivity, not causal truth" src="../../images/technical/ch20/20-05.svg" /></a></p>
+<figcaption>A changed output indicates sensitivity to the perturbation. It does not establish clinical explainability.</figcaption>
+</figure>
+<!-- edge:concept-20.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Every earlier section in this chapter built a real structural guarantee about WHO may act and WHEN. None of that answers a different, harder question a real deployment will be asked: why did the model suggest this study was urgent at all? This section builds one real, honest answer, and then builds the proof of exactly what that answer cannot tell you.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

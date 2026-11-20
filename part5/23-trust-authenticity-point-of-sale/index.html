@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-23-trust-and-authenticity-at-the-point-of-sale-counterfeits-reconciliation-expense-audits-and-luxury-goods">Chapter 23: Trust and Authenticity at the Point of Sale: Counterfeits, Reconciliation, Expense Audits, and Luxury Goods<a class="headerlink" href="#chapter-23-trust-and-authenticity-at-the-point-of-sale-counterfeits-reconciliation-expense-audits-and-luxury-goods" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/23.svg"><img alt="Chapter 23: Verify a point-of-sale claim against evidence" src="../../images/chapter-openers/23.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to build a real perceptual image hash (the "difference hash," dHash, algorithm used in production image-deduplication systems) that catches stolen stock photography reused across unrelated e-commerce sellers, and a fully auditable seller trust score whose own aggregate value can never suppress a single specific, named red flag.</li>
@@ -2414,6 +2421,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="231-a-brand-reference-database-and-counterfeit-screening-engine-for-e-commerce-listings">23.1 A Brand-Reference Database and Counterfeit-Screening Engine for E-Commerce Listings<a class="headerlink" href="#231-a-brand-reference-database-and-counterfeit-screening-engine-for-e-commerce-listings" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-23.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch23/23-01.svg"><img alt="A visual reference can support screening" src="../../images/technical/ch23/23-01.svg" /></a></p>
+<figcaption>Screening flags require review. Similar appearance does not prove authenticity or counterfeiting.</figcaption>
+</figure>
+<!-- edge:concept-23.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A real counterfeit-screening system cannot inspect an item in a shopper's hand, but it can compute several real, checkable properties of a LISTING'S OWN STATED DATA: whether its own photo has already been used by an unrelated seller, whether its price is implausibly below what a genuine item ever sells for, and whether its own description contains language sellers of counterfeit goods commonly use. This section builds all three from scratch, and adds a real, fully auditable seller trust score that never gets to overrule a single specific red flag.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2913,6 +2927,13 @@
 <p>It would be a real, meaningful screening system to flag any seller whose own trust score falls below a stated floor for manual review and stop there -- and this section's own <code>evaluate_listing</code> does include exactly that floor. But Test 7 exists specifically to show that floor is not the whole property this section's own risk profile requires: a seller with a PERFECT trust score of 100.0 -- a full year of history, a hundred listings, zero disputes -- can still list an item whose own description contains "1:1 mirror quality," and no amount of accumulated seller history should make that specific, named red flag disappear into a favorable average. <code>evaluate_listing</code>'s own rule -- ANY flag OR a low trust score triggers review -- is what keeps a single bad listing from hiding behind an otherwise-excellent seller record.</p>
 </div>
 <h2 id="232-receipt-to-transaction-reconciliation">23.2 Receipt-to-Transaction Reconciliation<a class="headerlink" href="#232-receipt-to-transaction-reconciliation" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-23.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch23/23-02.svg"><img alt="Reconcile on fields and tolerances" src="../../images/technical/ch23/23-02.svg" /></a></p>
+<figcaption>An ambiguous match should remain ambiguous rather than selecting an arbitrary transaction.</figcaption>
+</figure>
+<!-- edge:concept-23.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A receipt extracted by an OCR or vision-language pipeline, the same real kind of pipeline this book built in Chapter 21.1, can carry small per-character extraction errors; a bank or card network's own transaction record carries the true merchant name as the payment network itself recorded it. Reconciling the two needs a real fuzzy-matching algorithm for the merchant name, a real tolerance for an added tip in the settled amount, and a real settlement-date window -- and an honest refusal to guess when more than one transaction equally fits.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3247,6 +3268,13 @@
 <p><code>merchant_names_fuzzy_match</code> is built and tuned specifically for the kind of noise a receipt's own OCR extraction introduces -- a single misread character on an otherwise-correct name. It is tempting to assume the same function would also handle the different real problem of payment-processor descriptor mangling, where a transaction descriptor reads "SQ *STARBUCKS COFFEE" for a receipt's own "Starbucks" -- a difference not of a few misread characters but of an entirely different real string, prefixed and suffixed by processor-specific codes this section's own edit-distance ratio was never tuned to absorb. A production reconciliation system needs a SEPARATE real technique -- token-based matching against a known table of processor prefixes, for instance -- for that different problem; treating one section's own narrow, real fix as a general solution to every real merchant-name mismatch would produce exactly the false confidence this book's own honesty discipline exists to prevent.</p>
 </div>
 <h2 id="233-automated-expense-report-policy-enforcement">23.3 Automated Expense-Report Policy Enforcement<a class="headerlink" href="#233-automated-expense-report-policy-enforcement" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-23.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch23/23-03.svg"><img alt="Policy enforcement follows validated extraction" src="../../images/technical/ch23/23-03.svg" /></a></p>
+<figcaption>A rule hit is a policy signal, not proof of intentional misuse.</figcaption>
+</figure>
+<!-- edge:concept-23.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>A real corporate travel policy is a real, checkable rules engine: a per-category spending cap, a per-mile reimbursement rate, a category that is never reimbursable regardless of amount, and a receipt-required threshold. The one discipline this section adds on top of a straightforward rules engine: never let the policy-computed APPROVED amount silently replace the employee's own CLAIMED amount in the report's own total without naming, for every discrepancy, the specific rule behind it.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3599,6 +3627,13 @@
 <p>Once an expense engine has computed a real, policy-compliant APPROVED figure for a line item, it is tempting to treat that figure as simply the CORRECTED version of what the employee claimed, and report only it going forward -- after all, the engine has already done the real work of figuring out what should actually be reimbursed. Test 6 is built specifically to rule that shortcut out: the report's own claimed total of $527 and its own approved total of $482 are both reported, side by side, for the same 4 items, with the $45 gap attributed by name to two specific line items' own specific violations. Collapsing to just the $482 approved figure would discard exactly the information an expense auditor, or the employee themselves, needs to understand WHY their own reimbursement came in lower than what they submitted -- the same discipline this book has applied to every flagged discrepancy since Section 21.3's own claim-consistency check.</p>
 </div>
 <h2 id="234-a-real-time-luxury-goods-authentication-engine-for-consignment-and-resale-counters">23.4 A Real-Time Luxury-Goods Authentication Engine for Consignment and Resale Counters<a class="headerlink" href="#234-a-real-time-luxury-goods-authentication-engine-for-consignment-and-resale-counters" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-23.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch23/23-04.svg"><img alt="A resale decision needs evidence beyond pixels" src="../../images/technical/ch23/23-04.svg" /></a></p>
+<figcaption>Keep screening confidence separate from a final authenticity claim.</figcaption>
+</figure>
+<!-- edge:concept-23.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>A consignment counter's real-time screen cannot replace a trained human authenticator, but it can check three real, computable structural properties against a brand's own stated specification before that human ever looks at the item: whether a serial number's own digit portion satisfies a real, independently famous check-digit algorithm, whether a measured weight falls within a real stated spec range, and whether a hardware finish is among a real stated valid list.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

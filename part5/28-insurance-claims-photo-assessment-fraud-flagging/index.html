@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-28-insurance-claims-photo-assessment-with-fraud-flagging">Chapter 28: Insurance Claims Photo Assessment with Fraud Flagging<a class="headerlink" href="#chapter-28-insurance-claims-photo-assessment-with-fraud-flagging" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/28.svg"><img alt="Chapter 28: Assess a claim using multiple consistency checks" src="../../images/chapter-openers/28.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>How to reapply Chapter 23.1's own real perceptual difference-hash (dHash) algorithm a third time -- after Chapter 23.1's own counterfeit product photos and Chapter 26.1's signature comparison -- to a new real fraud pattern: the identical photo submitted across two unrelated insurance claims.</li>
@@ -2414,6 +2421,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="281-insurance-claim-duplicate-photo-detection">28.1 Insurance Claim Duplicate Photo Detection<a class="headerlink" href="#281-insurance-claim-duplicate-photo-detection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-28.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch28/28-01.svg"><img alt="Identical and similar photos need different checks" src="../../images/technical/ch28/28-01.svg" /></a></p>
+<figcaption>Photo reuse can be legitimate. A duplicate candidate is not proof of fraud.</figcaption>
+</figure>
+<!-- edge:concept-28.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A well-documented real insurance-fraud pattern is not a forged photo at all, but a genuine photo reused across two entirely unrelated claims. Catching this requires the identical real dHash algorithm this book has now built once and reapplied once already, applied for a third time to a new real domain: cross-claim photo deduplication, where the central design question is not the hashing itself but what counts as a real match.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2671,6 +2685,13 @@
 <p><code>find_reused_photo_matches</code> explicitly excludes matches against the SAME <code>claim_id</code> as the new submission -- a claimant, or an adjuster processing their claim, re-uploading the identical photo a second time (a clearer re-scan, a different file format, a resubmission after a lost upload) is completely routine, and treating it as a fraud signal would flag an enormous number of genuinely honest claims. The real signal this section's own function is built to catch is narrower and more specific: the SAME photo appearing under a DIFFERENT claim_id, which has no routine, honest explanation the way a same-claim resubmission does. Deploying this section's own logic without the self-exclusion check in Test 3 would replace a real, specific fraud signal with an enormous stream of false positives against the most common, most innocent case there is.</p>
 </div>
 <h2 id="282-photo-timestamp-vs-incident-date-consistency">28.2 Photo Timestamp vs. Incident Date Consistency<a class="headerlink" href="#282-photo-timestamp-vs-incident-date-consistency" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-28.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch28/28-02.svg"><img alt="Compare claimed timing with available evidence" src="../../images/technical/ch28/28-02.svg" /></a></p>
+<figcaption>Editable metadata is evidence with limits. A mismatch requires explanation, not an automatic accusation.</figcaption>
+</figure>
+<!-- edge:concept-28.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A real, well-documented technique real insurance Special Investigations Units use is metadata timestamp analysis: a photo of damage cannot have been taken before the damage occurred, and a claim's own stated incident date gives a real, checkable boundary to test every submitted photo's own capture timestamp against.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -2897,6 +2918,13 @@
 <p>A <code>PRE_DATED</code> result names a genuine structural impossibility -- there is no honest explanation for a photograph of damage existing before the damage occurred, short of the photo belonging to a different, earlier incident entirely. A <code>STALE_OR_LATE</code> result names something categorically softer: a photo taken later than expected, which has many completely honest explanations (a follow-up photo during a real repair, a delayed upload, a second adjuster visit). Routing both anomalies to the identical downstream action would either treat a real structural impossibility too gently, or treat a routine late upload as though it were as serious as a photo that could not possibly be genuine -- exactly why this section's own <code>TimingVerdict</code> keeps the two as separate, distinctly named outcomes rather than collapsing them into one generic "timing anomaly" flag.</p>
 </div>
 <h2 id="283-extending-the-cost-range-engine-with-a-fraud-likelihood-signal">28.3 Extending the Cost-Range Engine with a Fraud-Likelihood Signal<a class="headerlink" href="#283-extending-the-cost-range-engine-with-a-fraud-likelihood-signal" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-28.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch28/28-03.svg"><img alt="Cost estimation and fraud screening are separate outputs" src="../../images/technical/ch28/28-03.svg" /></a></p>
+<figcaption>A high estimate does not itself imply fraud. Keep both outputs independently reviewable.</figcaption>
+</figure>
+<!-- edge:concept-28.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>This section directly extends Chapter 21.3's own real severity-to-cost-range engine and photo-consistency check -- both reused completely unchanged -- with a new per-zone fraud-likelihood signal built from Section 28.1's duplicate-photo flag, Section 28.2's timestamp-anomaly flag, and Chapter 21.3's own existing consistency verdict. The central discipline this section adds: a zone's own cost estimate and its own fraud likelihood are computed completely independently of each other.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3224,6 +3252,13 @@
 <p><code>assess_fraud_likelihood</code> is a real, transparent COUNT of how many named, independent real checks disagreed with a claim -- LOW, MEDIUM, or HIGH describes exactly that count, never a real, calibrated statistical probability that a specific claim is fraudulent. A zone with a <code>HIGH</code> fraud likelihood has two or three independently suspicious signals attached to it, which is real, actionable information worth a human's attention -- it is not, and was never built to be, a statement that this specific zone is "67% likely to be fraudulent" or any other precise number. Treating this section's own three-level, fully-named count as though it carried that kind of statistical precision would overstate exactly what this section's own honest, simple counting logic can support.</p>
 </div>
 <h2 id="284-the-claims-disposition-engine">28.4 The Claims Disposition Engine<a class="headerlink" href="#284-the-claims-disposition-engine" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-28.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch28/28-04.svg"><img alt="The claims engine reports a disposition with reasons" src="../../images/technical/ch28/28-04.svg" /></a></p>
+<figcaption>Retain source photos, triggered checks and uncertainty with the resulting case record.</figcaption>
+</figure>
+<!-- edge:concept-28.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>This chapter's capstone reuses Section 28.3's own cost-range and fraud-likelihood machinery unchanged, and routes an entire claim based on the single worst zone across it -- reapplying this book's own never-suppress-a-named-flag discipline once more, but with a real, deliberate ethical boundary this domain requires: this engine has no denial disposition at all, since a false machine denial has real consequences for a genuine claimant.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>

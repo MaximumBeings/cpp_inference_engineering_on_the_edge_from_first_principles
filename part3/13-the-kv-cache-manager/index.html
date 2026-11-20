@@ -2491,6 +2491,13 @@
 
 
 <h1 id="chapter-13-the-kv-cache-manager-paged-attention-ring-buffers-and-smart-eviction">Chapter 13: The KV Cache Manager -- Paged Attention, Ring Buffers, and Smart Eviction<a class="headerlink" href="#chapter-13-the-kv-cache-manager-paged-attention-ring-buffers-and-smart-eviction" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/13.svg"><img alt="Chapter 13: The KV cache preserves attention history" src="../../images/chapter-openers/13.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why autoregressive decode is memory-bandwidth-bound rather than compute-bound, and the one equation — tokens/second is bounded by bandwidth divided by bytes read per token (model weights plus KV cache) — that makes this concrete enough to compute, not just assert.</li>
@@ -2515,6 +2522,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="131-the-memory-wall-why-the-kv-cache-is-the-real-bottleneck">13.1 The Memory Wall: Why the KV Cache Is the Real Bottleneck<a class="headerlink" href="#131-the-memory-wall-why-the-kv-cache-is-the-real-bottleneck" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-13.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch13/13-01.svg"><img alt="The logical cache size grows with retained tokens" src="../../images/technical/ch13/13-01.svg" /></a></p>
+<figcaption>This counts logical KV payload. Allocation, page metadata and quantization scales are additional.</figcaption>
+</figure>
+<!-- edge:concept-13.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>An autoregressive model is stateful: generating the Nth token requires attending over all N-1 tokens that came before it. Storing their Key and Value vectors instead of recomputing them every step turns an O(N^2) total-FLOP generation into O(N) per step — a genuinely good trade, but one that swaps compute for memory traffic, and memory traffic has its own, much harder, speed limit.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2767,6 +2781,13 @@
 <p>A CPU or GPU with dramatically more FLOPs per second generates decode tokens at the SAME speed as a slower one if the two have identical memory bandwidth, because decode's bottleneck is bytes moved per step, not arithmetic performed per step — the model's weights and KV cache must physically travel from RAM to the compute unit before a single multiply can happen, and no amount of extra ALU throughput makes that transfer faster. This is precisely why an H100 GPU (thousands of TFLOPS) and a desktop CPU (roughly one TFLOP) can show a far smaller decode-speed gap than their raw compute numbers would suggest, while showing close to the FULL gap in prefill, where compute rather than bandwidth is the limiting resource. Optimizing the wrong resource — adding compute throughput to a memory-bound workload — buys nothing measurable; the only levers that move decode speed are reducing bytes per token (quantization, a smaller KV cache) or increasing bandwidth itself.</p>
 </div>
 <h2 id="132-pagedattention-block-table-indirection">13.2 PagedAttention: Block-Table Indirection<a class="headerlink" href="#132-pagedattention-block-table-indirection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-13.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch13/13-02.svg"><img alt="A block table maps logical pages to physical blocks" src="../../images/technical/ch13/13-02.svg" /></a></p>
+<figcaption>Logical ordering need not equal physical ordering. Attention resolves each token through the table.</figcaption>
+</figure>
+<!-- edge:concept-13.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Two simple ways to allocate a KV cache both fail in production: reserving every connected user's worst-case context wastes nearly all of it on users who never approach that limit, and growing a buffer dynamically avoids that waste but pays for it with a stuttering reallocate-and-copy pause exactly when the buffer fills. PagedAttention borrows virtual-memory paging from operating systems to get neither failure mode.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3146,6 +3167,13 @@
 <p>When three users' block tables all reference the same physical system-prompt block, that block must remain read-only from every user's perspective for as long as it is shared — writing a user's own new tokens must always go into a NEWLY allocated block, never into a shared one, even though the shared block's physical memory is sitting right there and technically writable. A block manager has no way to know a given physical block is currently referenced by more than one sequence's block table; it is the CALLER'S responsibility (<code>Sequence::store_kv</code> allocating a new block whenever the current one fills, rather than ever appending into an existing shared block past its System-prompt length) to preserve that invariant. Violating it silently corrupts every OTHER user sharing that block the moment one user's "unique" token overwrites shared data — a bug that produces plausible-looking garbage in a completely unrelated user's context, with no crash and no obvious cause.</p>
 </div>
 <h2 id="133-ring-buffer-contexts-rope-position-decoupling-and-sink-token-protection">13.3 Ring Buffer Contexts: RoPE Position Decoupling and Sink-Token Protection<a class="headerlink" href="#133-ring-buffer-contexts-rope-position-decoupling-and-sink-token-protection" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-13.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch13/13-03.svg"><img alt="A ring slot and a RoPE position are different" src="../../images/technical/ch13/13-03.svg" /></a></p>
+<figcaption>Wrapping a buffer must not silently reset token positions.</figcaption>
+</figure>
+<!-- edge:concept-13.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>PagedAttention solves fragmentation but not growth: total KV cache size still scales linearly with context length no matter how efficiently its blocks are packed. A Ring Buffer caps memory at a fixed size by overwriting the oldest entry once full — simple in concept, but hiding a correctness trap that produces no warning and no crash, only silently wrong attention.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3456,6 +3484,13 @@
 <p>It is a natural-looking shortcut to rotate a Key vector using the same slot index the ring buffer just computed for WHERE to store it — after all, that index is already sitting right there as a convenient integer. This works perfectly during the initial fill, when slot and logical position happen to be numerically identical, which is exactly what makes the bug so dangerous: it passes every test run only long enough to fill the buffer once, then silently corrupts every attention computation from the first wrap onward. There is no crash, no NaN, no obviously wrong-looking number — just relative-distance math that is quietly off by however many tokens the buffer has wrapped, producing degraded, sometimes bizarre generation that is easy to blame on the model itself rather than on a rotation angle that has been wrong since the first overwritten slot. The fix is never using <code>write_slot()</code> for anything except "where," and never using anything except the monotonically increasing total-tokens-processed counter for "what rotation."</p>
 </div>
 <h2 id="134-smart-eviction-the-h2o-heavy-hitter-policy">13.4 Smart Eviction: The H2O Heavy-Hitter Policy<a class="headerlink" href="#134-smart-eviction-the-h2o-heavy-hitter-policy" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-13.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch13/13-04.svg"><img alt="An eviction policy ranks retained information" src="../../images/technical/ch13/13-04.svg" /></a></p>
+<figcaption>Schematic policy scores. Cumulative attention and recency protections define which entries may be evicted.</figcaption>
+</figure>
+<!-- edge:concept-13.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>The Ring Buffer's default eviction is FIFO: whichever token is oldest goes, no matter what it contains. That is fine for genuinely disposable streaming data, but a real conversation's early tokens are not uniformly disposable — a user's stated name matters for the rest of the session; idle filler three tokens later does not — and FIFO cannot tell the two apart.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3723,6 +3758,13 @@
 <p>A token that was just added to the cache has, by definition, accumulated at most one or two decode steps' worth of attention probability — nowhere near enough to reflect whether the model will actually rely on it going forward. Without a recent-window exemption, H2O's own importance-based eviction would systematically discriminate against every token the instant after it arrives, evicting genuinely important brand-new context (a name just stated, an instruction just given) simply because it has not yet had time to accumulate the score its true usefulness deserves — turning a smarter eviction policy into one that is, perversely, worse than FIFO for exactly the tokens that most need to survive their first few steps. The recent window's immunity is not a workaround for a limitation in the importance signal; it is a recognition that importance is a signal that needs TIME to become meaningful, and eviction must not judge a token before that time has passed.</p>
 </div>
 <h2 id="135-a-complete-kv-cache-manager">13.5 A Complete KV Cache Manager<a class="headerlink" href="#135-a-complete-kv-cache-manager" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-13.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch13/13-05.svg"><img alt="The manager owns allocation and validity" src="../../images/technical/ch13/13-05.svg" /></a></p>
+<figcaption>Do not release storage while an attention operation still reads it.</figcaption>
+</figure>
+<!-- edge:concept-13.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Each of this chapter's three techniques was verified in isolation. A production serving system needs all three working together — paged blocks for many concurrent users, a wrapping ring for unbounded conversations, and H2O eviction so wrapping discards the right tokens — and combining verified pieces is only useful if the combination does not quietly weaken any of the guarantees each piece proved on its own.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>

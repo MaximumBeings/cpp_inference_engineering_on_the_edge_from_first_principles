@@ -2591,6 +2591,13 @@
 
 
 <h1 id="chapter-4-quantization-strategies-affine-math-symmetric-vs-asymmetric-blockwise-scales">Chapter 4: Quantization Strategies -- Affine Math, Symmetric vs. Asymmetric, Blockwise Scales<a class="headerlink" href="#chapter-4-quantization-strategies-affine-math-symmetric-vs-asymmetric-blockwise-scales" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/04.svg"><img alt="Chapter 4: Represent a floating value with an integer" src="../../images/chapter-openers/04.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why LLM inference is memory-bandwidth-bound rather than compute-bound, and how that single fact turns "make the weights smaller" into "make inference faster" — not just cheaper to store.</li>
@@ -2615,6 +2622,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="41-the-memory-wall-and-affine-quantization">4.1 The Memory Wall and Affine Quantization<a class="headerlink" href="#41-the-memory-wall-and-affine-quantization" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-4.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch04/04-01.svg"><img alt="Affine quantization is a scale and a shift" src="../../images/technical/ch04/04-01.svg" /></a></p>
+<figcaption>Reconstruction uses scale * (q - zero_point). Values outside the chosen range are clipped.</figcaption>
+</figure>
+<!-- edge:concept-4.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>A modern CPU's arithmetic units can perform billions of multiply-adds per second, but a next-token prediction with a large model spends almost none of that capacity waiting on math — it spends its time waiting for weights to arrive from RAM. Generating one token from an 8-billion-parameter model in FP32 requires reading all 32GB of its weights at least once; at a representative desktop memory bandwidth of 64 GB/s, that is a hard floor of half a second per token no matter how fast the CPU's multiply-add units are. Halving the bytes read per token does not just save disk space — under this memory-bandwidth-bound regime, it roughly doubles tokens per second.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2880,6 +2894,13 @@
 <p>It is tempting to always force the zero-point to 0 because the resulting math is simpler and faster. That is exactly right for weights, which cluster around zero — but applying it to a one-sided range (post-ReLU activations, for instance) throws away precision: half of the representable integer codes end up mapping to real values that never occur. Section 4.5's activation quantizer keeps <code>Z=0</code> because it targets a symmetric range by construction; a general-purpose activation quantizer over an arbitrary range would need the full asymmetric formula this section derives.</p>
 </div>
 <h2 id="42-symmetric-blockwise-q8-taming-the-outlier-problem">4.2 Symmetric Blockwise Q8: Taming the Outlier Problem<a class="headerlink" href="#42-symmetric-blockwise-q8-taming-the-outlier-problem" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-4.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch04/04-02.svg"><img alt="Local scales isolate an outlier" src="../../images/technical/ch04/04-02.svg" /></a></p>
+<figcaption>Illustrative grouping only. The actual Q8 block size and metadata are defined by the file format.</figcaption>
+</figure>
+<!-- edge:concept-4.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>A single scale for an entire weight matrix sounds simpler than one scale per block of 32 — fewer numbers to store, fewer branches in the code. It fails in practice because trained weight matrices are not uniform: 99.9% of the values in a typical layer might cluster between -0.5 and +0.5, while a handful of outliers reach magnitudes 20-30x larger. One global scale has to accommodate the outlier, which means every ordinary weight is quantized against a scale far coarser than it needs — in the worst case, rounding small weights to exactly zero. Giving each block of 32 weights its own scale means an outlier in one block can no longer damage the precision of weights sitting in a different block.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3272,6 +3293,13 @@
 <p>Storing a block's scale as an ordinary <code>float</code> compiles fine, produces correct numbers, and is a completely legitimate design — it is simply a different, less aggressive compression target (3.56x, not 3.76x) than the one this chapter's memory-wall analysis assumes. There is no compiler warning for "this struct is 2 bytes larger than the format you had in mind": the mismatch only shows up as a <code>sizeof()</code> that does not match the compression ratio you expected, which is exactly why Test 6 above checks <code>sizeof(BlockQ8)</code> directly rather than trusting the arithmetic on paper.</p>
 </div>
 <h2 id="43-q4_0-packing-two-weights-into-one-byte">4.3 Q4_0: Packing Two Weights Into One Byte<a class="headerlink" href="#43-q4_0-packing-two-weights-into-one-byte" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-4.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch04/04-03.svg"><img alt="Two four-bit codes share one byte" src="../../images/technical/ch04/04-03.svg" /></a></p>
+<figcaption>Nibble order and the signed-value offset are format contracts; they must match the encoder.</figcaption>
+</figure>
+<!-- edge:concept-4.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>C++ has no 4-bit integer type — the smallest addressable unit any pointer can reference is a byte. Q4_0 packs two 4-bit values ("nibbles") into every byte: an unsigned range <code>[0, 15]</code>, reinterpreted as signed <code>[-8, +7]</code> by subtracting a fixed offset of 8. Halving int8's 8 bits per weight to 4 roughly doubles the compression again — and is the difference between a 70-billion-parameter model needing 140GB (FP16) versus needing about 20GB (Q4_0), which is the difference between "needs a server" and "runs on a laptop."</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -3576,6 +3604,13 @@
 <p>Since a 4-bit signed value after the offset spans <code>[-8, +7]</code>, it is easy to assume the scale should map the block's maximum magnitude to 8 — mirroring Q8's <code>alpha/127</code>. But <code>+8</code> is not an achievable positive code (the range tops out at <code>+7</code>), so <code>scale = alpha/8</code> would let the true maximum-magnitude weight round to a code one step past what the format can store, silently clamping it. Deriving the scale from <code>alpha/7</code> instead keeps the largest weight exactly representable, at the minor cost of <code>-8</code> being one code more precise than it strictly needs to be — an intentional, symmetric-quantization tradeoff, not an oversight.</p>
 </div>
 <h2 id="44-the-fused-dequantize-dot-product">4.4 The Fused Dequantize-Dot-Product<a class="headerlink" href="#44-the-fused-dequantize-dot-product" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-4.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch04/04-04.svg"><img alt="Reconstruct only what the dot product needs" src="../../images/technical/ch04/04-04.svg" /></a></p>
+<figcaption>Fusing these stages avoids materializing a full floating-point weight matrix.</figcaption>
+</figure>
+<!-- edge:concept-4.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>The straightforward way to compute a quantized dot product is two phases: dequantize an entire block to a temporary float buffer, then run an ordinary float dot product against that buffer. It is correct, but it pays for memory traffic that never needed to exist — the dequantized buffer gets written to cache or RAM and then immediately read back, on top of reading the original quantized block and the input vector. A fused kernel dequantizes each value directly into a CPU register, multiplies it against the input immediately, and accumulates — the intermediate float value never touches memory at all.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
@@ -3895,6 +3930,13 @@
 <p>A tempting way to "prove" fusion is faster is to wrap both versions in <code>std::chrono</code> and print the ratio. That number is real, but it is a property of the specific CPU, cache state, and compiler flags used to produce it — rerun it on different hardware and the ratio changes, sometimes substantially. The 402-vs-146-byte accounting above is a property of the ALGORITHM, not the machine: it is exactly as true on a laptop as on a server, which is why it is what gets locked into this section's verified output instead of a timing number.</p>
 </div>
 <h2 id="45-dynamic-activation-quantization-and-int8-x-int8-matmul">4.5 Dynamic Activation Quantization and INT8 x INT8 MatMul<a class="headerlink" href="#45-dynamic-activation-quantization-and-int8-x-int8-matmul" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-4.5:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch04/04-05.svg"><img alt="Separate integer accumulation from scaling" src="../../images/technical/ch04/04-05.svg" /></a></p>
+<figcaption>This simplified symmetric case has zero point zero. Nonzero zero points require correction terms.</figcaption>
+</figure>
+<!-- edge:concept-4.5:end -->
+
 <h3 id="intuition_4">Intuition<a class="headerlink" href="#intuition_4" title="Permanent link">&para;</a></h3>
 <p>Weights are quantized once, offline, with unlimited time to get the scale right. Activations are the opposite: a new set of values arrives with every token, so they must be quantized on the critical path of every forward pass, in microseconds, using the simplest algorithm that works. The payoff for doing this at all is substantial: INT8 x INT8 multiply-accumulate runs at roughly 4x the throughput of FP32 SIMD on CPUs with VNNI-style integer dot-product instructions (standard on server and modern desktop hardware since Intel Ice Lake) — quantizing both operands trades a little rounding overhead for a much faster inner loop.</p>
 <h3 id="the-concept-in-detail_4">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_4" title="Permanent link">&para;</a></h3>
@@ -4143,6 +4185,13 @@
 <p>Section 4.2's block scale is computed once and written to a file — shaving it down to <code>fp16_t</code> was worth the small added rounding because it is paid for exactly once, ever, per block. An activation's scale is the opposite: recomputed fresh every token, held only in a scratch buffer, and never persisted. Spending effort compressing it would save nothing (there is no file it needs to shrink) while adding real per-token overhead, which is why this section's <code>QuantAct</code> deliberately keeps its scale as a plain <code>float</code>.</p>
 </div>
 <h2 id="46-quantization-aware-training-and-the-straight-through-estimator">4.6 Quantization-Aware Training and the Straight-Through Estimator<a class="headerlink" href="#46-quantization-aware-training-and-the-straight-through-estimator" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-4.6:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch04/04-06.svg"><img alt="The forward and backward passes use different rules" src="../../images/technical/ch04/04-06.svg" /></a></p>
+<figcaption>The straight-through estimator is a training approximation, not the exact derivative of rounding.</figcaption>
+</figure>
+<!-- edge:concept-4.6:end -->
+
 <h3 id="intuition_5">Intuition<a class="headerlink" href="#intuition_5" title="Permanent link">&para;</a></h3>
 <p>Every scheme so far has been Post-Training Quantization (PTQ): train a model in full FP32, quantize it afterward, and hope the rounding lands in a forgiving place. Quantization-Aware Training (QAT) instead simulates the quantization noise INSIDE the forward pass while the model is still training, so the optimizer can see that noise and adjust the weights to be robust to it — generally producing meaningfully better results at aggressive bit-widths like Q4 than PTQ alone.</p>
 <h3 id="the-concept-in-detail_5">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_5" title="Permanent link">&para;</a></h3>

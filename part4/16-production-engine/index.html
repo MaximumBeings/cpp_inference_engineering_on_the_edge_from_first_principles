@@ -2391,6 +2391,13 @@
 
 
 <h1 id="chapter-16-the-production-engine-integrating-everything-into-a-single-binary">Chapter 16: The Production Engine -- Integrating Everything into a Single Binary<a class="headerlink" href="#chapter-16-the-production-engine-integrating-everything-into-a-single-binary" title="Permanent link">&para;</a></h1>
+<!-- edge:opener:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/chapter-openers/16.svg"><img alt="Chapter 16: Turn the forward pass into a command-line engine" src="../../images/chapter-openers/16.svg" /></a></p>
+<figcaption>Chapter roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 <p><strong>What you will understand by the end of this chapter:</strong></p>
 <ul>
 <li>Why a production binary's command-line contract should promise nothing this book has not actually built and verified -- and why that means this chapter's CLI has no thread-count flag and no KV-quantization flag, even though Chapters 8, 13, and 14 built both of those subsystems.</li>
@@ -2416,6 +2423,13 @@
 <!-- /chapter-figure -->
 
 <h2 id="161-engine-configuration-and-the-command-line">16.1 Engine Configuration and the Command Line<a class="headerlink" href="#161-engine-configuration-and-the-command-line" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-16.1:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch16/16-01.svg"><img alt="Validate configuration before execution" src="../../images/technical/ch16/16-01.svg" /></a></p>
+<figcaption>Numeric parsing must consume the whole argument and enforce finite values and valid bounds.</figcaption>
+</figure>
+<!-- edge:concept-16.1:end -->
+
 <h3 id="intuition">Intuition<a class="headerlink" href="#intuition" title="Permanent link">&para;</a></h3>
 <p>Every earlier chapter's worked examples took their inputs as function arguments inside a single self-test <code>main</code>. A binary someone else runs takes its inputs from a command line, and a command line's contract is a promise: every flag it accepts is a claim that this program actually does the thing that flag names.</p>
 <h3 id="the-concept-in-detail">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail" title="Permanent link">&para;</a></h3>
@@ -2776,6 +2790,13 @@
 <p>A command-line flag that this book's own thread pool or TurboQuant compressor could plausibly use is not the same thing as a flag this SPECIFIC binary should offer. If <code>-t &lt;threads&gt;</code> had been added here purely because Chapter 8 built a real thread pool somewhere in this book, it would parse without error, store a value, and do absolutely nothing with it -- the real forward pass it would need to hand that value to is single-threaded code that has never read a thread count from anywhere. A reader who passes <code>-t 8</code> expecting an 8x speedup would get identical performance and no error message telling them why. The fix is not a runtime warning about an ignored flag; it is not offering the flag at all until the subsystem behind it is actually wired in, exactly as <code>--kv-bits</code> waits for Chapter 17.</p>
 </div>
 <h2 id="162-sampling-and-a-utf-8-safe-streaming-decoder">16.2 Sampling and a UTF-8-Safe Streaming Decoder<a class="headerlink" href="#162-sampling-and-a-utf-8-safe-streaming-decoder" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-16.2:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch16/16-02.svg"><img alt="Sampling ends in a byte-safe stream" src="../../images/technical/ch16/16-02.svg" /></a></p>
+<figcaption>Apply repetition penalties once per distinct history token under the documented policy.</figcaption>
+</figure>
+<!-- edge:concept-16.2:end -->
+
 <h3 id="intuition_1">Intuition<a class="headerlink" href="#intuition_1" title="Permanent link">&para;</a></h3>
 <p>Section 15.4's <code>project_argmax</code> answered one question -- which single token is most likely -- and threw away everything else. A real generation loop needs the WHOLE distribution, because temperature, top-k, and top-p are all ways of reshaping that distribution before sampling from it, not ways of picking a different single winner.</p>
 <h3 id="the-concept-in-detail_1">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_1" title="Permanent link">&para;</a></h3>
@@ -3297,6 +3318,13 @@
 <p>It is tempting to decode and print each generated token's text the moment <code>codec.decode()</code> returns it, since that is what "streaming" sounds like it should mean. For a byte-level BPE vocabulary, this is wrong specifically at multi-byte UTF-8 boundaries: <code>codec.decode()</code> faithfully returns whatever raw bytes that ONE token maps to, and if the real tokenizer happened to split a two-byte character across two tokens, decoding token one alone produces a single dangling continuation or leading byte that is not valid UTF-8 on its own -- printing it immediately corrupts the output, and no amount of correctly decoding the SECOND token afterward fixes a byte already written to a terminal or a socket. The fix is never per-token immediate printing; it is buffering every token's raw decoded bytes and only ever emitting the longest complete-character prefix, which is exactly what <code>StreamingDecoder</code> exists to do.</p>
 </div>
 <h2 id="163-the-generation-loop-and-the-conversation-loop">16.3 The Generation Loop and the Conversation Loop<a class="headerlink" href="#163-the-generation-loop-and-the-conversation-loop" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-16.3:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch16/16-03.svg"><img alt="Generation and conversation have nested lifetimes" src="../../images/technical/ch16/16-03.svg" /></a></p>
+<figcaption>A turn boundary is not automatically a model reload or a complete state reset.</figcaption>
+</figure>
+<!-- edge:concept-16.3:end -->
+
 <h3 id="intuition_2">Intuition<a class="headerlink" href="#intuition_2" title="Permanent link">&para;</a></h3>
 <p>Section 15.4 embedded one token and ran it through 24 layers exactly once. A real generation loop calls that same per-position computation once per NEW token, extending the same per-layer <code>KVCache</code>s by exactly one position each time -- the natural shape autoregressive decoding always has, and the reason Section 15.4 fixed its <code>KVCache</code>-sharing bug to be one cache per layer, persisting across positions, in the first place.</p>
 <h3 id="the-concept-in-detail_2">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_2" title="Permanent link">&para;</a></h3>
@@ -4513,6 +4541,13 @@
 <p><code>std::max(current, candidate)</code> looks like it should propagate a NaN candidate the same way it propagates any other extreme value -- a NaN is certainly not smaller than anything. But IEEE 754 defines every comparison against NaN, including <code>&lt;</code>, as false, so the comparison <code>std::max</code> performs internally (<code>current &lt; candidate ? candidate : current</code>) evaluates its condition to false whenever <code>candidate</code> is NaN, and returns <code>current</code> unchanged -- the NaN is compared against, found not to satisfy the comparison, and discarded, with no warning that anything unusual happened. Any reduction built on <code>std::max</code>, <code>std::min</code>, or a bare <code>&lt;</code>/<code>&gt;</code> comparison has this exact blind spot, which matters most precisely when the code being tested is a NaN-DETECTION mechanism: poisoning a value that will pass through such a reduction before the detector ever sees it can produce a test that appears to pass every other check while testing the failure path not at all. The fix is not a smarter <code>max</code> -- it is knowing which of a fixture's own data paths reduce their inputs before the check runs, and poisoning a path that does not.</p>
 </div>
 <h2 id="164-the-complete-production-engine-and-its-built-in-profiler">16.4 The Complete Production Engine and Its Built-In Profiler<a class="headerlink" href="#164-the-complete-production-engine-and-its-built-in-profiler" title="Permanent link">&para;</a></h2>
+<!-- edge:concept-16.4:start -->
+<figure class="chapter-figure">
+<p><a href="../../images/technical/ch16/16-04.svg"><img alt="Production integration makes boundaries visible" src="../../images/technical/ch16/16-04.svg" /></a></p>
+<figcaption>Timing scopes, ownership and failure paths remain explicit even inside one executable.</figcaption>
+</figure>
+<!-- edge:concept-16.4:end -->
+
 <h3 id="intuition_3">Intuition<a class="headerlink" href="#intuition_3" title="Permanent link">&para;</a></h3>
 <p>Every piece this chapter needs already exists: Section 16.1's config and CLI, Section 16.2's sampling pipeline and streaming decoder, and Section 16.3's incremental generation and conversation loop. This section wires all three together, adds a lightweight built-in profiler, and runs the complete result against the actual downloaded Qwen2.5-0.5B-Instruct checkpoint for a real two-turn conversation.</p>
 <h3 id="the-concept-in-detail_3">The Concept, In Detail<a class="headerlink" href="#the-concept-in-detail_3" title="Permanent link">&para;</a></h3>
