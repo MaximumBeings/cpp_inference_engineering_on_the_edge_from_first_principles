@@ -122,7 +122,7 @@ SPECS = {
  [('Tensor API','Storage, shape and layout'),('Model loader','Metadata and typed weights'),('Tokenizer','Vocabulary and byte handling'),('Serving runtime','KV state and scheduling')],
  'Check the book’s implemented scope before assuming framework feature parity.'),
 }
-PALETTE={'bg':'#fbfaf7','ink':'#182d38','muted':'#526674','line':'#cbd5d8','teal':'#a33516','orange':'#c0441f'}
+PALETTE={'bg':'#fbfaf7','ink':'#182d38','muted':'#526674','line':'#cbd5d8','teal':'#0e756d','orange':'#bd591c'}
 def esc(s): return html.escape(s,quote=True)
 def text(x,y,content,size=20,color=None,weight=400):
     return f'<text x="{x}" y="{y}" font-size="{size}" fill="{color or PALETTE["ink"]}" font-weight="{weight}">{esc(content)}</text>'
@@ -137,7 +137,7 @@ def base(title,desc,body,h=470):
 <title id="title">{esc(title)}</title><desc id="desc">{esc(desc)}</desc>
 <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#738993"/></marker></defs>
 <g font-family="Roboto, Arial, sans-serif">{rect(1,1,1118,h-2,PALETTE['bg'],'#d8dedb',18)}
-<path d="M32 38 H74" stroke="#c0441f" stroke-width="5" stroke-linecap="round"/>
+<path d="M32 38 H74" stroke="#bd591c" stroke-width="5" stroke-linecap="round"/>
 {lines(32,83,title,29,65)}
 {lines(32,140 if len(textwrap.wrap(title,65)) > 1 else 124,desc,18,106,PALETTE['muted'])}
 {body}</g></svg>'''
@@ -151,14 +151,14 @@ def pipeline(spec):
         b+=lines(x+17,219,label,22,19)
         b+=lines(x+17,270,detail,17,23,PALETTE['muted'])
         if i<3:b+=arrow(x+247,255,x+266,255)
-    b+=rect(32,360,1056,78,'#fff0e8','#e9b9a5',12)+lines(50,392,note,19,95,PALETTE['teal'])
+    b+=rect(32,360,1056,78,'#edf3f1','#d7e3de',12)+lines(50,392,note,19,95,PALETTE['teal'])
     return base(title,desc,b)
 def matrix(spec):
     b=''
     for r in range(3):
         for c in range(4):
             x,y=54+c*100,190+r*58
-            b+=rect(x,y,88,46,'#ffe4d6' if (r,c)!=(1,2) else '#f9dfca')
+            b+=rect(x,y,88,46,'#e7f1ee' if (r,c)!=(1,2) else '#f9dfca')
             b+=text(x+30,y+30,str(r*4+c),20)
     b+=text(54,390,'3 × 4 view, row-major storage',20)
     b+=arrow(468,270,550,270)
@@ -168,7 +168,7 @@ def matrix(spec):
     return base(spec[0],spec[1],b)
 def roofline(spec):
     b=f'<path d="M80 352 V182 M80 352 H648" stroke="#738993" stroke-width="2"/>'
-    b+=f'<path d="M105 334 L362 211 H638" fill="none" stroke="#a33516" stroke-width="5"/>'
+    b+=f'<path d="M105 334 L362 211 H638" fill="none" stroke="#0e756d" stroke-width="5"/>'
     b+=text(120,311,'Bandwidth bound',18)+text(392,196,'Compute ceiling',18)
     b+=text(220,395,'Operational intensity (FLOPs / byte)',19)
     b+=text(86,171,'Attainable FLOP/s',18)
@@ -182,7 +182,7 @@ def simd(spec):
     for i in range(8):
         x=150+i*88
         for y,prefix in ((170,'a'),(232,'b')):
-            b+=rect(x,y,72,44,'#fff0e8')+text(x+20,y+28,f'{prefix}{i}',19)
+            b+=rect(x,y,72,44,'#edf3f1')+text(x+20,y+28,f'{prefix}{i}',19)
         b+=text(x+20,313,'×',27)
     b+=rect(150,335,688,54,'#f9e7d9')+text(178,370,'Accumulate lane products, then reduce the eight partial sums',19)
     b+=text(36,431,'Example: eight float lanes in an AVX2 register. Handle the remaining elements separately.',18,PALETTE['muted'])
@@ -191,7 +191,7 @@ def cache(spec):
     b=''
     for i in range(8):
         x=42+i*130
-        b+=rect(x,188,112,68,'#ffe4d6')+text(x+18,230,f'K token {i}',18)
+        b+=rect(x,188,112,68,'#e7f1ee')+text(x+18,230,f'K token {i}',18)
         b+=rect(x,266,112,68,'#f9e7d9')+text(x+18,308,f'V token {i}',18)
     b+=text(44,380,'A new query attends to the retained K/V positions.',22,PALETTE['teal'])
     b+=text(44,419,'Pages and windows change storage management; the model still needs correct logical positions.',17,PALETTE['muted'])
@@ -199,7 +199,7 @@ def cache(spec):
 def attention(spec):
     b=rect(32,183,220,151)+text(54,220,'Query row',23,weight=600)+lines(54,263,'One thread owns its running state',18,19)
     b+=arrow(260,252,302,252)
-    b+=rect(322,183,300,151,'#fff0e8')+text(344,220,'Shared-memory tile',23,weight=600)
+    b+=rect(322,183,300,151,'#edf3f1')+text(344,220,'Shared-memory tile',23,weight=600)
     b+=lines(344,263,'Load up to 32 keys and values; synchronize threads',18,26)
     b+=arrow(630,252,672,252)
     b+=rect(696,183,390,151)+text(718,220,'Online softmax state',23,weight=600)
@@ -218,7 +218,7 @@ def batching(spec):
         b+=text(36,y+31,label,20)
         for a,z,label in segments:
             x=190+a*215
-            fill={'Prefill':'#ffe4d6','Decode':'#f9e7d9','Wait':'#efefea','Done':'#f4d6c7'}[label]
+            fill={'Prefill':'#dfeee9','Decode':'#f9e7d9','Wait':'#efefea','Done':'#e1e8f0'}[label]
             b+=rect(x,y,(z-a)*215-12,48,fill)+text(x+15,y+31,label,19)
     b+=text(190,418,'Scheduling iterations → admit or retire work at boundaries',21,PALETTE['teal'])
     return base(spec[0],spec[1],b)

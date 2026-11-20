@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from concepts import CONCEPTS
 ROOT = Path(__file__).resolve().parents[2]
 SPECS = runpy.run_path(str(ROOT / 'tools/build_diagrams.py'))['SPECS']
-INK, MUTED, TEAL, ORANGE = '#182d38', '#526674', '#a33516', '#9c3619'
+INK, MUTED, TEAL, ORANGE = '#182d38', '#526674', '#0e756d', '#b94c27'
 
 def esc(value):
     return html.escape(str(value), quote=True)
@@ -31,11 +31,11 @@ def arrow(x1,y1,x2,y2):
     return f'<path d="M{x1} {y1} L{x2} {y2}" fill="none" stroke="#738993" stroke-width="2" marker-end="url(#arrow)"/>'
 
 def svg(title,description,body,height=610,dark=False):
-    bg='#ff6e42' if dark else '#fbfaf7'
+    bg='#181e30' if dark else '#fbfaf7'
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="760" height="{height}" viewBox="0 0 760 {height}" role="img" aria-labelledby="title desc">
 <title id="title">{esc(title)}</title><desc id="desc">{esc(description)}</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#738993"/></marker></defs>
-<g font-family="Arial, Helvetica, sans-serif">{rect(1,1,758,height-2,bg,'#d8dedb' if not dark else '#d64c25',16)}{body}</g></svg>'''
+<g font-family="Arial, Helvetica, sans-serif">{rect(1,1,758,height-2,bg,'#d8dedb' if not dark else '#3a455c',16)}{body}</g></svg>'''
 
 def heading(title,section):
     count=len(textwrap.wrap(title,46))
@@ -45,14 +45,14 @@ def heading(title,section):
 
 def note(body,y,caption):
     count=len(textwrap.wrap(caption,75))
-    body+=rect(32,y,696,34+count*24,'#fff0e8','#e9b9a5')
+    body+=rect(32,y,696,34+count*24,'#eaf2ef','#d2e1db')
     body+=wrap(48,y+29,caption,16,75,TEAL,step=24)
     return body,y+54+count*24
 
 def custom_diagram(section,top):
     b=''
     if section=='3.2':
-        b+=rect(280,top,200,60,'#ffe4d6')+txt(380,top+38,'Input x',22,TEAL,600,'middle')
+        b+=rect(280,top,200,60,'#e8f1ed')+txt(380,top+38,'Input x',22,TEAL,600,'middle')
         b+=arrow(330,top+64,192,top+108)+arrow(430,top+64,568,top+108)
         for x,label in [(32,'SiLU(W_gate x)'),(408,'W_up x')]:
             b+=rect(x,top+112,320,74)+txt(x+160,top+157,label,21,INK,500,'middle')
@@ -64,7 +64,7 @@ def custom_diagram(section,top):
     if section=='4.3':
         for i in range(8):
             x=32+i*87
-            b+=rect(x,top+58,80,84,'#ffe4d6' if i<4 else '#faeee6')
+            b+=rect(x,top+58,80,84,'#e8f1ed' if i<4 else '#faeee6')
             b+=txt(x+40,top+110,f'b{7-i}',23,TEAL if i<4 else ORANGE,600,'middle')
         b+=txt(206,top+29,'HIGH NIBBLE',16,TEAL,700,'middle')+txt(554,top+29,'LOW NIBBLE',16,ORANGE,700,'middle')
         b+=arrow(206,top+148,206,top+200)+arrow(554,top+148,554,top+200)
@@ -77,7 +77,7 @@ def custom_diagram(section,top):
             for row in range(3):
                 for col in range(4):
                     x=160+col*110;y=top+row*92
-                    b+=rect(x,y,84,68,'#ffe4d6')+txt(x+42,y+43,row*4+col,21,INK,600,'middle')
+                    b+=rect(x,y,84,68,'#e8f1ed')+txt(x+42,y+43,row*4+col,21,INK,600,'middle')
             b+=arrow(160,top-16,565,top-16)+txt(160,top-30,'Contiguous row traversal',17,TEAL)
             b+=arrow(130,top+5,130,top+244)
             b+=txt(32,top+315,'Column traversal jumps by 4 elements in this row-major layout.',17,ORANGE)
@@ -85,7 +85,7 @@ def custom_diagram(section,top):
         import math
         for i in range(8):
             angle=(i-2)*math.pi/4;x=210+112*math.cos(angle);y=top+164+112*math.sin(angle)
-            b+=rect(x-36,y-24,72,48,'#ffe4d6' if i!=0 else '#faeee6')+txt(x,y+7,f'slot {i}',15,INK,600,'middle')
+            b+=rect(x-36,y-24,72,48,'#e8f1ed' if i!=0 else '#faeee6')+txt(x,y+7,f'slot {i}',15,INK,600,'middle')
         b+=txt(210,top+162,'PHYSICAL',16,TEAL,600,'middle')+txt(210,top+188,'SLOTS',16,TEAL,600,'middle')
         for i,line in enumerate(['logical positions keep increasing','position 8 -> slot 0','position 9 -> slot 1','position 10 -> slot 2']):
             b+=wrap(400,top+70+i*65,line,18,28,step=25)
@@ -97,7 +97,7 @@ def custom_diagram(section,top):
             b+=rect(32,y,220,76)+txt(142,y+45,f'Logical page {i}',20,INK,500,'middle')
         for j,block in enumerate([2,7,9]):
             y=top+j*112
-            b+=rect(508,y,220,76,'#ffe4d6')+txt(618,y+45,f'Physical block {block}',19,TEAL,500,'middle')
+            b+=rect(508,y,220,76,'#e8f1ed')+txt(618,y+45,f'Physical block {block}',19,TEAL,500,'middle')
         for i,destination in enumerate([1,0,2]):b+=arrow(258,top+i*112+38,502,top+destination*112+38)
         b+=txt(32,top+372,'Block table: [7, 2, 9]. Token offset is retained inside each block.',17,TEAL)
         return b,top+400
@@ -139,7 +139,7 @@ def render(spec,section):
         h=max(heights)
         for col,value in enumerate(items):
             x=32+col*376; pieces=value.split('|')
-            b+=rect(x,top,320,h,'#ffe4d6' if col==0 else '#faeee6')
+            b+=rect(x,top,320,h,'#e8f1ed' if col==0 else '#faeee6')
             b+=wrap(x+18,top+34,pieces[0],20,25,TEAL if col==0 else ORANGE,600,27)
             y=top+90
             for p in pieces[1:]:
@@ -149,21 +149,21 @@ def render(spec,section):
     elif kind=='math':
         for i,label in enumerate(items):
             y=top+i*76
-            b+=rect(32,y,696,60,'#fff' if i<len(items)-1 else '#ffe4d6')
+            b+=rect(32,y,696,60,'#fff' if i<len(items)-1 else '#e8f1ed')
             b+=txt(54,y+36,f'{i+1:02}',15,ORANGE,700)
             b+=wrap(110,y+37,label,21,49,step=26)
         end=top+len(items)*76+8
     elif kind=='mapping':
         for i,value in enumerate(items):
             left,right=value.split('|',1); y=top+i*92
-            b+=rect(32,y,286,74,'#fff')+rect(408,y,320,74,'#ffe4d6')
+            b+=rect(32,y,286,74,'#fff')+rect(408,y,320,74,'#e8f1ed')
             b+=wrap(48,y+31,left,18,25,step=25)+wrap(424,y+31,right,18,28,TEAL,step=25)
             b+=arrow(322,y+37,402,y+37)
         end=top+len(items)*92+8
     elif kind=='memory':
         for i,label in enumerate(items):
             x=32+(i%2)*376;y=top+(i//2)*124
-            b+=rect(x,y,320,96,'#ffe4d6' if i%2==0 else '#faeee6')
+            b+=rect(x,y,320,96,'#e8f1ed' if i%2==0 else '#faeee6')
             b+=txt(x+16,y+27,f'BLOCK {i+1}',12,MUTED,600)
             b+=wrap(x+16,y+58,label,19,26,step=26)
         b+=txt(32,top+283,'One representation; explicit boundaries and ownership',17,TEAL,600)
@@ -172,7 +172,7 @@ def render(spec,section):
         for row in range(3):
             for col in range(4):
                 x=32+col*82;y=top+row*74;selected=(row,col)==(1,2)
-                b+=rect(x,y,70,62,'#a33516' if selected else '#fff')
+                b+=rect(x,y,70,62,'#0e756d' if selected else '#fff')
                 b+=txt(x+35,y+38,row*4+col,21,'#fff' if selected else INK,600,'middle')
         for i,label in enumerate(items):b+=wrap(414,top+35+i*53,label,18,29,step=25)
         b+=txt(32,top+269,'Flat addresses increase from left to right in each row.',17,TEAL)
@@ -182,7 +182,7 @@ def render(spec,section):
             label,count=value.split('|');y=top+i*86
             b+=txt(32,y+22,label,18,INK,500)
             b+=rect(32,y+38,570,24,'#eef0ed','#eef0ed',5)
-            b+=rect(32,y+38,float(count)*57,24,'#a33516','#a33516',5)
+            b+=rect(32,y+38,float(count)*57,24,'#0e756d','#0e756d',5)
             b+=txt(624,y+58,count,18,TEAL,600)
         end=top+len(items)*86+10
     elif kind=='timeline':
@@ -204,26 +204,26 @@ def opener(key,page):
     raw=re.search(r'^# (.+)',page.read_text(),re.M)[1]
     title=re.sub(r'^Chapter \d+:\s*','',raw).split(' -- ')[0]
     lines=textwrap.wrap(title,36)
-    accent='#54200f'
-    b=txt(32,38,f'C++ INFERENCE AT THE EDGE  /  CHAPTER {int(key):02}',13,'#54200f',700)
-    b+='<path d="M32 57 H728" stroke="#b83c17"/>'
-    b+=wrap(32,105,title,34,36,'#2d1c16',500,43)
+    accent=['#8ed5c4','#f3b486','#b8b4ec'][int(key)%3]
+    b=txt(32,38,f'C++ INFERENCE AT THE EDGE  /  CHAPTER {int(key):02}',13,'#bdc9df',700)
+    b+='<path d="M32 57 H728" stroke="#45516c"/>'
+    b+=wrap(32,105,title,34,36,'#f5f4fa',500,43)
     top=105+(len(lines)-1)*43+56
     # Four silicon tiles form a concept-specific circuit rather than a stock photograph.
     labels=[n[0] for n in SPECS[key][2]]
     for i,label in enumerate(labels):
         x=52+(i%2)*368;y=top+(i//2)*128
-        b+=rect(x,y,288,98,'#fff4ed','#d64c25')
+        b+=rect(x,y,288,98,'#26324a','#5c6c88')
         for p in range(7):
             px=x+24+p*37
-            b+=f'<path d="M{px} {y-9} V{y} M{px} {y+98} V{y+107}" stroke="#b83c17" stroke-width="2"/>'
+            b+=f'<path d="M{px} {y-9} V{y} M{px} {y+98} V{y+107}" stroke="#60708b" stroke-width="2"/>'
         b+=txt(x+18,y+26,f'{i+1:02}',12,accent,700)
-        b+=wrap(x+18,y+58,label,20,24,'#2d1c16',500,27)
+        b+=wrap(x+18,y+58,label,20,24,'#f5f4fa',500,27)
     b+=f'<path d="M340 {top+49} H420 M196 {top+98} V{top+128} M564 {top+98} V{top+128} M340 {top+177} H420" stroke="{accent}" stroke-width="3" fill="none"/>'
     bottom=top+276
     b+=wrap(32,bottom,SPECS[key][0],22,57,accent,600,29)
     bottom+=len(textwrap.wrap(SPECS[key][0],57))*29+25
-    b+=txt(32,bottom,'Original conceptual chapter artwork  /  schematic, not a benchmark',13,'#54200f')
+    b+=txt(32,bottom,'Original conceptual chapter artwork  /  schematic, not a benchmark',13,'#aab8cf')
     return svg(title,SPECS[key][1],b,bottom+30,True)
 
 def figure(src,title,caption,marker):
