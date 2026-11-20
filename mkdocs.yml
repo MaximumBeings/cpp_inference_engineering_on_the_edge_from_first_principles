@@ -114,3 +114,6 @@ extra_css:
   - stylesheets/figures.css
   - stylesheets/header-deep-blue.css
   - stylesheets/links-blue.css
+
+extra_javascript:
+  - javascripts/image-viewer.js
