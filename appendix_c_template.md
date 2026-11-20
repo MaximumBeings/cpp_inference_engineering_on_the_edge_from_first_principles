@@ -1,5 +1,14 @@
 # Appendix C: A Decision-Tree Reference: Quantization, Threading, and Cache Strategies at a Glance
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Appendix C: Choose an optimization from the limiting resource](../images/chapter-openers/appendix-c.svg)](../images/chapter-openers/appendix-c.svg)
+
+<figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 This appendix builds nothing new. Every format, every partitioning rule, every cache strategy named below was already derived and verified somewhere in Parts 1 through 3 (and, for the threading crossover formula, Part 6) -- this appendix's only job is to pull those real, scattered conclusions into one place a reader can consult while making a real decision, with an exact pointer back to where each one was built. Each of the three sections below closes with a small, real, compiled advisor program that turns its own decision tree into an executable function returning both the recommendation and the specific chapter fact behind it -- restating a decision as code, exactly this book's own standing discipline for every other real claim, rather than leaving it as a diagram a reader has to trust on faith.
 
 ---
@@ -7,7 +16,7 @@ This appendix builds nothing new. Every format, every partitioning rule, every c
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg){: loading="lazy" width="1120" height="470" }
+![Choose an optimization from the limiting resource. Measure the bottleneck before specializing the implementation.](../images/c-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Each optimization must preserve the model&#x27;s numerical and state contracts.</figcaption>
 </figure>

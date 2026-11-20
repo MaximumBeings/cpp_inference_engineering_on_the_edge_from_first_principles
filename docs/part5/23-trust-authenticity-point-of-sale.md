@@ -29,7 +29,7 @@ Chapter 22 turned a continuous stream into a structured, auditable narrative. Th
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Verify a point-of-sale claim against evidence. Reconciliation compares independent signals before making a disposition.](../images/23-overview.svg){: loading="lazy" width="1120" height="470" }
+![Verify a point-of-sale claim against evidence. Reconciliation compares independent signals before making a disposition.](../images/23-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>An anomaly is a review signal; it does not by itself prove counterfeit or fraud.</figcaption>
 </figure>

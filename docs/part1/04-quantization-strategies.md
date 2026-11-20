@@ -30,7 +30,7 @@ Chapters 2 and 3 built and ran a transformer block in full precision. This chapt
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Represent a floating value with an integer. The scale and zero point define the affine mapping.](../images/04-overview.svg){: loading="lazy" width="1120" height="470" }
+![Represent a floating value with an integer. The scale and zero point define the affine mapping.](../images/04-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Quantization error depends on scale, clipping and the distribution of values.</figcaption>
 </figure>

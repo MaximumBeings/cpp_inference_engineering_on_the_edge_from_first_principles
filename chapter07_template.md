@@ -30,7 +30,7 @@ Every quantizer built so far in this book has worked one 32-element block at a t
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products.](../images/07-overview.svg){: loading="lazy" width="1120" height="470" }
+![Quantize a vector in a rotated coordinate system. Use a reconstruction stage and a residual correction for inner products.](../images/07-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Keep the MSE reconstruction, residual and query in compatible coordinates.</figcaption>
 </figure>

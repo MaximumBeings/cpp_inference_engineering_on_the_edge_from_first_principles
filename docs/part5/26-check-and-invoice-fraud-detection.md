@@ -29,7 +29,7 @@ Chapter 25 closed Part 5's run of consumer- and field-facing vision-language dep
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Cross-check financial document fields. Independent checks expose inconsistencies for further review.](../images/26-overview.svg){: loading="lazy" width="1120" height="470" }
+![Cross-check financial document fields. Independent checks expose inconsistencies for further review.](../images/26-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Matching fields do not establish authenticity; preserve uncertainty and provenance.</figcaption>
 </figure>

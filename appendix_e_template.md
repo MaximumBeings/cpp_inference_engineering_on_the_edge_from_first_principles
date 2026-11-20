@@ -1,5 +1,14 @@
 # Appendix E: From PyTorch and llama.cpp to C++: A Rosetta Stone
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Appendix E: Translate familiar framework concepts into engine parts](../images/chapter-openers/appendix-e.svg)](../images/chapter-openers/appendix-e.svg)
+
+<figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 This appendix builds nothing new in the sense Appendix C did -- there is no fresh compiled program here, and deliberately so. Every C++ name below (`std::mdspan`, `GGUFReader`, `BPEEncoder::encode`, `BlockManager`, `EngineConfig`, `simulate_continuous_batching`) is a real, already-compiled, already-locked piece of this book, cited back to the exact chapter and section that built and verified it; nothing here asks a reader to trust a claim this book has not already backed with real code somewhere else. What is genuinely new is the other half of each comparison: the real Python-ecosystem tool a reader coming from that world already knows, each one checked directly against its own official documentation, paper, or source repository rather than against memory -- so a `torch.Tensor` claim traces to PyTorch's own docs, a PagedAttention claim traces to vLLM's own paper, and a RadixAttention claim traces to SGLang's own announcement, exactly as this book's own claims trace to its own chapters. Where the two sides genuinely correspond, this appendix says so plainly; where this book's own real, working code is honestly simpler than its Python-ecosystem counterpart, this appendix says that too, using this book's own stated honest-scope language rather than papering over the gap.
 
 ---
@@ -7,7 +16,7 @@ This appendix builds nothing new in the sense Appendix C did -- there is no fres
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain.](../images/e-overview.svg){: loading="lazy" width="1120" height="470" }
+![Translate familiar framework concepts into engine parts. The representation changes while the underlying responsibilities remain.](../images/e-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Check the book&#x27;s implemented scope before assuming framework feature parity.</figcaption>
 </figure>

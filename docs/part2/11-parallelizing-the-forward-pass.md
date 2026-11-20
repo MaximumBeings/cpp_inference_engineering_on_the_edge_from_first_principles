@@ -31,7 +31,7 @@ Chapter 10 built the primitives — atomics, mutexes, a barrier-synchronized thr
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result.](../images/11-overview.svg){: loading="lazy" width="1120" height="470" }
+![Parallelize the forward pass at independent outputs. Row and head partitions avoid concurrent updates to the same result.](../images/11-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Keep reduction order fixed when bitwise reproducibility is required.</figcaption>
 </figure>

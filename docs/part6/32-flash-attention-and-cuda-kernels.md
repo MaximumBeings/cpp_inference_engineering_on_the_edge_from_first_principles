@@ -30,7 +30,7 @@ This book has built one real inference engine, from `std::mdspan` tensors throug
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory.](../images/32-overview.svg){: loading="lazy" width="1120" height="470" }
+![Tiled attention keeps the score matrix out of global memory. Each query retains running softmax statistics while K/V tiles pass through shared memory.](../images/32-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Validate partial tiles and query blocks against the CPU reference on a physical GPU.</figcaption>
 </figure>

@@ -1,11 +1,20 @@
 # Appendix B: Practice Quiz
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Appendix B: Use the quiz to test a chain of reasoning](../images/chapter-openers/appendix-b.svg)](../images/chapter-openers/appendix-b.svg)
+
+<figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 Every chapter in this book already ends with its own self-check questions and worked solutions, testing that chapter's own material in isolation. This appendix is different: it tests whether the ideas actually connect across Parts -- whether you can look at a KV cache eviction problem and recognize the same underlying shape a re-quantization bug has, or say why a diagnosis-incapable medical report schema and a compile-time no-facial-recognition guarantee are solving the same kind of problem in different domains. B.2 asks fourteen conceptual questions, two from each of this book's seven Parts, with answers in B.3. B.4 raises the stakes: three short, genuinely compiled programs, each built around a specific real mistake this book warned about somewhere -- read the code, commit to a prediction, then compile and run it yourself before reading the revealed output.
 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg){: loading="lazy" width="1120" height="470" }
+![Use the quiz to test a chain of reasoning. Work from the constraints to a defensible implementation decision.](../images/b-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Explain why an answer follows from the constraints.</figcaption>
 </figure>

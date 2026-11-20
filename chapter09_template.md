@@ -31,7 +31,7 @@ Chapter 8 established that a kernel's speed is capped by two independent resourc
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![A dot product across SIMD lanes. Accumulate independent products in a vector register before reducing them.](../images/09-overview.svg){: loading="lazy" width="1120" height="470" }
+![A dot product across SIMD lanes. Accumulate independent products in a vector register before reducing them.](../images/09-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Vector width, alignment, tail elements and ISA support all matter.</figcaption>
 </figure>

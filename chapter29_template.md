@@ -30,7 +30,7 @@ Chapter 28 turned to a claim's own photographic and temporal evidence. This chap
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Monitor transactions with explicit windows. Aggregate event history before combining anomaly signals.](../images/29-overview.svg){: loading="lazy" width="1120" height="470" }
+![Monitor transactions with explicit windows. Aggregate event history before combining anomaly signals.](../images/29-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>An alert needs contextual review; thresholds alone cannot establish money laundering.</figcaption>
 </figure>

@@ -31,7 +31,7 @@ Section 15.4 produced one real, correct, decoded token from a real forward pass 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Turn the forward pass into a command-line engine. Parse input strictly and make capacity and numerical failures visible.](../images/16-overview.svg){: loading="lazy" width="1120" height="470" }
+![Turn the forward pass into a command-line engine. Parse input strictly and make capacity and numerical failures visible.](../images/16-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>A repeated token receives one repetition penalty per sampling step.</figcaption>
 </figure>

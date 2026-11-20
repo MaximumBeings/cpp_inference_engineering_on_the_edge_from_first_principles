@@ -30,7 +30,7 @@ Every chapter so far has assumed tokens already exist as small integers flowing 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![From text to model token IDs. Pre-tokenization and BPE must match the vocabulary used to train the model.](../images/12-overview.svg){: loading="lazy" width="1120" height="470" }
+![From text to model token IDs. Pre-tokenization and BPE must match the vocabulary used to train the model.](../images/12-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Decoding can span multiple tokens for one UTF-8 character.</figcaption>
 </figure>

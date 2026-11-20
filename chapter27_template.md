@@ -29,7 +29,7 @@ Chapter 26 turned to a bank branch or back office processing checks and invoices
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Fit inference into a market-data latency budget. Deadline handling is part of the decision path.](../images/27-overview.svg){: loading="lazy" width="1120" height="470" }
+![Fit inference into a market-data latency budget. Deadline handling is part of the decision path.](../images/27-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>An offline accuracy score does not establish live latency or trading performance.</figcaption>
 </figure>

@@ -31,7 +31,7 @@ Every chapter so far has proven its code correct against data this book's own to
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass.](../images/15-overview.svg){: loading="lazy" width="1120" height="470" }
+![Produce a token from a real checkpoint. Model metadata and tokenizer behavior must agree with the forward pass.](../images/15-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>A synthetic self-test and a real checkpoint run validate different contracts.</figcaption>
 </figure>

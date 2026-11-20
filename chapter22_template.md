@@ -28,7 +28,7 @@ Chapter 21 turned a single photograph into a structured extraction, claim assess
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Combine visual findings with context. Security, accessibility and provenance examples use explicit evidence and review.](../images/22-overview.svg){: loading="lazy" width="1120" height="470" }
+![Combine visual findings with context. Security, accessibility and provenance examples use explicit evidence and review.](../images/22-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>A model&#x27;s description alone does not establish identity, authenticity or intent.</figcaption>
 </figure>

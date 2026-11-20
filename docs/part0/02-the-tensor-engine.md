@@ -27,7 +27,7 @@ Chapter 1 argued that edge inference is a different engineering problem from clo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects.](../images/02-overview.svg){: loading="lazy" width="1120" height="470" }
+![A tensor view describes existing storage. Shape and strides determine which address a multidimensional index selects.](../images/02-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Row-major offset(i, j) = i * columns + j</figcaption>
 </figure>

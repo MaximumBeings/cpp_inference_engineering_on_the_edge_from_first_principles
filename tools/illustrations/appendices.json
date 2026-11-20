@@ -1,0 +1,22 @@
+[
+  {
+    "page": "docs/appendix/a-installation-and-setup.md",
+    "opener": "docs/images/chapter-openers/appendix-a.svg"
+  },
+  {
+    "page": "docs/appendix/b-practice-quiz.md",
+    "opener": "docs/images/chapter-openers/appendix-b.svg"
+  },
+  {
+    "page": "docs/appendix/c-decision-tree-reference.md",
+    "opener": "docs/images/chapter-openers/appendix-c.svg"
+  },
+  {
+    "page": "docs/appendix/d-profiling-and-benchmarking.md",
+    "opener": "docs/images/chapter-openers/appendix-d.svg"
+  },
+  {
+    "page": "docs/appendix/e-rosetta-stone.md",
+    "opener": "docs/images/chapter-openers/appendix-e.svg"
+  }
+]

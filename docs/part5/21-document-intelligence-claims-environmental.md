@@ -30,7 +30,7 @@ Chapter 20 handled a domain where a wrong call costs a delayed diagnosis. This c
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Route evidence through a structured pipeline. Documents, claims and camera images need different preprocessing and decision policies.](../images/21-overview.svg){: loading="lazy" width="1120" height="470" }
+![Route evidence through a structured pipeline. Documents, claims and camera images need different preprocessing and decision policies.](../images/21-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Preserve the source evidence and record uncertainty with each derived result.</figcaption>
 </figure>

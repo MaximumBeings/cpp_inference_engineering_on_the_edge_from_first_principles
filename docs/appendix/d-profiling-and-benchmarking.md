@@ -1,5 +1,14 @@
 # Appendix D: Profiling and Benchmarking on Edge Hardware
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Appendix D: Profile a controlled workload](../images/chapter-openers/appendix-d.svg)](../images/chapter-openers/appendix-d.svg)
+
+<figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 Chapter 32's own opening line makes a promise this appendix now keeps: "this book's own running discipline of never claiming a wall-clock timing result as part of a locked, deterministic self-test contract" is "stated plainly in Appendix D." Every chapter since Chapter 4 has followed that discipline without stopping to defend it at length -- byte counts and FLOP counts get locked and verified across four architectures; milliseconds and GB/s never do. This appendix states the reasoning explicitly, gives it a real formula for computing a theoretical ceiling, a real (deliberately unlocked) way to measure what a machine actually achieves, a real way to turn either into a latency budget, and an honest account of what happened when this book tried to reach for the most obvious real profiling tool -- `perf` -- on its own two real build environments.
 
 ---
@@ -7,7 +16,7 @@ Chapter 32's own opening line makes a promise this appendix now keeps: "this boo
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg){: loading="lazy" width="1120" height="470" }
+![Profile a controlled workload. A measurement only answers the question defined by its boundaries.](../images/d-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Repeat measurements and report distributions rather than one selected timing.</figcaption>
 </figure>

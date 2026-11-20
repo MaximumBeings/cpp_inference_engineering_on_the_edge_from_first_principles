@@ -30,7 +30,7 @@ Every chapter before this one built one real piece of an inference engine and ve
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries.](../images/31-overview.svg){: loading="lazy" width="1120" height="470" }
+![Continuous batching schedules active requests. Retire completed work and admit new requests at iteration boundaries.](../images/31-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>KV capacity, per-step work and fairness constrain admission.</figcaption>
 </figure>

@@ -31,6 +31,9 @@ for chapter in manifest:
     template=ROOT/f"chapter{chapter['chapter']}_template.md"
     if template.exists():
         assert re.findall(r'<!-- edge:.*?:start -->.*?<!-- edge:.*?:end -->',content,re.S)==re.findall(r'<!-- edge:.*?:start -->.*?<!-- edge:.*?:end -->',template.read_text(),re.S),template
+for entry in json.loads((ROOT/'tools/illustrations/appendices.json').read_text()):
+    assert (ROOT/entry['opener']).is_file()
+    assert (ROOT/entry['page']).read_text().count('<!-- edge:opener:start -->')==1
 assert count==171,count
 print('31 chapter openers and 140 section figures pass coverage, XML and accessible-label checks.')
 
@@ -52,5 +55,5 @@ if len(sys.argv)>1:
             assert path.is_relative_to(site) and path.is_file(),(page,image)
             assert image.get('alt'),(page,image)
             found+=1
-    assert found==209,found
-    print('All 209 SVG embeds resolve in the built book and have alt text.')
+    assert found==214,found
+    print('All 214 SVG embeds resolve in the built book and have alt text.')

@@ -30,7 +30,7 @@ Chapter 13 gave every future chapter a KV cache that pages efficiently, wraps wi
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Reuse and limit live KV state. Windowing, requantization and prefix reuse trade capacity for work or precision.](../images/14-overview.svg){: loading="lazy" width="1120" height="470" }
+![Reuse and limit live KV state. Windowing, requantization and prefix reuse trade capacity for work or precision.](../images/14-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Prefix sharing requires compatible model state and careful reference lifetimes.</figcaption>
 </figure>

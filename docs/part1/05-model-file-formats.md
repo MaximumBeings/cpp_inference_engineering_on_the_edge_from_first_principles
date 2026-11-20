@@ -29,7 +29,7 @@ Chapters 2 through 4 built every mechanism a transformer's forward pass needs â€
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Load model tensors without copying their payload. The file reader validates metadata before exposing mapped tensor ranges.](../images/05-overview.svg){: loading="lazy" width="1120" height="470" }
+![Load model tensors without copying their payload. The file reader validates metadata before exposing mapped tensor ranges.](../images/05-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Validate every size and byte range before reading a tensor.</figcaption>
 </figure>

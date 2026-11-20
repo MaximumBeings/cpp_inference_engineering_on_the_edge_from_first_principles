@@ -29,7 +29,7 @@ This chapter closes Part 5 with two cameras that see far more of a person's life
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording.](../images/25-overview.svg){: loading="lazy" width="1120" height="470" }
+![Sample camera streams into reviewable evidence. Frame sampling and timestamps connect model findings to the source recording.](../images/25-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Keep the original recording and its provenance alongside generated descriptions.</figcaption>
 </figure>

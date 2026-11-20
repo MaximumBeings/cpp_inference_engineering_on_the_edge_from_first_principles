@@ -31,7 +31,7 @@ Every kernel in this book so far has been judged by what it computes and how acc
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel.](../images/08-overview.svg){: loading="lazy" width="1120" height="470" }
+![The roofline bounds attainable throughput. Operational intensity determines whether memory bandwidth or compute limits a kernel.](../images/08-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Decode GEMV often has low intensity; batching can improve weight reuse.</figcaption>
 </figure>

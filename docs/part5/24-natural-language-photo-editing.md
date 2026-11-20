@@ -29,7 +29,7 @@ Every chapter since Chapter 18 has built a real technique that turns an unstruct
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Translate an edit request into image operations. A validated operation plan connects natural language with the image processor.](../images/24-overview.svg){: loading="lazy" width="1120" height="470" }
+![Translate an edit request into image operations. A validated operation plan connects natural language with the image processor.](../images/24-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Validate the plan before it reaches cv::Mat operations.</figcaption>
 </figure>

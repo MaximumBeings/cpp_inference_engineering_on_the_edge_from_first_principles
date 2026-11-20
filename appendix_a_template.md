@@ -1,5 +1,14 @@
 # Appendix A: Installation and Setup -- Cross-Compiling for the Edge
 
+<!-- edge:opener:start -->
+<figure class="chapter-figure" markdown="1">
+
+[![Appendix A: Cross-compile, then execute the target binary](../images/chapter-openers/appendix-a.svg)](../images/chapter-openers/appendix-a.svg)
+
+<figcaption>Appendix roadmap. Open the image for a full-size view.</figcaption>
+</figure>
+<!-- edge:opener:end -->
+
 **What you will understand by the end of this appendix:**
 
 - How to install a real, working `aarch64-linux-gnu-g++` cross-compilation toolchain and `qemu-user` on an x86_64 Ubuntu 24.04 development machine -- the identical real toolchain this book's own build-verify-lock pipeline has used for every chapter's own cross-architecture check, from Chapter 2 onward.
@@ -20,7 +29,7 @@ Every chapter in this book compiled and ran identically on an x86_64 development
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg){: loading="lazy" width="1120" height="470" }
+![Cross-compile, then execute the target binary. Compilation and execution are distinct stages of target validation.](../images/a-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Registered binfmt emulation can execute an Arm ELF without an explicit CTest emulator.</figcaption>
 </figure>

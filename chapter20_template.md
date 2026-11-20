@@ -30,7 +30,7 @@ Chapter 18 taught a vision-language model to inspect a manufactured part and dec
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Medical triage with a human review gate. The examples illustrate workflow plumbing; clinical deployment requires separate validation.](../images/20-overview.svg){: loading="lazy" width="1120" height="470" }
+![Medical triage with a human review gate. The examples illustrate workflow plumbing; clinical deployment requires separate validation.](../images/20-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Automated triage output requires clinical review and deployment-specific validation.</figcaption>
 </figure>

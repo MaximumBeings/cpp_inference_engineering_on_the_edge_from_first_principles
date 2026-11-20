@@ -29,7 +29,7 @@ Chapter 27 turned to a hard, real-time deadline. This chapter turns to a genuine
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition.](../images/28-overview.svg){: loading="lazy" width="1120" height="470" }
+![Assess a claim using multiple consistency checks. Photo evidence and policy context feed a reviewable disposition.](../images/28-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>A fraud flag is an uncertainty-bearing signal for review.</figcaption>
 </figure>

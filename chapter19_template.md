@@ -30,7 +30,7 @@ Chapter 18 taught a vision-language model to inspect a single manufactured part 
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram.](../images/19-overview.svg){: loading="lazy" width="1120" height="470" }
+![Turn shelf images into inventory evidence. Keep observed items linked to their store, image and expected planogram.](../images/19-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Separate observed image evidence from inferred stock availability.</figcaption>
 </figure>

@@ -29,7 +29,7 @@ Chapter 5 built one quantization pipeline and applied it the same way to every t
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Use precision where it matters. Different tensor classes have different error sensitivity and storage cost.](../images/06-overview.svg){: loading="lazy" width="1120" height="470" }
+![Use precision where it matters. Different tensor classes have different error sensitivity and storage cost.](../images/06-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>The memory budget is the sum of each tensor&#x27;s actual encoded size.</figcaption>
 </figure>

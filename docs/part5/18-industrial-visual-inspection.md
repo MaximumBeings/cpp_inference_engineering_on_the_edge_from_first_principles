@@ -30,7 +30,7 @@ Every earlier chapter's real file was already sitting on disk before this book's
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![A manufacturing inspection decision path. Model output is one input to a disposition policy.](../images/18-overview.svg){: loading="lazy" width="1120" height="470" }
+![A manufacturing inspection decision path. Model output is one input to a disposition policy.](../images/18-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Confidence and model output require validation before actuating a production workflow.</figcaption>
 </figure>

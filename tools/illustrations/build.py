@@ -200,12 +200,34 @@ def render(spec,section):
     b,height=note(b,end,caption)
     return svg(title,caption,b,height)
 
+
+def render_overview(spec,key):
+    title,description,nodes,caption=spec
+    b=txt(32,36,'C++ INFERENCE AT THE EDGE  /  OVERVIEW',13,TEAL,700)
+    title_lines=len(textwrap.wrap(title,46))
+    b+=wrap(32,78,title,27,46,weight=600,step=34)
+    subtitle_y=78+(title_lines-1)*34+38
+    b+=wrap(32,subtitle_y,description,18,72,MUTED,step=26)
+    top=subtitle_y+(len(textwrap.wrap(description,72))-1)*26+42
+    coords=[(32,top),(408,top),(408,top+214),(32,top+214)]
+    for i,(label,detail) in enumerate(nodes):
+        x,y=coords[i]
+        b+=rect(x,y,320,184,'#fff')
+        b+=txt(x+18,y+27,f'{i+1:02}',13,ORANGE,700)
+        b+=wrap(x+18,y+59,label,21,25,weight=600,step=28)
+        b+=wrap(x+18,y+113,detail,18,28,MUTED,step=25)
+    b+=arrow(356,top+78,402,top+78)
+    b+=arrow(568,top+188,568,top+208)
+    b+=arrow(404,top+292,358,top+292)
+    b,height=note(b,top+424,caption)
+    return svg(title,description+' '+caption,b,height)
+
 def opener(key,page):
     raw=re.search(r'^# (.+)',page.read_text(),re.M)[1]
-    title=re.sub(r'^Chapter \d+:\s*','',raw).split(' -- ')[0]
+    title=re.sub(r'^(Chapter \d+|Appendix [A-E]):\s*','',raw).split(' -- ')[0]
     lines=textwrap.wrap(title,36)
-    accent=['#8ed5c4','#f3b486','#b8b4ec'][int(key)%3]
-    b=txt(32,38,f'C++ INFERENCE AT THE EDGE  /  CHAPTER {int(key):02}',13,'#bdc9df',700)
+    accent=['#8ed5c4','#f3b486','#b8b4ec'][(int(key) if key.isdigit() else ord(key))%3]
+    b=txt(32,38,f'C++ INFERENCE AT THE EDGE  /  '+(f'CHAPTER {int(key):02}' if key.isdigit() else f'APPENDIX {key.upper()}'),13,'#bdc9df',700)
     b+='<path d="M32 57 H728" stroke="#45516c"/>'
     b+=wrap(32,105,title,34,36,'#f5f4fa',500,43)
     top=105+(len(lines)-1)*43+56
@@ -267,11 +289,24 @@ def main():
                 value=value.replace(header+'\n',header+'\n\n'+fig+'\n',1)
             target.write_text(value)
         manifest.append({'chapter':key,'page':str(page.relative_to(ROOT)),'opener':str(opener_path.relative_to(ROOT)),'concepts':[{'section':section,'asset':str(path.relative_to(ROOT)),'layout':spec[0]} for section,_,spec,path in paths]})
+    appendices=[]
+    for page in sorted((ROOT/'docs/appendix').glob('*.md')):
+        key=page.name[0]
+        path=ROOT/f'docs/images/chapter-openers/appendix-{key}.svg'
+        path.write_text(opener(key,page));assets.append(path)
+        template=ROOT/f'appendix_{key}_template.md'
+        for target in [page,template]:
+            content=re.sub(r'<!-- edge:opener:start -->.*?<!-- edge:opener:end -->\s*','',target.read_text(),flags=re.S)
+            at=content.index('\n')
+            content=content[:at]+'\n\n'+figure(f'../images/chapter-openers/appendix-{key}.svg',f'Appendix {key.upper()}: '+SPECS[key][0],'Appendix roadmap. Open the image for a full-size view.','opener')+'\n'+content[at:].lstrip('\n')
+            target.write_text(content)
+        appendices.append({'page':str(page.relative_to(ROOT)),'opener':str(path.relative_to(ROOT))})
+    (ROOT/'tools/illustrations/appendices.json').write_text(json.dumps(appendices,indent=2)+'\n')
     for path in assets:
         root=ET.parse(path).getroot()
         assert root.find('{http://www.w3.org/2000/svg}title') is not None
         assert root.find('{http://www.w3.org/2000/svg}desc') is not None
     (ROOT/'tools/illustrations/manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
-    print(f'Generated {len(chapters)} chapter openers and {len(assets)-len(chapters)} section diagrams.')
+    print(f'Generated {len(chapters)} chapter openers and {len(assets)-len(chapters)-len(appendices)} section diagrams, plus {len(appendices)} appendix openers.')
 
 if __name__=='__main__':main()

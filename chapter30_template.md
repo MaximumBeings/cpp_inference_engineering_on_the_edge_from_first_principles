@@ -31,7 +31,7 @@ Every chapter before this one built a working system and verified it against the
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures.](../images/30-overview.svg){: loading="lazy" width="1120" height="470" }
+![Connect the math to kernel behavior. Derivations should predict the quantities the implementation measures.](../images/30-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Use the mathematical assumptions explicitly when interpreting measurements.</figcaption>
 </figure>

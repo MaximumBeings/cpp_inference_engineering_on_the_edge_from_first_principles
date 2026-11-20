@@ -27,7 +27,7 @@ Chapter 2 gave this book the tools to describe and allocate tensors; this chapte
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Inside a transformer block. Residual paths carry the input around attention and the feed-forward network.](../images/03-overview.svg){: loading="lazy" width="1120" height="470" }
+![Inside a transformer block. Residual paths carry the input around attention and the feed-forward network.](../images/03-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Attention(Q, K, V) = softmax(QK^T / sqrt d) V</figcaption>
 </figure>

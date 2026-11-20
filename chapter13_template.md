@@ -30,7 +30,7 @@ Every chapter through Part 2 asked how fast the CPU could compute a forward pass
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![The KV cache preserves attention history. New tokens append keys and values; each query reads the retained history.](../images/13-overview.svg){: loading="lazy" width="1120" height="470" }
+![The KV cache preserves attention history. New tokens append keys and values; each query reads the retained history.](../images/13-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>KV bytes = layers * tokens * KV heads * head dimension * 2 * bytes per element</figcaption>
 </figure>

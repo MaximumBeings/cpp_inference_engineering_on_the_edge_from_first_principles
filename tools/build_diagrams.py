@@ -229,6 +229,10 @@ def prose(value):
     return unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode()
 
 def main():
+    # Use the same 760-unit layout and typography as the section diagrams.
+    import sys
+    sys.path.insert(0, str(ROOT / 'tools/illustrations'))
+    from build import render_overview
     pages=[ROOT/'docs/index.md',ROOT/'docs/getting-started.md']
     pages+=sorted((ROOT/'docs').glob('part*/*.md'))
     pages+=sorted((ROOT/'docs/appendix').glob('*.md'))
@@ -238,12 +242,12 @@ def main():
         folder=ROOT/'docs/images'
         folder.mkdir(exist_ok=True)
         asset=f'{key}-overview.svg'
-        (folder/asset).write_text(CUSTOM.get(key,pipeline)(spec))
+        (folder/asset).write_text(render_overview(spec,key))
         relative='images/' if page.parent==ROOT/'docs' else '../images/'
         figure=f'''<!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![{esc(prose(spec[0]+'. '+spec[1]))}]({relative}{asset}){{: loading="lazy" width="1120" height="470" }}
+![{esc(prose(spec[0]+'. '+spec[1]))}]({relative}{asset}){{: loading="lazy" width="760" }}
 
   <figcaption>{esc(prose(spec[3]))}</figcaption>
 </figure>

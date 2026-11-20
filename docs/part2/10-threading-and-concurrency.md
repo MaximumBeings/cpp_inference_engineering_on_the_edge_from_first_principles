@@ -31,7 +31,7 @@ Chapter 9 showed how a single core reaches its peak compute, one SIMD instructio
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization.](../images/10-overview.svg){: loading="lazy" width="1120" height="470" }
+![Share work without racing on state. Workers coordinate ownership and publication through explicit synchronization.](../images/10-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>A data race is undefined behavior; volatile does not provide thread synchronization.</figcaption>
 </figure>

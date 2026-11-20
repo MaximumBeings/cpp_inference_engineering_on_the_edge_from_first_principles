@@ -30,7 +30,7 @@ Chapter 16 produced a complete, working, self-contained production engine -- a r
 <!-- chapter-figure -->
 <figure class="chapter-figure" markdown="1">
 
-![Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated.](../images/17-overview.svg){: loading="lazy" width="1120" height="470" }
+![Measure the full request lifecycle. Warm-up and the measured decode interval must be explicitly separated.](../images/17-overview.svg){: loading="lazy" width="760" }
 
   <figcaption>Report model, hardware, flags and measurement boundaries with every comparison.</figcaption>
 </figure>
